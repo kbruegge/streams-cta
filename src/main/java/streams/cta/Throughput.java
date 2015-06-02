@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import stream.AbstractProcessor;
 import stream.Data;
+import stream.ProcessContext;
 import stream.data.DataFactory;
 
 /**
@@ -21,24 +22,22 @@ public class Throughput extends AbstractProcessor {
 
 	static Logger log = LoggerFactory.getLogger(Throughput.class);
 
-	final static List<Data> measurements = new ArrayList<Data>();
+	long pixelCount = 0L;
 
-	String id = "?";
-	Long count = 0L;
-	Long first = null;
-	Long last = System.currentTimeMillis();
 
-	/**
+
+    @Override
+    public void init(ProcessContext ctx) throws Exception {
+        super.init(ctx);
+    }
+
+    /**
 	 * @see stream.Processor#process(stream.Data)
 	 */
 	@Override
 	public Data process(Data input) {
-		if (first == null) {
-			first = System.currentTimeMillis();
-		}
-
-		count++;
-		last = System.currentTimeMillis();
+        CTAEvent ev = (CTAEvent) input.get("@event");
+		pixelCount += ev.numberOfPixels;
 		return input;
 	}
 
@@ -48,27 +47,6 @@ public class Throughput extends AbstractProcessor {
 	@Override
 	public void finish() throws Exception {
 		super.finish();
-
-		if (System.getProperty("type") != null) {
-			id = System.getProperty("type");
-		}
-
-		Long time = last - first;
-		Double rate = (count.doubleValue() / (1 + (time.doubleValue() / 1000.0)));
-
-		Data measure = DataFactory.create();
-		measure.put("id", id);
-		measure.put("start", first);
-		measure.put("end", last);
-		measure.put("count", count);
-		measure.put("rate", rate);
-
-		measurements.add(measure);
-
-		log.info("Measured throughput of {} elements.", count);
-		log.info("Total time was {} ms.", time);
-
-		log.info("Data rate was {} evts/second", rate);
 	}
 
 }
