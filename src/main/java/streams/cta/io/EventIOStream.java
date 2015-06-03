@@ -27,6 +27,7 @@ public class EventIOStream extends AbstractStream {
             required = false,
             description = "This value defines the size of the buffer of the BufferedInputStream",
             defaultValue = "8*1024")
+
     private int bufferSize = 8 * 1024;
 
     public void setBufferSize(int bufferSize) {
@@ -74,8 +75,6 @@ public class EventIOStream extends AbstractStream {
             countMarkers++;
         }
         log.info("found " + countMarkers + " markers");
-        // 4 bytes = 8 hex numbers
-        // 1 byte = 8 bit = 2 * 4 bit = 2 * 1 hex
     }
 
     // taken from FitsStream: end
