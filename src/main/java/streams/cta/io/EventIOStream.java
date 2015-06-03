@@ -133,6 +133,7 @@ public class EventIOStream extends AbstractStream {
             bytes = reverseByteArray(bytes);
         }
         int length = byteArrayToInt(bytes);
+        // TODO length parameter longer than the rest of the data?
 
         // read extension if given
         if (extended) {
