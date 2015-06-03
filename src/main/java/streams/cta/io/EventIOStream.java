@@ -181,9 +181,12 @@ public class EventIOStream extends AbstractStream {
     }
 
     /**
+     * Try to find the next synchronisation marker "D41F8A37" or its reverse.
+     * In case the reverse marker was found, the upcoming data block and
+     * its header should be handled in the proper way (reverse the bytes).
      *
-     * @param dataStream
-     * @return
+     * @param dataStream DataInputStream to be inspected
+     * @return true, if marker was found; otherwise false.
      */
     private boolean findSynchronisationMarker(DataInputStream dataStream) {
         int firstBit = 0;
