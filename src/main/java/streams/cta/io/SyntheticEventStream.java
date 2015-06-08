@@ -4,12 +4,13 @@
 package streams.cta.io;
 
 import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
 import java.util.Random;
 
 import stream.Data;
 import stream.data.DataFactory;
 import stream.io.AbstractStream;
-import streams.cta.CTAEvent;
+import streams.cta.TelescopeEvent;
 
 /**
  * @author chris
@@ -22,7 +23,10 @@ public class SyntheticEventStream extends AbstractStream {
 
 	Random random = new Random();
     byte[] randomBytes;
-    short[] data;
+    short[][] data;
+    int[] pixelIds;
+
+    long eventId = 1;
 
 	/**
 	 * @see stream.io.AbstractStream#init()
@@ -30,8 +34,6 @@ public class SyntheticEventStream extends AbstractStream {
 	@Override
 	public void init() throws Exception {
 		super.init();
-        randomBytes = new byte[numberOfPixels*numberOfSlices*2];
-        data = new short[numberOfPixels*numberOfSlices];
 	}
 
 	/**
@@ -39,12 +41,29 @@ public class SyntheticEventStream extends AbstractStream {
 	 */
 	@Override
 	public Data readNext() throws Exception {
-        random.nextBytes(randomBytes);
-        ByteBuffer.wrap(randomBytes).asShortBuffer().get(data);
 
-		CTAEvent evt = new CTAEvent(numberOfPixels, data);
+        numberOfPixels = random.nextInt(2200);
+        data = new short[numberOfPixels][numberOfSlices];
+
+        for (int pixel = 0; pixel < numberOfPixels; pixel++) {
+            randomBytes = new byte[numberOfSlices*2];
+            random.nextBytes(randomBytes);
+            ByteBuffer.wrap(randomBytes).asShortBuffer().get(data[pixel]);
+        }
+
+
+        pixelIds = new int[numberOfPixels];
+        int startId = random.nextInt(2200 - numberOfPixels);
+
+        for (short i = 0; i < pixelIds.length; i++) {
+            pixelIds[i] = startId + i;
+        }
+
+		TelescopeEvent evt = new TelescopeEvent(eventId, numberOfPixels, pixelIds, data, LocalDateTime.now());
 		Data item = DataFactory.create();
 		item.put("@event", evt);
+
+        eventId++;
 		return item;
 	}
 }

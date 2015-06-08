@@ -2,7 +2,6 @@ package streams.cta;
 
 import stream.Data;
 import stream.ProcessContext;
-import stream.Processor;
 import stream.StatefulProcessor;
 
 /**
@@ -26,9 +25,9 @@ public abstract class CTAProcessor implements StatefulProcessor {
 
     @Override
     public Data process(Data input) {
-        CTAEvent ctaEvent = (CTAEvent) input.get("@event");
-        return process(input, ctaEvent);
+        TelescopeEvent telescopeEvent = (TelescopeEvent) input.get("@event");
+        return process(input, telescopeEvent);
     }
 
-    public abstract Data process(Data input, CTAEvent ctaEvent);
+    public abstract Data process(Data input, TelescopeEvent telescopeEvent);
 }

@@ -3,16 +3,12 @@
  */
 package streams.cta;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import stream.AbstractProcessor;
 import stream.Data;
 import stream.ProcessContext;
-import stream.data.DataFactory;
 
 /**
  * @author chris
@@ -36,7 +32,7 @@ public class Throughput extends AbstractProcessor {
 	 */
 	@Override
 	public Data process(Data input) {
-        CTAEvent ev = (CTAEvent) input.get("@event");
+        TelescopeEvent ev = (TelescopeEvent) input.get("@event");
 		pixelCount += ev.numberOfPixels;
 		return input;
 	}
