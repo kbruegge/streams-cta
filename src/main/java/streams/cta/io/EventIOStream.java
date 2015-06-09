@@ -2,16 +2,21 @@ package streams.cta.io;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
 import stream.Data;
 import stream.annotations.Parameter;
 import stream.data.DataFactory;
 import stream.io.AbstractStream;
 import stream.io.SourceURL;
 import streams.cta.CTAEvent;
-
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 /**
  * Created by alexey on 02.06.15.
@@ -31,11 +36,11 @@ public class EventIOStream extends AbstractStream {
 
     private int bufferSize = 8 * 1024;
 
-    public EventIOStream (SourceURL url) {
+    public EventIOStream(SourceURL url) {
         super(url);
     }
 
-    public EventIOStream () {
+    public EventIOStream() {
         super();
     }
 
@@ -81,9 +86,9 @@ public class EventIOStream extends AbstractStream {
     }
 
     /**
-     * Try to find the next synchronisation marker "D41F8A37" or its reverse.
-     * In case the reverse marker was found, the upcoming data block and
-     * its header should be handled in the proper way (reverse the bytes).
+     * Try to find the next synchronisation marker "D41F8A37" or its reverse. In case the reverse
+     * marker was found, the upcoming data block and its header should be handled in the proper way
+     * (reverse the bytes).
      *
      * @param dataStream DataInputStream to be inspected
      * @return true, if marker was found; otherwise false.
@@ -138,6 +143,7 @@ public class EventIOStream extends AbstractStream {
 
     /**
      * Calculate integer value of a byte array with a length of 4
+     *
      * @param b byte array
      * @return integer value of a byte array
      */
@@ -162,10 +168,8 @@ public class EventIOStream extends AbstractStream {
     }
 
     /**
-     * Header of EventIO file
-     * This class should read the header in front of the
-     * data block in EventIO and determine some essential information
-     * as type, length and identification.
+     * Header of EventIO file This class should read the header in front of the data block in
+     * EventIO and determine some essential information as type, length and identification.
      */
     class EventIOHeader {
 
@@ -174,7 +178,7 @@ public class EventIOStream extends AbstractStream {
         String identification;
         DataInputStream dataInputStream;
 
-        public EventIOHeader (DataInputStream dataInputStream) {
+        public EventIOHeader(DataInputStream dataInputStream) {
             this.dataInputStream = dataInputStream;
             length = -1;
             type = "";
@@ -183,8 +187,6 @@ public class EventIOStream extends AbstractStream {
 
         /**
          * Read EventIO defined header consisting of 3 - 4 fields of 4 bytes each
-         *
-         * @throws IOException
          */
         private void readHeader() throws IOException {
             //log.info("Datastream available: \t" + dataStream.available());
