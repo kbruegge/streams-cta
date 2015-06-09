@@ -30,16 +30,16 @@ public class EventIOStream extends AbstractStream {
 
     private int bufferSize = 8 * 1024;
 
-    public void setBufferSize(int bufferSize) {
-        this.bufferSize = bufferSize;
-    }
-
     public EventIOStream (SourceURL url) {
         super(url);
     }
 
     public EventIOStream () {
         super();
+    }
+
+    public void setBufferSize(int bufferSize) {
+        this.bufferSize = bufferSize;
     }
 
     @Override
