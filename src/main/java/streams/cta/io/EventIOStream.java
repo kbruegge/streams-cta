@@ -39,10 +39,6 @@ public class EventIOStream extends AbstractStream {
         super();
     }
 
-    public void setBufferSize(int bufferSize) {
-        this.bufferSize = bufferSize;
-    }
-
     @Override
     public void init() throws Exception {
         super.init();
@@ -93,7 +89,7 @@ public class EventIOStream extends AbstractStream {
      * @return true, if marker was found; otherwise false.
      */
     private boolean findSynchronisationMarker(DataInputStream dataStream) {
-
+        // TODO: can we make it faster by reading the stream byte by byte?
         // find_io_block in eventio.c
 //        int firstBit = 0;
 //        int reverse = 1;
@@ -159,6 +155,10 @@ public class EventIOStream extends AbstractStream {
 
     private void setReverse(boolean reverse) {
         this.reverse = reverse;
+    }
+
+    public void setBufferSize(int bufferSize) {
+        this.bufferSize = bufferSize;
     }
 
     /**
