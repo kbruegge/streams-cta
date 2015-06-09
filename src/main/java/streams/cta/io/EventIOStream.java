@@ -6,8 +6,10 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -61,6 +63,10 @@ public class EventIOStream extends AbstractStream {
                 url.openStream(),
                 bufferSize);
         dataStream = new DataInputStream(bStream);
+
+        // import the registered types
+        InputStream fileInput = EventIOStream.class.getResourceAsStream("/EventioRegisteredNames.dat");
+
     }
 
     @Override
