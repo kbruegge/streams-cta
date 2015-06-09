@@ -42,7 +42,7 @@ public class SyntheticEventStream extends AbstractStream {
 	@Override
 	public Data readNext() throws Exception {
 
-		short[] data = new short[numberOfPixels * numberOfSlices];
+		byte[] data = new byte[numberOfPixels * numberOfSlices];
 
 		for (int i = 0; i < data.length; i++) {
 			data[i] = 0;
