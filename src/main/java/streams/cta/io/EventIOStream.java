@@ -4,10 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stream.Data;
 import stream.annotations.Parameter;
+import stream.data.DataFactory;
 import stream.io.AbstractStream;
 import stream.io.SourceURL;
+import streams.cta.CTAEvent;
 
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * Created by alexey on 02.06.15.
@@ -96,34 +100,46 @@ public class EventIOStream extends AbstractStream {
      * @return true, if marker was found; otherwise false.
      */
     private boolean findSynchronisationMarker(DataInputStream dataStream) {
-        int firstBit = 0;
-        int reverse = 1;
-        int state = 0;
-        String[] hexArray = {"d4", "1f", "8a", "37"};
+
+        // find_io_block in eventio.c
+//        int firstBit = 0;
+//        int reverse = 1;
+//        int state = 0;
+        byte[] bytes = new byte[4];
+        int syncNormalOrderInt = 0xD41F8A37;
+        int syncReverseOrderInt = 0x378A1FD4;
         try {
             while (dataStream.available() > 0) {
-                byte b = dataStream.readByte();
-                int i = b & 0xFF;
-                String hex = Integer.toHexString(i);
-                if (firstBit == 0) {
-                    if (hex.equals(hexArray[0])) {
-                        firstBit = 1;
-                        state = 1;
-                    } else if (hex.equals(hexArray[3])) {
-                        firstBit = 1;
-                        state = 2;
-                        reverse = -1;
-                        log.info("Reverse datablock");
-                        setReverse(true);
-                    }
-                } else {
-                    if (hex.equals(hexArray[state])) {
-                        state += reverse;
-                    }
-                }
-                if (state < 0 || state > 3) {
+                dataStream.read(bytes);
+                int intBytes = byteArrayToInt(bytes);
+                if (intBytes == syncNormalOrderInt) {
+                    return true;
+                } else if (intBytes == syncReverseOrderInt) {
+                    setReverse(true);
                     return true;
                 }
+//                int i = b & 0xFF;
+//                String hex = Integer.toHexString(i);
+//                if (firstBit == 0) {
+//                    if (hex.equals(hexArray[0])) {
+//                        firstBit = 1;
+//                        state = 1;
+//                    } else if (hex.equals(hexArray[3])) {
+//                        firstBit = 1;
+//                        state = 2;
+//                        reverse = -1;
+//                        log.info("Reverse datablock");
+//                        setReverse(true);
+//                    }
+//                } else {
+//                    if (hex.equals(hexArray[state])) {
+//                        state += reverse;
+//                    }
+//                }
+//
+//                if (state < 0 || state > 3) {
+//                    return true;
+//                }
             }
         } catch (IOException e) {
             e.printStackTrace();
