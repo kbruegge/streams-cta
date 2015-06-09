@@ -60,21 +60,6 @@ public class EventIOStream extends AbstractStream {
                 bufferSize);
         dataStream = new DataInputStream(bStream);
         dataStream.mark(MAX_HEADER_BYTES);      // mark the start position
-
-        // now we want to find the synchronisation marker
-        // D41F8A37 or 378A1FD4
-        boolean markerFound = true;
-        int countMarkers = 0;
-        while (markerFound) {
-            markerFound = findSynchronisationMarker(dataStream);
-
-            // detect header if a top-level marker was found
-            if (markerFound) {
-                readHeader();
-            }
-            countMarkers++;
-        }
-        log.info("found " + countMarkers + " markers");
     }
 
     // taken from FitsStream: end
@@ -138,8 +123,24 @@ public class EventIOStream extends AbstractStream {
         // read extension if given
         if (extended) {
             log.info("Extension exists.");
+    @Override
+    public Data readNext() throws Exception {
+        // now we want to find the synchronisation marker
+        // D41F8A37 or 378A1FD4
+        boolean markerFound = findSynchronisationMarker(dataStream);
+
+        // detect header if a top-level marker was found
+        if (markerFound) {
+            EventIOHeader header = new EventIOHeader(dataStream);
+            header.readHeader();
             // TODO dont skip
-            dataStream.skipBytes(4);
+            byte[] bytes = new byte[header.length];
+            dataStream.read(bytes); // skipBytes(header.length);
+            CTAEvent event = new CTAEvent(0, bytes);
+            Data item = DataFactory.create();
+            item.put("@event", event);
+            reverse = false;
+            return item;
         }
 
         log.info("Data block length: \t" + length + "\n");
