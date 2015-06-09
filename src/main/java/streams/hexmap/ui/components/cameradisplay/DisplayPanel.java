@@ -47,7 +47,6 @@ public class DisplayPanel extends JPanel implements EventObserver {
 	private final Set<Class<? extends ColorMapping>> colorMapClasses;
 
 	public void setItemToDisplay(String key, Data item) {
-		hexmap.defaultKey = key;
 		hexmap.handleEventChange(new ItemChangedEvent(item, (TelescopeEvent) item.get("@event")));
 	}
 

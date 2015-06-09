@@ -4,27 +4,18 @@ import streams.hexmap.ui.colormaps.ColorMapping;
 
 public interface PixelMapDisplay {
 
-    public void setColorMap(ColorMapping m);
+    void setColorMap(ColorMapping m);
 
     /**
      * A PixelMap has a number of tiles it can display. In case of the PixelMap for the fact camera this would be 1440 pixel
      * @return the number of tiles displayed
      */
-    public int getNumberOfTiles();
+    int getNumberOfTiles();
 
-    /**
-     *
-     */
-    public int getWidth();
+    int getWidth();
 
-    /**
-     *
-     */
-    public int getHeight();
+    int getHeight();
 
-    /**
-     *
-     */
-    public Tile[] getTiles();
+    Tile[] getTiles();
 
 }

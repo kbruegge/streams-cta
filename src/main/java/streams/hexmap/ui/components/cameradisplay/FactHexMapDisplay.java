@@ -4,7 +4,6 @@
 package streams.hexmap.ui.components.cameradisplay;
 
 import com.google.common.eventbus.Subscribe;
-import streams.Utils;
 import streams.cta.TelescopeEvent;
 import streams.hexmap.CameraPixel;
 import streams.hexmap.FactCameraPixel;
@@ -30,35 +29,30 @@ import java.awt.geom.AffineTransform;
 import java.text.DecimalFormat;
 import java.util.*;
 
-import static com.google.common.primitives.Doubles.max;
-import static com.google.common.primitives.Doubles.min;
-
 /**
  * This implements a PixelMap to draw a grid of hexagons as seen in the camera
  * of the fact telescope The hexagons are equally spaced and sized. Orientated
  * with one edge on the bottom. Also has a colorbar next to it.
  * 
  */
-public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,
-		SliceObserver, MouseListener, EventObserver {
-	/** The unique class ID */
-	private static final long serialVersionUID = -4015808725138908874L;
+public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserver, MouseListener, EventObserver {
 
 	static Logger log = LoggerFactory.getLogger(FactHexMapDisplay.class);
-	private final double radius;
 
-	FactHexTile tiles[];
+	//camera specific informations
+	private final double PIXEL_RADIUS = 7;
+    private final int NUMBER_OF_CAMERA_PIXEL = 1440;
+    final private FactPixelMapping pixelMapping;
 
-	// initialize the hexagonal grid.
+    FactHexTile tiles[];
+
 	int canvasWidth;
 	int canvasHeight;
-
 	int rows = 0, cols = 0;
 
-	Set<FactCameraPixel> selectedPixels = new LinkedHashSet<FactCameraPixel>();
+	public double[][] sliceValues = new double[NUMBER_OF_CAMERA_PIXEL][1024];
 
-	public double[][] sliceValues = new double[1440][1024];
-	int currentSlice = 0;
+    int currentSlice = 0;
 
 	// the dataItem to display
 	private Data dataItem;
@@ -71,16 +65,14 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,
 	// the colormap of this display and the scale next to the map
 	private ColorMapping colormap = new GrayScaleColorMapping();
 
-	final private FactPixelMapping pixelMapping;
 
 	private ArrayList<CameraMapOverlay> overlays = new ArrayList<>();
 	private Set<Pair<String, Color>> overlayKeys = new HashSet<>();
+	Set<FactCameraPixel> selectedPixels = new LinkedHashSet<>();
 
 	// formater to display doubles nicely
 	DecimalFormat fmt = new DecimalFormat("#.##");
 
-	// a default key
-	public String defaultKey;
 	private boolean patchSelectionMode;
 
 	private boolean drawScaleNumbers = true;
@@ -90,19 +82,21 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,
 	private int offsetX = 0;
 	private int offsetY = 0;
 
+    private final double scale;
+
 	/**
 	 * A Hexagon in this case is defined by the passed radius. The radius of the
 	 * circle that fits into the hexagon can be calculated by sqrt(3)/2 * (outter radius)
 	 * 
-	 * @param radius
-	 *            the radius of the circle the hexagon should fit into
+	 * @param scale A scaling factor to change the size of the drawn pixels.
+	 *
 	 */
-	public FactHexMapDisplay(double radius, int canvasWidth, int canvasHeight,
+	public FactHexMapDisplay(double scale, int canvasWidth, int canvasHeight,
 			boolean mouseAction) {
 
 		Bus.eventBus.register(this);
 
-		this.radius = radius;
+		this.scale = scale;
 		this.pixelMapping = FactPixelMapping.getInstance();
 		this.canvasHeight = canvasHeight;
 		this.canvasWidth = canvasWidth;
@@ -111,19 +105,18 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,
 
 		tiles = new FactHexTile[pixelMapping.getNumberOfPixel()];
 		for (int i = 0; i < tiles.length; i++) {
-			FactHexTile t = new FactHexTile(pixelMapping.getPixelFromId(i),
-					radius);
+			FactHexTile t = new FactHexTile(pixelMapping.getPixelFromId(i), PIXEL_RADIUS*this.scale);
 			tiles[i] = t;
 		}
 
 		if (mouseAction) {
-			// add the mosuelistener so we can react to mouse clicks on the hexmap
+			// add the mouse listener so we can react to mouse clicks on the hexmap
 			this.addMouseListener(this);
 		}
 	}
 
-	public FactHexMapDisplay(double radius, int canvasWidth, int canvasHeight) {
-		this(radius, canvasWidth, canvasHeight, true);
+	public FactHexMapDisplay(double scale, int canvasWidth, int canvasHeight) {
+		this(scale, canvasWidth, canvasHeight, true);
 	}
 
 	@Override
@@ -462,7 +455,7 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,
 	}
 
 	public double getTileRadiusInPixels() {
-		return radius;
+		return PIXEL_RADIUS;
 	}
 
 	public void setPatchSelectionMode(boolean patchSelectionMode) {

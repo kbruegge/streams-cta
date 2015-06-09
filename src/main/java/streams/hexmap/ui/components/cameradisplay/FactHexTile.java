@@ -14,11 +14,6 @@ import java.awt.*;
  */
 public class FactHexTile extends Tile {
 
-	/** The unique class ID */
-	private static final long serialVersionUID = 9128615424218016999L;
-
-    static Logger log = LoggerFactory.getLogger( FactHexTile.class );
-
 	private double height;
 	private double width;
     private double radius;
