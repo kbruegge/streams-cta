@@ -194,52 +194,6 @@ public class EventIOStream extends AbstractStream {
          * @throws IOException
          */
         private void readHeader() throws IOException {
-//            /* Remember the requested item type. */
-//            wanted_type = item_header->type;
-//   /* Extract the actual type and version from the 'type/version' field. */
-//            this_type = (unsigned long) get_long(iobuf);
-//            item_header->type = this_type & 0x0000ffffUL;
-//            item_header->version = (unsigned) (this_type >> 20) & 0xfff;
-//            if ( (item_header->version & 0x800) != 0 )
-//            {
-//      /* Encountering corrupted data seems more likely than having version numbers above 2047 */
-//                Warning("Version number invalid - may be corrupted data");
-//                return -1;
-//            }
-//            item_header->user_flag = ((this_type & 0x00010000UL) != 0);
-//            item_header->use_extension = ((this_type & 0x00020000UL) != 0);
-//
-//   /* Extract the identification number */
-//            item_header->ident = get_long(iobuf);
-//
-//   /* If bit 30 of length is set the item consists only of sub-items. */
-//            length = get_uint32(iobuf);
-//            if ( (length & 0x40000000UL) != 0 )
-//            item_header->can_search = 1;
-//            else
-//            item_header->can_search = 0;
-//            if ( (length & 0x80000000UL) != 0 )
-//            {
-//                item_header->use_extension = 1;
-//      /* Check again that we are not beyond the superior item after reading the extension */
-//                if ( ilevel > 0 &&
-//                        (long) (iobuf->data-iobuf->buffer) + 16 >=
-//                                iobuf->item_start_offset[ilevel-1] + iobuf->item_length[ilevel-1] )
-//                    return -2;
-//                extension = get_uint32(iobuf);
-//      /* Actual length consists of bits 0-29 of length field plus bits 0-11 of extension field. */
-//                length = (length & 0x3FFFFFFFUL) | ((extension & 0x0FFFUL) << 30);
-//            }
-//            else
-//            length = (length & 0x3FFFFFFFUL);
-//            item_header->length = length;
-//            iobuf->item_length[ilevel] = (long) length;
-//            if ( item_header->can_search )
-//                iobuf->sub_item_length[ilevel] = (long) length;
-//            else
-//                iobuf->sub_item_length[ilevel] = 0;
-
-
             //log.info("Datastream available: \t" + dataStream.available());
 
             byte[] bytes = new byte[4];
