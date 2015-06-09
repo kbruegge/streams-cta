@@ -64,65 +64,6 @@ public class EventIOStream extends AbstractStream {
 
     // taken from FitsStream: end
 
-    /**
-     * Read EventIO defined header consisting of 3 - 4 fields of 4 bytes each
-     *
-     * @throws IOException
-     */
-    private void readHeader() throws IOException {
-        log.info("Datastream available: \t" + dataStream.available());
-
-        byte[] bytes = new byte[4];
-
-        // read type and check for extension field
-        dataStream.read(bytes);
-        if (reverse) {
-            bytes = reverseByteArray(bytes);
-        }
-
-        // extension is there if bit 17 is set
-        // means look up if the 2nd bit of the 3rd byte is set
-        boolean extended = ((bytes[2] >> 1) & 1) == 1;
-
-
-        // read identification field
-        // TODO dont skip
-        dataStream.skipBytes(4);
-
-
-        // read length
-        dataStream.read(bytes);
-        if (reverse) {
-            bytes = reverseByteArray(bytes);
-        }
-
-        // check whether bit 30 is set
-        // meaning only subobjects are contained
-        // and no elementary data types
-        boolean onlySubObjects = ((bytes[3] >> 6) & 1) == 1;
-        log.info("Only sub-objects bit set: " + onlySubObjects);
-
-        // check whether bit 31 is set
-        // as it is a reserved bit it should be set to 0
-        boolean reserved = ((bytes[3] >> 7) & 1) == 0;
-        log.info("Reserved length-bit set: " + reserved);
-        // TODO throw exception if reserved bit is set to 1?
-
-        // set the two last bits to 0
-        // and then inspect the whole bytes to detect
-        // the length of the data block
-        bytes[3] = (byte) (bytes[3] & ~(1 << 6));
-        bytes[3] = (byte) (bytes[3] & ~(1 << 7));
-
-        if (reverse) {
-            bytes = reverseByteArray(bytes);
-        }
-        int length = byteArrayToInt(bytes);
-        // TODO length parameter longer than the rest of the data?
-
-        // read extension if given
-        if (extended) {
-            log.info("Extension exists.");
     @Override
     public Data readNext() throws Exception {
         // now we want to find the synchronisation marker
@@ -142,12 +83,6 @@ public class EventIOStream extends AbstractStream {
             reverse = false;
             return item;
         }
-
-        log.info("Data block length: \t" + length + "\n");
-
-        // TODO dont skip
-        dataStream.skipBytes(length);
-    }
 
         return null;
     }
@@ -216,6 +151,148 @@ public class EventIOStream extends AbstractStream {
     private void setReverse(boolean reverse) {
         this.reverse = reverse;
     }
+
+    /**
+     * Header of EventIO file
+     * This class should read the header in front of the
+     * data block in EventIO and determine some essential information
+     * as type, length and identification.
+     */
+    class EventIOHeader {
+
+        int length;
+        String type;
+        String identification;
+        DataInputStream dataInputStream;
+
+        public EventIOHeader (DataInputStream dataInputStream) {
+            this.dataInputStream = dataInputStream;
+            length = -1;
+            type = "";
+            identification = "";
+        }
+
+        /**
+         * Read EventIO defined header consisting of 3 - 4 fields of 4 bytes each
+         *
+         * @throws IOException
+         */
+        private void readHeader() throws IOException {
+//            /* Remember the requested item type. */
+//            wanted_type = item_header->type;
+//   /* Extract the actual type and version from the 'type/version' field. */
+//            this_type = (unsigned long) get_long(iobuf);
+//            item_header->type = this_type & 0x0000ffffUL;
+//            item_header->version = (unsigned) (this_type >> 20) & 0xfff;
+//            if ( (item_header->version & 0x800) != 0 )
+//            {
+//      /* Encountering corrupted data seems more likely than having version numbers above 2047 */
+//                Warning("Version number invalid - may be corrupted data");
+//                return -1;
+//            }
+//            item_header->user_flag = ((this_type & 0x00010000UL) != 0);
+//            item_header->use_extension = ((this_type & 0x00020000UL) != 0);
+//
+//   /* Extract the identification number */
+//            item_header->ident = get_long(iobuf);
+//
+//   /* If bit 30 of length is set the item consists only of sub-items. */
+//            length = get_uint32(iobuf);
+//            if ( (length & 0x40000000UL) != 0 )
+//            item_header->can_search = 1;
+//            else
+//            item_header->can_search = 0;
+//            if ( (length & 0x80000000UL) != 0 )
+//            {
+//                item_header->use_extension = 1;
+//      /* Check again that we are not beyond the superior item after reading the extension */
+//                if ( ilevel > 0 &&
+//                        (long) (iobuf->data-iobuf->buffer) + 16 >=
+//                                iobuf->item_start_offset[ilevel-1] + iobuf->item_length[ilevel-1] )
+//                    return -2;
+//                extension = get_uint32(iobuf);
+//      /* Actual length consists of bits 0-29 of length field plus bits 0-11 of extension field. */
+//                length = (length & 0x3FFFFFFFUL) | ((extension & 0x0FFFUL) << 30);
+//            }
+//            else
+//            length = (length & 0x3FFFFFFFUL);
+//            item_header->length = length;
+//            iobuf->item_length[ilevel] = (long) length;
+//            if ( item_header->can_search )
+//                iobuf->sub_item_length[ilevel] = (long) length;
+//            else
+//                iobuf->sub_item_length[ilevel] = 0;
+
+
+            //log.info("Datastream available: \t" + dataStream.available());
+
+            byte[] bytes = new byte[4];
+
+            // read type and check for extension field
+            dataStream.read(bytes);
+            int typeField = byteArrayToInt(bytes);
+
+            // bits 0 to 15 are used for type information
+            int type = typeField & 0x0000ffff;
+            // TODO translate bytes to type. is it a string?
+
+            // bit 16 is the user bit and is not set
+            boolean user_flag = (typeField & 0x00010000) != 0;
+
+            // extension is there if bit 17 is set
+            // means look up if the 2nd bit of the 3rd byte is set
+            boolean use_extension = ((typeField & 0x00020000) != 0);
+
+            // bits 18 and 19 are reserved for future enhancements
+
+            // bits 20 to 31 are used for the version information
+            int version = (typeField >> 20) & 0xfff;
+
+            // read identification field
+            dataStream.read(bytes);
+            int identField = byteArrayToInt(bytes);
+
+
+            // read length
+            dataStream.read(bytes);
+            int lengthField = byteArrayToInt(bytes);
+
+            // check whether bit 30 is set
+            // meaning only subobjects are contained
+            // and no elementary data types
+            //boolean onlySubObjects = ((bytes[3] >> 6) & 1) == 1;
+            boolean onlySubObjects = (lengthField & 0x40000000) != 0;
+            //log.info("sub-objects:\t" + onlySubObjects + "\treal:\t" + onlySubObjectsReal);
+
+            // check whether bit 31 is set
+            // as it is a reserved bit it should be set to 0
+            boolean reserved = (lengthField & 0x80000000) == 0;
+            if (!reserved) {
+                log.error("Reserved bit should be set to 0.");
+                return;
+            }
+
+            // set the two last bits to 0
+            // and then inspect the whole bytes to detect
+            // the length of the data block
+//            bytes[3] = (byte) (bytes[3] & ~(1 << 6));
+//            bytes[3] = (byte) (bytes[3] & ~(1 << 7));
+
+            //length = (length & 0x3FFFFFFF) | ((extension & 0x0FFF) << 30);
+            //length = byteArrayToInt(bytes);
+            length = (lengthField & 0x3FFFFFFF);
+            //log.info("length:\t" + length + "\treal:\t" + lengthReal);
+
+            // TODO length parameter longer than the rest of the data?
+
+            // read extension if given
+            if (use_extension) {
+                log.info("Extension exists.");
+                // TODO dont skip
+                dataStream.skipBytes(4);
+            }
+            //log.info("Data block length: \t" + length + "\n");
+        }
 
     }
 }
