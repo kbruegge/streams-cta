@@ -149,36 +149,7 @@ public class EventIOStream extends AbstractStream {
         dataStream.skipBytes(length);
     }
 
-    /**
-     * Calculate integer value of a byte array with a length of 4
-     * @param b byte array
-     * @return integer value of a byte array
-     */
-    private int byteArrayToInt(byte[] b) {
-        if (b.length != 4) {
-            // TODO throw exception if this should happen?
-            return 0;
-        }
-        return   b[3] & 0xFF |
-                (b[2] & 0xFF) << 8 |
-                (b[1] & 0xFF) << 16 |
-                (b[0] & 0xFF) << 24;
-    }
-
-    /**
-     * Reverse a byte array.
-     *
-     * @param b byte array
-     * @return reversed byte array
-     */
-    private byte[] reverseByteArray(byte[] b) {
-        for(int i = 0; i < b.length / 2; i++)
-        {
-            byte temp = b[i];
-            b[i] = b[b.length - i - 1];
-            b[b.length - i - 1] = temp;
-        }
-        return b;
+        return null;
     }
 
     /**
@@ -225,12 +196,26 @@ public class EventIOStream extends AbstractStream {
         return false;
     }
 
+    /**
+     * Calculate integer value of a byte array with a length of 4
+     * @param b byte array
+     * @return integer value of a byte array
+     */
+    private int byteArrayToInt(byte[] b) {
+        if (b.length != 4) {
+            // TODO throw exception if this should happen?
+            return 0;
+        }
+        if (reverse) {
+            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        } else {
+            return ByteBuffer.wrap(b).getInt();
+        }
+    }
+
     private void setReverse(boolean reverse) {
         this.reverse = reverse;
     }
 
-    @Override
-    public Data readNext() throws Exception {
-        return null;
     }
 }
