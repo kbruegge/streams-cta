@@ -1,0 +1,61 @@
+# To use this list of registered eventio item types,
+# e.g. with the statio and listio programs,
+# copy it to either EventioRegisteredNames.dat in the working directory
+# or to ~/.EventioRegisteredNames for global use.
+70:History:Command line and configuration parameters
+71:History command line
+72:Configuration line
+100:Histogram:One or many histograms (1-D or 2-D)
+1200:CORSIKA run header
+1201:CORSIKA telescope positions
+1202:CORSIKA event header
+1203:CORSIKA telescope offsets
+1204:CORSIKA telescope array
+1205:CORSIKA photons
+1206:CORSIKA layout
+1207:CORSIKA trigger time
+1208:CORSIKA photo-electrons
+1209:CORSIKA event end
+1210:CORSIKA run end
+1211:CORSIKA shower profile
+1212:CORSIKA inputs
+1213:CORSIKA telescope array head
+1214:CORSIKA telescope array end
+1215:CORSIKA extra parameters
+2000:Run header:Sim_telarray global run header
+2001:MC run header:Sim_telarray MC-specific run header
+2002:Camera settings
+2002:Pixel settings
+2003:Camera organisation
+2004:Pixel settings
+2005:Disabled pixels
+2006:Camera soft settings
+2007:Pointing correction
+2008:Tracking setup
+2009:Central trigger
+2010:Event:Sim_telarray event data for the full array
+2011:Telescope event header
+2012:ADC sums
+2013:ADC samples
+2014:Image parameters
+2015:Reconstructed shower
+2016:Pixel timing
+2020:MC shower
+2021:MC event
+2022:Telescope monitoring
+2023:Laser calibration
+2024:Run statistics
+2025:MC run statistics
+2026:Photo-electron sums
+2027:Pixel list
+2028:Calibration event
+2100:Tracking data:Tracking data for tel. 0 (typically CT1)
+2101:Tracking data:Tracking data for tel. 1 (typically CT2)
+2102:Tracking data:Tracking data for tel. 2 (typically CT3)
+2103:Tracking data:Tracking data for tel. 3 (typically CT4)
+2104:Tracking data:Tracking data for tel. 4 (typically CT5)
+2200:Telscope data:Telescope event data for tel. 0 (typically CT1)
+2201:Telscope data:Telescope event data for tel. 1 (typically CT2)
+2202:Telscope data:Telescope event data for tel. 2 (typically CT3)
+2203:Telscope data:Telescope event data for tel. 3 (typically CT4)
+2204:Telscope data:Telescope event data for tel. 4 (typically CT5)

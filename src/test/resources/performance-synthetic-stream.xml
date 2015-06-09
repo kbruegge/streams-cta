@@ -1,7 +1,7 @@
 <application>
     
     <stream id="cta:data" class="streams.cta.io.SyntheticEventStream" 
-        limit="10000000" />
+        limit="100000" />
     
     <process input="cta:data">
 		   <streams.cta.Throughput />
