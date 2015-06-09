@@ -2,7 +2,6 @@ package streams.cta;
 
 import stream.Data;
 import stream.ProcessContext;
-import stream.Processor;
 import stream.StatefulProcessor;
 
 /**
