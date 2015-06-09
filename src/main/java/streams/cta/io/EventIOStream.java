@@ -22,9 +22,6 @@ public class EventIOStream extends AbstractStream {
 
     boolean reverse = false;
 
-    // taken from FitsStream: start
-
-    private final int MAX_HEADER_BYTES = 16 * 2880;
     private DataInputStream dataStream;
 
     @Parameter(
@@ -63,10 +60,7 @@ public class EventIOStream extends AbstractStream {
                 url.openStream(),
                 bufferSize);
         dataStream = new DataInputStream(bStream);
-        dataStream.mark(MAX_HEADER_BYTES);      // mark the start position
     }
-
-    // taken from FitsStream: end
 
     @Override
     public Data readNext() throws Exception {
@@ -78,9 +72,8 @@ public class EventIOStream extends AbstractStream {
         if (markerFound) {
             EventIOHeader header = new EventIOHeader(dataStream);
             header.readHeader();
-            // TODO dont skip
             byte[] bytes = new byte[header.length];
-            dataStream.read(bytes); // skipBytes(header.length);
+            dataStream.read(bytes);
             CTAEvent event = new CTAEvent(0, bytes);
             Data item = DataFactory.create();
             item.put("@event", event);
@@ -230,9 +223,7 @@ public class EventIOStream extends AbstractStream {
             // check whether bit 30 is set
             // meaning only subobjects are contained
             // and no elementary data types
-            //boolean onlySubObjects = ((bytes[3] >> 6) & 1) == 1;
             boolean onlySubObjects = (lengthField & 0x40000000) != 0;
-            //log.info("sub-objects:\t" + onlySubObjects + "\treal:\t" + onlySubObjectsReal);
 
             // check whether bit 31 is set
             // as it is a reserved bit it should be set to 0
@@ -242,16 +233,8 @@ public class EventIOStream extends AbstractStream {
                 return;
             }
 
-            // set the two last bits to 0
-            // and then inspect the whole bytes to detect
-            // the length of the data block
-//            bytes[3] = (byte) (bytes[3] & ~(1 << 6));
-//            bytes[3] = (byte) (bytes[3] & ~(1 << 7));
-
-            //length = (length & 0x3FFFFFFF) | ((extension & 0x0FFF) << 30);
-            //length = byteArrayToInt(bytes);
+            // bits 0 to 29 are used for the length of the data block
             length = (lengthField & 0x3FFFFFFF);
-            //log.info("length:\t" + length + "\treal:\t" + lengthReal);
 
             // TODO length parameter longer than the rest of the data?
 
