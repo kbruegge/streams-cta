@@ -4,14 +4,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.HashMap;
 
 import stream.Data;
 import stream.annotations.Parameter;
@@ -30,6 +32,8 @@ public class EventIOStream extends AbstractStream {
     boolean reverse = false;
 
     private DataInputStream dataStream;
+
+    public HashMap<Integer, String> eventioTypes;
 
     @Parameter(
             required = false,
@@ -65,8 +69,7 @@ public class EventIOStream extends AbstractStream {
         dataStream = new DataInputStream(bStream);
 
         // import the registered types
-        InputStream fileInput = EventIOStream.class.getResourceAsStream("/EventioRegisteredNames.dat");
-
+        importEventioRegisteredDatatypes();
     }
 
     @Override
@@ -89,6 +92,26 @@ public class EventIOStream extends AbstractStream {
         }
 
         return null;
+    }
+
+    private void importEventioRegisteredDatatypes() {
+        InputStream fileInput = EventIOStream.class.getResourceAsStream("/EventioRegisteredNames.dat");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(fileInput));
+        String line;
+
+        eventioTypes = new HashMap<>();
+        try {
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("#")) {
+                    continue;
+                }
+
+                String[] lineSplit = line.split(":");
+                eventioTypes.put(Integer.valueOf(lineSplit[0]), lineSplit[1]);
+            }
+        } catch (IOException e) {
+            log.error("Error while trying to read the EventioRegisteredNames.dat in order to import the datatypes.");
+        }
     }
 
     /**
