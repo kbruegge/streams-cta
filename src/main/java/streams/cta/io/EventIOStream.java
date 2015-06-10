@@ -94,6 +94,9 @@ public class EventIOStream extends AbstractStream {
         return null;
     }
 
+    /**
+     * Read the file 'EventioRegisteredNames.dat' and import the types mentioned there.
+     */
     private void importEventioRegisteredDatatypes() {
         InputStream fileInput = EventIOStream.class.getResourceAsStream("/EventioRegisteredNames.dat");
         BufferedReader reader = new BufferedReader(new InputStreamReader(fileInput));
