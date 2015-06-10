@@ -40,9 +40,9 @@ public class SyntheticEventStream extends AbstractStream {
 	@Override
 	public Data readNext() throws Exception {
         random.nextBytes(randomBytes);
-        ByteBuffer.wrap(randomBytes).asShortBuffer().get(data);
+        //ByteBuffer.wrap(randomBytes).asShortBuffer().get(data);
 
-		CTAEvent evt = new CTAEvent(numberOfPixels, data);
+		CTAEvent evt = new CTAEvent(numberOfPixels, randomBytes);
 		Data item = DataFactory.create();
 		item.put("@event", evt);
 		return item;
