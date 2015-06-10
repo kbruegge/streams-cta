@@ -269,7 +269,8 @@ public class EventIOStream extends AbstractStream {
 
             // bits 0 to 29 are used for the length of the data block
             length = (lengthField & 0x3FFFFFFF);
-
+            log.info("length:\t" + length + "\ttype:\t" + eventioTypes.get(type)
+                    + "\tsubobjects:\t" + onlySubObjects);
             // TODO length parameter longer than the rest of the data?
 
             // read extension if given

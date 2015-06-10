@@ -1,7 +1,11 @@
 <application>
+
+    <properties>
+        <data.file>/Users/alexey/Downloads/gamma_20deg_180deg_run61251___cta-prod2-sc-sst-x_desert-1640m-Aar.simtel</data.file>
+    </properties>
     
-    <stream id="cta:data" class="streams.cta.io.SyntheticEventStream" 
-        limit="100000" />
+    <stream id="cta:data" class="streams.cta.io.EventIOStream"
+            url="file:${data.file}"/>
     
     <process input="cta:data">
 		   <streams.cta.Throughput />
