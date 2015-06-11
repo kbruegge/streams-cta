@@ -1,7 +1,12 @@
 <application>
+
+    <properties>
+        <data.file.gamma>../gamma_20deg_180deg_run61251___cta-prod2-sc-sst-x_desert-1640m-Aar.simtel</data.file.gamma>
+        <data.file.proton>../proton_20deg_0deg_run32286___cta-prod2_desert-1640m-Aar.simtel</data.file.proton>
+    </properties>
     
-    <stream id="cta:data" class="streams.cta.io.SyntheticEventStream" 
-        limit="10000" />
+    <stream id="cta:data" class="streams.cta.io.EventIOStream"
+            url="file:${data.file.proton}"/>
     
     <process input="cta:data">
 		   <streams.cta.Throughput />
