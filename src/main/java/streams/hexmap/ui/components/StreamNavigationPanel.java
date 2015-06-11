@@ -36,22 +36,20 @@ public class StreamNavigationPanel extends JPanel implements EventObserver {
     @Subscribe
     public void handleEventChange(ItemChangedEvent itemChangedEvent) {
         Data item = itemChangedEvent.item;
-        Integer roi = (Integer)item.get("ROI");
-        if(roi != null){
-            slider.setMaximum(roi - 1);
-        }
-        Serializable eventNum = item.get("EventNum");
-        if(eventNum !=  null){
-            eventNumber.setText(eventNum.toString());
-        }
-        Serializable trigger = item.get("TriggerType");
-        if(trigger !=  null){
-            triggerTypeField.setText(trigger.toString());
-        }
+
+        slider.setMaximum(itemChangedEvent.telescopeEvent.roi - 1);
+
+        Long eventNum = itemChangedEvent.telescopeEvent.eventId;
+        eventNumber.setText(eventNum.toString());
+
+        Integer trigger = itemChangedEvent.telescopeEvent.triggerType;
+        triggerTypeField.setText(trigger.toString());
+
         Serializable file = item.get("@source");
         if (file != null){
             fileField.setText(file.toString());
         }
+        slider.setMaximum(itemChangedEvent.telescopeEvent.roi - 1);
     }
 
 	JTextField sliceField = new JTextField(4);
@@ -90,7 +88,7 @@ public class StreamNavigationPanel extends JPanel implements EventObserver {
 		//slider.setPreferredSize(new Dimension(this.getWidth(),
 		//		slider.getPreferredSize().height));
 		slider.setPaintTicks(true);
-		slider.setMajorTickSpacing(10);
+		slider.setMajorTickSpacing(1);
         slider.addChangeListener( new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {

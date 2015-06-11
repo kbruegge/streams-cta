@@ -26,6 +26,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -50,7 +51,7 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
 	int canvasHeight;
 	int rows = 0, cols = 0;
 
-	public double[][] sliceValues = new double[NUMBER_OF_CAMERA_PIXEL][1024];
+	public double[][] sliceValues;
 
     int currentSlice = 0;
 
@@ -136,24 +137,23 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
     @Override
 	public void handleEventChange(ItemChangedEvent itemChangedEvent) {
 		log.debug("hexmap got a new item");
-
         TelescopeEvent telescopeEvent = itemChangedEvent.telescopeEvent;
+        sliceValues = new double[telescopeEvent.numberOfPixel][telescopeEvent.roi];
+
 		this.dataItem = itemChangedEvent.item;
-		minValueInData = 0;
-		maxValueInData = 10;
+
 		overlays = updateOverlays(overlayKeys, dataItem);
 
-        for(int pixel : telescopeEvent.pixelIds){
-            for (int i = 0; i < telescopeEvent.roi; i++) {
-                sliceValues[pixel][i] = telescopeEvent.data[pixel][i];
-            }
-        }
-
-//        minValueInData = min(dataToPlot);
-//        maxValueInData = max(dataToPlot);
-
-//        this.sliceValues =
-        this.repaint();
+		minValueInData = Double.MAX_VALUE;
+		maxValueInData = Double.MIN_VALUE;
+		for (int pixel = 0; pixel < telescopeEvent.numberOfPixel; pixel++) {
+			for (int i = 0; i < telescopeEvent.roi; i++) {
+				short value = telescopeEvent.data[pixel][i];
+				sliceValues[pixel][i] = value;
+				minValueInData = minValueInData >  value ?  value : minValueInData;
+				maxValueInData = maxValueInData <  value ?  value : maxValueInData ;
+			}
+		}
 	}
 
 	public void setOverlayItemsToDisplay(Set<Pair<String, Color>> items) {
@@ -183,7 +183,8 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
 				overlays.add(overlay);
 			}
 		}
-		
+
+        //TODO Remove baaks dirty hack in here. Meh
 		class CustomComparator implements Comparator<CameraMapOverlay> {
 		    public int compare(CameraMapOverlay object1, CameraMapOverlay object2) {            	
 		        return object1.getDrawRank() - object2.getDrawRank();
@@ -222,15 +223,18 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
 		g.fillRect(0, 0, this.getWidth(), this.getHeight());
 		int xOffset = getWidth() / 2 + offsetX;
 		int yOffset = getHeight() / 2 + offsetY;
-		if (g instanceof Graphics2D) {
+		if (g instanceof Graphics2D && sliceValues != null) {
+
 			Graphics2D g2 = (Graphics2D) g;
+
 			// g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 			// RenderingHints.VALUE_ANTIALIAS_ON);
 
 			// draw a grid with lines every 25 pixel in a dark grey color
 			g2.setStroke(new BasicStroke(1.0f));
 			g2.setColor(Color.DARK_GRAY);
-			// drawGrid(g2, 25);
+//			drawGrid(g2, 25);
+
 
 			// now draw the actual camera pixel
 			// translate to center of canvas
@@ -267,12 +271,13 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
 			g2.translate(-xOffset, -yOffset);
 
 			// draw cross across screen to indicate center of component
-
-			// Line2D line = new Line2D.Double(0,0, getWidth(),getHeight());
-			// g2.draw(line);
+            g2.setColor(Color.red);
+            g2.drawString("Work In Progress", 50, 50);
+			 Line2D line = new Line2D.Double(0,0, getWidth(),getHeight());
+			 g2.draw(line);
 			//
-			// line = new Line2D.Double(getWidth(),0,0,getHeight());
-			// g2.draw(line);
+			 line = new Line2D.Double(getWidth(),0,0,getHeight());
+			 g2.draw(line);
 
 			if (includeScale) {
 				g2.translate(this.canvasWidth - 40, 0);

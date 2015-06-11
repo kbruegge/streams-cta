@@ -7,7 +7,8 @@ import com.google.common.eventbus.EventBus;
  * Created by kaibrugge on 02.06.14.
  */
 public class Bus {
-    public static EventBus eventBus = new EventBus();
+
+    public static EventBus eventBus = new EventBus((throwable, subscriberExceptionContext) -> throwable.printStackTrace());
     private Bus(){
 
     }

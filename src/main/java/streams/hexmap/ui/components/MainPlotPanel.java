@@ -56,9 +56,6 @@ public class MainPlotPanel extends JPanel implements EventObserver, SliceObserve
     private int currentSlice = 0;
     private Pair<String, Color> defaultPair;
 
-    public void setDefaultEntry(String key, Color c){
-        defaultPair = Pair.create(key, c);
-    }
 
     public void setRange(int min, int max){
         plot.getDomainAxis().setRange(min , max);
@@ -114,9 +111,7 @@ public class MainPlotPanel extends JPanel implements EventObserver, SliceObserve
     @Subscribe
     public void handleEventChange(ItemChangedEvent itemChangedEvent) {
         this.item = itemChangedEvent.item;
-        if(item.containsKey("NROI")){
-            this.roi = (Integer) item.get("NROI");
-        }
+        this.roi = itemChangedEvent.telescopeEvent.roi;
         drawPlot();
     }
 

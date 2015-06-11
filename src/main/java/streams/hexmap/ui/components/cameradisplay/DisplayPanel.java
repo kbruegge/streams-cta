@@ -42,7 +42,7 @@ public class DisplayPanel extends JPanel implements EventObserver {
 
 	static Logger log = LoggerFactory.getLogger(DisplayPanel.class);
 
-	final FactHexMapDisplay hexmap = new FactHexMapDisplay(7, 600, 530);
+	final FactHexMapDisplay hexmap = new FactHexMapDisplay(1, 600, 530);
 	final CameraOverlayKeySelector selector = new CameraOverlayKeySelector();
 	private final Set<Class<? extends ColorMapping>> colorMapClasses;
 
@@ -73,7 +73,7 @@ public class DisplayPanel extends JPanel implements EventObserver {
 		Bus.eventBus.register(this);
 
 		// get all classes that implement the colormapping interface
-		Reflections reflections = new Reflections("fact");
+		Reflections reflections = new Reflections("streams");
 		colorMapClasses = reflections.getSubTypesOf(ColorMapping.class);
 
 		// setup the hexmap component of the viewer
@@ -201,34 +201,42 @@ public class DisplayPanel extends JPanel implements EventObserver {
 	}
 
 	public void exportGIF() {
-		try {
-			ImageOutputStream output = new FileImageOutputStream(new File(
-					"/Volumes/RamDisk/shower.gif"));
+		// open a file chooser for png files
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(
+				".gif Images", ".gif");
 
-			GifSequenceWriter writer = new GifSequenceWriter(output,
-					BufferedImage.TYPE_INT_ARGB, 2, true);
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileFilter(filter);
+		int ret = chooser.showSaveDialog(null);
+		if (ret == JFileChooser.APPROVE_OPTION) {
+            try {
+                ImageOutputStream output = new FileImageOutputStream(chooser.getSelectedFile());
 
-			for (int s = 25; s < 225; s++) {
-				try {
-					hexmap.currentSlice = s;
-					System.out.println("Painting slice " + s);
-					BufferedImage bi = new BufferedImage(getSize().width,
-							getSize().height, BufferedImage.TYPE_INT_ARGB);
-					Graphics g = bi.createGraphics();
-					hexmap.paint(g, true);
-					g.dispose();
+                GifSequenceWriter writer = new GifSequenceWriter(output,
+                        BufferedImage.TYPE_INT_ARGB, 2, true);
 
-					writer.writeToSequence(bi);
-				} catch (Exception e) {
-					e.printStackTrace();
-					break;
-				}
-			}
+                for (int s = 25; s < 225; s++) {
+                    try {
+                        hexmap.currentSlice = s;
+                        System.out.println("Painting slice " + s);
+                        BufferedImage bi = new BufferedImage(getSize().width,
+                                getSize().height, BufferedImage.TYPE_INT_ARGB);
+                        Graphics g = bi.createGraphics();
+                        hexmap.paint(g, true);
+                        g.dispose();
 
-			writer.close();
-			output.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+                        writer.writeToSequence(bi);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        break;
+                    }
+                }
+
+                writer.close();
+                output.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 	}
 }

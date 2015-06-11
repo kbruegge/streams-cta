@@ -35,8 +35,6 @@ import java.net.URISyntaxException;
  */
 public class Viewer extends JFrame {
 
-	/** The unique class ID */
-	private static final long serialVersionUID = -5687227971590846044L;
 	static Logger log = LoggerFactory.getLogger(Viewer.class);
 
 
