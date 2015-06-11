@@ -11,19 +11,16 @@ import java.time.LocalDateTime;
  * 
  */
 public class TelescopeEvent implements Serializable {
-
-	public final int numberOfPixels;
+    public final int numberOfPixel = 1800;
+    public final int triggerType = 0;
 	public final short[][] data;
-    public final int[] pixelIds;
     public final long eventId;
     public final LocalDateTime timeStamp;
     public final int roi;
 
 
-    public TelescopeEvent(long eventId, int numberOfPixels, int[] pixelIds, short[][] data, LocalDateTime timeStamp) {
-        this.numberOfPixels = numberOfPixels;
+    public TelescopeEvent(long eventId, short[][] data, LocalDateTime timeStamp) {
         this.data = data;
-        this.pixelIds = pixelIds;
         this.eventId = eventId;
         this.timeStamp = timeStamp;
         this.roi = data[0].length;

@@ -18,13 +18,13 @@ import streams.cta.TelescopeEvent;
  */
 public class SyntheticEventStream extends AbstractStream {
 
-	int numberOfPixels = 20;
-	int numberOfSlices = 60;
+	int numberOfPixels = 1800;
+	int numberOfSlices = 30;
 
 	Random random = new Random();
     byte[] randomBytes;
     short[][] data;
-    int[] pixelIds;
+
 
     long eventId = 1;
 
@@ -41,8 +41,6 @@ public class SyntheticEventStream extends AbstractStream {
 	 */
 	@Override
 	public Data readNext() throws Exception {
-
-        numberOfPixels = random.nextInt(2200);
         data = new short[numberOfPixels][numberOfSlices];
 
         for (int pixel = 0; pixel < numberOfPixels; pixel++) {
@@ -51,17 +49,10 @@ public class SyntheticEventStream extends AbstractStream {
             ByteBuffer.wrap(randomBytes).asShortBuffer().get(data[pixel]);
         }
 
-
-        pixelIds = new int[numberOfPixels];
-        int startId = random.nextInt(2200 - numberOfPixels);
-
-        for (short i = 0; i < pixelIds.length; i++) {
-            pixelIds[i] = startId + i;
-        }
-
-		TelescopeEvent evt = new TelescopeEvent(eventId, numberOfPixels, pixelIds, data, LocalDateTime.now());
+		TelescopeEvent evt = new TelescopeEvent(eventId, data, LocalDateTime.now());
 		Data item = DataFactory.create();
 		item.put("@event", evt);
+		item.put("@source", this.getClass().getSimpleName());
 
         eventId++;
 		return item;

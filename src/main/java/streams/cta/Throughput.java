@@ -18,7 +18,7 @@ public class Throughput extends AbstractProcessor {
 
 	static Logger log = LoggerFactory.getLogger(Throughput.class);
 
-	long pixelCount = 0L;
+	long eventCount = 0L;
 
 
 
@@ -33,7 +33,7 @@ public class Throughput extends AbstractProcessor {
 	@Override
 	public Data process(Data input) {
         TelescopeEvent ev = (TelescopeEvent) input.get("@event");
-		pixelCount += ev.numberOfPixels;
+		eventCount++;
 		return input;
 	}
 
