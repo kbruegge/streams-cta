@@ -5,13 +5,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import streams.cta.Constants;
+
 /**
  * Created by alexey on 17.06.15.
  */
 public class EventIOBuffer {
-
-    //TODO: move to constants file
-    int MAX_IO_ITEM_LEVEL = 20;
 
     /**
      * Current level of nesting of items.
@@ -49,10 +48,10 @@ public class EventIOBuffer {
     DataInputStream dataStream;
 
     public EventIOBuffer(DataInputStream dataStream) {
-        itemLength = new long[MAX_IO_ITEM_LEVEL];
-        subItemLength = new long[MAX_IO_ITEM_LEVEL];
-        itemStartOffset = new long[MAX_IO_ITEM_LEVEL];
-        itemExtension = new boolean[MAX_IO_ITEM_LEVEL];
+        itemLength = new long[Constants.MAX_IO_ITEM_LEVEL];
+        subItemLength = new long[Constants.MAX_IO_ITEM_LEVEL];
+        itemStartOffset = new long[Constants.MAX_IO_ITEM_LEVEL];
+        itemExtension = new boolean[Constants.MAX_IO_ITEM_LEVEL];
         this.dataStream = dataStream;
     }
 

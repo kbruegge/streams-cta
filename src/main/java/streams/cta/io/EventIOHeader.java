@@ -6,14 +6,13 @@ import org.slf4j.LoggerFactory;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import streams.cta.Constants;
+
 /**
  * Header of EventIO file This class should read the header in front of the data block in
  * EventIO and determine some essential information as typeString, length and identification.
  */
 public class EventIOHeader {
-
-    //TODO: move to constants file
-    int MAX_IO_ITEM_LEVEL = 20;
 
     static Logger log = LoggerFactory.getLogger(EventIOHeader.class);
 
@@ -239,7 +238,7 @@ public class EventIOHeader {
             }
         }
 
-        if (level >= 0 && level <= MAX_IO_ITEM_LEVEL) {
+        if (level >= 0 && level <= Constants.MAX_IO_ITEM_LEVEL) {
             ilevel = buffer.itemLevel = level;
         } else {
             //TODO: something is wrong
