@@ -1,10 +1,7 @@
 /**
- * 
+ *
  */
 package streams.cta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,18 +9,15 @@ import org.slf4j.LoggerFactory;
 import stream.AbstractProcessor;
 import stream.Data;
 import stream.ProcessContext;
-import stream.data.DataFactory;
 
 /**
  * @author chris
- * 
  */
 public class Throughput extends AbstractProcessor {
 
-	static Logger log = LoggerFactory.getLogger(Throughput.class);
+    static Logger log = LoggerFactory.getLogger(Throughput.class);
 
-	long pixelCount = 0L;
-
+    long pixelCount = 0L;
 
 
     @Override
@@ -32,21 +26,21 @@ public class Throughput extends AbstractProcessor {
     }
 
     /**
-	 * @see stream.Processor#process(stream.Data)
-	 */
-	@Override
-	public Data process(Data input) {
+     * @see stream.Processor#process(stream.Data)
+     */
+    @Override
+    public Data process(Data input) {
         CTAEvent ev = (CTAEvent) input.get("@event");
-		pixelCount += ev.numberOfPixels;
-		return input;
-	}
+        pixelCount += ev.numberOfPixels;
+        return input;
+    }
 
-	/**
-	 * @see stream.AbstractProcessor#finish()
-	 */
-	@Override
-	public void finish() throws Exception {
-		super.finish();
-	}
+    /**
+     * @see stream.AbstractProcessor#finish()
+     */
+    @Override
+    public void finish() throws Exception {
+        super.finish();
+    }
 
 }

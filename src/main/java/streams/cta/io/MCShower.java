@@ -163,19 +163,16 @@ class ShowerExtraParameters {
     long id;
 
     /**
-     * May be reset after writing the parameter block and must thus be set to 1 for each shower
-     * for which the extra parameters should get recorded.
+     * May be reset after writing the parameter block and must thus be set to 1 for each shower for
+     * which the extra parameters should get recorded.
      */
     int is_set;
 
     /**
-     * To be used if the weight of a shower may change during
-     * processing, e.g. when shower processing can be aborted
-     * depending on how quickly the electromagnetic component
-     * builds up and the remaining showers may have a larger
-     * weight to compensate for that.
-     * For backwards compatibility this should be set to 1.0
-     * when no additional weight is needed.
+     * To be used if the weight of a shower may change during processing, e.g. when shower
+     * processing can be aborted depending on how quickly the electromagnetic component builds up
+     * and the remaining showers may have a larger weight to compensate for that. For backwards
+     * compatibility this should be set to 1.0 when no additional weight is needed.
      */
     double weight;
 

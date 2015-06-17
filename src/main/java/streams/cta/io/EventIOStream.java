@@ -19,7 +19,6 @@ import stream.data.DataFactory;
 import stream.io.AbstractStream;
 import stream.io.SourceURL;
 import streams.cta.CTAEvent;
-import streams.cta.Constants;
 
 /**
  * Created by alexey on 02.06.15.

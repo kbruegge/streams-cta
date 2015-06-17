@@ -8,8 +8,8 @@ import java.io.IOException;
 import streams.cta.Constants;
 
 /**
- * Header of EventIO file This class should read the header in front of the data block in
- * EventIO and determine some essential information as typeString, length and identification.
+ * Header of EventIO file This class should read the header in front of the data block in EventIO
+ * and determine some essential information as typeString, length and identification.
  */
 public class EventIOHeader {
 
@@ -63,8 +63,8 @@ public class EventIOHeader {
     }
 
     /**
-     * Searches the stream for the sync marker and reads EventIO defined header consisting of 3
-     * - 4 fields of 4 bytes each
+     * Searches the stream for the sync marker and reads EventIO defined header consisting of 3 - 4
+     * fields of 4 bytes each
      */
     public boolean findAndReadNextHeader() throws IOException {
 
