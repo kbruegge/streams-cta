@@ -55,7 +55,7 @@ public class EventIOBuffer {
         this.dataStream = dataStream;
     }
 
-    public double[] readVectorOfReals(int vectorSize, DataInputStream dataStream)
+    public double[] readVectorOfReals(int vectorSize)
             throws IOException {
         double[] vector = new double[vectorSize];
         for (int i = 0; i < vectorSize; i++) {
