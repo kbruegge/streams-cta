@@ -16,37 +16,37 @@ public class EventIOHeader {
     static Logger log = LoggerFactory.getLogger(EventIOHeader.class);
 
     /**
-     * < Length of data field, for information only.
+     * Length of data field, for information only.
      */
     int length;
 
     /**
-     * < The typeString number telling the typeString of I/O block.
+     * The typeString number telling the typeString of I/O block.
      */
     int type;
 
     /**
-     * < The version number used for the block.
+     * The version number used for the block.
      */
     long version;
 
     /**
-     * < Identity number.
+     * Identity number.
      */
     long identification;
 
     /**
-     * < Tells how many levels deep we are nested now.
+     * Tells how many levels deep we are nested now.
      */
     int level;
 
     /**
-     * < One more bit in the header available for user data.
+     * One more bit in the header available for user data.
      */
     boolean userFlag;
 
     /**
-     * < Non-zero if the extension header field should be used.
+     * Non-zero if the extension header field should be used.
      */
     boolean useExtension;
 
@@ -147,8 +147,8 @@ public class EventIOHeader {
 
         buffer.itemExtension[buffer.itemLevel] = useExtension;
 
-        log.info("length:\t" + length + "\ttypeString:\t" + typeString
-                + "\tsubobjects:\t" + onlySubObjects);
+        //log.info("length:\t" + length + "\ttypeString:\t" + typeString
+        //        + "\tsubobjects:\t" + onlySubObjects);
         // TODO length parameter longer than the rest of the data?
 
         // read extension if given
