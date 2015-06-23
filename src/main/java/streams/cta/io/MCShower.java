@@ -70,6 +70,7 @@ public class MCShower {
 
         mcShower.numProfiles = buffer.readInt16(); // short
 
+        // fill the ShowerProfiles
         for (int i = 0; i < mcShower.numProfiles && i < Constants.H_MAX_PROFILE; i++) {
             int skip = 0;
             ShowerProfile profile = new ShowerProfile();
@@ -94,6 +95,7 @@ public class MCShower {
             if (profile.content == null) {
                 profile.content = new double[profile.numSteps];
 
+                // TODO: consider check whether there is enough space for allocation
                 // here in original code there is a check
                 // whether content could have been allocated
                 // otherwise there were too little space
@@ -113,7 +115,11 @@ public class MCShower {
         }
 
         if (header.version >= 2) {
-            mcShower.extra_parameters = readShowerExtraParameters(buffer, header);
+            mcShower.extra_parameters = readShowerExtraParameters(buffer);
+            if (mcShower.extra_parameters == null){
+                log.error("Something went wrong while reading shower extra parameters");
+                // TODO: can something go wrong? possibly skip until the next block?!
+            }
         } else {
             clearShowerExtraParameters(mcShower.extra_parameters);
         }
@@ -123,7 +129,7 @@ public class MCShower {
     private static void clearShowerExtraParameters(ShowerExtraParameters extra_parameters) {
         //TODO: implement
         extra_parameters.id = 0;
-        extra_parameters.is_set = 0;
+        extra_parameters.isSet = 0;
         extra_parameters.weight = 1.0;
 
 //        if ( ep->iparam != NULL )
@@ -138,20 +144,63 @@ public class MCShower {
 //        }
     }
 
-    private static ShowerExtraParameters readShowerExtraParameters(EventIOBuffer buffer, EventIOHeader header) throws IOException {
-        //TODO: implement
-        ShowerExtraParameters ep = new ShowerExtraParameters();
-        ep.is_set = 0;
+    private static ShowerExtraParameters readShowerExtraParameters(EventIOBuffer buffer)
+            throws IOException {
 
-        //TODO: get begin of an item
+        // TODO: check this implementation after such extra parameters has been found
+        log.error("Please check the implementation of readShowerExtraParameters " +
+                "method and then remove this output.");
 
-        //TODO: go to the end if version != 1
+        // read the header of extra parameters
+        EventIOHeader headerExtraParameters = new EventIOHeader(buffer);
 
-        ep.id = header.identification;
-        ep.weight = buffer.readReal();
+        if (headerExtraParameters.findAndReadNextHeader()) {
+            ShowerExtraParameters ep = new ShowerExtraParameters();
+            ep.isSet = 0;
 
+            if (headerExtraParameters.version != 1) {
+                buffer.dataStream.skipBytes(headerExtraParameters.length);
+                log.error("Skipping MCShower because version is not 1, but " + headerExtraParameters.version);
+            }
 
-        return null;
+            ep.id = headerExtraParameters.identification;
+            ep.weight = buffer.readReal();
+
+            // detect number of integer and float parameters dynamically
+            long ni = buffer.readCount();
+            long nf = buffer.readCount();
+
+            // fill the iparam list
+            if (ni > 0){
+                if (ni != ep.niparam){
+                    ep.iparam = new int[(int) ni];
+                    for (int i = 0; i < ni; i++) {
+                        ep.iparam[i] = buffer.readInt32();
+                    }
+                }
+            }
+            ep.niparam = ni;
+
+            // fill the fparam list
+            if (nf > 0){
+                if (nf != ep.nfparam){
+                    ep.fparam = new double[(int) nf];
+                    for (int i = 0; i < nf; i++) {
+                        ep.fparam[i] = buffer.readReal();
+                    }
+                }
+            }
+            ep.nfparam = nf;
+
+            ep.isSet = 1;
+
+            // count the levels down etc.
+            headerExtraParameters.getItemEnd();
+
+            return ep;
+        } else {
+            return null;
+        }
     }
 }
 
@@ -166,7 +215,7 @@ class ShowerExtraParameters {
      * May be reset after writing the parameter block and must thus be set to 1 for each shower for
      * which the extra parameters should get recorded.
      */
-    int is_set;
+    int isSet;
 
     /**
      * To be used if the weight of a shower may change during processing, e.g. when shower
