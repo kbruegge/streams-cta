@@ -71,10 +71,10 @@ public class EventIOHeader {
         long thisType;
         long wantedType;
         int ilevel = buffer.itemLevel;
-        long previousRemaining;
-        int previousLevel, previousOrder;
-
-        previousLevel = buffer.itemLevel;
+//        long previousRemaining;
+//        int previousLevel, previousOrder;
+//
+//        previousLevel = buffer.itemLevel;
 
         //TODO use the right constant
         if (ilevel >= 100) {
@@ -177,26 +177,16 @@ public class EventIOHeader {
      * @return true, if marker was found; otherwise false.
      */
     private boolean findSynchronisationMarker() {
-        // TODO: can we make it faster by reading the stream byte by byte?
         // find_io_block in eventio.c
         int firstBit = 0;
         int reverse = 1;
         int state = 0;
 
-        //byte[] bytes = new byte[4];
         int[] syncMarker = {0xD4, 0x1F, 0x8A, 0x37};
-//        int syncNormalOrderInt = 0xD41F8A37;
-//        int syncReverseOrderInt = 0x378A1FD4;
+
         try {
             while (buffer.dataStream.available() > 0) {
                 byte b = buffer.dataStream.readByte();
-//                int intBytes = byteArrayToInt(bytes);
-//                if (intBytes == syncNormalOrderInt) {
-//                    return true;
-//                } else if (intBytes == syncReverseOrderInt) {
-//                    setReverse(true);
-//                    return true;
-//                }
 
                 if (firstBit == 0) {
                     if (b == syncMarker[0]) {
