@@ -8,29 +8,29 @@ import java.io.IOException;
 import streams.cta.Constants;
 
 /**
- * Created by alexey on 16.06.15.
+ * Implementation of reading an MC Shower block from EventIO stream. For comparison consider
+ * io_hess.{h,c} files from hessioxxx package. Created by alexey on 16.06.15.
  */
-
 public class MCShower {
 
     static Logger log = LoggerFactory.getLogger(MCShower.class);
 
-    long shower_num;
-    int primary_id;      ///< Particle ID of primary. Was in CORSIKA convention
+    long showerNum;
+    int primaryId;      ///< Particle ID of primary. Was in CORSIKA convention
     ///< where detector_prog_vers in MC run header was 0,
     ///< and is now 0 (gamma), 1(e-), 2(mu-), 100*A+Z
     ///< for nucleons and nuclei, negative for antimatter.
     double energy;       ///< primary energy [TeV]
     double azimuth;      ///< Azimuth (N->E) [rad]
     double altitude;     ///< Altitude [rad]
-    double depth_start;  ///< Atmospheric depth where particle started [g/cm^2].
+    double depthStart;  ///< Atmospheric depth where particle started [g/cm^2].
     double h_first_int;  ///< height of first interaction a.s.l. [m]
     double xmax;         ///< Atmospheric depth of shower maximum [g/cm^2],
     ///< derived from all charged particles.
     double hmax;         ///< Height of shower maximum [m] in xmax.
     double emax;         ///< Atm. depth of maximum in electron number.
     double cmax;         ///< Atm. depth of max. in Cherenkov photon emission.
-    int num_profiles;    ///< Number of profiles filled.
+    int numProfiles;    ///< Number of profiles filled.
     ShowerProfile[] profile;
     ShowerExtraParameters extra_parameters;
 
@@ -49,14 +49,14 @@ public class MCShower {
         }
 
         MCShower mcShower = new MCShower();
-        mcShower.shower_num = header.identification;
+        mcShower.showerNum = header.identification;
 
-        mcShower.primary_id = buffer.readInt32(); // int32
+        mcShower.primaryId = buffer.readInt32(); // int32
         mcShower.energy = buffer.readReal(); // real
         mcShower.azimuth = buffer.readReal(); // real
         mcShower.altitude = buffer.readReal(); // real
         if (header.version >= 1) {
-            mcShower.depth_start = buffer.readReal(); // real
+            mcShower.depthStart = buffer.readReal(); // real
         }
         mcShower.h_first_int = buffer.readReal();
         mcShower.xmax = buffer.readReal();
@@ -68,9 +68,9 @@ public class MCShower {
             mcShower.cmax = buffer.readReal();
         }
 
-        mcShower.num_profiles = buffer.readInt16(); // short
+        mcShower.numProfiles = buffer.readInt16(); // short
 
-        for (int i = 0; i < mcShower.num_profiles && i < Constants.H_MAX_PROFILE; i++) {
+        for (int i = 0; i < mcShower.numProfiles && i < Constants.H_MAX_PROFILE; i++) {
             int skip = 0;
             ShowerProfile profile = new ShowerProfile();
             profile.id = buffer.readInt32();
