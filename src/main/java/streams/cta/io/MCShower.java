@@ -127,21 +127,21 @@ public class MCShower {
     }
 
     private static void clearShowerExtraParameters(ShowerExtraParameters extra_parameters) {
-        //TODO: implement
         extra_parameters.id = 0;
         extra_parameters.isSet = 0;
         extra_parameters.weight = 1.0;
 
-//        if ( ep->iparam != NULL )
-//        {
-//            for (i=0; i<ep->niparam; i++)
-//                ep->iparam[i] = 0;
-//        }
-//        if ( ep->fparam != NULL )
-//        {
-//            for (i=0; i<ep->nfparam; i++)
-//                ep->fparam[i] = 0;
-//        }
+        if (extra_parameters.iparam != null){
+            for (int i = 0; i < extra_parameters.niparam; i++) {
+                extra_parameters.iparam[i] = 0;
+            }
+        }
+
+        if (extra_parameters.fparam != null){
+            for (int i = 0; i < extra_parameters.nfparam; i++) {
+                extra_parameters.fparam[i] = 0;
+            }
+        }
     }
 
     private static ShowerExtraParameters readShowerExtraParameters(EventIOBuffer buffer)
@@ -226,11 +226,25 @@ class ShowerExtraParameters {
     double weight;
 
     //TODO: some further parameters need to be implemented
-    //size_t niparam;/**< Number of extra integer parameters. */
-    //int *iparam;   /**< Space for extra integer parameters, at least of size
-    // niparam. */
-    //size_t nfparam;/**< Number of extra floating-point parameters. */
-    //float *fparam;   /**< Space for extra floats, at least of size nfparam. */
+    /**
+     * Number of extra integer parameters.
+     */
+    long niparam;
+
+    /**
+     * Space for extra integer parameters, at least of size niparam.
+     */
+    int[] iparam;
+
+    /**
+     * Number of extra floating-point parameters.
+     */
+    long nfparam;
+
+    /**
+     * Space for extra floats, at least of size nfparam.
+     */
+    double[] fparam;
 }
 
 
