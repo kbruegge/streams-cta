@@ -82,6 +82,15 @@ public class EventIOBuffer {
         }
     }
 
+    /**
+     * Read an unsigned byte from the stream as int.
+     * @return unsigned byte as int
+     * @throws IOException
+     */
+    public int readByte() throws IOException{
+        return dataStream.readUnsignedByte();
+    }
+
     //TODO: use float here?
     public double readReal() throws IOException {
         byte[] b = new byte[4];
@@ -148,4 +157,74 @@ public class EventIOBuffer {
             return ByteBuffer.wrap(b).getLong();
         }
     }
+
+    /**
+     * Description from hessioxxx:
+     *  @short Get an unsigned integer of unspecified length from an I/O buffer.
+     *
+     *  Get an unsigned integer of unspecified length from an I/O buffer
+     *  where it is encoded in a way similar to the UTF-8 character encoding.
+     *  Even though the scheme in principle allows for arbitrary length
+     *  data, the current implementation is limited for data of up to 64 bits.
+     *  On systems with @c uintmax_t shorter than 64 bits, the result
+     *  could be clipped unnoticed. It could also be clipped unnoticed in
+     *  the application calling this function.
+     */
+    public long readCount() throws IOException {
+
+        int countLength = 9;
+        long[] count = new long[countLength];
+
+        int[] masks = new int[]{0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe, 0xff};
+
+        int length = 1;
+        if ((count[0] & masks[0]) == 0){
+            calculateCount(count, length);
+        }
+
+        // TODO: control that this math works the same way as in hessioxxx
+        long result = 0;
+        for (int i = 1; i < countLength; i++) {
+            count[i] = readByte();
+            if ((count[0] & masks[i]) == masks[i - 1]){
+                result = calculateCount(count, length);
+            }
+        }
+
+//        count[0] = readByte();
+//        if ((count[0] & masks[0]) == 0){
+//            return count[0];
+//        }
+//
+//        count[1] = readByte();
+//        if ((count[0] & masks[1]) == masks[0]){
+//            return ((count[0] & 0x3f) << 8 | count[1]);
+//        }
+//
+//        count[2] = readByte();
+//        if ((count[0] & masks[2]) == masks[1]){
+//            return ((count[0] & 0x1f) << 16 | (count[1] << 8) | count[2]);
+//        }
+
+        return result;
+    }
+
+    private long calculateCount(long[] count, int length){
+        int[] bitmasks = new int[]{0x3f, 0x1f, 0x0f, 0x07, 0x03, 0x01};
+
+        long temp = count[length - 1];
+        int shift = 0;
+
+        for (int i = length - 2; i >= 1; i--) {
+            temp |= (count[i] << shift);
+            shift += 8;
+        }
+
+        if (length <= 6 && length > 1){
+            temp |= ((count[0] & bitmasks[length - 1]) & shift);
+        }
+
+        return temp;
+    }
+
 }
