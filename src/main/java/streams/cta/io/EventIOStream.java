@@ -55,7 +55,6 @@ public class EventIOStream extends AbstractStream {
     public void init() throws Exception {
         super.init();
 
-        eventData = new EventIOData();
 
         // try opening file from the given URL
         File f = new File(this.url.getFile());
@@ -66,12 +65,17 @@ public class EventIOStream extends AbstractStream {
                     + f.getAbsolutePath());
         }
 
+        // initialize data stream
         BufferedInputStream bStream = new BufferedInputStream(
                 url.openStream(),
                 bufferSize);
         dataStream = new DataInputStream(bStream);
 
+        // initialize buffer containing the data stream to read from it
         buffer = new EventIOBuffer(dataStream);
+
+        // initialize data object containing all the parsed data from the stream
+        eventData = new EventIOData();
 
         // import the registered types
         importEventioRegisteredDatatypes();
