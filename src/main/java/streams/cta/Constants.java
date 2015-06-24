@@ -7,4 +7,5 @@ public class Constants {
 
     public static final int H_MAX_PROFILE = 10;
     public static final int MAX_IO_ITEM_LEVEL = 20;
+    public static final int H_MAX_TEL = 16;
 }
