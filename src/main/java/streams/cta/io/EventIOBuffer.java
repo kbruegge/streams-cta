@@ -65,24 +65,6 @@ public class EventIOBuffer {
     }
 
     /**
-     * Calculate integer value of a byte array with a length of 4
-     *
-     * @param b byte array
-     * @return integer value of a byte array
-     */
-    public int byteArrayToInt(byte[] b) {
-        if (b.length != 4) {
-            // TODO throw exception if this should happen?
-            return 0;
-        }
-        if (EventIOStream.reverse) {
-            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
-        } else {
-            return ByteBuffer.wrap(b).getInt();
-        }
-    }
-
-    /**
      * Read an unsigned byte from the stream as int.
      * @return unsigned byte as int
      * @throws IOException
