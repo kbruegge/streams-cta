@@ -30,8 +30,10 @@ public class Throughput extends AbstractProcessor {
      */
     @Override
     public Data process(Data input) {
-        CTAEvent ev = (CTAEvent) input.get("@event");
-        pixelCount += ev.numberOfPixels;
+        if (input != null) {
+            CTAEvent ev = (CTAEvent) input.get("@event");
+            pixelCount += ev.numberOfPixels;
+        }
         return input;
     }
 
