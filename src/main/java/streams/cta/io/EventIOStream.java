@@ -139,8 +139,4 @@ public class EventIOStream extends AbstractStream {
     public void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
     }
-
-    class EventIOData {
-        MCShower mcShower;
-    }
 }
