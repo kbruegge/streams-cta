@@ -121,19 +121,24 @@ public class MCShower {
                 // TODO: can something go wrong? possibly skip until the next block?!
             }
         } else {
-            clearShowerExtraParameters(mcShower.extra_parameters);
+            mcShower.extraParameters = clearShowerExtraParameters(mcShower.extraParameters);
         }
         return mcShower;
     }
 
-    private static void clearShowerExtraParameters(ShowerExtraParameters extra_parameters) {
-        extra_parameters.id = 0;
-        extra_parameters.isSet = 0;
-        extra_parameters.weight = 1.0;
+    /**
+     * Reset all the values for the object of type ShowerExtraParameters
+     * @param extraParameters object with the default values set
+     */
+    private static ShowerExtraParameters clearShowerExtraParameters(
+            ShowerExtraParameters extraParameters) {
+        extraParameters.id = 0;
+        extraParameters.isSet = 0;
+        extraParameters.weight = 1.0;
 
-        if (extra_parameters.iparam != null){
-            for (int i = 0; i < extra_parameters.niparam; i++) {
-                extra_parameters.iparam[i] = 0;
+        if (extraParameters.iparam != null) {
+            for (int i = 0; i < extraParameters.niparam; i++) {
+                extraParameters.iparam[i] = 0;
             }
         }
 
@@ -142,6 +147,8 @@ public class MCShower {
                 extraParameters.fparam[i] = 0;
             }
         }
+
+        return extraParameters;
     }
 
     private static ShowerExtraParameters readShowerExtraParameters(EventIOBuffer buffer)
