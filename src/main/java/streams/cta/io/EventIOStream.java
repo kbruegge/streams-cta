@@ -98,6 +98,8 @@ public class EventIOStream extends AbstractStream {
                 item.put("@event", event);
             }
             header.getItemEnd();
+        }else{
+            log.info("Next sync marker has not been found.");
         }
         reverse = false;
         return item;
