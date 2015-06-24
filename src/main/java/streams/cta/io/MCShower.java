@@ -24,7 +24,7 @@ public class MCShower {
     double azimuth;      ///< Azimuth (N->E) [rad]
     double altitude;     ///< Altitude [rad]
     double depthStart;  ///< Atmospheric depth where particle started [g/cm^2].
-    double h_first_int;  ///< height of first interaction a.s.l. [m]
+    double hFirstInt;  ///< height of first interaction a.s.l. [m]
     double xmax;         ///< Atmospheric depth of shower maximum [g/cm^2],
     ///< derived from all charged particles.
     double hmax;         ///< Height of shower maximum [m] in xmax.
@@ -32,12 +32,12 @@ public class MCShower {
     double cmax;         ///< Atm. depth of max. in Cherenkov photon emission.
     int numProfiles;    ///< Number of profiles filled.
     ShowerProfile[] profile;
-    ShowerExtraParameters extra_parameters;
+    ShowerExtraParameters extraParameters;
 
 
     public MCShower() {
         profile = new ShowerProfile[Constants.H_MAX_PROFILE];
-        extra_parameters = new ShowerExtraParameters();
+        extraParameters = new ShowerExtraParameters();
     }
 
     public static MCShower readMCShower(EventIOBuffer buffer, EventIOHeader header)
@@ -58,7 +58,7 @@ public class MCShower {
         if (header.version >= 1) {
             mcShower.depthStart = buffer.readReal(); // real
         }
-        mcShower.h_first_int = buffer.readReal();
+        mcShower.hFirstInt = buffer.readReal();
         mcShower.xmax = buffer.readReal();
         mcShower.hmax = mcShower.emax = mcShower.cmax = 0d;
 
@@ -115,8 +115,8 @@ public class MCShower {
         }
 
         if (header.version >= 2) {
-            mcShower.extra_parameters = readShowerExtraParameters(buffer);
-            if (mcShower.extra_parameters == null){
+            mcShower.extraParameters = readShowerExtraParameters(buffer);
+            if (mcShower.extraParameters == null) {
                 log.error("Something went wrong while reading shower extra parameters");
                 // TODO: can something go wrong? possibly skip until the next block?!
             }
@@ -137,9 +137,9 @@ public class MCShower {
             }
         }
 
-        if (extra_parameters.fparam != null){
-            for (int i = 0; i < extra_parameters.nfparam; i++) {
-                extra_parameters.fparam[i] = 0;
+        if (extraParameters.fparam != null) {
+            for (int i = 0; i < extraParameters.nfparam; i++) {
+                extraParameters.fparam[i] = 0;
             }
         }
     }
@@ -160,7 +160,8 @@ public class MCShower {
 
             if (headerExtraParameters.version != 1) {
                 buffer.dataStream.skipBytes(headerExtraParameters.length);
-                log.error("Skipping MCShower because version is not 1, but " + headerExtraParameters.version);
+                log.error("Skipping MCShower because version is not 1, but "
+                        + headerExtraParameters.version);
             }
 
             ep.id = headerExtraParameters.identification;
@@ -171,8 +172,8 @@ public class MCShower {
             long nf = buffer.readCount();
 
             // fill the iparam list
-            if (ni > 0){
-                if (ni != ep.niparam){
+            if (ni > 0) {
+                if (ni != ep.niparam) {
                     ep.iparam = new int[(int) ni];
                     for (int i = 0; i < ni; i++) {
                         ep.iparam[i] = buffer.readInt32();
@@ -182,8 +183,8 @@ public class MCShower {
             ep.niparam = ni;
 
             // fill the fparam list
-            if (nf > 0){
-                if (nf != ep.nfparam){
+            if (nf > 0) {
+                if (nf != ep.nfparam) {
                     ep.fparam = new double[(int) nf];
                     for (int i = 0; i < nf; i++) {
                         ep.fparam[i] = buffer.readReal();
@@ -199,6 +200,8 @@ public class MCShower {
 
             return ep;
         } else {
+            log.error("Something went wrong while searching for or reading "
+                    + "header for the subobject 'shower extra parameters'.");
             return null;
         }
     }

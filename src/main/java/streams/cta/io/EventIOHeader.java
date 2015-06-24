@@ -201,7 +201,7 @@ public class EventIOHeader {
                 } else {
                     if (b == (byte) syncMarker[state]) {
                         state += reverse;
-                    } else{
+                    } else {
                         firstBit = 0;
                         state = 0;
                         reverse = 1;

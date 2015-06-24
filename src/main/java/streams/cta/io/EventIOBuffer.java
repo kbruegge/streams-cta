@@ -39,11 +39,11 @@ public class EventIOBuffer {
     /**
      * Count of synchronization errors.
      */
-    int sync_err_count;
+    int syncErrCount;
     /**
      * Maximum accepted number of synchronisation errors.
      */
-    int sync_err_max;
+    int syncErrMax;
 
     DataInputStream dataStream;
 
@@ -66,10 +66,10 @@ public class EventIOBuffer {
 
     /**
      * Read an unsigned byte from the stream as int.
+     *
      * @return unsigned byte as int
-     * @throws IOException
      */
-    public int readByte() throws IOException{
+    public int readByte() throws IOException {
         return dataStream.readUnsignedByte();
     }
 
@@ -142,15 +142,14 @@ public class EventIOBuffer {
 
     /**
      * Description from hessioxxx:
-     *  @short Get an unsigned integer of unspecified length from an I/O buffer.
      *
-     *  Get an unsigned integer of unspecified length from an I/O buffer
-     *  where it is encoded in a way similar to the UTF-8 character encoding.
-     *  Even though the scheme in principle allows for arbitrary length
-     *  data, the current implementation is limited for data of up to 64 bits.
-     *  On systems with @c uintmax_t shorter than 64 bits, the result
-     *  could be clipped unnoticed. It could also be clipped unnoticed in
-     *  the application calling this function.
+     * @short Get an unsigned integer of unspecified length from an I/O buffer.
+     *
+     * Get an unsigned integer of unspecified length from an I/O buffer where it is encoded in a way
+     * similar to the UTF-8 character encoding. Even though the scheme in principle allows for
+     * arbitrary length data, the current implementation is limited for data of up to 64 bits. On
+     * systems with @c uintmax_t shorter than 64 bits, the result could be clipped unnoticed. It
+     * could also be clipped unnoticed in the application calling this function.
      */
     public long readCount() throws IOException {
 
@@ -160,7 +159,7 @@ public class EventIOBuffer {
         int[] masks = new int[]{0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe, 0xff};
 
         int length = 1;
-        if ((count[0] & masks[0]) == 0){
+        if ((count[0] & masks[0]) == 0) {
             calculateCount(count, length);
         }
 
@@ -168,7 +167,7 @@ public class EventIOBuffer {
         long result = 0;
         for (int i = 1; i < countLength; i++) {
             count[i] = readByte();
-            if ((count[0] & masks[i]) == masks[i - 1]){
+            if ((count[0] & masks[i]) == masks[i - 1]) {
                 result = calculateCount(count, length);
             }
         }
@@ -191,7 +190,7 @@ public class EventIOBuffer {
         return result;
     }
 
-    private long calculateCount(long[] count, int length){
+    private long calculateCount(long[] count, int length) {
         int[] bitmasks = new int[]{0x3f, 0x1f, 0x0f, 0x07, 0x03, 0x01};
 
         long temp = count[length - 1];
@@ -202,7 +201,7 @@ public class EventIOBuffer {
             shift += 8;
         }
 
-        if (length <= 6 && length > 1){
+        if (length <= 6 && length > 1) {
             temp |= ((count[0] & bitmasks[length - 1]) & shift);
         }
 
