@@ -162,10 +162,12 @@ class CentralEvent {
 /**
  * Breakdown of time into seconds since 1970.0 and nanoseconds.
  */
+//TODO any better java structure for this purpose?!
 class HTime {
     long seconds;
     long nanoseconds;
 }
+
 /**
  * Event raw and image data from one telescope.
  */
