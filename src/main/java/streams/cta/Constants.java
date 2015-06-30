@@ -17,4 +17,6 @@ public class Constants {
 
     /**< Maximum number of time slices handled. */
     public static final int H_MAX_SLICES = 128;
+
+    public static final int H_MAX_PIX_TIMES = 7;
 }
