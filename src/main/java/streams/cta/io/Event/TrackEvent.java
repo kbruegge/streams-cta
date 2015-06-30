@@ -1,8 +1,7 @@
 package streams.cta.io.Event;
 
 /**
- * Tracking data interpolated for one event and one telescope.
- * Created by alexey on 30.06.15.
+ * Tracking data interpolated for one event and one telescope. Created by alexey on 30.06.15.
  */
 public class TrackEvent {
     int telId;            ///< The telescope ID number (1 ... n)

@@ -3,8 +3,7 @@ package streams.cta.io.Event;
 import streams.cta.Constants;
 
 /**
- * Reconstructed shower parameters.
- * Created by alexey on 30.06.15.
+ * Reconstructed shower parameters. Created by alexey on 30.06.15.
  */
 public class ShowerParameters {
     int known;
@@ -13,12 +12,14 @@ public class ShowerParameters {
     int numImg;      ///< Number of images used for shower parameters.
     int imgPattern;  ///< Bit pattern of which telescopes were used (for small no. of telescopes only).
     int[] imgList; ///< With more than 16 or 32 telescopes, we can only use the list.
-    int resultBits;  /**< Bit pattern of what results are available:
-     Bits 0 + 1: direction + errors
-     Bits 2 + 3: core position + errors
-     Bits 4 + 5: mean scaled image shape + errors
-     Bits 6 + 7: energy + error
-     Bits 8 + 9: shower maximum + error	       */
+
+    /**
+     * Bit pattern of what results are available: Bits 0 + 1: direction + errors Bits 2 + 3: core
+     * position + errors Bits 4 + 5: mean scaled image shape + errors Bits 6 + 7: energy + error
+     * Bits 8 + 9: shower maximum + error
+     */
+    int resultBits;
+
     double azimuthAngle;        ///< Azimuth angle [radians from N->E]
     double altitude;       ///< Altitude [radians]
     double errDir1;  ///< Error estimate in nominal plane X direction (|| Alt) [rad]
@@ -38,7 +39,7 @@ public class ShowerParameters {
     double xmax;      ///< Atmospheric depth of shower maximum [g/cm^2].
     double errXmax;
 
-    public ShowerParameters(){
+    public ShowerParameters() {
         imgList = new int[Constants.H_MAX_TEL];
     }
 }
