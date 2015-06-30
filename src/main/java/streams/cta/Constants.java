@@ -19,4 +19,9 @@ public class Constants {
     public static final int H_MAX_SLICES = 128;
 
     public static final int H_MAX_PIX_TIMES = 7;
+
+    /**
+     * The max. size of the list of hottest pix.
+     */
+    public static final int H_MAX_HOTPIX = 5;
 }
