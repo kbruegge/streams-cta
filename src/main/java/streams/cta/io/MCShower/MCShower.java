@@ -1,4 +1,4 @@
-package streams.cta.io;
+package streams.cta.io.MCShower;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 import streams.cta.Constants;
+import streams.cta.io.EventIOBuffer;
+import streams.cta.io.EventIOHeader;
 
 /**
  * Implementation of reading an MC Shower block from EventIO stream. For comparison consider
@@ -42,27 +44,27 @@ public class MCShower {
 
     public static MCShower readMCShower(EventIOBuffer buffer, EventIOHeader header)
             throws IOException {
-        if (header.version > 2) {
-            log.error("Unsupported MC shower version: " + header.version);
-            buffer.dataStream.skipBytes(header.length);
+        if (header.getVersion() > 2) {
+            log.error("Unsupported MC shower version: " + header.getVersion());
+            buffer.skipBytes(header.getLength());
             return null;
         }
 
         MCShower mcShower = new MCShower();
-        mcShower.showerNum = header.identification;
+        mcShower.showerNum = header.getIdentification();
 
         mcShower.primaryId = buffer.readInt32(); // int32
         mcShower.energy = buffer.readReal(); // real
         mcShower.azimuth = buffer.readReal(); // real
         mcShower.altitude = buffer.readReal(); // real
-        if (header.version >= 1) {
+        if (header.getVersion() >= 1) {
             mcShower.depthStart = buffer.readReal(); // real
         }
         mcShower.hFirstInt = buffer.readReal();
         mcShower.xmax = buffer.readReal();
         mcShower.hmax = mcShower.emax = mcShower.cmax = 0d;
 
-        if (header.version >= 1) {
+        if (header.getVersion() >= 1) {
             mcShower.hmax = buffer.readReal();
             mcShower.emax = buffer.readReal();
             mcShower.cmax = buffer.readReal();
@@ -114,7 +116,7 @@ public class MCShower {
             mcShower.profile[i] = profile;
         }
 
-        if (header.version >= 2) {
+        if (header.getVersion() >= 2) {
             mcShower.extraParameters = readShowerExtraParameters(buffer);
             if (mcShower.extraParameters == null) {
                 log.error("Something went wrong while reading shower extra parameters");
@@ -128,6 +130,7 @@ public class MCShower {
 
     /**
      * Reset all the values for the object of type ShowerExtraParameters
+     *
      * @param extraParameters object with the default values set
      */
     private static ShowerExtraParameters clearShowerExtraParameters(
@@ -165,13 +168,13 @@ public class MCShower {
             ShowerExtraParameters ep = new ShowerExtraParameters();
             ep.isSet = 0;
 
-            if (headerExtraParameters.version != 1) {
-                buffer.dataStream.skipBytes(headerExtraParameters.length);
+            if (headerExtraParameters.getVersion() != 1) {
+                buffer.skipBytes(headerExtraParameters.getLength());
                 log.error("Skipping MCShower because version is not 1, but "
-                        + headerExtraParameters.version);
+                        + headerExtraParameters.getVersion());
             }
 
-            ep.id = headerExtraParameters.identification;
+            ep.id = headerExtraParameters.getIdentification();
             ep.weight = buffer.readReal();
 
             // detect number of integer and float parameters dynamically
@@ -212,73 +215,4 @@ public class MCShower {
             return null;
         }
     }
-}
-
-
-class ShowerExtraParameters {
-    /**
-     * May identify to the user what the parameters should mean.
-     */
-    long id;
-
-    /**
-     * May be reset after writing the parameter block and must thus be set to 1 for each shower for
-     * which the extra parameters should get recorded.
-     */
-    int isSet;
-
-    /**
-     * To be used if the weight of a shower may change during processing, e.g. when shower
-     * processing can be aborted depending on how quickly the electromagnetic component builds up
-     * and the remaining showers may have a larger weight to compensate for that. For backwards
-     * compatibility this should be set to 1.0 when no additional weight is needed.
-     */
-    double weight;
-
-    //TODO: some further parameters need to be implemented
-    /**
-     * Number of extra integer parameters.
-     */
-    long niparam;
-
-    /**
-     * Space for extra integer parameters, at least of size niparam.
-     */
-    int[] iparam;
-
-    /**
-     * Number of extra floating-point parameters.
-     */
-    long nfparam;
-
-    /**
-     * Space for extra floats, at least of size nfparam.
-     */
-    double[] fparam;
-}
-
-
-class ShowerProfile {
-    /**
-     * @short Type of profile (also determines units below).
-     *
-     * Temptative definitions:
-     * @li 1000*k + 1:  Profile of all charged particles.
-     * @li 1000*k + 2:  Profile of electrons+positrons.
-     * @li 1000*k + 3:  Profile of muons.
-     * @li 1000*k + 4:  Profile of hadrons.
-     * @li 1000*k + 10: Profile of Cherenkov photon emission [1/m].
-     *
-     * The value of k specifies the binning:
-     * @li k = 0: The profile is in terms of atmospheric depth along the shower axis.
-     * @li k = 1: in terms of vertical atmospheric depth.
-     * @li k = 2: in terms of altitude [m] above sea level.
-     */
-    int id;
-    int numSteps;       ///< Number of histogram steps
-    int maxSteps;       ///< Number of allowed steps as allocated for content
-    double start;        ///< Start of ordinate ([m] or [g/cm^2])
-    double end;          ///< End of it.
-    double binsize;      ///< (End-Start)/numSteps; not saved
-    double[] content;     ///< Histogram contents (allocated on demand).
 }
