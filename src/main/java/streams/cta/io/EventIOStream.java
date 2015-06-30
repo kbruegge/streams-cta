@@ -19,6 +19,7 @@ import stream.data.DataFactory;
 import stream.io.AbstractStream;
 import stream.io.SourceURL;
 import streams.cta.CTAEvent;
+import streams.cta.io.MCShower.MCShower;
 
 /**
  * Created by alexey on 02.06.15.

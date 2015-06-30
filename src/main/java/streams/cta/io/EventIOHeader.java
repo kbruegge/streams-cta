@@ -246,4 +246,16 @@ public class EventIOHeader {
             // TODO stop reading!!
         }
     }
+
+    public long getVersion() {
+        return version;
+    }
+
+    public int getLength() {
+        return length;
+    }
+
+    public long getIdentification() {
+        return identification;
+    }
 }
