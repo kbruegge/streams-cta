@@ -101,6 +101,7 @@ public class EventIOBuffer {
         }
     }
 
+    //TODO check conversion from int to long?!
     public int readLong() throws IOException {
         byte[] b = new byte[4];
         dataStream.read(b);
