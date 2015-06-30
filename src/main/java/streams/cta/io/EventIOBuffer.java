@@ -1,5 +1,8 @@
 package streams.cta.io;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -11,6 +14,8 @@ import streams.cta.Constants;
  * Created by alexey on 17.06.15.
  */
 public class EventIOBuffer {
+
+    static Logger log = LoggerFactory.getLogger(EventIOBuffer.class);
 
     /**
      * Current level of nesting of items.
@@ -137,6 +142,14 @@ public class EventIOBuffer {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getLong();
         } else {
             return ByteBuffer.wrap(b).getLong();
+        }
+    }
+
+    public void skipBytes(int length) {
+        try {
+            dataStream.skipBytes(length);
+        } catch (IOException e) {
+            log.error("Skipping bytes produced an error:\n" + e.getMessage());
         }
     }
 
