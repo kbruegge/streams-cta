@@ -1,5 +1,8 @@
 package streams.cta.io.Event;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import streams.cta.Constants;
 import streams.cta.io.HTime;
 
@@ -10,6 +13,8 @@ public /**
  * Central trigger event data
  */
 class CentralEvent {
+
+    static Logger log = LoggerFactory.getLogger(CentralEvent.class);
 
     /**
      * Global event count.
