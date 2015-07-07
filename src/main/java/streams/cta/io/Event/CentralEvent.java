@@ -174,6 +174,7 @@ class CentralEvent {
                     }
                 }
             }
+            headerNext.getItemEnd();
         } catch (IOException e) {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());
         }
