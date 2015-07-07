@@ -18,25 +18,67 @@ public class MCShower {
     static Logger log = LoggerFactory.getLogger(MCShower.class);
 
     long showerNum;
-    int primaryId;      ///< Particle ID of primary. Was in CORSIKA convention
-    ///< where detector_prog_vers in MC run header was 0,
-    ///< and is now 0 (gamma), 1(e-), 2(mu-), 100*A+Z
-    ///< for nucleons and nuclei, negative for antimatter.
-    double energy;       ///< primary energy [TeV]
-    double azimuth;      ///< Azimuth (N->E) [rad]
-    double altitude;     ///< Altitude [rad]
-    double depthStart;  ///< Atmospheric depth where particle started [g/cm^2].
-    double hFirstInt;  ///< height of first interaction a.s.l. [m]
-    double xmax;         ///< Atmospheric depth of shower maximum [g/cm^2],
-    ///< derived from all charged particles.
-    double hmax;         ///< Height of shower maximum [m] in xmax.
-    double emax;         ///< Atm. depth of maximum in electron number.
-    double cmax;         ///< Atm. depth of max. in Cherenkov photon emission.
-    int numProfiles;    ///< Number of profiles filled.
+
+    /**
+     * Particle ID of primary. Was in CORSIKA convention where detector_prog_vers in MC run header
+     * was 0, and is now 0 (gamma), 1(e-), 2(mu-), 100*A+Z for nucleons and nuclei, negative for
+     * antimatter.
+     */
+    int primaryId;
+
+    /**
+     * primary energy [TeV]
+     */
+    double energy;
+
+    /**
+     * Azimuth (N->E) [rad]
+     */
+    double azimuth;
+
+    /**
+     * Altitude [rad]
+     */
+    double altitude;
+
+    /**
+     * Atmospheric depth where particle started [g/cm^2].
+     */
+    double depthStart;
+
+    /**
+     * height of first interaction a.s.l. [m]
+     */
+    double hFirstInt;
+
+    /**
+     * Atmospheric depth of shower maximum [g/cm^2], derived from all charged particles.
+     */
+    double xmax;
+
+    /**
+     * Height of shower maximum [m] in xmax.
+     */
+    double hmax;
+
+    /**
+     * Atm. depth of maximum in electron number.
+     */
+    double emax;
+
+    /**
+     * Atm. depth of max. in Cherenkov photon emission.
+     */
+    double cmax;
+
+    /**
+     * Number of profiles filled.
+     */
+    int numProfiles;
+
     ShowerProfile[] profile;
     ShowerExtraParameters extraParameters;
-
-
+    
     public MCShower() {
         profile = new ShowerProfile[Constants.H_MAX_PROFILE];
         extraParameters = new ShowerExtraParameters();
