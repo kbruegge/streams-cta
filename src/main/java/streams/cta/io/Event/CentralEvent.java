@@ -46,7 +46,7 @@ class CentralEvent {
     /**
      * How many telescopes triggered.
      */
-    int numTeltrg;
+    int numTelTriggered;
 
     /**
      * List of IDs of triggered telescopes.
@@ -71,7 +71,7 @@ class CentralEvent {
     /**
      * Number of telescopes expected to have data.
      */
-    int numTeldata;
+    int numTelData;
 
     /**
      * List of IDs of telescopes with data.
