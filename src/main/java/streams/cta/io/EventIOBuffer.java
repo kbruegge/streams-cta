@@ -335,4 +335,8 @@ public class EventIOBuffer {
         }
         return gTelIdx[gTelIdxRef][telId];
     }
+
+    public void readShower() {
+        //TODO implement and move to another class
+    }
 }

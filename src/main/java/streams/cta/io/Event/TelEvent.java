@@ -1,13 +1,14 @@
 package streams.cta.io.Event;
 
 import streams.cta.Constants;
+import streams.cta.io.EventIOBuffer;
 import streams.cta.io.HTime;
 
 /**
  * Event raw and image data from one telescope. Created by alexey on 30.06.15.
  */
 public class TelEvent {
-    int known;
+    boolean known;
 
     /**
      * The telescope ID number (1 ... n)
@@ -118,5 +119,9 @@ public class TelEvent {
         pixcal = new PixelCalibrated();
         triggerPixels = new PixelList();
         imagePixels = new PixelList();
+    }
+
+    public void readTelEvent(EventIOBuffer buffer) {
+        //TODO implement
     }
 }

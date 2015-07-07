@@ -86,7 +86,7 @@ public class FullEvent {
         // read_hess.c: lines 2133
         // hsdata->event.num_tel = hsdata->run_header.ntel;
         for (int i = 0; i < numTel; i++) {
-            teldata[i].known = 0;
+            teldata[i].known = false;
             trackdata[i].rawKnown = false;
             trackdata[i].corKnown = false;
         }
@@ -110,14 +110,30 @@ public class FullEvent {
                     header.getItemEnd();
                     break;
                 }
-
                 trackdata[telNumber].readTrackEvent(buffer);
 
             } else if (type >= Constants.TYPE_TEL_EVENT &&
                     type <= Constants.TYPE_TEL_EVENT + Constants.H_MAX_TEL) {
                 // read televent
+                int telId = (type - Constants.TYPE_TEL_EVENT) % 100 +
+                        100 * ((type - Constants.TYPE_TEL_EVENT) / 1000);
+                int telNumber = buffer.findTelIndex(telId);
+                if (telNumber < 0){
+                    log.warn("Telescope number out of range for telescope event data.");
+                    header.getItemEnd();
+                    break;
+                }
+
+                //TODO by using THIS header one can skip THIS current item
+                teldata[telNumber].readTelEvent(buffer);
+
+                if ((numTeldata < Constants.H_MAX_TEL) && teldata[telNumber].known){
+                    teldataList[numTeldata++] = teldata[telNumber].telId;
+                }
             } else if (type == Constants.TYPE_SHOWER) {
                 // read shower
+                //TODO use THIS header to skip THIS item if something goes wrong
+                buffer.readShower();
             } else {
                 // invalid item type.
                 // TODO skip item
