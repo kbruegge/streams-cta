@@ -21,34 +21,49 @@ public class EventIOBuffer {
      * Current level of nesting of items.
      */
     int itemLevel;
+
     /**
      * Length of each level of items
      */
     long[] itemLength;
+
     /**
      * Length of its sub-items
      */
     long[] subItemLength;
+
     /**
      * Where the item starts in buffer.
      */
     long[] itemStartOffset;
+
     /**
      * Where the extension field was used.
      */
     boolean[] itemExtension;
+
     /**
      * Set if block is not in internal byte order.
      */
     int dataPending;
+
     /**
      * Count of synchronization errors.
      */
     int syncErrCount;
+
     /**
      * Maximum accepted number of synchronisation errors.
      */
     int syncErrMax;
+
+    static int[][] gTelIdx = new int[3][Constants.H_MAX_TEL + 1];
+    static int[] gTelIdxInit = new int[3];
+
+    /**
+     * Reference number when dealing with multiple telescope lookup tables.
+     */
+    static int gTelIdxRef = 0;
 
     DataInputStream dataStream;
 
@@ -173,7 +188,7 @@ public class EventIOBuffer {
         }
     }
 
-    public int nextSubitemType (){
+    public int nextSubitemType() {
         dataStream.mark(100);
 
         // Are we beyond the last sub-item?
@@ -182,7 +197,7 @@ public class EventIOBuffer {
             // will be beyond the next smaller level (superiour) item after
             // reading this item's header.
             // TODO do the check as in eventio.c, line 3454
-        }else if (itemLevel == 0){
+        } else if (itemLevel == 0) {
             return -1;
         }
 
@@ -283,5 +298,27 @@ public class EventIOBuffer {
             result[i] = (float) readReal();
         }
         return result;
+    }
+
+    /**
+     * Lookup from telescope ID to offset number (index) in structures.
+     *
+     * The lookup table must have been filled before with set_tel_idx(). When dealing with multiple
+     * lookups, use set_tel_idx_ref() first to select the lookup table to be used.
+     *
+     * @param telId A telescope ID for which we want the index count.
+     * @return >= 0 (index in the original list passed to set_tel_idx), -1 (not found in index, -2
+     * (index not initialized).
+     */
+    public int findTelIndex(int telId) {
+        if (gTelIdxInit[gTelIdxRef] == 0) {
+            log.warn("Index was not initialized.");
+            return -2;
+        }
+        if (telId < 0) {
+            log.warn("Negative ID was given.");
+            return -1;
+        }
+        return gTelIdx[gTelIdxRef][telId];
     }
 }
