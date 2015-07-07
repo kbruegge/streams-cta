@@ -49,12 +49,18 @@ public class FullEvent {
     int[] teldataList;
 
     public FullEvent() {
+        this(Constants.H_MAX_TEL);
         numTel = 0;
         numTeldata = 0;
-        teldata = new TelEvent[Constants.H_MAX_TEL];
-        trackdata = new TrackEvent[Constants.H_MAX_TEL];
+    }
+
+    public FullEvent(int numberTelescopes){
+        numTel = numberTelescopes;
+        numTeldata = 0;
+        teldata = new TelEvent[numberTelescopes];
+        trackdata = new TrackEvent[numberTelescopes];
+        teldataList = new int[numberTelescopes];
         shower = new ShowerParameters();
-        teldataList = new int[Constants.H_MAX_TEL];
         central = new CentralEvent();
     }
 }
