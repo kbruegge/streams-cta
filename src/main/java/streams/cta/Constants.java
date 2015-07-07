@@ -15,6 +15,8 @@ public class Constants {
     public static final int H_MAX_TRG_PER_SECTOR = 1;
     public static final int H_MAX_SECTORS = H_MAX_PIX * H_MAX_TRG_PER_SECTOR;
 
+    public static final int MAX_TEL_TRIGGERS = 3;
+
     /**
      * Maximum number of different gains per PM
      */
