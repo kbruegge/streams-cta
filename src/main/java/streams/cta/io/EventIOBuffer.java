@@ -269,4 +269,19 @@ public class EventIOBuffer {
         return temp;
     }
 
+    public int[] readVectorOfInts(int number) throws IOException {
+        int[] result = new int[number];
+        for (int i = 0; i < number; i++) {
+            result[i] = readShort();
+        }
+        return result;
+    }
+
+    public float[] readVectorOfFloats(int number) throws IOException {
+        float[] result = new float[number];
+        for (int i = 0; i < number; i++) {
+            result[i] = (float) readReal();
+        }
+        return result;
+    }
 }
