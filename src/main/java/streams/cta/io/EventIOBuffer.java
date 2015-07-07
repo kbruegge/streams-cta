@@ -101,6 +101,13 @@ public class EventIOBuffer {
         return result;
     }
 
+    public byte[] readBytes(int length) throws IOException {
+        byte[] bytes = new byte[length];
+        dataStream.read(bytes);
+        readLength += length;
+        return bytes;
+    }
+
     //TODO: use float here?
     public double readReal() throws IOException {
         byte[] b = new byte[4];
