@@ -1,5 +1,8 @@
 package streams.cta.io.Event;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import streams.cta.Constants;
 
 /**
@@ -7,6 +10,8 @@ import streams.cta.Constants;
  * Created by alexey on 30.06.15.
  */
 public class FullEvent {
+
+    static Logger log = LoggerFactory.getLogger(FullEvent.class);
 
     /**
      * Number of telescopes in run.
