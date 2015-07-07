@@ -245,6 +245,9 @@ public class EventIOHeader {
         if (buffer.itemLevel == 0) {
             // TODO stop reading!!
         }
+
+        //TODO check if this goes right?!
+        buffer.skipBytes((int) buffer.subItemLength[buffer.itemLevel]);
     }
 
     public long getVersion() {

@@ -75,13 +75,17 @@ public class EventIOBuffer {
      * @return unsigned byte as int
      */
     public int readByte() throws IOException {
-        return dataStream.readUnsignedByte();
+        int result = dataStream.readUnsignedByte();
+        subItemLength[itemLevel] -= 1;
+        return result;
     }
 
     //TODO: use float here?
     public double readReal() throws IOException {
         byte[] b = new byte[4];
         dataStream.read(b);
+
+        subItemLength[itemLevel] -= 4;
 
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getFloat();
@@ -93,6 +97,8 @@ public class EventIOBuffer {
     public double readDouble() throws IOException {
         byte[] b = new byte[8];
         dataStream.read(b);
+
+        subItemLength[itemLevel] -= 8;
 
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getDouble();
@@ -106,6 +112,8 @@ public class EventIOBuffer {
         byte[] b = new byte[4];
         dataStream.read(b);
 
+        subItemLength[itemLevel] -= 4;
+
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
         } else {
@@ -116,6 +124,8 @@ public class EventIOBuffer {
     public short readInt16() throws IOException {
         byte[] b = new byte[2];
         dataStream.read(b);
+
+        subItemLength[itemLevel] -= 2;
 
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getShort();
@@ -128,6 +138,8 @@ public class EventIOBuffer {
         byte[] b = new byte[4];
         dataStream.read(b);
 
+        subItemLength[itemLevel] -= 4;
+
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
         } else {
@@ -138,6 +150,8 @@ public class EventIOBuffer {
     public long readInt64() throws IOException {
         byte[] b = new byte[8];
         dataStream.read(b);
+
+        subItemLength[itemLevel] -= 8;
 
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getLong();
