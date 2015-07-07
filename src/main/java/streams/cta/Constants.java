@@ -31,4 +31,10 @@ public class Constants {
      * The max. size of the list of hottest pix.
      */
     public static final int H_MAX_HOTPIX = 5;
+
+    public static final int TYPE_CENTRAL_EVENT = 2009;
+    public static final int TYPE_TRACK_EVENT = 2100;
+    public static final int TYPE_TEL_EVENT = 2200;
+    public static final int TYPE_SHOWER = 2015;
+
 }
