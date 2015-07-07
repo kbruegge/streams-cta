@@ -155,7 +155,7 @@ public class EventIOHeader {
         if (useExtension) {
             log.info("Extension exists.");
             // TODO dont skip
-            buffer.dataStream.skipBytes(4);
+            buffer.skipBytes(4);
         }
 
         if (wantedType > 0 && wantedType != type) {
@@ -247,7 +247,9 @@ public class EventIOHeader {
         }
 
         //TODO check if this goes right?!
-        buffer.skipBytes((int) buffer.subItemLength[buffer.itemLevel]);
+        int skipLength = length - buffer.readLength + 12 + (useExtension ? 4 : 0);
+        buffer.skipBytes(skipLength);
+        buffer.readLength = 0;
     }
 
     public long getVersion() {

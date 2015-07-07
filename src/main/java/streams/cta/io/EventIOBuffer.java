@@ -57,6 +57,11 @@ public class EventIOBuffer {
      */
     int syncErrMax;
 
+    /**
+     * Count the length of a byte stream that has been read.
+     */
+    int readLength;
+
     static int[][] gTelIdx = new int[3][Constants.H_MAX_TEL + 1];
     static int[] gTelIdxInit = new int[3];
 
@@ -73,6 +78,7 @@ public class EventIOBuffer {
         itemStartOffset = new long[Constants.MAX_IO_ITEM_LEVEL];
         itemExtension = new boolean[Constants.MAX_IO_ITEM_LEVEL];
         this.dataStream = dataStream;
+        readLength = 0;
     }
 
     public double[] readVectorOfReals(int vectorSize)
@@ -91,7 +97,7 @@ public class EventIOBuffer {
      */
     public int readByte() throws IOException {
         int result = dataStream.readUnsignedByte();
-        subItemLength[itemLevel] -= 1;
+        readLength += 1;
         return result;
     }
 
@@ -100,7 +106,7 @@ public class EventIOBuffer {
         byte[] b = new byte[4];
         dataStream.read(b);
 
-        subItemLength[itemLevel] -= 4;
+        readLength += 4;
 
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getFloat();
@@ -113,7 +119,7 @@ public class EventIOBuffer {
         byte[] b = new byte[8];
         dataStream.read(b);
 
-        subItemLength[itemLevel] -= 8;
+        readLength += 8;
 
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getDouble();
@@ -127,7 +133,7 @@ public class EventIOBuffer {
         byte[] b = new byte[4];
         dataStream.read(b);
 
-        subItemLength[itemLevel] -= 4;
+        readLength += 4;
 
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
@@ -145,7 +151,7 @@ public class EventIOBuffer {
         byte[] b = new byte[2];
         dataStream.read(b);
 
-        subItemLength[itemLevel] -= 2;
+        readLength += 2;
 
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getShort();
@@ -158,7 +164,7 @@ public class EventIOBuffer {
         byte[] b = new byte[4];
         dataStream.read(b);
 
-        subItemLength[itemLevel] -= 4;
+        readLength += 4;
 
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
@@ -171,7 +177,7 @@ public class EventIOBuffer {
         byte[] b = new byte[8];
         dataStream.read(b);
 
-        subItemLength[itemLevel] -= 8;
+        readLength += 8;
 
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getLong();
@@ -183,6 +189,7 @@ public class EventIOBuffer {
     public void skipBytes(int length) {
         try {
             dataStream.skipBytes(length);
+            readLength += length;
         } catch (IOException e) {
             log.error("Skipping bytes produced an error:\n" + e.getMessage());
         }
