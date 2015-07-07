@@ -121,6 +121,11 @@ public class EventIOBuffer {
         }
     }
 
+    //TODO is it the supposed way to read a short?
+    public short readShort() throws IOException {
+        return readInt16();
+    }
+
     public short readInt16() throws IOException {
         byte[] b = new byte[2];
         dataStream.read(b);
