@@ -78,7 +78,7 @@ public class MCShower {
 
     ShowerProfile[] profile;
     ShowerExtraParameters extraParameters;
-    
+
     public MCShower() {
         profile = new ShowerProfile[Constants.H_MAX_PROFILE];
         extraParameters = new ShowerExtraParameters();
@@ -159,102 +159,15 @@ public class MCShower {
         }
 
         if (header.getVersion() >= 2) {
-            mcShower.extraParameters = readShowerExtraParameters(buffer);
+            mcShower.extraParameters = ShowerExtraParameters.readShowerExtraParameters(buffer);
             if (mcShower.extraParameters == null) {
                 log.error("Something went wrong while reading shower extra parameters");
                 // TODO: can something go wrong? possibly skip until the next block?!
             }
         } else {
-            mcShower.extraParameters = clearShowerExtraParameters(mcShower.extraParameters);
+            mcShower.extraParameters =
+                    ShowerExtraParameters.clearShowerExtraParameters(mcShower.extraParameters);
         }
         return mcShower;
-    }
-
-    /**
-     * Reset all the values for the object of type ShowerExtraParameters
-     *
-     * @param extraParameters object with the default values set
-     */
-    private static ShowerExtraParameters clearShowerExtraParameters(
-            ShowerExtraParameters extraParameters) {
-        extraParameters.id = 0;
-        extraParameters.isSet = 0;
-        extraParameters.weight = 1.0;
-
-        if (extraParameters.iparam != null) {
-            for (int i = 0; i < extraParameters.niparam; i++) {
-                extraParameters.iparam[i] = 0;
-            }
-        }
-
-        if (extraParameters.fparam != null) {
-            for (int i = 0; i < extraParameters.nfparam; i++) {
-                extraParameters.fparam[i] = 0;
-            }
-        }
-
-        return extraParameters;
-    }
-
-    private static ShowerExtraParameters readShowerExtraParameters(EventIOBuffer buffer)
-            throws IOException {
-
-        // TODO: check this implementation after such extra parameters has been found
-        log.error("Please check the implementation of readShowerExtraParameters " +
-                "method and then remove this output.");
-
-        // read the header of extra parameters
-        EventIOHeader headerExtraParameters = new EventIOHeader(buffer);
-
-        if (headerExtraParameters.findAndReadNextHeader()) {
-            ShowerExtraParameters ep = new ShowerExtraParameters();
-            ep.isSet = 0;
-
-            if (headerExtraParameters.getVersion() != 1) {
-                buffer.skipBytes(headerExtraParameters.getLength());
-                log.error("Skipping MCShower because version is not 1, but "
-                        + headerExtraParameters.getVersion());
-            }
-
-            ep.id = headerExtraParameters.getIdentification();
-            ep.weight = buffer.readReal();
-
-            // detect number of integer and float parameters dynamically
-            long ni = buffer.readCount();
-            long nf = buffer.readCount();
-
-            // fill the iparam list
-            if (ni > 0) {
-                if (ni != ep.niparam) {
-                    ep.iparam = new int[(int) ni];
-                    for (int i = 0; i < ni; i++) {
-                        ep.iparam[i] = buffer.readInt32();
-                    }
-                }
-            }
-            ep.niparam = ni;
-
-            // fill the fparam list
-            if (nf > 0) {
-                if (nf != ep.nfparam) {
-                    ep.fparam = new double[(int) nf];
-                    for (int i = 0; i < nf; i++) {
-                        ep.fparam[i] = buffer.readReal();
-                    }
-                }
-            }
-            ep.nfparam = nf;
-
-            ep.isSet = 1;
-
-            // count the levels down etc.
-            headerExtraParameters.getItemEnd();
-
-            return ep;
-        } else {
-            log.error("Something went wrong while searching for or reading "
-                    + "header for the subobject 'shower extra parameters'.");
-            return null;
-        }
     }
 }
