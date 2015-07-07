@@ -168,6 +168,34 @@ public class EventIOBuffer {
         }
     }
 
+    public int nextSubitemType (){
+        dataStream.mark(100);
+
+        // Are we beyond the last sub-item?
+        if (itemLevel > 0) {
+            // First check if we are already beyond the top item and then if we
+            // will be beyond the next smaller level (superiour) item after
+            // reading this item's header.
+            // TODO do the check as in eventio.c, line 3454
+        }else if (itemLevel == 0){
+            return -1;
+        }
+
+        int type = 0;
+        try {
+            type = readLong() & 0x0000ffff;
+        } catch (IOException e) {
+            log.error("Error while checking the type of the subitem:\n" + e.getMessage());
+        }
+        try {
+            dataStream.reset();
+        } catch (IOException e) {
+            log.error("Resetting data stream while checking the type of the subitem failed.\n"
+                    + e.getMessage());
+        }
+        return type;
+    }
+
     /**
      * Description from hessioxxx:
      *
