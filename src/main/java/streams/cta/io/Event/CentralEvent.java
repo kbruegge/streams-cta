@@ -11,12 +11,11 @@ import streams.cta.io.EventIOHeader;
 import streams.cta.io.HTime;
 
 /**
- * Created by alexey on 30.06.15.
- */
-public /**
  * Central trigger event data
+ *
+ * @author alexey
  */
-class CentralEvent {
+public class CentralEvent {
 
     static Logger log = LoggerFactory.getLogger(CentralEvent.class);
 
@@ -96,50 +95,50 @@ class CentralEvent {
         numTelData = 0;
     }
 
-    public void readCentralEvent(EventIOBuffer buffer){
+    public void readCentralEvent(EventIOBuffer buffer) {
 
-        EventIOHeader headerNext = new EventIOHeader(buffer);
+        EventIOHeader header = new EventIOHeader(buffer);
         try {
-            if (headerNext.findAndReadNextHeader()) {
-                if (headerNext.getVersion() > 2){
-                    log.error("Unsupported central event version: " + headerNext.getVersion());
-                    headerNext.getItemEnd();
-                }else{
-                    globCount = (int) headerNext.getIdentification();
+            if (header.findAndReadNextHeader()) {
+                if (header.getVersion() > 2) {
+                    log.error("Unsupported central event version: " + header.getVersion());
+                    header.getItemEnd();
+                } else {
+                    globCount = (int) header.getIdentification();
                     cpuTime.readTime(buffer);
                     gpsTime.readTime(buffer);
                     teltrgPattern = buffer.readInt32();
                     teldataPattern = buffer.readInt32();
 
-                    if (headerNext.getVersion() >= 1){
+                    if (header.getVersion() >= 1) {
                         numTelTriggered = buffer.readShort();
 
-                        if (numTelTriggered > Constants.H_MAX_TEL){
+                        if (numTelTriggered > Constants.H_MAX_TEL) {
                             log.error("Invalid number of triggered telescopes " + numTelTriggered
                                     + " in central trigger block for event " + globCount);
                             numTelTriggered = 0;
-                            headerNext.getItemEnd();
+                            header.getItemEnd();
                         }
 
                         teltrgList = buffer.readVectorOfInts(numTelTriggered);
                         teltrgTime = buffer.readVectorOfFloats(numTelTriggered);
                         numTelData = buffer.readShort();
 
-                        if (numTelData > Constants.H_MAX_TEL){
+                        if (numTelData > Constants.H_MAX_TEL) {
                             log.error("Invalid number of telescopes with data " + numTelData
                                     + " in central trigger block for event " + globCount);
                             numTelTriggered = 0;
-                            headerNext.getItemEnd();
+                            header.getItemEnd();
                         }
 
                         teldataList = buffer.readVectorOfInts(numTelData);
-                    } else{
+                    } else {
                         numTelTriggered = 0;
                         numTelData = 0;
                     }
 
                     //TODO wtf? versions greater than 2 are not supported so just check for ==2?
-                    if (headerNext.getVersion() >= 2){
+                    if (header.getVersion() >= 2) {
                         for (int i = 0; i < numTelTriggered; i++) {
                             //TODO first check for reading count!!! add different versions for 16, 32, 64
                             teltrgTypeMask[i] = (int) buffer.readCount();
@@ -147,17 +146,17 @@ class CentralEvent {
                         for (int telCount = 0; telCount < numTelTriggered; telCount++) {
                             int ntt = 0;
                             for (int triggers = 0; triggers < Constants.MAX_TEL_TRIGGERS; triggers++) {
-                                if ((teltrgTypeMask[telCount] & (1<<triggers)) == 1){
+                                if ((teltrgTypeMask[telCount] & (1 << triggers)) == 1) {
                                     ntt++;
                                     teltrgTimeByType[telCount][triggers] = teltrgTime[telCount];
-                                }else{
+                                } else {
                                     teltrgTimeByType[telCount][triggers] = 9999;
                                 }
                             }
 
-                            if (ntt > 1){
+                            if (ntt > 1) {
                                 for (int triggers = 0; triggers < Constants.MAX_TEL_TRIGGERS; triggers++) {
-                                    if ((teltrgTypeMask[telCount] & (1<< triggers)) == 1){
+                                    if ((teltrgTypeMask[telCount] & (1 << triggers)) == 1) {
                                         teltrgTimeByType[telCount][triggers] = (float) buffer.readReal();
                                     }
                                 }
@@ -174,7 +173,7 @@ class CentralEvent {
                     }
                 }
             }
-            headerNext.getItemEnd();
+            header.getItemEnd();
         } catch (IOException e) {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());
         }
