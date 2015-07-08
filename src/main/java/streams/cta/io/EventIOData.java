@@ -9,11 +9,14 @@ import streams.cta.io.MCShower.MCShower;
 public class EventIOData {
     MCShower mcShower;
 
+    //TODO implement RunHeader as it is needed for event to be interpreted and read right
+//    RunHeader run_header;
+
     /**
      * needed to read the event
      */
     FullEvent event;
-//    RunHeader run_header;
+
 //    MCEvent mc_event;
 //    MCRunHeader mc_run_header;
 //    CameraSettings camera_set[H_MAX_TEL];
