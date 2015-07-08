@@ -68,23 +68,17 @@ public class EventIOHeader {
      */
     public boolean findAndReadNextHeader() throws IOException {
 
-        long thisType;
         long wantedType;
-        int ilevel = buffer.itemLevel;
-//        long previousRemaining;
-//        int previousLevel, previousOrder;
-//
-//        previousLevel = buffer.itemLevel;
 
         //TODO use the right constant
-        if (ilevel >= 100) {
+        if (buffer.itemLevel >= 100) {
             log.error("Maximum level of sub-items in I/O Buffer exceeded.");
             //TODO: what to do now?
         }
 
-        if (ilevel > 0) {
+        if (buffer.itemLevel > 0) {
             //TODO do the check like in eventio.c line 3192
-        } else if (ilevel == 0) {
+        } else if (buffer.itemLevel == 0) {
             EventIOStream.reverse = false;
             boolean found = findSynchronisationMarker();
             if (!found) {
@@ -93,8 +87,6 @@ public class EventIOHeader {
         }
 
         wantedType = type;
-
-        //log.info("Datastream available: \t" + dataStream.available());
 
         // read typeString and check for extension field
         int typeField = buffer.readLong();
@@ -147,8 +139,6 @@ public class EventIOHeader {
 
         buffer.itemExtension[buffer.itemLevel] = useExtension;
 
-        //log.info("length:\t" + length + "\ttypeString:\t" + typeString
-        //        + "\tsubobjects:\t" + onlySubObjects);
         // TODO length parameter longer than the rest of the data?
 
         // read extension if given
@@ -220,7 +210,6 @@ public class EventIOHeader {
     }
 
     public void getItemEnd() {
-        long localLength;
         int ilevel = -1;
 
         if (level != buffer.itemLevel - 1) {
@@ -232,12 +221,13 @@ public class EventIOHeader {
         }
 
         if (level >= 0 && level <= Constants.MAX_IO_ITEM_LEVEL) {
-            ilevel = buffer.itemLevel = level;
+            ilevel = level;
+            buffer.itemLevel = level;
         } else {
             //TODO: something is wrong
         }
 
-            /* If the item has a length specified, check it. */
+        /* If the item has a length specified, check it. */
         if (buffer.itemLength[ilevel] >= 0) {
             //TODO check whether the length that has been read matches the predefined length
         }
@@ -247,6 +237,8 @@ public class EventIOHeader {
         }
 
         //TODO check if this goes right?!
+        // calculate how much of the byte stream real length has been read
+        // and skip the rest of it until the next item
         int skipLength = length - buffer.readLength + 12 + (useExtension ? 4 : 0);
         buffer.skipBytes(skipLength);
         buffer.readLength = 0;

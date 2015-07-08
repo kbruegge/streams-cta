@@ -330,6 +330,7 @@ public class EventIOBuffer {
             return -2;
         }
         if (telId < 0) {
+            //TODO some memory "magic" is made in original code, can we skip it?
             log.warn("Negative ID was given.");
             return -1;
         }
