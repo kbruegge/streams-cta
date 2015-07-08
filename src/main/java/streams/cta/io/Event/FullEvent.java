@@ -123,16 +123,19 @@ public class FullEvent {
                 int telId = (type - Constants.TYPE_TEL_EVENT) % 100 +
                         100 * ((type - Constants.TYPE_TEL_EVENT) / 1000);
                 int telNumber = buffer.findTelIndex(telId);
-                if (telNumber < 0){
+                if (telNumber < 0) {
                     log.warn("Telescope number out of range for telescope event data.");
                     header.getItemEnd();
                     break;
                 }
 
-                //TODO by using THIS header one can skip THIS current item
-                teldata[telNumber].readTelEvent(buffer);
+                if(!teldata[telNumber].readTelEvent(buffer)){
+                    log.error("Error reading telescope event.");
+                    header.getItemEnd();
+                    break;
+                }
 
-                if ((numTeldata < Constants.H_MAX_TEL) && teldata[telNumber].known){
+                if ((numTeldata < Constants.H_MAX_TEL) && teldata[telNumber].known) {
                     teldataList[numTeldata++] = teldata[telNumber].telId;
                 }
             } else if (type == Constants.TYPE_SHOWER) {
@@ -150,7 +153,7 @@ public class FullEvent {
 
         // fill the event items with some further data information
 
-        // TODO return wright value
+        // TODO return wright value, or NULL if something went wrong and check for it as caller
         return this;
     }
 }

@@ -34,9 +34,16 @@ public class Constants {
      */
     public static final int H_MAX_HOTPIX = 5;
 
+    public static final int TYPE_BASE = 2000;
     public static final int TYPE_CENTRAL_EVENT = 2009;
     public static final int TYPE_TRACK_EVENT = 2100;
     public static final int TYPE_TEL_EVENT = 2200;
-    public static final int TYPE_SHOWER = 2015;
+    public static final int TYPE_TELADCSUM = TYPE_BASE + 12;
+    public static final int TYPE_TELADCSAMP = TYPE_BASE + 13;
+    public static final int TYPE_TELIMAGE = TYPE_BASE + 14;
+    public static final int TYPE_SHOWER = TYPE_BASE + 15;
+    public static final int TYPE_PIXELTIMING = TYPE_BASE + 16;
+    public static final int TYPE_PIXELCALIB = TYPE_BASE + 17;
+    public static final int TYPE_PIXELLIST = TYPE_BASE + 27;
 
 }
