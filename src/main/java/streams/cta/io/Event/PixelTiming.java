@@ -10,7 +10,7 @@ public class PixelTiming {
     /**
      * is pixel timing data known?
      */
-    int known;
+    boolean known;
 
     /**
      * Telescope ID

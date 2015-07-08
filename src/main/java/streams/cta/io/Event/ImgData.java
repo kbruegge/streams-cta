@@ -10,7 +10,7 @@ public class ImgData {
     /**
      * is image data known?
      */
-    int known;
+    boolean known;
 
     /**
      * Telescope ID
