@@ -129,6 +129,7 @@ public class EventIOHeader {
         // bits 0 to 29 are used for the length of the data block
         length = (lengthField & 0x3FFFFFFF);
 
+        // save the length of the item
         buffer.itemLength[buffer.itemLevel] = length;
 
         if (onlySubObjects) {
@@ -254,5 +255,9 @@ public class EventIOHeader {
 
     public long getIdentification() {
         return identification;
+    }
+
+    public int getType() {
+        return type;
     }
 }
