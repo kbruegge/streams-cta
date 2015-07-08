@@ -68,6 +68,7 @@ public class EventIOHeader {
      */
     public boolean findAndReadNextHeader() throws IOException {
 
+        //TODO use the wanted type and controll it
         long wantedType;
 
         //TODO use the right constant

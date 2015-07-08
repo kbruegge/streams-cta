@@ -340,4 +340,9 @@ public class EventIOBuffer {
     public void readShower() {
         //TODO implement and move to another class
     }
+
+    public int readSCount() {
+        //TODO implement and think of 16, 32 and 64 variants
+        return -1;
+    }
 }

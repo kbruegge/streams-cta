@@ -62,7 +62,7 @@ public class TelEvent {
     /**
      * Are the trigger times known? (0/1)
      */
-    int knownTimeTrgsect;
+    boolean knownTimeTrgsect;
 
     /**
      * Times when trigger groups (as in list) fired.
@@ -106,8 +106,8 @@ public class TelEvent {
      */
     PixelCalibrated[] pixcal;
 
-//    int numPhysAddr;      ///< (not used)
-//    int physAddr[4*H_MAX_DRAWERS];///< (not used)
+    int numPhysAddr;        ///< (not used)
+    int[] physAddr;         ///< (not used)
 
     /**
      * List of triggered pixels.
@@ -129,6 +129,7 @@ public class TelEvent {
 //        pixcal = new PixelCalibrated();
         triggerPixels = new PixelList();
         imagePixels = new PixelList();
+        physAddr = new int[4 * Constants.H_MAX_DRAWERS];
     }
 
     public boolean readTelEvent(EventIOBuffer buffer) {
@@ -150,15 +151,15 @@ public class TelEvent {
                     return false;
                 }
                 globCount = header.getIdentification();
-                if (raw != null){
+                if (raw != null) {
                     known = false;
                 }
-                if (pixtm != null){
+                if (pixtm != null) {
                     pixtm.known = false;
                 }
 
                 // preinitialize ImgData array
-                ImgData [] img = this.img;
+                ImgData[] img = this.img;
                 if (this.img != null) {
                     for (int j = 0; j < numImageSets; j++) {
                         img[j].known = false;
@@ -166,7 +167,7 @@ public class TelEvent {
                 }
 
                 // read telescope specific event header
-                if(!readTelEventHeader(buffer)){
+                if (!readTelEventHeader(buffer)) {
                     log.error("Error reading telescope event header.");
                     header.getItemEnd();
                     return false;
@@ -178,9 +179,9 @@ public class TelEvent {
 
                 boolean running = false;
                 //TODO when do we stop reading?!
-                while(running){
+                while (running) {
                     int type = buffer.nextSubitemType();
-                    switch (type){
+                    switch (type) {
                         case Constants.TYPE_TELADCSUM:
                             //TODO implement reading teladc_sums and WHAT parameter
                             break;
@@ -200,11 +201,11 @@ public class TelEvent {
                             //TODO implement reading next subitem identification, pixel_list for different objects (triggerPixels and imagePixels)
                             break;
                         default:
-                            if (type > 0){
+                            if (type > 0) {
                                 log.error("Skipping telescope event sub-item of type " + type
                                         + " for telescope " + this.telId);
                                 //TODO skip subitem
-                            }else{
+                            } else {
                                 header.getItemEnd();
                             }
 
@@ -220,7 +221,63 @@ public class TelEvent {
     }
 
     private boolean readTelEventHeader(EventIOBuffer buffer) {
-        //TODO implement
+        EventIOHeader header = new EventIOHeader(buffer);
+        try {
+            if (header.findAndReadNextHeader()) {
+                if (header.getVersion() > 2) {
+                    log.error("Unsupported telescope event header version: " + header.getVersion());
+                    header.getItemEnd();
+                    return false;
+                }
+                if (header.getIdentification() != telId) {
+                    log.warn("Event header is for wrong telescope.");
+                    header.getItemEnd();
+                    return false;
+                }
+
+                locCount = buffer.readInt32();
+                globCount = buffer.readInt32();
+                cpuTime.readTime(buffer);
+                gpsTime.readTime(buffer);
+
+                //TODO what is t?
+                int t = buffer.readShort();
+                trgSource = t & 0xff;
+                knownTimeTrgsect = false;
+
+                if ((t & 0x100) != 0) {
+                    numListTrgsect = header.getVersion() <= 1 ?
+                            buffer.readShort() : buffer.readSCount();
+                    for (int i = 0; i < numListTrgsect; i++) {
+                        listTrgsect[i] = header.getVersion() <= 1 ?
+                                buffer.readShort() : buffer.readSCount();
+                    }
+                    if (header.getVersion() <= 1 && (t & 0x400) != 0) {
+                        for (int i = 0; i < numListTrgsect; i++) {
+                            timeTrgsect[i] = buffer.readReal();
+                        }
+                        knownTimeTrgsect = true;
+                    } else {
+                        for (int i = 0; i < numListTrgsect; i++) {
+                            timeTrgsect[i] = 0;
+                        }
+                    }
+                }
+
+                if ((t & 0x200) != 0) {
+                    boolean headerGT1 = header.getVersion() <= 1;
+                    numPhysAddr = headerGT1 ? buffer.readShort() : buffer.readSCount();
+                    for (int i = 0; i < numPhysAddr; i++) {
+                        physAddr[i] = headerGT1 ? buffer.readShort() : buffer.readSCount();
+                    }
+                }
+                header.getItemEnd();
+                return true;
+            }
+        } catch (IOException e) {
+            log.error("Something went wrong while reading the header:\n" + e.getMessage());
+        }
+
         return false;
     }
 }

@@ -46,4 +46,6 @@ public class Constants {
     public static final int TYPE_PIXELCALIB = TYPE_BASE + 17;
     public static final int TYPE_PIXELLIST = TYPE_BASE + 27;
 
+    public static final int H_MAX_DRAWERS = H_MAX_PIX;
+
 }
