@@ -70,6 +70,7 @@ public class FullEvent {
      *
      */
     public FullEvent readFullEvent(EventIOBuffer buffer, EventIOHeader header) {
+        //TODO should we use the header to skip this whole event item in a case any of its subitems are failed to be read?
         if (header.getVersion() != 0) {
             log.error("Unsupported FullEvent version: " + header.getVersion());
             buffer.skipBytes(header.getLength());
@@ -110,7 +111,11 @@ public class FullEvent {
                     header.getItemEnd();
                     break;
                 }
-                trackdata[telNumber].readTrackEvent(buffer);
+                if(!trackdata[telNumber].readTrackEvent(buffer)){
+                    log.error("Error reading track event.");
+                    header.getItemEnd();
+                    break;
+                }
 
             } else if (type >= Constants.TYPE_TEL_EVENT &&
                     type <= Constants.TYPE_TEL_EVENT + Constants.H_MAX_TEL) {
