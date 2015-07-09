@@ -48,4 +48,7 @@ public class Constants {
 
     public static final int H_MAX_DRAWERS = H_MAX_PIX;
 
+    public static final int RAWDATA_FLAG = 0x01;
+    public static final int RAWSUM_FLAG = 0x02;
+
 }

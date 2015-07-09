@@ -1,6 +1,7 @@
 package streams.cta.io.Event;
 
 import streams.cta.Constants;
+import streams.cta.io.EventIOBuffer;
 
 /**
  * ADC data (either sampled or sum mode) Created by alexey on 30.06.15.
@@ -110,5 +111,10 @@ public class AdcData {
         adcKnown = new short[Constants.H_MAX_GAINS][Constants.H_MAX_PIX];
         adcSum = new long[Constants.H_MAX_GAINS][Constants.H_MAX_PIX];
         adcSample = new int[Constants.H_MAX_GAINS][Constants.H_MAX_PIX][Constants.H_MAX_SLICES];
+    }
+
+    public boolean readTelADCSums(EventIOBuffer buffer) {
+        //TODO implement
+        return false;
     }
 }

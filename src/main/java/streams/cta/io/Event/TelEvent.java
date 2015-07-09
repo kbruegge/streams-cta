@@ -89,7 +89,7 @@ public class TelEvent {
     /**
      * Pointer to raw data, if any.
      */
-    AdcData[] raw;
+    AdcData raw;
 
     /**
      * Optional pixel (pulse shape) timing.
@@ -139,7 +139,7 @@ public class TelEvent {
      * @param buffer EventIOBuffer to read from stream
      * @return true, if reading was successful, false otherwise
      */
-    public boolean readTelEvent(EventIOBuffer buffer) {
+    public boolean readTelEvent(EventIOBuffer buffer, int what) {
         EventIOHeader header = new EventIOHeader(buffer);
         try {
             if (header.findAndReadNextHeader()) {
@@ -184,13 +184,27 @@ public class TelEvent {
                 triggerPixels.pixels = 0;
                 imagePixels.pixels = 0;
 
+                int wSum = 0;
+                boolean readingSuccessful = true;
                 boolean running = false;
                 //TODO when do we stop reading?!
                 while (running) {
                     int type = buffer.nextSubitemType();
                     switch (type) {
                         case Constants.TYPE_TELADCSUM:
-                            //TODO implement reading teladc_sums and WHAT parameter
+                            if ((what & (Constants.RAWDATA_FLAG | Constants.RAWSUM_FLAG)) == 0 || raw == null){
+                                if (wSum++ < 1){
+                                    log.warn("Telescope raw data ADC sums not selected to be read.");
+                                }
+                                readingSuccessful = buffer.skipSubitem();
+                                continue;
+                            }
+                            readingSuccessful = raw.readTelADCSums(buffer);
+                            readoutMode = 0;
+                            if (readingSuccessful) {
+                                known = true;
+                            }
+                            raw.telId = this.telId;
                             break;
                         case Constants.TYPE_TELADCSAMP:
                             //TODO implement reading teladc_samples and WHAT parameter

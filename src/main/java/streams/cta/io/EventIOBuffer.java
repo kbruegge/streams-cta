@@ -337,6 +337,23 @@ public class EventIOBuffer {
         return gTelIdx[gTelIdxRef][telId];
     }
 
+    /**
+     * Skip the sub-item if it is of no interest.
+     * @return
+     */
+    public boolean skipSubitem(){
+        EventIOHeader header = new EventIOHeader(this);
+        try {
+            if(header.findAndReadNextHeader()){
+                header.getItemEnd();
+                return true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public void readShower() {
         //TODO implement and move to another class
     }
