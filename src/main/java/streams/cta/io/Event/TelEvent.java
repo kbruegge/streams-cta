@@ -106,6 +106,7 @@ public class TelEvent {
      */
     PixelCalibrated[] pixcal;
 
+    //TODO check whether the comment is right and these variables are not used (then just skip those parts in stream)
     int numPhysAddr;        ///< (not used)
     int[] physAddr;         ///< (not used)
 
@@ -132,6 +133,12 @@ public class TelEvent {
         physAddr = new int[4 * Constants.H_MAX_DRAWERS];
     }
 
+    /**
+     * Read telescope event for which telescope event header is needed.
+     *
+     * @param buffer EventIOBuffer to read from stream
+     * @return true, if reading was successful, false otherwise
+     */
     public boolean readTelEvent(EventIOBuffer buffer) {
         EventIOHeader header = new EventIOHeader(buffer);
         try {
@@ -220,6 +227,12 @@ public class TelEvent {
         return false;
     }
 
+    /**
+     * Read telescope event header that is needed to read telescope event correctly.
+     *
+     * @param buffer EventIOBuffer to read from stream
+     * @return true if reading was successful, false otherwise
+     */
     private boolean readTelEventHeader(EventIOBuffer buffer) {
         EventIOHeader header = new EventIOHeader(buffer);
         try {
