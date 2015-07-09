@@ -104,7 +104,7 @@ public class TelEvent {
     /**
      * Pointer to calibrated pixel intensities, if available.
      */
-    PixelCalibrated[] pixcal;
+    PixelCalibrated pixcal;
 
     //TODO check whether the comment is right and these variables are not used (then just skip those parts in stream)
     int numPhysAddr;        ///< (not used)
@@ -123,11 +123,14 @@ public class TelEvent {
     public TelEvent() {
         listTrgsect = new int[Constants.H_MAX_SECTORS];
         timeTrgsect = new double[Constants.H_MAX_SECTORS];
-        pixtm = new PixelTiming();
+
+        //TODO when should it be initialized? as we do check for not null!
+        //pixtm = new PixelTiming();
+        //pixcal = new PixelCalibrated();
+
         //TODO init when the numImageSets known
 //        raw = new AdcData();
 //        img = new ImgData();
-//        pixcal = new PixelCalibrated();
         triggerPixels = new PixelList();
         imagePixels = new PixelList();
         physAddr = new int[4 * Constants.H_MAX_DRAWERS];
@@ -187,6 +190,7 @@ public class TelEvent {
                 int wSum = 0;
                 int wSamples = 0;
                 int wPixtm = 0;
+                int wPixcal = 0;
                 boolean readingSuccessful = true;
                 boolean running = false;
                 //TODO when do we stop reading?!
@@ -246,7 +250,15 @@ public class TelEvent {
                             readingSuccessful = pixtm.readPixTime(buffer);
                             break;
                         case Constants.TYPE_PIXELCALIB:
-                            //TODO implement reading pixcalib and WHAT parameter
+                            if (pixcal == null){
+                                if (wPixcal++ < 1){
+                                    log.warn("Telescope calibrated pixel intensities found, allocating structures.");
+                                }
+                                pixcal = new PixelCalibrated();
+                                //TODO in original we construct it with a sizeof(PixelCalibrated) and check whether it failed due to not enough memory
+                                pixcal.telId = telId;
+                            }
+                            readingSuccessful = pixcal.readPixelCalibrated(buffer);
                             break;
                         case Constants.TYPE_TELIMAGE:
                             //TODO implement reading telimage and WHAT parameter

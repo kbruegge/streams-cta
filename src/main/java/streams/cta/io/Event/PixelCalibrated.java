@@ -1,6 +1,7 @@
 package streams.cta.io.Event;
 
 import streams.cta.Constants;
+import streams.cta.io.EventIOBuffer;
 
 /**
  * Created by alexey on 30.06.15.
@@ -55,9 +56,15 @@ public class PixelCalibrated {
      */
     float[] pixelPe;
 
+    //TODO constructor that does not need maximum values for array size
     public PixelCalibrated() {
         pixelList = new int[Constants.H_MAX_PIX];
         significant = new short[Constants.H_MAX_PIX];
         pixelPe = new float[Constants.H_MAX_PIX];
+    }
+
+    public boolean readPixelCalibrated(EventIOBuffer buffer) {
+        //TODO implement
+        return false;
     }
 }
