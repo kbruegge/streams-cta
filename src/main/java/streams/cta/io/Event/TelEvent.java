@@ -191,6 +191,7 @@ public class TelEvent {
                 int wSamples = 0;
                 int wPixtm = 0;
                 int wPixcal = 0;
+                int telImg = 0;
                 boolean readingSuccessful = true;
                 boolean running = false;
                 //TODO when do we stop reading?!
@@ -261,7 +262,19 @@ public class TelEvent {
                             readingSuccessful = pixcal.readPixelCalibrated(buffer);
                             break;
                         case Constants.TYPE_TELIMAGE:
-                            //TODO implement reading telimage and WHAT parameter
+                            if (img == null || (what & Constants.IMAGE_FLAG) == 0){
+                                break;
+                            }
+                            if (telImg >= maxImageSets){
+                                log.warn("Not enough space to read all image sets.");
+                                break;
+                            }
+                            readingSuccessful = img[telImg].readTelImage(buffer);
+                            if (readingSuccessful){
+                                img[telImg].known = true;
+                                telImg++;
+                            }
+                            numImageSets = telImg;
                             break;
                         case Constants.TYPE_PIXELLIST:
                             //TODO implement reading next subitem identification, pixel_list for different objects (triggerPixels and imagePixels)

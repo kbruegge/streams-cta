@@ -52,4 +52,10 @@ public class Constants {
     public static final int RAWSUM_FLAG = 0x02;
 
     public static final int TIME_FLAG = 0x200;
+    public static final int IMG_BASE_FLAG = 0x10;
+    public static final int IMG_ERR_FLAG = 0x20;
+    public static final int IMG_34M_FLAG = 0x40;
+    public static final int IMG_HOT_FLAG = 0x80;
+    public static final int IMG_PIXTM_FLAG = 0x100;
+    public static final int IMAGE_FLAG = IMG_BASE_FLAG | IMG_ERR_FLAG | IMG_34M_FLAG | IMG_HOT_FLAG | IMG_PIXTM_FLAG;
 }

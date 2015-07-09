@@ -1,6 +1,7 @@
 package streams.cta.io.Event;
 
 import streams.cta.Constants;
+import streams.cta.io.EventIOBuffer;
 
 /**
  * Image parameters Created by alexey on 30.06.15.
@@ -177,8 +178,14 @@ public class ImgData {
      */
     double[] hotAmp;
 
+    //TODO constructor that does not need max values for array size
     public ImgData() {
         hotPixel = new int[Constants.H_MAX_HOTPIX];
         hotAmp = new double[Constants.H_MAX_HOTPIX];
+    }
+
+    public boolean readTelImage(EventIOBuffer buffer) {
+        //TODO implement
+        return false;
     }
 }
