@@ -89,6 +89,8 @@ public class EventIOStream extends AbstractStream {
         EventIOHeader header = new EventIOHeader(buffer);
         if (header.findAndReadNextHeader()) {
 
+            //TODO add reading full event with what=-1
+
             // MC Shower
             if (header.type == 2020) {
                 eventData.mcShower = MCShower.readMCShower(buffer, header);

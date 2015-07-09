@@ -69,7 +69,7 @@ public class FullEvent {
     /**
      *
      */
-    public FullEvent readFullEvent(EventIOBuffer buffer, EventIOHeader header) {
+    public FullEvent readFullEvent(EventIOBuffer buffer, EventIOHeader header, int what) {
         //TODO should we use the header to skip this whole event item in a case any of its subitems are failed to be read?
         if (header.getVersion() != 0) {
             log.error("Unsupported FullEvent version: " + header.getVersion());
@@ -129,7 +129,7 @@ public class FullEvent {
                     break;
                 }
 
-                if(!teldata[telNumber].readTelEvent(buffer)){
+                if(!teldata[telNumber].readTelEvent(buffer, what)){
                     log.error("Error reading telescope event.");
                     header.getItemEnd();
                     break;
