@@ -185,6 +185,7 @@ public class TelEvent {
                 imagePixels.pixels = 0;
 
                 int wSum = 0;
+                int wSamples = 0;
                 boolean readingSuccessful = true;
                 boolean running = false;
                 //TODO when do we stop reading?!
@@ -192,8 +193,8 @@ public class TelEvent {
                     int type = buffer.nextSubitemType();
                     switch (type) {
                         case Constants.TYPE_TELADCSUM:
-                            if ((what & (Constants.RAWDATA_FLAG | Constants.RAWSUM_FLAG)) == 0 || raw == null){
-                                if (wSum++ < 1){
+                            if ((what & (Constants.RAWDATA_FLAG | Constants.RAWSUM_FLAG)) == 0 || raw == null) {
+                                if (wSum++ < 1) {
                                     log.warn("Telescope raw data ADC sums not selected to be read.");
                                 }
                                 readingSuccessful = buffer.skipSubitem();
@@ -207,7 +208,31 @@ public class TelEvent {
                             raw.telId = this.telId;
                             break;
                         case Constants.TYPE_TELADCSAMP:
-                            //TODO implement reading teladc_samples and WHAT parameter
+                            if ((what & Constants.RAWDATA_FLAG) == 0 || raw == null) {
+                                if (wSum++ < 1) {
+                                    log.warn("Telescope raw data ADC samples not selected to be read.");
+                                }
+                                readingSuccessful = buffer.skipSubitem();
+                                continue;
+                            }
+
+                            // preceded by sum data?
+                            if (raw.known != 0) {
+                                // sum + samples (perhaps different zero suppression)
+                                readoutMode = 2;
+                            } else {
+                                //TODO do we need this? (good question by Bernloehr
+                                raw.resetAdc();
+                                // adc samples, sums usually rebuild
+                                readoutMode = 1;
+                            }
+                            readingSuccessful = raw.readTelACSSamples(buffer, what);
+                            if (readingSuccessful) {
+                                raw.known |= 2;
+                            }
+
+                            //TODO for ids beyound 31 bits maybe missing?! (Bernloehr)
+                            raw.telId = this.telId;
                             break;
                         case Constants.TYPE_PIXELTIMING:
                             //TODO implement reading pixtime and WHAT parameter

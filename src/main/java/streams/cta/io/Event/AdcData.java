@@ -105,6 +105,7 @@ public class AdcData {
     // http://jessicarbrown.com/resources/unsignedtojava.html
     int[][][] adcSample;
 
+    //TODO constructor that does not need the max values for the arrays?!
     public AdcData() {
         adcList = new int[Constants.H_MAX_PIX];
         significant = new short[Constants.H_MAX_PIX];
@@ -114,6 +115,15 @@ public class AdcData {
     }
 
     public boolean readTelADCSums(EventIOBuffer buffer) {
+        //TODO implement
+        return false;
+    }
+
+    public void resetAdc() {
+        //TODO implement
+    }
+
+    public boolean readTelACSSamples(EventIOBuffer buffer, int what) {
         //TODO implement
         return false;
     }
