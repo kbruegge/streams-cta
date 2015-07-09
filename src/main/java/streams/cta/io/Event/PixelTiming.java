@@ -1,6 +1,7 @@
 package streams.cta.io.Event;
 
 import streams.cta.Constants;
+import streams.cta.io.EventIOBuffer;
 
 /**
  * Created by alexey on 30.06.15.
@@ -100,6 +101,7 @@ public class PixelTiming {
      */
     int[][] pulseSumGlob;
 
+    //TODO constructor that does not need max values for array size
     public PixelTiming() {
         pixelList = new int[Constants.H_MAX_PIX * 2];
         timeType = new int[Constants.H_MAX_PIX_TIMES];
@@ -107,5 +109,10 @@ public class PixelTiming {
         timval = new float[Constants.H_MAX_PIX][Constants.H_MAX_PIX_TIMES];
         pulseSumLoc = new int[Constants.H_MAX_GAINS][Constants.H_MAX_PIX];
         pulseSumGlob = new int[Constants.H_MAX_GAINS][Constants.H_MAX_PIX];
+    }
+
+    public boolean readPixTime(EventIOBuffer buffer) {
+        //TODO implement
+        return false;
     }
 }

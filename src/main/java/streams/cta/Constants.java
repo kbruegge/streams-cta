@@ -51,4 +51,5 @@ public class Constants {
     public static final int RAWDATA_FLAG = 0x01;
     public static final int RAWSUM_FLAG = 0x02;
 
+    public static final int TIME_FLAG = 0x200;
 }

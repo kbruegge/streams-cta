@@ -186,6 +186,7 @@ public class TelEvent {
 
                 int wSum = 0;
                 int wSamples = 0;
+                int wPixtm = 0;
                 boolean readingSuccessful = true;
                 boolean running = false;
                 //TODO when do we stop reading?!
@@ -209,7 +210,7 @@ public class TelEvent {
                             break;
                         case Constants.TYPE_TELADCSAMP:
                             if ((what & Constants.RAWDATA_FLAG) == 0 || raw == null) {
-                                if (wSum++ < 1) {
+                                if (wSamples++ < 1) {
                                     log.warn("Telescope raw data ADC samples not selected to be read.");
                                 }
                                 readingSuccessful = buffer.skipSubitem();
@@ -235,7 +236,14 @@ public class TelEvent {
                             raw.telId = this.telId;
                             break;
                         case Constants.TYPE_PIXELTIMING:
-                            //TODO implement reading pixtime and WHAT parameter
+                            if (pixtm == null || (what & Constants.TIME_FLAG) == 0){
+                                if (wPixtm++ < 1){
+                                    log.warn("Telescope pixel timing data not selected to be read.");
+                                }
+                                readingSuccessful = buffer.skipSubitem();
+                                continue;
+                            }
+                            readingSuccessful = pixtm.readPixTime(buffer);
                             break;
                         case Constants.TYPE_PIXELCALIB:
                             //TODO implement reading pixcalib and WHAT parameter
