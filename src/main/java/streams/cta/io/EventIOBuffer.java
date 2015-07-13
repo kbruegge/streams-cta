@@ -202,7 +202,13 @@ public class EventIOBuffer {
         }
     }
 
+    /**
+     * Read the header of a sub-item, recognize the type of it and reset the stream back.
+     *
+     * @return type of a sub-item
+     */
     public int nextSubitemType() {
+        //TODO use a constant for a maximum header length
         dataStream.mark(100);
 
         // Are we beyond the last sub-item?
@@ -228,6 +234,46 @@ public class EventIOBuffer {
                     + e.getMessage());
         }
         return type;
+    }
+
+    /**
+     * Read the header of a sub-item, recognize the identification field of it and reset the stream
+     * back.
+     *
+     * @return identification of a sub-item
+     */
+    public long nextSubitemIdent() {
+        //TODO use a constant for a maximum header length
+        dataStream.mark(100);
+
+        // Are we beyond the last sub-item?
+        if (itemLevel > 0) {
+            // First check if we are already beyond the top item and then if we
+            // will be beyond the next smaller level (superiour) item after
+            // reading this item's header.
+            // TODO do the check as in eventio.c, line 3454
+        } else if (itemLevel == 0) {
+            return -1;
+        }
+
+        int identification = 0;
+        try {
+            // read a long number containing the first part of header
+            readLong();
+
+            // read a long number containing the second part of header with the identification
+            identification = readLong();
+
+        } catch (IOException e) {
+            log.error("Error while checking the type of the subitem:\n" + e.getMessage());
+        }
+        try {
+            dataStream.reset();
+        } catch (IOException e) {
+            log.error("Resetting data stream while checking the type of the subitem failed.\n"
+                    + e.getMessage());
+        }
+        return identification;
     }
 
     /**
@@ -339,12 +385,11 @@ public class EventIOBuffer {
 
     /**
      * Skip the sub-item if it is of no interest.
-     * @return
      */
-    public boolean skipSubitem(){
+    public boolean skipSubitem() {
         EventIOHeader header = new EventIOHeader(this);
         try {
-            if(header.findAndReadNextHeader()){
+            if (header.findAndReadNextHeader()) {
                 header.getItemEnd();
                 return true;
             }
