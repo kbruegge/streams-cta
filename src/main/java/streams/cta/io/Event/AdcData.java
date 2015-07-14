@@ -119,8 +119,24 @@ public class AdcData {
         return false;
     }
 
+    /**
+     * Reset all values to 0 for ADC.
+     */
     public void resetAdc() {
-        //TODO implement
+        known = 0;
+        listKnown = 0;
+        listSize = 0;
+
+        for (int igain = 0; igain < numGains; igain++) {
+            for (int ipix = 0; ipix < numPixels; ipix++) {
+                significant[ipix] = 0;
+                adcKnown[igain][ipix] = 0;
+                adcSum[igain][ipix] = 0;
+                for (int isample = 0; isample < numSamples; isample++) {
+                    adcSample[igain][ipix][isample] = 0;
+                }
+            }
+        }
     }
 
     public boolean readTelACSSamples(EventIOBuffer buffer, int what) {
