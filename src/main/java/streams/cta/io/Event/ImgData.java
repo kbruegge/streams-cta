@@ -83,22 +83,20 @@ public class ImgData {
     /**
      * Length (major axis) [rad]
      */
-    //TODO better naming than just L
-    double l;
+    double length;
 
     /**
-     * Error on length (0: error not known, <0: l not known) [rad]
+     * Error on length (0: error not known, <0: length not known) [rad]
      */
-    double lErr;
+    double lengthErr;
 
     /**
      * Width (minor axis) [rad]
      */
-    //TODO better naming than just W
-    double w;
+    double width;
 
     /**
-     * Error on width (0: error not known, <0: w not known) [rad]
+     * Error on width (0: error not known, <0: width not known) [rad]
      */
     double wErr;
 
