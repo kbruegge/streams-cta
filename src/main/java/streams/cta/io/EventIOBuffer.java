@@ -344,6 +344,31 @@ public class EventIOBuffer {
         return temp;
     }
 
+    /**
+     * Read a vector of unsigned shorts from an I/O buffer with least significant byte first. The
+     * values are in the range 0 to 65535. The function should be used where sign propagation is of
+     * concern.
+     *
+     * @param number number of elements to load
+     * @return array of elements
+     */
+    public int[] readVectorOfUnsignedShort(int number) throws IOException {
+        int[] result = new int[number];
+        for (int i = 0; i < number; i++) {
+            result[i] = readUnsignedShort();
+        }
+        return result;
+    }
+
+    /**
+     * Read an unsigned short from an I/O buffer. The value is in the range of 0 to 65535.
+     *
+     * @return unsigned short
+     */
+    public int readUnsignedShort() throws IOException {
+        return dataStream.readUnsignedShort();
+    }
+
     public int[] readVectorOfInts(int number) throws IOException {
         int[] result = new int[number];
         for (int i = 0; i < number; i++) {
