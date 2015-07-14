@@ -111,7 +111,7 @@ public class FullEvent {
                     header.getItemEnd();
                     break;
                 }
-                if(!trackdata[telNumber].readTrackEvent(buffer)){
+                if (!trackdata[telNumber].readTrackEvent(buffer)) {
                     log.error("Error reading track event.");
                     header.getItemEnd();
                     break;
@@ -129,7 +129,7 @@ public class FullEvent {
                     break;
                 }
 
-                if(!teldata[telNumber].readTelEvent(buffer, what)){
+                if (!teldata[telNumber].readTelEvent(buffer, what)) {
                     log.error("Error reading telescope event.");
                     header.getItemEnd();
                     break;
@@ -141,10 +141,15 @@ public class FullEvent {
             } else if (type == Constants.TYPE_SHOWER) {
                 // read shower
                 //TODO use THIS header to skip THIS item if something goes wrong
-                buffer.readShower();
+                if (!buffer.readShower()) {
+                    header.getItemEnd();
+                    return null;
+                }
             } else {
                 // invalid item type.
-                // TODO skip item
+                log.warn("Invalid item type " + type + " in event " + id + ".");
+                header.getItemEnd();
+                return null;
             }
 
             // look up the next item and rewind back
