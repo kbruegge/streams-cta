@@ -399,12 +399,18 @@ public class EventIOBuffer {
         return false;
     }
 
-    public void readShower() {
+    public boolean readShower() {
         //TODO implement and move to another class
+        return false;
     }
 
     public int readSCount() {
         //TODO implement and think of 16, 32 and 64 variants
         return -1;
+    }
+
+    public int[] readVectorOfIntsScount(int pixels) {
+        //TODO implement
+        return new int[0];
     }
 }
