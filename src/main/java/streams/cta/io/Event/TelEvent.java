@@ -287,6 +287,10 @@ public class TelEvent {
                                 readingSuccessful = triggerPixels.readPixelList(buffer);
                             } else if (code == 1 && tid == this.telId) {
                                 readingSuccessful = imagePixels.readPixelList(buffer);
+                                //TODO Bernloehr: Fix for missing number of pixels in image of older data format: */
+                                if (img != null && img[0].known && img[0].pixels == 0){
+                                    img[0].pixels = imagePixels.pixels;
+                                }
                             } else {
                                 log.error("Skipping pixel list of type " + code
                                         + "for telescope " + tid);
