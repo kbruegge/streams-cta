@@ -193,7 +193,7 @@ public class TelEvent {
                 int wPixcal = 0;
                 int telImg = 0;
                 boolean readingSuccessful = true;
-                boolean running = false;
+                boolean running = true;
                 //TODO when do we stop reading?!
                 while (running) {
                     int type = buffer.nextSubitemType();
@@ -227,7 +227,7 @@ public class TelEvent {
                                 // sum + samples (perhaps different zero suppression)
                                 readoutMode = 2;
                             } else {
-                                //TODO do we need this? (good question by Bernloehr
+                                //TODO do we need this? (good question by Bernloehr)
                                 raw.resetAdc();
                                 // adc samples, sums usually rebuild
                                 readoutMode = 1;
@@ -241,8 +241,8 @@ public class TelEvent {
                             raw.telId = this.telId;
                             break;
                         case Constants.TYPE_PIXELTIMING:
-                            if (pixtm == null || (what & Constants.TIME_FLAG) == 0){
-                                if (wPixtm++ < 1){
+                            if (pixtm == null || (what & Constants.TIME_FLAG) == 0) {
+                                if (wPixtm++ < 1) {
                                     log.warn("Telescope pixel timing data not selected to be read.");
                                 }
                                 readingSuccessful = buffer.skipSubitem();
@@ -251,8 +251,8 @@ public class TelEvent {
                             readingSuccessful = pixtm.readPixTime(buffer);
                             break;
                         case Constants.TYPE_PIXELCALIB:
-                            if (pixcal == null){
-                                if (wPixcal++ < 1){
+                            if (pixcal == null) {
+                                if (wPixcal++ < 1) {
                                     log.warn("Telescope calibrated pixel intensities found, allocating structures.");
                                 }
                                 pixcal = new PixelCalibrated();
@@ -262,15 +262,15 @@ public class TelEvent {
                             readingSuccessful = pixcal.readPixelCalibrated(buffer);
                             break;
                         case Constants.TYPE_TELIMAGE:
-                            if (img == null || (what & Constants.IMAGE_FLAG) == 0){
+                            if (img == null || (what & Constants.IMAGE_FLAG) == 0) {
                                 break;
                             }
-                            if (telImg >= maxImageSets){
+                            if (telImg >= maxImageSets) {
                                 log.warn("Not enough space to read all image sets.");
                                 break;
                             }
                             readingSuccessful = img[telImg].readTelImage(buffer);
-                            if (readingSuccessful){
+                            if (readingSuccessful) {
                                 img[telImg].known = true;
                                 telImg++;
                             }
@@ -278,19 +278,43 @@ public class TelEvent {
                             break;
                         case Constants.TYPE_PIXELLIST:
                             //TODO implement reading next subitem identification, pixel_list for different objects (triggerPixels and imagePixels)
+                            long id = buffer.nextSubitemIdent();
+                            long code = id / 1000000;
+                            long tid = id % 1000000;
+                            if (code == 0 && tid == this.telId) {
+                                readingSuccessful = triggerPixels.readPixelList(buffer);
+                            } else if (code == 1 && tid == this.telId) {
+                                readingSuccessful = imagePixels.readPixelList(buffer);
+                            } else {
+                                log.error("Skipping pixel list of type " + code
+                                        + "for telescope " + tid);
+                                readingSuccessful = buffer.skipSubitem();
+                            }
+
                             break;
                         default:
                             if (type > 0) {
                                 log.error("Skipping telescope event sub-item of type " + type
                                         + " for telescope " + this.telId);
-                                //TODO skip subitem
+                                readingSuccessful = buffer.skipSubitem();
                             } else {
                                 header.getItemEnd();
+                                running = false;
                             }
-
                     }
+
+                    // if reading was not successful, get to the end of this item
+                    // and stop while loop
+                    if (!readingSuccessful) {
+                        header.getItemEnd();
+                        running = false;
+                    }
+
+                    this.known = true;
                 }
 
+                // TODO return the value from getItemEnd
+                header.getItemEnd();
                 return true;
             }
         } catch (IOException e) {
