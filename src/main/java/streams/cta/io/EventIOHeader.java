@@ -211,7 +211,12 @@ public class EventIOHeader {
         return false;
     }
 
+    /**
+     * Find the end of the current item. Update the level if you're leaving one level and skip the
+     * bytes left til the data length.
+     */
     public void getItemEnd() {
+        //TODO return boolean if finding item end was successful
         int ilevel = -1;
 
         if (level != buffer.itemLevel - 1) {
