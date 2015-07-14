@@ -199,7 +199,8 @@ public class TelEvent {
                     int type = buffer.nextSubitemType();
                     switch (type) {
                         case Constants.TYPE_TELADCSUM:
-                            if ((what & (Constants.RAWDATA_FLAG | Constants.RAWSUM_FLAG)) == 0 || raw == null) {
+                            if ((what & (Constants.RAWDATA_FLAG
+                                    | Constants.RAWSUM_FLAG)) == 0 || raw == null) {
                                 if (wSum++ < 1) {
                                     log.warn("Telescope raw data ADC sums not selected to be read.");
                                 }
@@ -216,7 +217,8 @@ public class TelEvent {
                         case Constants.TYPE_TELADCSAMP:
                             if ((what & Constants.RAWDATA_FLAG) == 0 || raw == null) {
                                 if (wSamples++ < 1) {
-                                    log.warn("Telescope raw data ADC samples not selected to be read.");
+                                    log.warn("Telescope raw data ADC samples " +
+                                            "not selected to be read.");
                                 }
                                 readingSuccessful = buffer.skipSubitem();
                                 continue;
@@ -253,7 +255,8 @@ public class TelEvent {
                         case Constants.TYPE_PIXELCALIB:
                             if (pixcal == null) {
                                 if (wPixcal++ < 1) {
-                                    log.warn("Telescope calibrated pixel intensities found, allocating structures.");
+                                    log.warn("Telescope calibrated pixel intensities found, " +
+                                            "allocating structures.");
                                 }
                                 pixcal = new PixelCalibrated();
                                 //TODO in original we construct it with a sizeof(PixelCalibrated) and check whether it failed due to not enough memory
@@ -277,7 +280,6 @@ public class TelEvent {
                             numImageSets = telImg;
                             break;
                         case Constants.TYPE_PIXELLIST:
-                            //TODO implement reading next subitem identification, pixel_list for different objects (triggerPixels and imagePixels)
                             long id = buffer.nextSubitemIdent();
                             long code = id / 1000000;
                             long tid = id % 1000000;

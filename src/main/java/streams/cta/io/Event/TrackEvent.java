@@ -64,12 +64,12 @@ public class TrackEvent {
                 long telId = (header.getIdentification() & 0xff) |
                         ((header.getIdentification() & 0x3f000000) >> 16);
 
-                if (telId < 0 || telId != this.telId){
+                if (telId < 0 || telId != this.telId) {
                     log.warn("Not a tracking event block or one for the wrong telescope.");
                     header.getItemEnd();
                     return false;
                 }
-                if (header.getVersion() != 0){
+                if (header.getVersion() != 0) {
                     log.error("Unsupported tracking event version: " + header.getVersion());
                     header.getItemEnd();
                     return false;
@@ -78,12 +78,12 @@ public class TrackEvent {
                 corKnown = (header.getIdentification() & 0x200) != 0;
 
                 //TODO is it right? aziRaw -> altRaw and then altCor -> aziCor
-                if (rawKnown){
+                if (rawKnown) {
                     azimuthRaw = buffer.readReal();
                     altitudeRaw = buffer.readReal();
                 }
 
-                if (corKnown){
+                if (corKnown) {
                     altitudeCor = buffer.readReal();
                     azimuthCor = buffer.readReal();
                 }
