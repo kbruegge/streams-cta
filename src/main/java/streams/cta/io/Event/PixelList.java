@@ -1,6 +1,7 @@
 package streams.cta.io.Event;
 
 import streams.cta.Constants;
+import streams.cta.io.EventIOBuffer;
 
 /**
  * Lists of pixels (triggered, selected, etc.) Created by alexey on 30.06.15.
@@ -24,5 +25,10 @@ public class PixelList {
 
     public PixelList() {
         pixelList = new int[Constants.H_MAX_PIX];
+    }
+
+    public boolean readPixelList(EventIOBuffer buffer) {
+        //TODO implement
+        return false;
     }
 }
