@@ -446,4 +446,46 @@ public class EventIOBuffer {
         //TODO implement
         return new int[0];
     }
+
+    public float readSFloat() throws IOException {
+        int shortFloat = readUnsignedShort();
+
+        int sign = (shortFloat & 0x8000) >> 15;
+        int exponent = (shortFloat & 0x7c00) >> 10;
+        int mantissa = (shortFloat & 0x03ff);
+
+        //TODO float or double?
+        float s = (sign == 0) ? 1.f : -1.f;
+        if (exponent == 0) /* De-normalized */ {
+            if (mantissa == 0) {
+                return s * 0.0f;
+            } else {
+                return s * mantissa / (1024 * 16384);
+            }
+        } else if (exponent < 31) {
+            return s * ((float) Math.pow(2., exponent - 15.0)) * (1.f + mantissa / 1024.f);
+        }
+
+        //TODO do we need those IFs?
+//        #ifdef INF
+//        else if ( mantissa == 0 )
+//            return s * INF;
+//        #endif
+        else {
+//        #ifdef NAN
+//        return NAN;
+//        #else
+            return 0.f;
+        }
+//        #endif
+//        return 0;
+    }
+
+    public short[] readVectorOfBytes(int number) throws IOException {
+        short[] result = new short[number];
+        for (int i = 0; i < number; i++) {
+            result[i] = (short) readByte();
+        }
+        return result;
+    }
 }
