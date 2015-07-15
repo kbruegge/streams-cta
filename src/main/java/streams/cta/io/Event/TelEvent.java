@@ -193,9 +193,7 @@ public class TelEvent {
                 int wPixcal = 0;
                 int telImg = 0;
                 boolean readingSuccessful = true;
-                boolean running = true;
-                //TODO when do we stop reading?!
-                while (running) {
+                while (readingSuccessful) {
                     int type = buffer.nextSubitemType();
                     switch (type) {
                         case Constants.TYPE_TELADCSUM:
@@ -305,7 +303,6 @@ public class TelEvent {
                                 readingSuccessful = buffer.skipSubitem();
                             } else {
                                 header.getItemEnd();
-                                running = false;
                             }
                     }
 
@@ -313,7 +310,6 @@ public class TelEvent {
                     // and stop while loop
                     if (!readingSuccessful) {
                         header.getItemEnd();
-                        running = false;
                     }
 
                     this.known = true;
