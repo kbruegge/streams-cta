@@ -120,7 +120,6 @@ public class PixelTiming {
     }
 
     public boolean readPixTime(EventIOBuffer buffer) {
-        //TODO implement
         EventIOHeader header = new EventIOHeader(buffer);
         try {
             if (header.findAndReadNextHeader()) {
