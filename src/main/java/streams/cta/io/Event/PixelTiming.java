@@ -1,12 +1,20 @@
 package streams.cta.io.Event;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+
 import streams.cta.Constants;
 import streams.cta.io.EventIOBuffer;
+import streams.cta.io.EventIOHeader;
 
 /**
  * Created by alexey on 30.06.15.
  */
 public class PixelTiming {
+
+    static Logger log = LoggerFactory.getLogger(PixelTiming.class);
 
     /**
      * is pixel timing data known?
@@ -113,6 +121,146 @@ public class PixelTiming {
 
     public boolean readPixTime(EventIOBuffer buffer) {
         //TODO implement
+        EventIOHeader header = new EventIOHeader(buffer);
+        try {
+            if (header.findAndReadNextHeader()) {
+                if (header.getVersion() > 2) {
+                    log.error("Unsupported pixel timing version: " + header.getVersion());
+                    header.getItemEnd();
+                    return false;
+                }
+
+                known = false;
+
+                listType = 1;
+                listSize = 0;
+                numTypes = 0;
+                short v0 = 0;
+                int globOnlySelected = 0;
+                int withSum = 0;
+                float scale;
+                if (header.getVersion() == 0) {
+                    v0 = 1;
+                }
+                if (header.getVersion() <= 1) {
+                    numPixels = buffer.readShort();
+                } else {
+                    //TODO originally scount32
+                    numPixels = buffer.readSCount();
+                }
+
+                numGains = buffer.readShort();
+                beforePeak = buffer.readShort();
+                afterPeak = buffer.readShort();
+                listType = buffer.readShort();
+                if (listType != 1 && listType != 2) {
+                    log.error("Invalid type of pixel list in pixel timing data: " + listType);
+                    header.getItemEnd();
+                    return false;
+                }
+
+                if (header.getVersion() <= 1) {
+                    listSize = buffer.readShort();
+                } else {
+                    listSize = buffer.readSCount();
+                }
+                if (listSize < 0 || listSize > Constants.H_MAX_PIX) {
+                    log.error("Invalid size of pixel list in pixel timing data: " + listSize);
+                    header.getItemEnd();
+                    return false;
+                }
+                if (header.getVersion() <= 1) {
+                    if (listType == 1) {
+                        pixelList = buffer.readVectorOfInts(listSize);
+                    } else {
+                        pixelList = buffer.readVectorOfInts(2 * listSize);
+                    }
+                } else {
+                    if (listType == 1) {
+                        pixelList = buffer.readVectorOfIntsScount(listSize);
+                    } else {
+                        pixelList = buffer.readVectorOfIntsScount(2 * listSize);
+                    }
+                }
+                threshold = buffer.readShort();
+                if (threshold < 0) {
+                    globOnlySelected = 1;
+                }
+                if (beforePeak >= 0 && afterPeak >= 0) {
+                    withSum = 1;
+                }
+                numTypes = buffer.readShort();
+                if (numTypes < 0 || numTypes > Constants.H_MAX_PIX_TIMES) {
+                    log.error("Invalid number of types in pixel timing data: " + numTypes);
+                    header.getItemEnd();
+                    return false;
+                }
+                timeType = buffer.readVectorOfInts(numTypes);
+                timeLevel = buffer.readVectorOfFloats(numTypes);
+                granularity = buffer.readReal();
+                if (granularity > 0.) {
+                    scale = granularity;
+                } else {
+                    scale = 0.01f;
+                    granularity = 0.01f;
+                }
+                peakGlobal = buffer.readReal();
+
+                // The first timing element is always initialised to indicate unknown.
+                for (int i = 0; i < numPixels; i++) {
+                    timval[i][0] = -1f;
+                }
+//                #if 0
+//   /* If users are sloppy we may have to initialise the global pulse sums as well. */
+//                if ( with_sum && glob_only_selected )
+//                {
+//                    int igain, ipix;
+//                    for ( igain=0; igain<pixtm->num_gains; igain++ )
+//                        for ( ipix=0; ipix<numPixels; ipix++ )
+//                            pixtm->pulse_sum_glob[igain][ipix] = 0.;
+//                }
+//                #endif
+
+                for (int i = 0; i < listSize; i++) {
+                    int k1, k2;
+                    if (listType == 1)
+                        k1 = k2 = pixelList[i];
+                    else {
+                        k1 = pixelList[2 * i];
+                        k2 = pixelList[2 * i + 1];
+                    }
+                    for (int ipix = k1; ipix <= k2; ipix++) {
+                        for (int j = 0; j < numTypes; j++) {
+                            timval[ipix][j] = scale * buffer.readShort();
+                        }
+                        if (withSum != 0) {
+                            for (int igain = 0; igain < numGains; igain++)
+                                //TODO originally scount32
+                                pulseSumLoc[igain][ipix] = (v0 != 0 ?
+                                        buffer.readShort() : buffer.readSCount());
+                            if (globOnlySelected != 0) {
+                                for (int igain = 0; igain < numGains; igain++)
+                                    pulseSumGlob[igain][ipix] =
+                                            (v0 != 0 ? buffer.readShort() : buffer.readSCount());
+                            }
+                        }
+                    }
+                }
+
+                if (withSum != 0 && listSize > 0 && globOnlySelected == 0) {
+                    for (int igain = 0; igain < numGains; igain++) {
+                        for (int j = 0; j < numPixels; j++)
+                            pulseSumGlob[igain][j] =
+                                    (v0 != 0 ? buffer.readShort() : buffer.readSCount());
+                    }
+                }
+                known = true;
+                header.getItemEnd();
+                return true;
+            }
+        } catch (IOException e) {
+            log.error("Something went wrong while reading the header:\n" + e.getMessage());
+        }
         return false;
     }
 }
