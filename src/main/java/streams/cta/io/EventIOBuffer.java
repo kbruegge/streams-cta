@@ -109,7 +109,7 @@ public class EventIOBuffer {
     }
 
     //TODO: use float here?
-    public double readReal() throws IOException {
+    public float readReal() throws IOException {
         byte[] b = new byte[4];
         dataStream.read(b);
 
