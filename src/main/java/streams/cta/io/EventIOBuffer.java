@@ -360,6 +360,14 @@ public class EventIOBuffer {
         return result;
     }
 
+    public short[] readVectorOfUnsignedBytes(int number) throws IOException {
+        short[] result = new short[number];
+        for (int i = 0; i < number; i++) {
+            result[i] = (short) dataStream.readUnsignedByte();
+        }
+        return result;
+    }
+
     /**
      * Read an unsigned short from an I/O buffer. The value is in the range of 0 to 65535.
      *

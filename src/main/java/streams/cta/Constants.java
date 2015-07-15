@@ -58,4 +58,11 @@ public class Constants {
     public static final int IMG_HOT_FLAG = 0x80;
     public static final int IMG_PIXTM_FLAG = 0x100;
     public static final int IMAGE_FLAG = IMG_BASE_FLAG | IMG_ERR_FLAG | IMG_34M_FLAG | IMG_HOT_FLAG | IMG_PIXTM_FLAG;
+
+    // Index to low-gain channels in adc_sum, adc_sample, pedestal, ...
+    public static final int LO_GAIN = 1;
+
+    //< Index to high-gain channels in adc_sum, adc_sample, pedestal, ...
+    public static final int HI_GAIN = 0;
+
 }
