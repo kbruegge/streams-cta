@@ -1,12 +1,20 @@
 package streams.cta.io.Event;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+
 import streams.cta.Constants;
 import streams.cta.io.EventIOBuffer;
+import streams.cta.io.EventIOHeader;
 
 /**
  * Image parameters Created by alexey on 30.06.15.
  */
 public class ImgData {
+
+    static Logger log = LoggerFactory.getLogger(ImgData.class);
 
     /**
      * is image data known?
@@ -98,7 +106,7 @@ public class ImgData {
     /**
      * Error on width (0: error not known, <0: width not known) [rad]
      */
-    double wErr;
+    double widthErr;
 
     /**
      * Skewness, indicating asymmetry of image
@@ -183,7 +191,128 @@ public class ImgData {
     }
 
     public boolean readTelImage(EventIOBuffer buffer) {
-        //TODO implement
+        EventIOHeader header = new EventIOHeader(buffer);
+        try {
+            if (header.findAndReadNextHeader()) {
+                known = false;
+                long version = header.getVersion();
+                if (version > 6) {
+                    log.error("Unsupported telescope image version: " + version);
+                    header.getItemEnd();
+                    return false;
+                }
+
+                /* Lots of small data was packed into the ID */
+                long identification = header.getIdentification();
+
+                if (((identification & 0xff) | ((identification & 0x3f000000) >> 16)) != telId) {
+                    log.warn("Image data is for wrong telescope");
+                    header.getItemEnd();
+                    return false;
+                }
+
+                cutId = (int) ((identification & 0xff000) >> 12);
+                // always reset it
+                pixels = 0;
+                numSat = 0;
+                clipAmp = 0.;
+                if (version >= 6) {
+                    //TODO originally get_scount32(iobuf);
+                    pixels = buffer.readSCount();
+                } else if (version >= 2) {
+                    pixels = buffer.readShort();
+                }
+                if (version >= 4) {
+                    if (version >= 6) {
+                        //TODO originally get_scount32(iobuf);
+                        numSat = buffer.readSCount();
+                    } else {
+                        numSat = buffer.readShort();
+                    }
+                    if (numSat > 0 && version >= 5) {
+                        clipAmp = buffer.readReal();
+                    }
+                }
+
+                amplitude = buffer.readReal();
+                x = buffer.readReal();
+                y = buffer.readReal();
+                phi = buffer.readReal();
+                length = buffer.readReal();
+                width = buffer.readReal();
+                numConc = buffer.readShort();
+                concentration = buffer.readReal();
+
+                if ((identification & 0x100) != 0) {
+                    // Error estimates of 1st+2nd moments in data
+                    xErr = buffer.readReal();
+                    yErr = buffer.readReal();
+                    phiErr = buffer.readReal();
+                    lengthErr = buffer.readReal();
+                    widthErr = buffer.readReal();
+                } else {
+                    xErr = 0.;
+                    yErr = 0.;
+                    phiErr = 0.;
+                    lengthErr = 0.;
+                    widthErr = 0.;
+                }
+
+                if ((identification & 0x200) != 0) {
+                    // 3rd+4th moments plus errors in data
+                    skewness = buffer.readReal();
+                    skewnessErr = buffer.readReal();
+                    kurtosis = buffer.readReal();
+                    kurtosisErr = buffer.readReal();
+                } else {
+                    skewness = 0.;
+                    skewnessErr = -1.;
+                    kurtosis = 0.;
+                    kurtosisErr = -1.;
+                }
+
+                if ((identification & 0x400) != 0) {
+                    // ADC sum of high-intensity pixels in data
+                    if (version <= 5) {
+                        numHot = buffer.readShort();
+                        hotAmp = buffer.readVectorOfReals(numHot);
+                        if (version >= 1) {
+                            hotPixel = buffer.readVectorOfInts(numHot);
+                        }
+                    } else {
+                        //TODO originally get_scount32(iobuf);
+                        numHot = buffer.readSCount();
+                        hotAmp = buffer.readVectorOfReals(numHot);
+                        if (version >= 1) {
+                            hotPixel = buffer.readVectorOfIntsScount(numHot);
+                        }
+                    }
+                } else {
+                    numHot = 0;
+                }
+
+                if ((identification & 0x800) != 0 && version >= 3) {
+                    // New in version 3: timing summary
+                    tmSlope = buffer.readReal();
+                    tmResidual = buffer.readReal();
+                    tmWidth1 = buffer.readReal();
+                    tmWidth2 = buffer.readReal();
+                    tmRise = buffer.readReal();
+                } else {
+                    tmSlope = 0.;
+                    tmResidual = 0.;
+                    tmWidth1 = 0.;
+                    tmWidth2 = 0.;
+                    tmRise = 0.;
+                }
+
+                known = true;
+                header.getItemEnd();
+                return true;
+            }
+        } catch (IOException e) {
+            log.error("Something went wrong while reading the header:\n" + e.getMessage());
+        }
         return false;
     }
 }
