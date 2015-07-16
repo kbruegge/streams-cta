@@ -19,4 +19,9 @@ public class HTime {
         seconds = buffer.readLong();
         nanoseconds = buffer.readLong();
     }
+
+    public void resetTime() {
+        seconds = 0;
+        nanoseconds = 0;
+    }
 }
