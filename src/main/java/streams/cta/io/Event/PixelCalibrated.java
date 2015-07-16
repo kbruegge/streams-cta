@@ -108,7 +108,7 @@ public class PixelCalibrated {
                 if (listKnown == 1) {
                     // selected pixels by list of pixel IDs
                     //TODO originally get_count32(iobuf);
-                    listSize = (int) buffer.readSCount();
+                    listSize = buffer.readSCount();
                     for (int i = 0; i < listSize; i++) {
                         //TODO originally get_count32(iobuf);
                         int ipix = buffer.readSCount();
