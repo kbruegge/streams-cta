@@ -83,7 +83,7 @@ public class FullEvent {
         central.cpuTime = new HTime();
         central.gpsTime = new HTime();
 
-        // TODO numTel is set somewhere before this line
+        // TODO Run-Header: numTel is set somewhere before this line
         // read_hess.c: lines 2133
         // hsdata->event.num_tel = hsdata->run_header.ntel;
         for (int i = 0; i < numTel; i++) {
