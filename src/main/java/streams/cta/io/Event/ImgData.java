@@ -217,15 +217,13 @@ public class ImgData {
                 numSat = 0;
                 clipAmp = 0.;
                 if (version >= 6) {
-                    //TODO originally get_scount32(iobuf);
-                    pixels = buffer.readSCount();
+                    pixels = buffer.readSCount32();
                 } else if (version >= 2) {
                     pixels = buffer.readShort();
                 }
                 if (version >= 4) {
                     if (version >= 6) {
-                        //TODO originally get_scount32(iobuf);
-                        numSat = buffer.readSCount();
+                        numSat = buffer.readSCount32();
                     } else {
                         numSat = buffer.readShort();
                     }
@@ -280,8 +278,7 @@ public class ImgData {
                             hotPixel = buffer.readVectorOfInts(numHot);
                         }
                     } else {
-                        //TODO originally get_scount32(iobuf);
-                        numHot = buffer.readSCount();
+                        numHot = buffer.readSCount32();
                         hotAmp = buffer.readVectorOfReals(numHot);
                         if (version >= 1) {
                             hotPixel = buffer.readVectorOfIntsScount(numHot);

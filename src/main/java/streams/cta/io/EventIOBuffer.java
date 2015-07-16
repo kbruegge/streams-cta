@@ -437,14 +437,65 @@ public class EventIOBuffer {
         return false;
     }
 
-    public int readSCount() {
+    /**
+     * Get a signed integer of unspecified length from an I/O buffer where it is encoded in a way
+     * similar to the UTF-8 character encoding. Even though the scheme in principle allows for
+     * arbitrary length data, the current implementation is limited for data of up to 64 bits. On
+     * systems with intmax_t shorter than 64 bits, the result could be clipped unnoticed.
+     */
+    public long readSCount() throws IOException {
         //TODO implement and think of 16, 32 and 64 variants
-        return -1;
+        long value = readCount();
+        return unsignedToSignedCount(value);
     }
 
-    public int[] readVectorOfIntsScount(int pixels) {
-        //TODO implement
-        return new int[0];
+    public short readSCount16() throws IOException {
+        int value = readCount16();
+        return (short) unsignedToSignedCount(value);
+    }
+
+    public int readSCount32() throws IOException {
+        long value = readCount32();
+        return (int) unsignedToSignedCount(value);
+    }
+
+    /**
+     * Transform unsigned count value to a signed one.
+     */
+    private long unsignedToSignedCount(long value) {
+        //TODO is it the right implementation? do we get the lest significant bit at the right most position?
+        // values of 0,1,2,3,4,... here correspond to signed values of
+        // 0,-1,1,-2,2,... We have to test the least significant bit:
+        if ((value & 1) == 1) {
+            // Negative number
+            return -(value >> 1) - 1;
+        } else {
+            return value >> 1;
+        }
+    }
+
+    private int readCount16() {
+        //TODO implement readcount16
+        return 0;
+    }
+
+    private long readCount32() {
+        //TODO implement readcount32
+        return 0;
+    }
+
+    /**
+     * Get an array of ints as scount32 data from an I/O buffer.
+     * @param number number of ints to be read from buffer
+     * @return array of ints
+     * @throws IOException
+     */
+    public int[] readVectorOfIntsScount(int number) throws IOException {
+        int[] result = new int[number];
+        for (int i = 0; i < number; i++) {
+            result[i] = readSCount32();
+        }
+        return result;
     }
 
     public float readSFloat() throws IOException {

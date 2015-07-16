@@ -50,8 +50,7 @@ public class PixelList {
                 }
                 code = header.getIdentification() / 1000000;
 
-                // TODO pay attention to reading scount and count
-                pixels = header.getVersion() < 1 ? buffer.readShort() : buffer.readSCount();
+                pixels = header.getVersion() < 1 ? buffer.readShort() : buffer.readSCount32();
                 if (pixels > Constants.H_MAX_PIX) {
                     log.error("Got a pixel list with " + pixels
                             + " pixels but can only handle lists up to " + Constants.H_MAX_PIX);

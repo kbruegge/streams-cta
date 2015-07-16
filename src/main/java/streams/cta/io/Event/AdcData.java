@@ -548,13 +548,12 @@ public class AdcData {
         return false;
     }
 
-    private long[] readAdcSumDifferential(EventIOBuffer buffer, long number) {
+    private long[] readAdcSumDifferential(EventIOBuffer buffer, long number) throws IOException {
         long[] result = new long[(int) number];
         int prev = 0;
         int curr;
         for (int ipix = 0; ipix < number; ipix++) {
-            //TODO originally scount32
-            curr = buffer.readSCount() + prev;
+            curr = buffer.readSCount32() + prev;
             prev = curr;
             result[ipix] = curr;
         }
@@ -673,8 +672,7 @@ public class AdcData {
                         significant[ipix] &= ~0xe0;
                     }
 
-                    //TODO originally readScount32
-                    int listSize = buffer.readSCount();
+                    int listSize = buffer.readSCount32();
 
                     if (listSize > Constants.H_MAX_PIX) {
                         log.warn("Pixel list too large in zero-suppressed sample-mode data.");
@@ -683,7 +681,7 @@ public class AdcData {
                     }
 
                     for (int ilist = 0; ilist < listSize; ilist++) {
-                        int ipix1 = buffer.readSCount();
+                        int ipix1 = buffer.readSCount32();
                         int ipix2 = 0;
                         if (ipix1 < 0) {
                             // Single pixel
@@ -692,7 +690,7 @@ public class AdcData {
                             ipix1 = ipix2;
                         } else {
                             // pixel range
-                            ipix2 = buffer.readSCount();
+                            ipix2 = buffer.readSCount32();
                         }
 
                         pixelList[ilist][0] = ipix1;
@@ -771,14 +769,14 @@ public class AdcData {
         return false;
     }
 
-    private int[] readAdcSampleDifferential(EventIOBuffer buffer, int numSamples) {
-        /* New format: store as variable-size integers. */
+    private int[] readAdcSampleDifferential(EventIOBuffer buffer, int numSamples)
+            throws IOException {
+        // New format: store as variable-size integers.
         int ibin;
         int prevAmp = 0, thisAmp;
         int[] adcSample = new int[numSamples];
         for (ibin = 0; ibin < numSamples; ibin++) {
-            //TODO originally readSCount32
-            thisAmp = buffer.readSCount() + prevAmp;
+            thisAmp = buffer.readSCount32() + prevAmp;
             adcSample[ibin] = thisAmp;
             prevAmp = thisAmp;
         }

@@ -90,10 +90,8 @@ public class PixelCalibrated {
                     return false;
                 }
                 numPixels = npix;
-                //TODO originally get_scount32(iobuf);
-                intMethod = buffer.readSCount();
-                //TODO get_scount32(iobuf);
-                listKnown = buffer.readSCount();
+                intMethod = buffer.readSCount32();
+                listKnown = buffer.readSCount32();
                 listSize = 0;
                 if (listKnown == 2) {
                     // all pixels to be marked as significant
@@ -107,11 +105,9 @@ public class PixelCalibrated {
                 }
                 if (listKnown == 1) {
                     // selected pixels by list of pixel IDs
-                    //TODO originally get_count32(iobuf);
-                    listSize = buffer.readSCount();
+                    listSize = buffer.readSCount32();
                     for (int i = 0; i < listSize; i++) {
-                        //TODO originally get_count32(iobuf);
-                        int ipix = buffer.readSCount();
+                        int ipix = buffer.readSCount32();
                         pixelList[i] = ipix;
                         significant[ipix] = 1;
                     }

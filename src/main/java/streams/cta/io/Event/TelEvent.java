@@ -358,10 +358,10 @@ public class TelEvent {
 
                 if ((t & 0x100) != 0) {
                     numListTrgsect = header.getVersion() <= 1 ?
-                            buffer.readShort() : buffer.readSCount();
+                            buffer.readShort() : buffer.readSCount32();
                     for (int i = 0; i < numListTrgsect; i++) {
                         listTrgsect[i] = header.getVersion() <= 1 ?
-                                buffer.readShort() : buffer.readSCount();
+                                buffer.readShort() : buffer.readSCount32();
                     }
                     if (header.getVersion() <= 1 && (t & 0x400) != 0) {
                         for (int i = 0; i < numListTrgsect; i++) {
@@ -377,9 +377,9 @@ public class TelEvent {
 
                 if ((t & 0x200) != 0) {
                     boolean headerGT1 = header.getVersion() <= 1;
-                    numPhysAddr = headerGT1 ? buffer.readShort() : buffer.readSCount();
+                    numPhysAddr = headerGT1 ? buffer.readShort() : buffer.readSCount32();
                     for (int i = 0; i < numPhysAddr; i++) {
-                        physAddr[i] = headerGT1 ? buffer.readShort() : buffer.readSCount();
+                        physAddr[i] = headerGT1 ? buffer.readShort() : buffer.readSCount32();
                     }
                 }
                 header.getItemEnd();

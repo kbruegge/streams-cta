@@ -144,8 +144,7 @@ public class PixelTiming {
                 if (header.getVersion() <= 1) {
                     numPixels = buffer.readShort();
                 } else {
-                    //TODO originally scount32
-                    numPixels = buffer.readSCount();
+                    numPixels = buffer.readSCount32();
                 }
 
                 numGains = buffer.readShort();
@@ -161,7 +160,7 @@ public class PixelTiming {
                 if (header.getVersion() <= 1) {
                     listSize = buffer.readShort();
                 } else {
-                    listSize = buffer.readSCount();
+                    listSize = buffer.readSCount32();
                 }
                 if (listSize < 0 || listSize > Constants.H_MAX_PIX) {
                     log.error("Invalid size of pixel list in pixel timing data: " + listSize);
@@ -234,13 +233,12 @@ public class PixelTiming {
                         }
                         if (withSum != 0) {
                             for (int igain = 0; igain < numGains; igain++)
-                                //TODO originally scount32
                                 pulseSumLoc[igain][ipix] = (v0 != 0 ?
-                                        buffer.readShort() : buffer.readSCount());
+                                        buffer.readShort() : buffer.readSCount32());
                             if (globOnlySelected != 0) {
                                 for (int igain = 0; igain < numGains; igain++)
                                     pulseSumGlob[igain][ipix] =
-                                            (v0 != 0 ? buffer.readShort() : buffer.readSCount());
+                                            (v0 != 0 ? buffer.readShort() : buffer.readSCount32());
                             }
                         }
                     }
@@ -250,7 +248,7 @@ public class PixelTiming {
                     for (int igain = 0; igain < numGains; igain++) {
                         for (int j = 0; j < numPixels; j++)
                             pulseSumGlob[igain][j] =
-                                    (v0 != 0 ? buffer.readShort() : buffer.readSCount());
+                                    (v0 != 0 ? buffer.readShort() : buffer.readSCount32());
                     }
                 }
                 known = true;
