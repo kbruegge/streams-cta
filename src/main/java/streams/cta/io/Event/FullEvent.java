@@ -156,9 +156,80 @@ public class FullEvent {
             type = buffer.nextSubitemType();
         }
 
-        // fill the event items with some further data information
+        if (central.numTelTriggered == 0 && central.teltrgPattern != 0) {
+            listOfTelescopesToCentralEvent(buffer);
+        }
 
-        // TODO return wright value, or NULL if something went wrong and check for it as caller
+        if (numTel > 0 && central.numTelTriggered == 0 && central.numTelData == 0) {
+            replicateForMonoData();
+        }
+
+        header.getItemEnd();
         return this;
+    }
+
+    /**
+     * Fill in the list of telescopes not present in earlier versions of the central trigger block.
+     * Assumes only triggered telescopes are actually read out or that the array has no more than 16
+     * telescopes.
+     */
+    private void listOfTelescopesToCentralEvent(EventIOBuffer buffer) {
+        int nt = 0, nd = 0;
+        if (numTel <= 16) {
+            // For small arrays we have all the information in the bitmasks.
+            for (int itel = 0; itel < numTel && itel < 16; itel++) {
+                if ((central.teltrgPattern & (1 << itel)) != 0) {
+                    // Not available, set to zero
+                    central.teltrgTime[nt] = 0.f;
+                    central.teltrgList[nt] = teldata[itel].telId;
+                    nt++;
+                }
+                if ((central.teldataPattern & (1 << itel)) != 0) {
+                    central.teldataList[nd] = teldata[itel].telId;
+                    nd++;
+                }
+            }
+        } else {
+            // For larger arrays we assume only triggered telescopes were read out.
+            for (int j = 0; j < numTeldata; j++) {
+                int telId = teldataList[j];
+                int itel = buffer.findTelIndex(telId);
+                if (itel < 0) {
+                    continue;
+                }
+                if (teldata[itel].known) {
+                    central.teltrgTime[nt] = 0.f;
+                    central.teltrgList[nt++] = teldata[itel].telId;
+                    central.teldataList[nd++] = teldata[itel].telId;
+                }
+            }
+        }
+        central.numTelTriggered = nt;
+        central.numTelData = nd;
+    }
+
+    /**
+     * Some programs may require basic central trigger data even for mono data where historically no
+     * such data was stored. Replicate from the list of telescopes with data.
+     */
+    private void replicateForMonoData() {
+        int k = 0;
+
+        // Reconstruct basic data in central trigger block
+        for (int j = 0; j < numTel; j++) {
+            if (teldata[j].known) {
+                central.teltrgTypeMask[k] = 0;
+                central.teltrgTime[k] = 0.f;
+                central.teltrgList[k] = teldata[j].telId;
+                central.teldataList[k] = teldata[j].telId;
+                k++;
+            }
+        }
+        central.numTelTriggered = k;
+        central.numTelData = k;
+
+        // Recovered central data is identified by zero time values.
+        central.cpuTime.resetTime();
+        central.gpsTime.resetTime();
     }
 }
