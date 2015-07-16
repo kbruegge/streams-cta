@@ -633,19 +633,20 @@ public class AdcData {
         EventIOHeader header = new EventIOHeader(buffer);
         try {
             if (header.findAndReadNextHeader()) {
-                if (header.getVersion() > 3) {
-                    log.error("Unsupported ADC samples version: " + header.getVersion());
+                long version = header.getVersion();
+                if (version > 3) {
+                    log.error("Unsupported ADC samples version: " + version);
                     header.getItemEnd();
                     return false;
                 }
 
-                /* Lots of small data was packed into the ID */
+                // Lots of small data was packed into the ID
                 // TODO originally flags is uint32_t and the other three are ints
                 long flags = header.getIdentification();
 
                 extractDataFromID(buffer, header, flags);
 
-                if ((zeroSupMode != 0 && header.getVersion() < 3)
+                if ((zeroSupMode != 0 && version < 3)
                         || dataRedMode != 0 || listKnown != 0) {
                     log.warn("Unsupported ADC sample format.");
                     header.getItemEnd();
@@ -727,7 +728,7 @@ public class AdcData {
                 } else {
                     for (int igain = 0; igain < numGains; igain++) {
                         for (int ipix = 0; ipix < numPixels; ipix++) {
-                            if (header.getVersion() < 3) {
+                            if (version < 3) {
                                 adcSample[igain][ipix] = buffer.readVectorOfUnsignedShort(numSamples);
                             } else {
                                 adcSample[igain][ipix] = readAdcSampleDifferential(buffer, numSamples);
