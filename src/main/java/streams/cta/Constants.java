@@ -36,6 +36,7 @@ public class Constants {
 
     public static final int TYPE_BASE = 2000;
     public static final int TYPE_CENTRAL_EVENT = 2009;
+    public static final int TYPE_EVENT = 2010;
     public static final int TYPE_TRACK_EVENT = 2100;
     public static final int TYPE_TEL_EVENT = 2200;
     public static final int TYPE_TELADCSUM = TYPE_BASE + 12;

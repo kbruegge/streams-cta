@@ -19,6 +19,8 @@ import stream.data.DataFactory;
 import stream.io.AbstractStream;
 import stream.io.SourceURL;
 import streams.cta.CTAEvent;
+import streams.cta.Constants;
+import streams.cta.io.Event.FullEvent;
 import streams.cta.io.MCShower.MCShower;
 
 /**
@@ -91,20 +93,22 @@ public class EventIOStream extends AbstractStream {
 
             //TODO add reading full event with what=-1
 
+            CTAEvent event;
             // MC Shower
             if (header.type == 2020) {
                 eventData.mcShower = MCShower.readMCShower(buffer, header);
-                item = DataFactory.create();
-                CTAEvent event = new CTAEvent(10, new byte[]{0, 1, 2});
-                item.put("@event", event);
+                event = new CTAEvent(10, new byte[]{0, 1, 2});
+            } else if (header.type == Constants.TYPE_EVENT) {
+                eventData.event = new FullEvent().readFullEvent(buffer, header, -1);
+                event = new CTAEvent(10, new byte[]{1, 2, 3,});
             } else {
                 byte[] bytes = buffer.readBytes(header.length);
-                CTAEvent event = new CTAEvent(0, bytes);
-                item = DataFactory.create();
-                item.put("@event", event);
+                event = new CTAEvent(0, bytes);
             }
+            item = DataFactory.create();
+            item.put("@event", event);
             header.getItemEnd();
-        }else{
+        } else {
             log.info("Next sync marker has not been found.");
         }
         reverse = false;
