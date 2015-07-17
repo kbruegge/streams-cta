@@ -99,7 +99,11 @@ public class FullEvent {
         while (type > 0) {
             if (type == Constants.TYPE_CENTRAL_EVENT) {
                 // read central event
-                central.readCentralEvent(buffer);
+                if(central.readCentralEvent(buffer)){
+                    log.error("Error reading central event.");
+                    header.getItemEnd();
+                    break;
+                }
             } else if (type >= Constants.TYPE_TRACK_EVENT &&
                     type <= Constants.TYPE_TRACK_EVENT + Constants.H_MAX_TEL) {
                 // read trackevent

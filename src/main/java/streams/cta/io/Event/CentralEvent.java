@@ -95,7 +95,7 @@ public class CentralEvent {
         numTelData = 0;
     }
 
-    public void readCentralEvent(EventIOBuffer buffer) {
+    public boolean readCentralEvent(EventIOBuffer buffer) {
 
         EventIOHeader header = new EventIOHeader(buffer);
         try {
@@ -118,6 +118,7 @@ public class CentralEvent {
                                     + " in central trigger block for event " + globCount);
                             numTelTriggered = 0;
                             header.getItemEnd();
+                            return false;
                         }
 
                         teltrgList = buffer.readVectorOfInts(numTelTriggered);
@@ -129,6 +130,7 @@ public class CentralEvent {
                                     + " in central trigger block for event " + globCount);
                             numTelTriggered = 0;
                             header.getItemEnd();
+                            return false;
                         }
 
                         teldataList = buffer.readVectorOfInts(numTelData);
@@ -157,7 +159,7 @@ public class CentralEvent {
                             if (ntt > 1) {
                                 for (int triggers = 0; triggers < Constants.MAX_TEL_TRIGGERS; triggers++) {
                                     if ((teltrgTypeMask[telCount] & (1 << triggers)) == 1) {
-                                        teltrgTimeByType[telCount][triggers] = (float) buffer.readReal();
+                                        teltrgTimeByType[telCount][triggers] = buffer.readReal();
                                     }
                                 }
                             }
@@ -174,8 +176,10 @@ public class CentralEvent {
                 }
             }
             header.getItemEnd();
+            return true;
         } catch (IOException e) {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());
         }
+        return false;
     }
 }
