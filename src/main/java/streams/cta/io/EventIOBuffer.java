@@ -8,7 +8,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import streams.cta.Constants;
+import static streams.cta.Constants.H_MAX_TEL;
+import static streams.cta.Constants.MAX_IO_ITEM_LEVEL;
 
 /**
  * Created by alexey on 17.06.15.
@@ -62,7 +63,7 @@ public class EventIOBuffer {
      */
     int readLength;
 
-    static int[][] gTelIdx = new int[3][Constants.H_MAX_TEL + 1];
+    static int[][] gTelIdx = new int[3][H_MAX_TEL + 1];
     static int[] gTelIdxInit = new int[3];
 
     /**
@@ -73,10 +74,10 @@ public class EventIOBuffer {
     DataInputStream dataStream;
 
     public EventIOBuffer(DataInputStream dataStream) {
-        itemLength = new long[Constants.MAX_IO_ITEM_LEVEL];
-        subItemLength = new long[Constants.MAX_IO_ITEM_LEVEL];
-        itemStartOffset = new long[Constants.MAX_IO_ITEM_LEVEL];
-        itemExtension = new boolean[Constants.MAX_IO_ITEM_LEVEL];
+        itemLength = new long[MAX_IO_ITEM_LEVEL];
+        subItemLength = new long[MAX_IO_ITEM_LEVEL];
+        itemStartOffset = new long[MAX_IO_ITEM_LEVEL];
+        itemExtension = new boolean[MAX_IO_ITEM_LEVEL];
         this.dataStream = dataStream;
         readLength = 0;
     }

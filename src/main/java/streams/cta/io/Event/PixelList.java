@@ -10,7 +10,9 @@ import streams.cta.io.EventIOBuffer;
 import streams.cta.io.EventIOHeader;
 
 /**
- * Lists of pixels (triggered, selected, etc.) Created by alexey on 30.06.15.
+ * Lists of pixels (triggered, selected, etc.)
+ *
+ * @author alexey
  */
 public class PixelList {
 

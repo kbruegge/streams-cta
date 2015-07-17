@@ -5,9 +5,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import streams.cta.Constants;
 import streams.cta.io.EventIOBuffer;
 import streams.cta.io.EventIOHeader;
+
+import static streams.cta.Constants.H_MAX_PIX;
 
 /**
  * Created by alexey on 30.06.15.
@@ -57,7 +58,7 @@ public class PixelCalibrated {
     // TODO use SHORT or maybe BYTE but using 'byteValue & 0xff' for arithmetic operations?
     // http://stackoverflow.com/questions/16809009/using-char-as-an-unsigned-16-bit-value-in-java
     // http://jessicarbrown.com/resources/unsignedtojava.html
-    short[] significant;
+    byte[] significant;
 
     /**
      * Calibrated & flat-fielded pixel intensity [p.e.]
@@ -66,9 +67,9 @@ public class PixelCalibrated {
 
     //TODO constructor that does not need maximum values for array size
     public PixelCalibrated() {
-        pixelList = new int[Constants.H_MAX_PIX];
-        significant = new short[Constants.H_MAX_PIX];
-        pixelPe = new float[Constants.H_MAX_PIX];
+        pixelList = new int[H_MAX_PIX];
+        significant = new byte[H_MAX_PIX];
+        pixelPe = new float[H_MAX_PIX];
     }
 
     public boolean readPixelCalibrated(EventIOBuffer buffer) {
@@ -84,7 +85,7 @@ public class PixelCalibrated {
                 }
                 telId = header.getIdentification();
                 int npix = (int) buffer.readCount();
-                if (npix > Constants.H_MAX_PIX) {
+                if (npix > H_MAX_PIX) {
                     log.error("Invalid number of pixels in calibrated pixel intensities: " + npix);
                     header.getItemEnd();
                     return false;

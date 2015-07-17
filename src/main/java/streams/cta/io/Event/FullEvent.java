@@ -3,10 +3,15 @@ package streams.cta.io.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import streams.cta.Constants;
 import streams.cta.io.EventIOBuffer;
 import streams.cta.io.EventIOHeader;
 import streams.cta.io.HTime;
+
+import static streams.cta.Constants.H_MAX_TEL;
+import static streams.cta.Constants.TYPE_CENTRAL_EVENT;
+import static streams.cta.Constants.TYPE_SHOWER;
+import static streams.cta.Constants.TYPE_TEL_EVENT;
+import static streams.cta.Constants.TYPE_TRACK_EVENT;
 
 /**
  * All data for one event Created by alexey on 30.06.15.
@@ -51,7 +56,7 @@ public class FullEvent {
     int[] teldataList;
 
     public FullEvent() {
-        this(Constants.H_MAX_TEL);
+        this(H_MAX_TEL);
         numTel = 0;
         numTeldata = 0;
     }
@@ -97,18 +102,17 @@ public class FullEvent {
         int type = buffer.nextSubitemType();
         // TODO pay attention to the case of H_MAX_TEL > 100
         while (type > 0) {
-            if (type == Constants.TYPE_CENTRAL_EVENT) {
+            if (type == TYPE_CENTRAL_EVENT) {
                 // read central event
-                if(central.readCentralEvent(buffer)){
+                if (central.readCentralEvent(buffer)) {
                     log.error("Error reading central event.");
                     header.getItemEnd();
                     break;
                 }
-            } else if (type >= Constants.TYPE_TRACK_EVENT &&
-                    type <= Constants.TYPE_TRACK_EVENT + Constants.H_MAX_TEL) {
+            } else if (type >= TYPE_TRACK_EVENT && type <= TYPE_TRACK_EVENT + H_MAX_TEL) {
                 // read trackevent
-                int telId = (type - Constants.TYPE_TRACK_EVENT) % 100 +
-                        100 * ((type - Constants.TYPE_TRACK_EVENT) / 1000);
+                int telId = (type - TYPE_TRACK_EVENT) % 100 +
+                        100 * ((type - TYPE_TRACK_EVENT) / 1000);
                 int telNumber = buffer.findTelIndex(telId);
                 if (telNumber < 0) {
                     log.warn("Telescope number out of range for tracking data.");
@@ -121,11 +125,9 @@ public class FullEvent {
                     break;
                 }
 
-            } else if (type >= Constants.TYPE_TEL_EVENT &&
-                    type <= Constants.TYPE_TEL_EVENT + Constants.H_MAX_TEL) {
+            } else if (type >= TYPE_TEL_EVENT && type <= TYPE_TEL_EVENT + H_MAX_TEL) {
                 // read televent
-                int telId = (type - Constants.TYPE_TEL_EVENT) % 100 +
-                        100 * ((type - Constants.TYPE_TEL_EVENT) / 1000);
+                int telId = (type - TYPE_TEL_EVENT) % 100 + 100 * ((type - TYPE_TEL_EVENT) / 1000);
                 int telNumber = buffer.findTelIndex(telId);
                 if (telNumber < 0) {
                     log.warn("Telescope number out of range for telescope event data.");
@@ -139,10 +141,10 @@ public class FullEvent {
                     break;
                 }
 
-                if ((numTeldata < Constants.H_MAX_TEL) && teldata[telNumber].known) {
+                if ((numTeldata < H_MAX_TEL) && teldata[telNumber].known) {
                     teldataList[numTeldata++] = teldata[telNumber].telId;
                 }
-            } else if (type == Constants.TYPE_SHOWER) {
+            } else if (type == TYPE_SHOWER) {
                 // read shower
                 //TODO use THIS header to skip THIS item if something goes wrong
                 if (!buffer.readShower()) {
