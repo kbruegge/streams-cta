@@ -221,9 +221,10 @@ public class PixelTiming {
 
                 for (int i = 0; i < listSize; i++) {
                     int k1, k2;
-                    if (listType == 1)
-                        k1 = k2 = pixelList[i];
-                    else {
+                    if (listType == 1) {
+                        k1 = pixelList[i];
+                        k2 = k1;
+                    } else {
                         k1 = pixelList[2 * i];
                         k2 = pixelList[2 * i + 1];
                     }
@@ -232,13 +233,15 @@ public class PixelTiming {
                             timval[ipix][j] = scale * buffer.readShort();
                         }
                         if (withSum != 0) {
-                            for (int igain = 0; igain < numGains; igain++)
+                            for (int igain = 0; igain < numGains; igain++) {
                                 pulseSumLoc[igain][ipix] = (v0 != 0 ?
                                         buffer.readShort() : buffer.readSCount32());
+                            }
                             if (globOnlySelected != 0) {
-                                for (int igain = 0; igain < numGains; igain++)
+                                for (int igain = 0; igain < numGains; igain++) {
                                     pulseSumGlob[igain][ipix] =
                                             (v0 != 0 ? buffer.readShort() : buffer.readSCount32());
+                                }
                             }
                         }
                     }
@@ -246,9 +249,10 @@ public class PixelTiming {
 
                 if (withSum != 0 && listSize > 0 && globOnlySelected == 0) {
                     for (int igain = 0; igain < numGains; igain++) {
-                        for (int j = 0; j < numPixels; j++)
+                        for (int j = 0; j < numPixels; j++) {
                             pulseSumGlob[igain][j] =
                                     (v0 != 0 ? buffer.readShort() : buffer.readSCount32());
+                        }
                     }
                 }
                 known = true;
