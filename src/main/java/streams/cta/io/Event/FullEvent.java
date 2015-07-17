@@ -91,6 +91,8 @@ public class FullEvent {
         // TODO Run-Header: numTel is set somewhere before this line
         // read_hess.c: lines 2133
         // hsdata->event.num_tel = hsdata->run_header.ntel;
+
+        // TODO initialize arrays for teldata and trackdata
         for (int i = 0; i < numTel; i++) {
             teldata[i].known = false;
             trackdata[i].rawKnown = false;
