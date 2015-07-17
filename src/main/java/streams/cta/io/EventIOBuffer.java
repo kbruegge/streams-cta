@@ -82,118 +82,6 @@ public class EventIOBuffer {
         readLength = 0;
     }
 
-    public double[] readVectorOfReals(int vectorSize)
-            throws IOException {
-        double[] vector = new double[vectorSize];
-        for (int i = 0; i < vectorSize; i++) {
-            vector[i] = readReal();
-        }
-        return vector;
-    }
-
-    /**
-     * Read an unsigned byte from the stream as int.
-     *
-     * @return unsigned byte as int
-     */
-    public int readByte() throws IOException {
-        int result = dataStream.readUnsignedByte();
-        readLength += 1;
-        return result;
-    }
-
-    public byte[] readBytes(int length) throws IOException {
-        byte[] bytes = new byte[length];
-        dataStream.read(bytes);
-        readLength += length;
-        return bytes;
-    }
-
-    //TODO: use float here?
-    public float readReal() throws IOException {
-        byte[] b = new byte[4];
-        dataStream.read(b);
-
-        readLength += 4;
-
-        if (EventIOStream.reverse) {
-            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-        } else {
-            return ByteBuffer.wrap(b).getFloat();
-        }
-    }
-
-    public double readDouble() throws IOException {
-        byte[] b = new byte[8];
-        dataStream.read(b);
-
-        readLength += 8;
-
-        if (EventIOStream.reverse) {
-            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getDouble();
-        } else {
-            return ByteBuffer.wrap(b).getDouble();
-        }
-    }
-
-    //TODO check conversion from int to long?!
-    public int readLong() throws IOException {
-        byte[] b = new byte[4];
-        dataStream.read(b);
-
-        readLength += 4;
-
-        if (EventIOStream.reverse) {
-            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
-        } else {
-            return ByteBuffer.wrap(b).getInt();
-        }
-    }
-
-    //TODO is it the supposed way to read a short?
-    public short readShort() throws IOException {
-        return readInt16();
-    }
-
-    public short readInt16() throws IOException {
-        byte[] b = new byte[2];
-        dataStream.read(b);
-
-        readLength += 2;
-
-        if (EventIOStream.reverse) {
-            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getShort();
-        } else {
-            return ByteBuffer.wrap(b).getShort();
-        }
-    }
-
-    public int readInt32() throws IOException {
-        byte[] b = new byte[4];
-        dataStream.read(b);
-
-        readLength += 4;
-
-        if (EventIOStream.reverse) {
-            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
-        } else {
-            return ByteBuffer.wrap(b).getInt();
-        }
-    }
-
-    public long readInt64() throws IOException {
-        byte[] b = new byte[8];
-        dataStream.read(b);
-
-        readLength += 8;
-
-        if (EventIOStream.reverse) {
-            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getLong();
-        } else {
-            return ByteBuffer.wrap(b).getLong();
-        }
-    }
-
     public void skipBytes(int length) {
         try {
             dataStream.skipBytes(length);
@@ -278,6 +166,185 @@ public class EventIOBuffer {
     }
 
     /**
+     * Skip the sub-item if it is of no interest.
+     */
+    public boolean skipSubitem() {
+        EventIOHeader header = new EventIOHeader(this);
+        try {
+            if (header.findAndReadNextHeader()) {
+                header.getItemEnd();
+                return true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Lookup from telescope ID to offset number (index) in structures.
+     *
+     * The lookup table must have been filled before with set_tel_idx(). When dealing with multiple
+     * lookups, use set_tel_idx_ref() first to select the lookup table to be used.
+     *
+     * @param telId A telescope ID for which we want the index count.
+     * @return >= 0 (index in the original list passed to set_tel_idx), -1 (not found in index, -2
+     * (index not initialized).
+     */
+    public int findTelIndex(int telId) {
+        if (gTelIdxInit[gTelIdxRef] == 0) {
+            log.warn("Index was not initialized.");
+            return -2;
+        }
+        if (telId < 0) {
+            //TODO some memory "magic" is made in original code, can we skip it?
+            log.warn("Negative ID was given.");
+            return -1;
+        }
+        return gTelIdx[gTelIdxRef][telId];
+    }
+
+    public boolean readShower() {
+        //TODO implement and move to another class
+        return false;
+    }
+
+    /**
+     * Read an byte from the stream as int.
+     *
+     * @return byte
+     */
+    public byte readByte() throws IOException {
+        byte result = dataStream.readByte();
+        readLength += 1;
+        return result;
+    }
+
+    /**
+     * Read an unsigned byte from the stream as int.
+     *
+     * @return unsigned byte as short
+     */
+    public short readUnsignedByte() throws IOException {
+        short result = (short) dataStream.readUnsignedByte();
+        readLength += 1;
+        return result;
+    }
+
+    public byte[] readBytes(int length) throws IOException {
+        //TODO do we need to reverse it?
+        byte[] bytes = new byte[length];
+        dataStream.read(bytes);
+        readLength += length;
+        return bytes;
+    }
+
+    //TODO is it the supposed way to read a short?
+    public short readShort() throws IOException {
+        return readInt16();
+    }
+
+    /**
+     * Read an unsigned short from an I/O buffer. The value is in the range of 0 to 65535.
+     *
+     * @return unsigned short
+     */
+    public int readUnsignedShort() throws IOException {
+        //TODO check if filling up to an int with zeros is better than dataStream.readUnsignedShort()
+        //TODO maybe use dataStream.readUnsignedByte()?
+        byte[] b = new byte[4];
+        dataStream.read(b, 0, 2);
+
+        readLength += 2;
+
+        if (EventIOStream.reverse) {
+            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        } else {
+            return ByteBuffer.wrap(b).getInt();
+        }
+    }
+
+    public float readReal() throws IOException {
+        //TODO does the original code uses float or double?! reading like unsigned float to a double?
+        byte[] b = new byte[4];
+        dataStream.read(b);
+
+        readLength += 4;
+
+        if (EventIOStream.reverse) {
+            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+        } else {
+            return ByteBuffer.wrap(b).getFloat();
+        }
+    }
+
+    public double readDouble() throws IOException {
+        byte[] b = new byte[8];
+        dataStream.read(b);
+
+        readLength += 8;
+
+        if (EventIOStream.reverse) {
+            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getDouble();
+        } else {
+            return ByteBuffer.wrap(b).getDouble();
+        }
+    }
+
+    //TODO check conversion from int to long?!
+    public int readLong() throws IOException {
+        byte[] b = new byte[4];
+        dataStream.read(b);
+
+        readLength += 4;
+
+        if (EventIOStream.reverse) {
+            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        } else {
+            return ByteBuffer.wrap(b).getInt();
+        }
+    }
+
+    public short readInt16() throws IOException {
+        byte[] b = new byte[2];
+        dataStream.read(b);
+
+        readLength += 2;
+
+        if (EventIOStream.reverse) {
+            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getShort();
+        } else {
+            return ByteBuffer.wrap(b).getShort();
+        }
+    }
+
+    public int readInt32() throws IOException {
+        byte[] b = new byte[4];
+        dataStream.read(b);
+
+        readLength += 4;
+
+        if (EventIOStream.reverse) {
+            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        } else {
+            return ByteBuffer.wrap(b).getInt();
+        }
+    }
+
+    public long readInt64() throws IOException {
+        byte[] b = new byte[8];
+        dataStream.read(b);
+
+        readLength += 8;
+
+        if (EventIOStream.reverse) {
+            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getLong();
+        } else {
+            return ByteBuffer.wrap(b).getLong();
+        }
+    }
+
+    /**
      * Description from hessioxxx:
      *
      * @short Get an unsigned integer of unspecified length from an I/O buffer.
@@ -346,99 +413,6 @@ public class EventIOBuffer {
     }
 
     /**
-     * Read a vector of unsigned shorts from an I/O buffer with least significant byte first. The
-     * values are in the range 0 to 65535. The function should be used where sign propagation is of
-     * concern.
-     *
-     * @param number number of elements to load
-     * @return array of elements
-     */
-    public int[] readVectorOfUnsignedShort(int number) throws IOException {
-        int[] result = new int[number];
-        for (int i = 0; i < number; i++) {
-            result[i] = readUnsignedShort();
-        }
-        return result;
-    }
-
-    public short[] readVectorOfUnsignedBytes(int number) throws IOException {
-        short[] result = new short[number];
-        for (int i = 0; i < number; i++) {
-            result[i] = (short) dataStream.readUnsignedByte();
-        }
-        return result;
-    }
-
-    /**
-     * Read an unsigned short from an I/O buffer. The value is in the range of 0 to 65535.
-     *
-     * @return unsigned short
-     */
-    public int readUnsignedShort() throws IOException {
-        return dataStream.readUnsignedShort();
-    }
-
-    public int[] readVectorOfInts(int number) throws IOException {
-        int[] result = new int[number];
-        for (int i = 0; i < number; i++) {
-            result[i] = readShort();
-        }
-        return result;
-    }
-
-    public float[] readVectorOfFloats(int number) throws IOException {
-        float[] result = new float[number];
-        for (int i = 0; i < number; i++) {
-            result[i] = (float) readReal();
-        }
-        return result;
-    }
-
-    /**
-     * Lookup from telescope ID to offset number (index) in structures.
-     *
-     * The lookup table must have been filled before with set_tel_idx(). When dealing with multiple
-     * lookups, use set_tel_idx_ref() first to select the lookup table to be used.
-     *
-     * @param telId A telescope ID for which we want the index count.
-     * @return >= 0 (index in the original list passed to set_tel_idx), -1 (not found in index, -2
-     * (index not initialized).
-     */
-    public int findTelIndex(int telId) {
-        if (gTelIdxInit[gTelIdxRef] == 0) {
-            log.warn("Index was not initialized.");
-            return -2;
-        }
-        if (telId < 0) {
-            //TODO some memory "magic" is made in original code, can we skip it?
-            log.warn("Negative ID was given.");
-            return -1;
-        }
-        return gTelIdx[gTelIdxRef][telId];
-    }
-
-    /**
-     * Skip the sub-item if it is of no interest.
-     */
-    public boolean skipSubitem() {
-        EventIOHeader header = new EventIOHeader(this);
-        try {
-            if (header.findAndReadNextHeader()) {
-                header.getItemEnd();
-                return true;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public boolean readShower() {
-        //TODO implement and move to another class
-        return false;
-    }
-
-    /**
      * Get a signed integer of unspecified length from an I/O buffer where it is encoded in a way
      * similar to the UTF-8 character encoding. Even though the scheme in principle allows for
      * arbitrary length data, the current implementation is limited for data of up to 64 bits. On
@@ -485,20 +459,6 @@ public class EventIOBuffer {
         return 0;
     }
 
-    /**
-     * Get an array of ints as scount32 data from an I/O buffer.
-     * @param number number of ints to be read from buffer
-     * @return array of ints
-     * @throws IOException
-     */
-    public int[] readVectorOfIntsScount(int number) throws IOException {
-        int[] result = new int[number];
-        for (int i = 0; i < number; i++) {
-            result[i] = readSCount32();
-        }
-        return result;
-    }
-
     public float readSFloat() throws IOException {
         int shortFloat = readUnsignedShort();
 
@@ -533,11 +493,86 @@ public class EventIOBuffer {
 //        return 0;
     }
 
-    public short[] readVectorOfBytes(int number) throws IOException {
-        short[] result = new short[number];
+    /**
+     * Get an array of ints as scount32 data from an I/O buffer.
+     *
+     * @param number number of ints to be read from buffer
+     * @return array of ints
+     */
+    public int[] readVectorOfIntsScount(int number) throws IOException {
+        int[] result = new int[number];
         for (int i = 0; i < number; i++) {
-            result[i] = (short) readByte();
+            result[i] = readSCount32();
         }
         return result;
+    }
+
+    /**
+     * Read a vector of bytes from an I/O buffer.
+     *
+     * @param number number of elements to load
+     * @return array of shorts
+     */
+    public byte[] readVectorOfBytes(int number) throws IOException {
+        byte[] result = new byte[number];
+        for (int i = 0; i < number; i++) {
+            result[i] = readByte();
+        }
+        return result;
+    }
+
+    /**
+     * Read a vector of unsigned bytes from an I/O buffer.
+     *
+     * @param number number of elements to load
+     * @return array of shorts
+     */
+    public short[] readVectorOfUnsignedBytes(int number) throws IOException {
+        short[] result = new short[number];
+        for (int i = 0; i < number; i++) {
+            result[i] = readUnsignedByte();
+        }
+        return result;
+    }
+
+    /**
+     * Read a vector of unsigned shorts from an I/O buffer with least significant byte first. The
+     * values are in the range 0 to 65535. The function should be used where sign propagation is of
+     * concern.
+     *
+     * @param number number of elements to load
+     * @return array of elements
+     */
+    public int[] readVectorOfUnsignedShort(int number) throws IOException {
+        int[] result = new int[number];
+        for (int i = 0; i < number; i++) {
+            result[i] = readUnsignedShort();
+        }
+        return result;
+    }
+
+    public int[] readVectorOfInts(int number) throws IOException {
+        int[] result = new int[number];
+        for (int i = 0; i < number; i++) {
+            result[i] = readShort();
+        }
+        return result;
+    }
+
+    public float[] readVectorOfFloats(int number) throws IOException {
+        float[] result = new float[number];
+        for (int i = 0; i < number; i++) {
+            result[i] = readReal();
+        }
+        return result;
+    }
+
+    public double[] readVectorOfReals(int vectorSize)
+            throws IOException {
+        double[] vector = new double[vectorSize];
+        for (int i = 0; i < vectorSize; i++) {
+            vector[i] = readReal();
+        }
+        return vector;
     }
 }
