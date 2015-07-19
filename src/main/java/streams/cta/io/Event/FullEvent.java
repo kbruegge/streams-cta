@@ -106,7 +106,7 @@ public class FullEvent {
         while (type > 0) {
             if (type == TYPE_CENTRAL_EVENT) {
                 // read central event
-                if (central.readCentralEvent(buffer)) {
+                if (!central.readCentralEvent(buffer)) {
                     log.error("Error reading central event.");
                     header.getItemEnd();
                     break;
