@@ -113,6 +113,9 @@ public class EventIOBuffer {
         int type = 0;
         try {
             type = readLong() & 0x0000ffff;
+
+            // reduce read length after reading as we will reset the stream
+            readLength -= 4;
         } catch (IOException e) {
             log.error("Error while checking the type of the subitem:\n" + e.getMessage());
         }
@@ -152,6 +155,9 @@ public class EventIOBuffer {
 
             // read a long number containing the second part of header with the identification
             identification = readLong();
+
+            // reduce read length after reading as we will reset the stream
+            readLength -= 8;
 
         } catch (IOException e) {
             log.error("Error while checking the type of the subitem:\n" + e.getMessage());
