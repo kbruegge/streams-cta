@@ -387,41 +387,40 @@ public class EventIOBuffer {
 
         v[0] = readByte();
 
-        if ( (v[0] & 0x80) == 0 ) {
+        if ((v[0] & 0x80) == 0) {
             return v[0];
         }
         v[1] = readByte();
-        if ( (v[0] & 0xc0) == 0x80 ) {
-            return ((v[0]&0x3f)<<8) | v[1];
+        if ((v[0] & 0xc0) == 0x80) {
+            return ((v[0] & 0x3f) << 8) | v[1];
         }
         v[2] = readByte();
-        if ( (v[0] & 0xe0) == 0xc0 ) {
-            return ((v[0]&0x1f)<<16) | (v[1]<<8) | v[2];
+        if ((v[0] & 0xe0) == 0xc0) {
+            return ((v[0] & 0x1f) << 16) | (v[1] << 8) | v[2];
         }
         v[3] = readByte();
-        if ( (v[0] & 0xf0) == 0xe0 ) {
-            return ((v[0]&0x0f)<<24) | (v[1]<<16) | (v[2]<<8) | v[3];
+        if ((v[0] & 0xf0) == 0xe0) {
+            return ((v[0] & 0x0f) << 24) | (v[1] << 16) | (v[2] << 8) | v[3];
         }
         v[4] = readByte();
-        if ( (v[0] & 0xf8) == 0xf0 )
-        {
-            if ( (v[0] & 0x07) != 0x00 ) {
+        if ((v[0] & 0xf8) == 0xf0) {
+            if ((v[0] & 0x07) != 0x00) {
                 log.warn("Data too large in get_count32 function, clipped.");
             }
-            return (v[1]<<24) | (v[2]<<16) | (v[3]<<8) | v[4];
+            return (v[1] << 24) | (v[2] << 16) | (v[3] << 8) | v[4];
         }
         // With only 32-bit integers available, we may lose data from here on.
         log.warn("Data too large in get_count32 function.");
         v[5] = readByte();
-        if ( (v[0] & 0xfc) == 0xf8 ) {
+        if ((v[0] & 0xfc) == 0xf8) {
             return 0;
         }
         v[6] = readByte();
-        if ( (v[0] & 0xfe) == 0xfc ) {
+        if ((v[0] & 0xfe) == 0xfc) {
             return 0;
         }
         v[7] = readByte();
-        if ( (v[0] & 0xff) == 0xfe ) {
+        if ((v[0] & 0xff) == 0xfe) {
             return 0;
         }
         v[8] = readByte();
