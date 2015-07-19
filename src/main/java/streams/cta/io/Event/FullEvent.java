@@ -78,7 +78,8 @@ public class FullEvent {
         //TODO should we use the header to skip this whole event item in a case any of its subitems are failed to be read?
         if (header.getVersion() != 0) {
             log.error("Unsupported FullEvent version: " + header.getVersion());
-            buffer.skipBytes(header.getLength());
+            //TODO we should get item end?!
+            buffer.skipBytes((int) header.getLength());
             return null;
         }
 

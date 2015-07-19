@@ -96,7 +96,8 @@ public class ShowerExtraParameters {
             ep.isSet = 0;
 
             if (headerExtraParameters.getVersion() != 1) {
-                buffer.skipBytes(headerExtraParameters.getLength());
+                //TODO we should probably get end of the item
+                buffer.skipBytes((int) headerExtraParameters.getLength());
                 log.error("Skipping MCShower because version is not 1, but "
                         + headerExtraParameters.getVersion());
             }

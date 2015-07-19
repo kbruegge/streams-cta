@@ -337,6 +337,28 @@ public class EventIOBuffer {
         }
     }
 
+    /**
+     * Read an unsigned int from an I/O buffer.
+     *
+     * @return unsigned int as long
+     */
+    public long readUnsignedInt32() throws IOException{
+        byte[] b = new byte[8];
+
+        //TODO check if filling up to an int with zeros is better than dataStream.readUnsignedShort()
+        //TODO maybe use dataStream.readUnsignedByte()?
+        dataStream.read(b, 0, 4);
+
+        readLength += 4;
+
+        if (EventIOStream.reverse) {
+            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getLong();
+        } else {
+            return ByteBuffer.wrap(b).getLong();
+        }
+    }
+
+
     public long readInt64() throws IOException {
         byte[] b = new byte[8];
         dataStream.read(b);

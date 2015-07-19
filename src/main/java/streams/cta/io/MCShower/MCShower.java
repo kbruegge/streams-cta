@@ -87,8 +87,9 @@ public class MCShower {
     public static MCShower readMCShower(EventIOBuffer buffer, EventIOHeader header)
             throws IOException {
         if (header.getVersion() > 2) {
+            //TODO getItemEnd should be used?
             log.error("Unsupported MC shower version: " + header.getVersion());
-            buffer.skipBytes(header.getLength());
+            buffer.skipBytes((int) header.getLength());
             return null;
         }
 

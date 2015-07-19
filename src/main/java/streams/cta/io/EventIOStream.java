@@ -102,7 +102,7 @@ public class EventIOStream extends AbstractStream {
                 eventData.event = new FullEvent().readFullEvent(buffer, header, -1);
                 event = new CTAEvent(10, new byte[]{1, 2, 3,});
             } else {
-                byte[] bytes = buffer.readBytes(header.length);
+                byte[] bytes = buffer.readBytes((int) header.length);
                 event = new CTAEvent(0, bytes);
             }
             item = DataFactory.create();

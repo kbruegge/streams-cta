@@ -18,7 +18,7 @@ public class EventIOHeader {
     /**
      * Length of data field, for information only.
      */
-    int length;
+    long length;
 
     /**
      * The typeString number telling the typeString of I/O block.
@@ -112,7 +112,7 @@ public class EventIOHeader {
         identification = buffer.readLong();
 
         // read length
-        int lengthField = buffer.readInt32();
+        long lengthField = buffer.readUnsignedInt32();
 
         // check whether bit 30 is set
         // meaning only subobjects are contained
@@ -143,11 +143,14 @@ public class EventIOHeader {
 
         // TODO length parameter longer than the rest of the data?
 
+        buffer.readLength -= 12;
+
         // read extension if given
         if (useExtension) {
             log.info("Extension exists.");
             // TODO dont skip
             buffer.skipBytes(4);
+            buffer.readLength -= 4;
         }
 
         if (wantedType > 0 && wantedType != type) {
@@ -246,8 +249,9 @@ public class EventIOHeader {
         //TODO check if this goes right?!
         // calculate how much of the byte stream real length has been read
         // and skip the rest of it until the next item
-        int skipLength = length - buffer.readLength + 12 + (useExtension ? 4 : 0);
-        buffer.skipBytes(skipLength);
+        long skipLength = length - buffer.readLength;// + 12 + (useExtension ? 4 : 0);
+        log.info("Skipping: " + skipLength + "\ttype: " + typeString);
+        buffer.skipBytes((int) skipLength);
         buffer.readLength = 0;
     }
 
@@ -255,7 +259,7 @@ public class EventIOHeader {
         return version;
     }
 
-    public int getLength() {
+    public long getLength() {
         return length;
     }
 
