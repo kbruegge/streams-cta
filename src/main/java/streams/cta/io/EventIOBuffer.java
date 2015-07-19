@@ -364,23 +364,68 @@ public class EventIOBuffer {
     public long readCount() throws IOException {
 
         int countLength = 9;
-        long[] count = new long[countLength];
+//        long[] count = new long[countLength];
+//
+//        int[] masks = new int[]{0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe, 0xff};
+//
+//        int length = 1;
+//        if ((count[0] & masks[0]) == 0) {
+//            calculateCount(count, length);
+//        }
+//
+//        // TODO: control that this math works the same way as in hessioxxx
+//        long result = 0;
+//        for (int i = 1; i < countLength; i++) {
+//            count[i] = readByte();
+//            if ((count[0] & masks[i]) == masks[i - 1]) {
+//                result = calculateCount(count, length);
+//            }
+//        }
 
-        int[] masks = new int[]{0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe, 0xff};
 
-        int length = 1;
-        if ((count[0] & masks[0]) == 0) {
-            calculateCount(count, length);
+        long[] v = new long[countLength];
+
+        v[0] = readByte();
+
+        if ( (v[0] & 0x80) == 0 ) {
+            return v[0];
         }
-
-        // TODO: control that this math works the same way as in hessioxxx
-        long result = 0;
-        for (int i = 1; i < countLength; i++) {
-            count[i] = readByte();
-            if ((count[0] & masks[i]) == masks[i - 1]) {
-                result = calculateCount(count, length);
+        v[1] = readByte();
+        if ( (v[0] & 0xc0) == 0x80 ) {
+            return ((v[0]&0x3f)<<8) | v[1];
+        }
+        v[2] = readByte();
+        if ( (v[0] & 0xe0) == 0xc0 ) {
+            return ((v[0]&0x1f)<<16) | (v[1]<<8) | v[2];
+        }
+        v[3] = readByte();
+        if ( (v[0] & 0xf0) == 0xe0 ) {
+            return ((v[0]&0x0f)<<24) | (v[1]<<16) | (v[2]<<8) | v[3];
+        }
+        v[4] = readByte();
+        if ( (v[0] & 0xf8) == 0xf0 )
+        {
+            if ( (v[0] & 0x07) != 0x00 ) {
+                log.warn("Data too large in get_count32 function, clipped.");
             }
+            return (v[1]<<24) | (v[2]<<16) | (v[3]<<8) | v[4];
         }
+        // With only 32-bit integers available, we may lose data from here on.
+        log.warn("Data too large in get_count32 function.");
+        v[5] = readByte();
+        if ( (v[0] & 0xfc) == 0xf8 ) {
+            return 0;
+        }
+        v[6] = readByte();
+        if ( (v[0] & 0xfe) == 0xfc ) {
+            return 0;
+        }
+        v[7] = readByte();
+        if ( (v[0] & 0xff) == 0xfe ) {
+            return 0;
+        }
+        v[8] = readByte();
+        return 0;
 
 //        count[0] = readByte();
 //        if ((count[0] & masks[0]) == 0){
@@ -397,7 +442,7 @@ public class EventIOBuffer {
 //            return ((count[0] & 0x1f) << 16 | (count[1] << 8) | count[2]);
 //        }
 
-        return result;
+//        return result;
     }
 
     private long calculateCount(long[] count, int length) {
