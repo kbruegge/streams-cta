@@ -128,7 +128,7 @@ public class CentralEvent {
                         if (numTelData > Constants.H_MAX_TEL) {
                             log.error("Invalid number of telescopes with data " + numTelData
                                     + " in central trigger block for event " + globCount);
-                            numTelTriggered = 0;
+                            numTelData = 0;
                             header.getItemEnd();
                             return false;
                         }
