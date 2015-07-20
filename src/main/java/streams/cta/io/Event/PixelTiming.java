@@ -24,7 +24,7 @@ public class PixelTiming {
     /**
      * Telescope ID
      */
-    int telId;
+    public int telId;
 
     /**
      * Pixels in camera: list should be in this range.

@@ -20,7 +20,7 @@ public class TrackEvent {
     /**
      * The telescope ID number (1 ... n)
      */
-    long telId;
+    public long telId;
 
     /**
      * Raw azimuth angle [radians from N->E].

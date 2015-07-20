@@ -22,7 +22,7 @@ public class TelEvent {
     /**
      * The telescope ID number (1 ... n)
      */
-    int telId;
+    public int telId;
 
     /**
      * The counter for local triggers.
@@ -84,27 +84,27 @@ public class TelEvent {
     /**
      * how many 'img' sets were allocated.
      */
-    int maxImageSets;
+    public int maxImageSets;
 
     /**
      * Pointer to raw data, if any.
      */
-    AdcData raw;
+    public AdcData raw;
 
     /**
      * Optional pixel (pulse shape) timing.
      */
-    PixelTiming pixtm;
+    public PixelTiming pixtm;
 
     /**
      * Pointer to second moments, if any.
      */
-    ImgData[] img;
+    public ImgData[] img;
 
     /**
      * Pointer to calibrated pixel intensities, if available.
      */
-    PixelCalibrated pixcal;
+    public PixelCalibrated pixcal;
 
     //TODO check whether the comment is right and these variables are not used (then just skip those parts in stream)
     int numPhysAddr;        ///< (not used)

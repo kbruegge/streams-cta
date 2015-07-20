@@ -24,7 +24,7 @@ public class ImgData {
     /**
      * Telescope ID
      */
-    int telId;
+    public int telId;
 
     /**
      * number of pixels used for image

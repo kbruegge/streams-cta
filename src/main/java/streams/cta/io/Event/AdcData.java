@@ -24,7 +24,7 @@ public class AdcData {
     /**
      * Must match the expected telescope ID when reading.
      */
-    long telId;
+    public long telId;
 
     /**
      * The number of pixels in the camera (as in configuration)

@@ -25,7 +25,7 @@ public class FullEvent {
     /**
      * Number of telescopes in run.
      */
-    int numTel;
+    public int numTel;
 
     /**
      * Central trigger data and data pattern.
@@ -35,12 +35,12 @@ public class FullEvent {
     /**
      * Raw and/or image data.
      */
-    TelEvent[] teldata;
+    public TelEvent[] teldata;
 
     /**
      * Interpolated tracking data.
      */
-    TrackEvent[] trackdata;
+    public TrackEvent[] trackdata;
 
     /**
      * Reconstructed shower parameters.
@@ -68,6 +68,10 @@ public class FullEvent {
         numTeldata = 0;
         teldata = new TelEvent[numberTelescopes];
         trackdata = new TrackEvent[numberTelescopes];
+        for (int i = 0; i < numberTelescopes; i++) {
+            trackdata[i] = new TrackEvent();
+            teldata[i] = new TelEvent();
+        }
         teldataList = new int[numberTelescopes];
         shower = new ShowerParameters();
         central = new CentralEvent();
