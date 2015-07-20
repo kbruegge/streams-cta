@@ -407,6 +407,33 @@ public class EventIOBuffer {
     }
 
     /**
+     * Get a string of ASCII characters with leading count of bytes (stored with 16 bits) from an
+     * I/O buffer.
+     *
+     * NOTE: the nmax count does now account for the trailing zero byte which will be appended. This
+     * was different in an earlier version of this function where one additional byte had to be
+     * available for the trailing zero byte.
+     */
+
+    int readString(int nmax) throws IOException {
+        int nbytes = readShort();
+        int nread = (nmax - 1 < nbytes) ? nmax - 1 : nbytes; /* minimum of both */
+
+        // Read up to the accepted maximum length
+        // get_vector_of_byte((BYTE *) s, nread, iobuf);
+        char[] result = readVectorOfChars(nread);
+
+        // Ignore the rest of the string
+        if (nbytes > nread) {
+            skipBytes(nbytes - nread);
+        }
+        // Terminate string with null character
+        result[nread] = '\0';
+
+        return (nbytes);
+    }
+
+    /**
      * Description from hessioxxx:
      *
      * @short Get an unsigned integer of unspecified length from an I/O buffer.
@@ -617,12 +644,26 @@ public class EventIOBuffer {
      * Read a vector of bytes from an I/O buffer.
      *
      * @param number number of elements to load
-     * @return array of shorts
+     * @return array of bytes
      */
     public byte[] readVectorOfBytes(int number) throws IOException {
         byte[] result = new byte[number];
         for (int i = 0; i < number; i++) {
             result[i] = readByte();
+        }
+        return result;
+    }
+
+    /**
+     * Read a vector of chars from an I/O buffer.
+     *
+     * @param number number of elements to load
+     * @return array of chars
+     */
+    public char[] readVectorOfChars(int number) throws IOException {
+        char[] result = new char[number];
+        for (int i = 0; i < number; i++) {
+            result[i] = (char) readByte();
         }
         return result;
     }
