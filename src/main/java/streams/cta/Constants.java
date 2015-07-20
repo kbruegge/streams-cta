@@ -10,7 +10,7 @@ public class Constants {
      */
     public static final int H_MAX_PROFILE = 10;
     public static final int MAX_IO_ITEM_LEVEL = 20;
-    public static final int H_MAX_TEL = 16;
+    public static final int H_MAX_TEL = 200;
     public static final int H_MAX_PIX = 4095;
     public static final int H_MAX_TRG_PER_SECTOR = 1;
     public static final int H_MAX_SECTORS = H_MAX_PIX * H_MAX_TRG_PER_SECTOR;
