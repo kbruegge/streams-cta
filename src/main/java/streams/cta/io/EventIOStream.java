@@ -22,7 +22,6 @@ import streams.cta.CTAEvent;
 import streams.cta.Constants;
 import streams.cta.io.Event.FullEvent;
 import streams.cta.io.MCShower.MCShower;
-import streams.cta.io.RunHeader.RunHeader;
 
 /**
  * Created by alexey on 02.06.15.
@@ -39,8 +38,6 @@ public class EventIOStream extends AbstractStream {
 
     public EventIOData eventData;
     public EventIOBuffer buffer;
-
-    public RunHeader runHeader;
 
     @Parameter(
             required = false,
@@ -83,9 +80,6 @@ public class EventIOStream extends AbstractStream {
         // initialize data object containing all the parsed data from the stream
         eventData = new EventIOData();
 
-        // initialize run header object containing information about the EventIO run
-        runHeader = new RunHeader();
-
         // import the registered types
         importEventioRegisteredDatatypes();
     }
@@ -113,12 +107,143 @@ public class EventIOStream extends AbstractStream {
                 }
                 event = new CTAEvent(10, new byte[]{1, 2, 3,});
             } else if (header.type == 2000) {
-                buffer.dataStream.reset();
-                runHeader = new RunHeader();
-                if(!runHeader.readRunHeader(buffer)){
+                //buffer.dataStream.reset();
+
+                // Summary of a preceding run in the same file ?
+//                if (!quiet && hsdata != NULL && hsdata->run_header.run > 0)
+//                    show_run_summary(hsdata, nev, ntrg, plidx, wsum_all, wsum_trg,
+//                            rmax_x, rmax_y, rmax_r);
+//                else if (nev > 0)
+//                    printf("%d of %d events triggered.\n", ntrg, nev);
+
+                // Structures might be allocated from previous run
+                if (eventData != null) {
+                    // Free memory allocated inside ...
+                    for (int itel = 0; itel < eventData.runHeader.ntel; itel++) {
+                        if (eventData.event.teldata[itel].raw != null) {
+                            eventData.event.teldata[itel].raw = null;
+                        }
+                        if (eventData.event.teldata[itel].pixtm != null) {
+                            eventData.event.teldata[itel].pixtm = null;
+                        }
+                        if (eventData.event.teldata[itel].img != null) {
+                            eventData.event.teldata[itel].img = null;
+                        }
+                        if (eventData.event.teldata[itel].pixcal != null) {
+                            eventData.event.teldata[itel].pixcal = null;
+                        }
+                    }
+                        /* Free main structure */
+//                    if (!dst_processing) {
+//                        free(hsdata);
+//                        hsdata = NULL;
+//                    }
+                }
+
+//                nev = ntrg = 0;
+//                wsum_all = wsum_trg = 0.;
+
+//                nrun++;
+
+                if (eventData == null) {
+                    eventData = new EventIOData();
+                }
+
+                if (!eventData.runHeader.readRunHeader(buffer)) {
                     log.error("Error happened while reading run header.");
                     return null;
                 }
+
+//                if (!quiet)
+//                    printf("Reading simulated data for %d telescope(s)\n", hsdata->run_header.ntel);
+//                if (verbose || rc != 0)
+//                    printf("read_hess_runheader(), rc = %d\n", rc);
+//                fprintf(stderr, "\nStarting run %d\n", hsdata->run_header.run);
+//                if (showdata)
+//                    print_hess_runheader(iobuf);
+
+//                if (user_ana)
+//                    do_user_ana(hsdata, item_header.type, 0);
+
+                for (int itel = 0; itel < eventData.runHeader.ntel; itel++) {
+                    int telId = eventData.runHeader.telId[itel];
+
+                    // save local reference for easy of code
+                    TelEvent telData = eventData.event.teldata[itel];
+//                    hsdata->camera_set[itel].telId = telId;
+//                    hsdata->camera_org[itel].telId = telId;
+//                    hsdata->pixel_set[itel].telId = telId;
+//                    hsdata->pixel_disabled[itel].telId = telId;
+//                    hsdata->cam_soft_set[itel].telId = telId;
+//                    hsdata->tracking_set[itel].telId = telId;
+//                    hsdata->point_cor[itel].telId = telId;
+                    eventData.event.numTel = eventData.runHeader.ntel;
+                    eventData.event.trackdata[itel].telId = telId;
+
+                    telData.telId = telId;
+                    telData.raw = new AdcData();
+//                    if ((hsdata->event.teldata[itel].raw =
+//                            (AdcData *) calloc(1, sizeof(AdcData))) == NULL) {
+//                        Warning("Not enough memory for AdcData");
+//                        exit(1);
+//                    }
+                    telData.raw.telId = telId;
+
+                    telData.pixtm = new PixelTiming();
+//                    if ((hsdata->event.teldata[itel].pixtm =
+//                            (PixelTiming *) calloc(1, sizeof(PixelTiming))) == NULL) {
+//                        Warning("Not enough memory for PixelTiming");
+//                        exit(1);
+//                    }
+
+                    telData.pixtm.telId = telId;
+
+//                    if (do_calibrate && dst_level >= 0) /* Only when needed */
+//                    {
+//                        if ((hsdata->event.teldata[itel].pixcal =
+//                                (PixelCalibrated *) calloc(1, sizeof(PixelCalibrated))) == NULL) {
+//                            Warning("Not enough memory for PixelCalibrated");
+//                            exit(1);
+//                        }
+//                        hsdata->event.teldata[itel].pixcal->telId = telId;
+//                    }
+
+                    telData.img = new ImgData[2];
+                    telData.img[0] = new ImgData();
+                    telData.img[0].telId = telId;
+                    telData.img[1] = new ImgData();
+                    telData.img[1].telId = telId;
+
+                    telData.maxImageSets = 2;
+
+                    eventData.event.teldata[itel] = telData;
+//                    if ((hsdata->event.teldata[itel].img =
+//                            (ImgData *) calloc(2, sizeof(ImgData))) == NULL) {
+//                        Warning("Not enough memory for ImgData");
+//                        exit(1);
+//                    }
+
+//                    hsdata->tel_moni[itel].tel_id = telId;
+//                    hsdata->tel_lascal[itel].tel_id = telId;
+                }
+
+//                skip_run = 0;
+//
+//                if (only_runs.from != 0 || only_runs.to != 0) {
+//                    if (!is_in_range(item_header.ident, &only_runs)) {
+//                        skip_run = 1;
+//                        printf("Ignoring data of run %ld\n", item_header.ident);
+//                        if (nrun > 0)
+//                            continue;
+//                    }
+//                }
+//                if (is_in_range(item_header.ident, &not_runs)) {
+//                    skip_run = 1;
+//                    printf("Ignoring data of run %ld\n", item_header.ident);
+//                    if (nrun > 0)
+//                        continue;
+//                }
+
                 event = new CTAEvent(10, new byte[]{2, 3, 4});
             } else {
                 byte[] bytes = buffer.readBytes((int) header.length);

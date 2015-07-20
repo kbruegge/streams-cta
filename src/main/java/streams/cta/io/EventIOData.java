@@ -2,6 +2,7 @@ package streams.cta.io;
 
 import streams.cta.io.Event.FullEvent;
 import streams.cta.io.MCShower.MCShower;
+import streams.cta.io.RunHeader.RunHeader;
 
 /**
  * EventIOData can be compared to AllHessData data type in hessioxxx Created by alexey on 24.06.15.
@@ -10,7 +11,7 @@ public class EventIOData {
     MCShower mcShower;
 
     //TODO implement RunHeader as it is needed for event to be interpreted and read right
-//    RunHeader run_header;
+    RunHeader runHeader;
 
     /**
      * needed to read the event
@@ -33,4 +34,10 @@ public class EventIOData {
 //    LasCalData tel_lascal[H_MAX_TEL];
 //    RunStat run_stat;
 //    MCRunStat mc_run_stat;
+
+    public EventIOData(){
+        // initialize run header object containing information about the EventIO run
+        event = new FullEvent();
+        runHeader = new RunHeader();
+    }
 }
