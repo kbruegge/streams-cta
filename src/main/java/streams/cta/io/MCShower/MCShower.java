@@ -96,24 +96,27 @@ public class MCShower {
         MCShower mcShower = new MCShower();
         mcShower.showerNum = header.getIdentification();
 
-        mcShower.primaryId = buffer.readInt32(); // int32
-        mcShower.energy = buffer.readReal(); // real
-        mcShower.azimuth = buffer.readReal(); // real
-        mcShower.altitude = buffer.readReal(); // real
+        mcShower.primaryId = buffer.readInt32();
+        mcShower.energy = buffer.readReal();
+        mcShower.azimuth = buffer.readReal();
+        mcShower.altitude = buffer.readReal();
         if (header.getVersion() >= 1) {
-            mcShower.depthStart = buffer.readReal(); // real
+            mcShower.depthStart = buffer.readReal();
         }
         mcShower.hFirstInt = buffer.readReal();
         mcShower.xmax = buffer.readReal();
-        mcShower.hmax = mcShower.emax = mcShower.cmax = 0d;
 
         if (header.getVersion() >= 1) {
             mcShower.hmax = buffer.readReal();
             mcShower.emax = buffer.readReal();
             mcShower.cmax = buffer.readReal();
+        } else {
+            mcShower.hmax = 0d;
+            mcShower.emax = 0d;
+            mcShower.cmax = 0d;
         }
 
-        mcShower.numProfiles = buffer.readInt16(); // short
+        mcShower.numProfiles = buffer.readInt16();
 
         // fill the ShowerProfiles
         for (int i = 0; i < mcShower.numProfiles && i < Constants.H_MAX_PROFILE; i++) {
