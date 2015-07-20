@@ -62,12 +62,7 @@ public class EventIOHeader {
         typeString = "";
     }
 
-    /**
-     * Searches the stream for the sync marker and reads EventIO defined header consisting of 3 - 4
-     * fields of 4 bytes each
-     */
-    public boolean findAndReadNextHeader() throws IOException {
-
+    public boolean findAndReadNextHeader(boolean reset) throws IOException {
         //TODO use the wanted type and controll it
         long wantedType;
 
@@ -76,6 +71,8 @@ public class EventIOHeader {
             log.error("Maximum level of sub-items in I/O Buffer exceeded.");
             //TODO: what to do now?
         }
+
+        buffer.dataStream.mark(1000);
 
         if (buffer.itemLevel > 0) {
             //TODO do the check like in eventio.c line 3192
@@ -86,8 +83,6 @@ public class EventIOHeader {
                 return false;
             }
         }
-
-        buffer.dataStream.mark(16);
 
         wantedType = type;
 
@@ -132,18 +127,21 @@ public class EventIOHeader {
         // bits 0 to 29 are used for the length of the data block
         length = (lengthField & 0x3FFFFFFF);
 
-        // save the length of the item
-        buffer.itemLength[buffer.itemLevel] = length;
+        if (!reset) {
 
-        if (onlySubObjects) {
-            buffer.subItemLength[buffer.itemLevel] = length;
-        } else {
-            buffer.subItemLength[buffer.itemLevel] = 0;
+            // save the length of the item
+            buffer.itemLength[buffer.itemLevel] = length;
+
+            if (onlySubObjects) {
+                buffer.subItemLength[buffer.itemLevel] = length;
+            } else {
+                buffer.subItemLength[buffer.itemLevel] = 0;
+            }
+
+            buffer.itemExtension[buffer.itemLevel] = useExtension;
+
+            // TODO length parameter longer than the rest of the data?
         }
-
-        buffer.itemExtension[buffer.itemLevel] = useExtension;
-
-        // TODO length parameter longer than the rest of the data?
 
         buffer.readLength -= 12;
 
@@ -161,9 +159,21 @@ public class EventIOHeader {
                     + type + " was read.");
         }
 
-        level = buffer.itemLevel++;
+        if (!reset) {
+            level = buffer.itemLevel++;
+        }else{
+            buffer.dataStream.reset();
+        }
 
         return true;
+    }
+
+    /**
+     * Searches the stream for the sync marker and reads EventIO defined header consisting of 3 - 4
+     * fields of 4 bytes each
+     */
+    public boolean findAndReadNextHeader() throws IOException {
+        return findAndReadNextHeader(false);
     }
 
     /**
@@ -252,7 +262,9 @@ public class EventIOHeader {
         // calculate how much of the byte stream real length has been read
         // and skip the rest of it until the next item
         long skipLength = length - buffer.readLength;// + 12 + (useExtension ? 4 : 0);
-        log.info("Skipping: " + skipLength + "\ttype: " + typeString);
+        if (skipLength != 0){
+            log.info("Skipping: " + skipLength + "\ttype: " + typeString);
+        }
         buffer.skipBytes((int) skipLength);
         buffer.readLength = 0;
     }

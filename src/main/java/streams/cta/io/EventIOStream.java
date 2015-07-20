@@ -20,7 +20,10 @@ import stream.io.AbstractStream;
 import stream.io.SourceURL;
 import streams.cta.CTAEvent;
 import streams.cta.Constants;
-import streams.cta.io.Event.FullEvent;
+import streams.cta.io.Event.AdcData;
+import streams.cta.io.Event.ImgData;
+import streams.cta.io.Event.PixelTiming;
+import streams.cta.io.Event.TelEvent;
 import streams.cta.io.MCShower.MCShower;
 
 /**
@@ -77,9 +80,6 @@ public class EventIOStream extends AbstractStream {
         // initialize buffer containing the data stream to read from it
         buffer = new EventIOBuffer(dataStream);
 
-        // initialize data object containing all the parsed data from the stream
-        eventData = new EventIOData();
-
         // import the registered types
         importEventioRegisteredDatatypes();
     }
@@ -89,25 +89,24 @@ public class EventIOStream extends AbstractStream {
 
         Data item = null;
         EventIOHeader header = new EventIOHeader(buffer);
-        if (header.findAndReadNextHeader()) {
+        if (header.findAndReadNextHeader(true)) {
 
             //TODO add reading full event with what=-1
 
             CTAEvent event;
             // MC Shower
             if (header.type == 2020) {
+                header.findAndReadNextHeader();
                 eventData.mcShower = MCShower.readMCShower(buffer, header);
                 event = new CTAEvent(10, new byte[]{0, 1, 2});
+                header.getItemEnd();
             } else if (header.type == Constants.TYPE_EVENT) {
-                buffer.dataStream.reset();
-                eventData.event = new FullEvent();
-                if(!eventData.event.readFullEvent(buffer, -1)){
+                if (!eventData.event.readFullEvent(buffer, -1)) {
                     log.error("Error happened while reading full event data.");
                     return null;
                 }
                 event = new CTAEvent(10, new byte[]{1, 2, 3,});
             } else if (header.type == 2000) {
-                //buffer.dataStream.reset();
 
                 // Summary of a preceding run in the same file ?
 //                if (!quiet && hsdata != NULL && hsdata->run_header.run > 0)
@@ -246,12 +245,13 @@ public class EventIOStream extends AbstractStream {
 
                 event = new CTAEvent(10, new byte[]{2, 3, 4});
             } else {
+                header.findAndReadNextHeader();
                 byte[] bytes = buffer.readBytes((int) header.length);
                 event = new CTAEvent(0, bytes);
+                header.getItemEnd();
             }
             item = DataFactory.create();
             item.put("@event", event);
-            header.getItemEnd();
         } else {
             log.info("Next sync marker has not been found.");
         }
