@@ -415,7 +415,7 @@ public class EventIOBuffer {
      * available for the trailing zero byte.
      */
 
-    int readString(int nmax) throws IOException {
+    public char[] readString(int nmax) throws IOException {
         int nbytes = readShort();
         int nread = (nmax - 1 < nbytes) ? nmax - 1 : nbytes; /* minimum of both */
 
@@ -427,10 +427,11 @@ public class EventIOBuffer {
         if (nbytes > nread) {
             skipBytes(nbytes - nread);
         }
+        readLength -= nbytes - nread;
         // Terminate string with null character
-        result[nread] = '\0';
+        //result[nread] = '\0';
 
-        return (nbytes);
+        return result;
     }
 
     /**

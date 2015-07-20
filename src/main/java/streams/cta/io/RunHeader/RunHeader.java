@@ -167,7 +167,7 @@ public class RunHeader {
 
                 //TODO check if it is the right conversion from C to JAVA!
                 //get_string(line, sizeof(line) - 1, iobuf);
-                char[] line = buffer.readVectorOfChars(1024 - 1);
+                char[] line = buffer.readString(1024 - 1);
 
                 if (target != null && maxLenTarget > 0) {
                     target = String.valueOf(line, 0, maxLenTarget);
@@ -187,8 +187,7 @@ public class RunHeader {
 
                 //TODO check if it is the right conversion from C to JAVA!
                 // get_string(line, sizeof(line) - 1, iobuf);
-                line = buffer.readVectorOfChars(1024 - 1);
-
+                line = buffer.readString(1024 - 1);
 
                 if (observer != null && maxLenObserver > 0) {
                     observer = String.valueOf(line, 0, maxLenObserver);
