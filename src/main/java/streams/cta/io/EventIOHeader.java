@@ -87,6 +87,8 @@ public class EventIOHeader {
             }
         }
 
+        buffer.dataStream.mark(16);
+
         wantedType = type;
 
         // read typeString and check for extension field

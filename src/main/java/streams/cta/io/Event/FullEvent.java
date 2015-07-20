@@ -3,6 +3,8 @@ package streams.cta.io.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 import streams.cta.io.EventIOBuffer;
 import streams.cta.io.EventIOHeader;
 import streams.cta.io.HTime;
@@ -74,107 +76,116 @@ public class FullEvent {
     /**
      *
      */
-    public FullEvent readFullEvent(EventIOBuffer buffer, EventIOHeader header, int what) {
-        //TODO should we use the header to skip this whole event item in a case any of its subitems are failed to be read?
-        if (header.getVersion() != 0) {
-            log.error("Unsupported FullEvent version: " + header.getVersion());
-            //TODO we should get item end?!
-            buffer.skipBytes((int) header.getLength());
-            return null;
-        }
-
-        long id = header.getIdentification();
-
-        // reset time
-        central.cpuTime = new HTime();
-        central.gpsTime = new HTime();
-
-        // TODO Run-Header: numTel is set somewhere before this line
-        // read_hess.c: lines 2133
-        // hsdata->event.num_tel = hsdata->run_header.ntel;
-
-        // TODO initialize arrays for teldata and trackdata
-        for (int i = 0; i < numTel; i++) {
-            teldata[i].known = false;
-            trackdata[i].rawKnown = false;
-            trackdata[i].corKnown = false;
-        }
-
-        shower.known = 0;
-
-        int type = buffer.nextSubitemType();
-        // TODO pay attention to the case of H_MAX_TEL > 100
-        while (type > 0) {
-            if (type == TYPE_CENTRAL_EVENT) {
-                // read central event
-                if (!central.readCentralEvent(buffer)) {
-                    log.error("Error reading central event.");
-                    header.getItemEnd();
-                    break;
-                }
-            } else if (type >= TYPE_TRACK_EVENT && type <= TYPE_TRACK_EVENT + H_MAX_TEL) {
-                // read trackevent
-                int telId = (type - TYPE_TRACK_EVENT) % 100 +
-                        100 * ((type - TYPE_TRACK_EVENT) / 1000);
-                int telNumber = buffer.findTelIndex(telId);
-                if (telNumber < 0) {
-                    log.warn("Telescope number out of range for tracking data.");
-                    header.getItemEnd();
-                    break;
-                }
-                if (!trackdata[telNumber].readTrackEvent(buffer)) {
-                    log.error("Error reading track event.");
-                    header.getItemEnd();
-                    break;
+    public boolean readFullEvent(EventIOBuffer buffer, int what) {
+        EventIOHeader header = new EventIOHeader(buffer);
+        try {
+            if (header.findAndReadNextHeader()) {
+                //TODO should we use the header to skip this whole event item in a case any of its subitems are failed to be read?
+                if (header.getVersion() != 0) {
+                    log.error("Unsupported FullEvent version: " + header.getVersion());
+                    //TODO we should get item end?!
+                    buffer.skipBytes((int) header.getLength());
+                    return false;
                 }
 
-            } else if (type >= TYPE_TEL_EVENT && type <= TYPE_TEL_EVENT + H_MAX_TEL) {
-                // read televent
-                int telId = (type - TYPE_TEL_EVENT) % 100 + 100 * ((type - TYPE_TEL_EVENT) / 1000);
-                int telNumber = buffer.findTelIndex(telId);
-                if (telNumber < 0) {
-                    log.warn("Telescope number out of range for telescope event data.");
-                    header.getItemEnd();
-                    break;
+                long id = header.getIdentification();
+
+                // reset time
+                central.cpuTime = new HTime();
+                central.gpsTime = new HTime();
+
+                // TODO Run-Header: numTel is set somewhere before this line
+                // read_hess.c: lines 2133
+                // hsdata->event.num_tel = hsdata->run_header.ntel;
+
+                // TODO initialize arrays for teldata and trackdata
+                for (int i = 0; i < numTel; i++) {
+                    teldata[i].known = false;
+                    trackdata[i].rawKnown = false;
+                    trackdata[i].corKnown = false;
                 }
 
-                if (!teldata[telNumber].readTelEvent(buffer, what)) {
-                    log.error("Error reading telescope event.");
-                    header.getItemEnd();
-                    break;
+                shower.known = 0;
+
+                int type = buffer.nextSubitemType();
+                // TODO pay attention to the case of H_MAX_TEL > 100
+                while (type > 0) {
+                    if (type == TYPE_CENTRAL_EVENT) {
+                        // read central event
+                        if (!central.readCentralEvent(buffer)) {
+                            log.error("Error reading central event.");
+                            header.getItemEnd();
+                            break;
+                        }
+                    } else if (type >= TYPE_TRACK_EVENT && type <= TYPE_TRACK_EVENT + H_MAX_TEL) {
+                        // read trackevent
+                        int telId = (type - TYPE_TRACK_EVENT) % 100 +
+                                100 * ((type - TYPE_TRACK_EVENT) / 1000);
+                        int telNumber = buffer.findTelIndex(telId);
+                        if (telNumber < 0) {
+                            log.warn("Telescope number out of range for tracking data.");
+                            header.getItemEnd();
+                            break;
+                        }
+                        if (!trackdata[telNumber].readTrackEvent(buffer)) {
+                            log.error("Error reading track event.");
+                            header.getItemEnd();
+                            break;
+                        }
+
+                    } else if (type >= TYPE_TEL_EVENT && type <= TYPE_TEL_EVENT + H_MAX_TEL) {
+                        // read televent
+                        int telId = (type - TYPE_TEL_EVENT) % 100 + 100 * ((type - TYPE_TEL_EVENT) / 1000);
+                        int telNumber = buffer.findTelIndex(telId);
+                        if (telNumber < 0) {
+                            log.warn("Telescope number out of range for telescope event data.");
+                            header.getItemEnd();
+                            break;
+                        }
+
+                        if (!teldata[telNumber].readTelEvent(buffer, what)) {
+                            log.error("Error reading telescope event.");
+                            header.getItemEnd();
+                            break;
+                        }
+
+                        if ((numTeldata < H_MAX_TEL) && teldata[telNumber].known) {
+                            teldataList[numTeldata++] = teldata[telNumber].telId;
+                        }
+                    } else if (type == TYPE_SHOWER) {
+                        // read shower
+                        //TODO use THIS header to skip THIS item if something goes wrong
+                        if (!buffer.readShower()) {
+                            header.getItemEnd();
+                            return false;
+                        }
+                    } else {
+                        // invalid item type.
+                        log.warn("Invalid item type " + type + " in event " + id + ".");
+                        log.warn("Next subitem ident " + buffer.nextSubitemIdent());
+                        header.getItemEnd();
+                        return false;
+                    }
+
+                    // look up the next item and rewind back
+                    type = buffer.nextSubitemType();
                 }
 
-                if ((numTeldata < H_MAX_TEL) && teldata[telNumber].known) {
-                    teldataList[numTeldata++] = teldata[telNumber].telId;
+                if (central.numTelTriggered == 0 && central.teltrgPattern != 0) {
+                    listOfTelescopesToCentralEvent(buffer);
                 }
-            } else if (type == TYPE_SHOWER) {
-                // read shower
-                //TODO use THIS header to skip THIS item if something goes wrong
-                if (!buffer.readShower()) {
-                    header.getItemEnd();
-                    return null;
+
+                if (numTel > 0 && central.numTelTriggered == 0 && central.numTelData == 0) {
+                    replicateForMonoData();
                 }
-            } else {
-                // invalid item type.
-                log.warn("Invalid item type " + type + " in event " + id + ".");
+
                 header.getItemEnd();
-                return null;
+                return true;
             }
-
-            // look up the next item and rewind back
-            type = buffer.nextSubitemType();
+        } catch (IOException e) {
+            log.error("Something went wrong while reading the header:\n" + e.getMessage());
         }
-
-        if (central.numTelTriggered == 0 && central.teltrgPattern != 0) {
-            listOfTelescopesToCentralEvent(buffer);
-        }
-
-        if (numTel > 0 && central.numTelTriggered == 0 && central.numTelData == 0) {
-            replicateForMonoData();
-        }
-
-        header.getItemEnd();
-        return this;
+        return false;
     }
 
     /**

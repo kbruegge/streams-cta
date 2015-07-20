@@ -22,6 +22,7 @@ import streams.cta.CTAEvent;
 import streams.cta.Constants;
 import streams.cta.io.Event.FullEvent;
 import streams.cta.io.MCShower.MCShower;
+import streams.cta.io.RunHeader.RunHeader;
 
 /**
  * Created by alexey on 02.06.15.
@@ -38,6 +39,8 @@ public class EventIOStream extends AbstractStream {
 
     public EventIOData eventData;
     public EventIOBuffer buffer;
+
+    public RunHeader runHeader;
 
     @Parameter(
             required = false,
@@ -80,6 +83,9 @@ public class EventIOStream extends AbstractStream {
         // initialize data object containing all the parsed data from the stream
         eventData = new EventIOData();
 
+        // initialize run header object containing information about the EventIO run
+        runHeader = new RunHeader();
+
         // import the registered types
         importEventioRegisteredDatatypes();
     }
@@ -99,8 +105,21 @@ public class EventIOStream extends AbstractStream {
                 eventData.mcShower = MCShower.readMCShower(buffer, header);
                 event = new CTAEvent(10, new byte[]{0, 1, 2});
             } else if (header.type == Constants.TYPE_EVENT) {
-                eventData.event = new FullEvent().readFullEvent(buffer, header, -1);
+                buffer.dataStream.reset();
+                eventData.event = new FullEvent();
+                if(!eventData.event.readFullEvent(buffer, -1)){
+                    log.error("Error happened while reading full event data.");
+                    return null;
+                }
                 event = new CTAEvent(10, new byte[]{1, 2, 3,});
+            } else if (header.type == 2000) {
+                buffer.dataStream.reset();
+                runHeader = new RunHeader();
+                if(!runHeader.readRunHeader(buffer)){
+                    log.error("Error happened while reading run header.");
+                    return null;
+                }
+                event = new CTAEvent(10, new byte[]{2, 3, 4});
             } else {
                 byte[] bytes = buffer.readBytes((int) header.length);
                 event = new CTAEvent(0, bytes);
