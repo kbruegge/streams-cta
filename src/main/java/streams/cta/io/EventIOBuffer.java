@@ -190,11 +190,11 @@ public class EventIOBuffer {
     /**
      * Lookup from telescope ID to offset number (index) in structures.
      *
-     * The lookup table must have been filled before with set_tel_idx(). When dealing with multiple
+     * The lookup table must have been filled before with setTelIdx(). When dealing with multiple
      * lookups, use set_tel_idx_ref() first to select the lookup table to be used.
      *
      * @param telId A telescope ID for which we want the index count.
-     * @return >= 0 (index in the original list passed to set_tel_idx), -1 (not found in index, -2
+     * @return >= 0 (index in the original list passed to setTelIdx), -1 (not found in index, -2
      * (index not initialized).
      */
     public int findTelIndex(int telId) {
@@ -208,6 +208,41 @@ public class EventIOBuffer {
             return -1;
         }
         return gTelIdx[gTelIdxRef][telId];
+    }
+
+    /**
+     * Setup of telescope index lookup table.
+     *
+     * Must be filled before first use of findTelIdx() - which is automatically done when reading a
+     * run header data block. When dealing with multiple lookups, use set_tel_idx_ref() first to
+     * select the one to fill.
+     *
+     * @param ntel The number of telescope following.
+     * @param idx  The list of telescope IDs mapped to indices 0, 1, ...
+     */
+    public void setTelIdx(int ntel, int[] idx) {
+        //TODO check if the java implementation is right
+        for (int i = 0; i < H_MAX_TEL + 1; i++) {
+            gTelIdx[gTelIdxRef][i] = -1;
+        }
+//        for (i = 0; (size_t) i < sizeof(gTelIdx[gTelIdxRef]) / sizeof(gTelIdx[gTelIdxRef][0]); i++) {
+//            gTelIdx[gTelIdxRef][i] = -1;
+//        }
+        for (int i = 0; i < ntel; i++) {
+            if (idx[i] < 0 || idx[i] >= H_MAX_TEL + 1) {
+//            if (idx[i] < 0 || (size_t) idx[i] >=
+//                    sizeof(gTelIdx[gTelIdxRef]) / sizeof(gTelIdx[gTelIdxRef][0])) {
+                log.error("Telescope ID " + idx[i] + " is outside of valid range");
+                return; //exit(1);
+            }
+            if (gTelIdx[gTelIdxRef][idx[i]] != -1) {
+                log.error("Multiple telescope ID " + idx[i]
+                        + "\nTelescope ID " + idx[i] + " is outside of valid range");
+                return; //exit(1)
+            }
+            gTelIdx[gTelIdxRef][idx[i]] = i;
+        }
+        gTelIdxInit[gTelIdxRef] = 1;
     }
 
     public boolean readShower() {
@@ -342,7 +377,7 @@ public class EventIOBuffer {
      *
      * @return unsigned int as long
      */
-    public long readUnsignedInt32() throws IOException{
+    public long readUnsignedInt32() throws IOException {
         byte[] b = new byte[8];
 
         //TODO check if filling up to an int with zeros is better than dataStream.readUnsignedShort()
@@ -357,7 +392,6 @@ public class EventIOBuffer {
             return ByteBuffer.wrap(b).getLong();
         }
     }
-
 
     public long readInt64() throws IOException {
         byte[] b = new byte[8];
