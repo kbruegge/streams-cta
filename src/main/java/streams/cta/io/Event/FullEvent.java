@@ -88,7 +88,7 @@ public class FullEvent {
                 if (header.getVersion() != 0) {
                     log.error("Unsupported FullEvent version: " + header.getVersion());
                     //TODO we should get item end?!
-                    buffer.skipBytes((int) header.getLength());
+                    header.getItemEnd();
                     return false;
                 }
 
