@@ -80,6 +80,8 @@ public class EventIOStream extends AbstractStream {
         // initialize buffer containing the data stream to read from it
         buffer = new EventIOBuffer(dataStream);
 
+        eventData = new EventIOData();
+
         // import the registered types
         importEventioRegisteredDatatypes();
     }
@@ -90,9 +92,6 @@ public class EventIOStream extends AbstractStream {
         Data item = null;
         EventIOHeader header = new EventIOHeader(buffer);
         if (header.findAndReadNextHeader(true)) {
-
-            //TODO add reading full event with what=-1
-
             CTAEvent event;
             // MC Shower
             if (header.type == 2020) {
@@ -103,7 +102,7 @@ public class EventIOStream extends AbstractStream {
             } else if (header.type == Constants.TYPE_EVENT) {
                 if (!eventData.event.readFullEvent(buffer, -1)) {
                     log.error("Error happened while reading full event data.");
-                    return null;
+                    //return null;
                 }
                 event = new CTAEvent(10, new byte[]{1, 2, 3,});
             } else if (header.type == 2000) {
@@ -143,10 +142,6 @@ public class EventIOStream extends AbstractStream {
 //                wsum_all = wsum_trg = 0.;
 
 //                nrun++;
-
-                if (eventData == null) {
-                    eventData = new EventIOData();
-                }
 
                 if (!eventData.runHeader.readRunHeader(buffer)) {
                     log.error("Error happened while reading run header.");
