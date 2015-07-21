@@ -169,8 +169,7 @@ public class TelEvent {
                 }
 
                 // preinitialize ImgData array
-                ImgData[] img = this.img;
-                if (this.img != null) {
+                if (img != null) {
                     for (int j = 0; j < numImageSets; j++) {
                         img[j].known = false;
                     }
@@ -309,7 +308,9 @@ public class TelEvent {
                     // if reading was not successful, get to the end of this item
                     // and stop while loop
                     if (!readingSuccessful) {
+                        // TODO this is not necessary as we do this later befor "return true"
                         header.getItemEnd();
+                        break;
                     }
 
                     this.known = true;
