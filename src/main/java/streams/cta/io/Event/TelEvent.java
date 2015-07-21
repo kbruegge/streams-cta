@@ -134,6 +134,8 @@ public class TelEvent {
         triggerPixels = new PixelList();
         imagePixels = new PixelList();
         physAddr = new int[4 * Constants.H_MAX_DRAWERS];
+        cpuTime = new HTime();
+        gpsTime = new HTime();
     }
 
     /**
@@ -285,7 +287,7 @@ public class TelEvent {
                             } else if (code == 1 && tid == this.telId) {
                                 readingSuccessful = imagePixels.readPixelList(buffer);
                                 //TODO Bernloehr: Fix for missing number of pixels in image of older data format: */
-                                if (img != null && img[0].known && img[0].pixels == 0){
+                                if (img != null && img[0].known && img[0].pixels == 0) {
                                     img[0].pixels = imagePixels.pixels;
                                 }
                             } else {
@@ -302,6 +304,7 @@ public class TelEvent {
                                 readingSuccessful = buffer.skipSubitem();
                             } else {
                                 header.getItemEnd();
+                                return false;
                             }
                     }
 
@@ -309,7 +312,7 @@ public class TelEvent {
                     // and stop while loop
                     if (!readingSuccessful) {
                         // TODO this is not necessary as we do this later befor "return true"
-                        header.getItemEnd();
+                        //header.getItemEnd();
                         break;
                     }
 
