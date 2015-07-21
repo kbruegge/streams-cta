@@ -84,94 +84,103 @@ public class MCShower {
         extraParameters = new ShowerExtraParameters();
     }
 
-    public static MCShower readMCShower(EventIOBuffer buffer, EventIOHeader header)
-            throws IOException {
-        if (header.getVersion() > 2) {
-            //TODO getItemEnd should be used?
-            log.error("Unsupported MC shower version: " + header.getVersion());
-            buffer.skipBytes((int) header.getLength());
-            return null;
-        }
+    public boolean readMCShower(EventIOBuffer buffer) {
+        EventIOHeader header = new EventIOHeader(buffer);
+        try {
+            if (header.findAndReadNextHeader()) {
+                if (header.getVersion() > 2) {
+                    //TODO getItemEnd should be used?
+                    log.error("Unsupported MC shower version: " + header.getVersion());
+                    header.getItemEnd();
+                    //buffer.skipBytes((int) header.getLength());
+                    return false;
+                }
 
-        MCShower mcShower = new MCShower();
-        mcShower.showerNum = header.getIdentification();
+                MCShower mcShower = new MCShower();
+                mcShower.showerNum = header.getIdentification();
 
-        mcShower.primaryId = buffer.readInt32();
-        mcShower.energy = buffer.readReal();
-        mcShower.azimuth = buffer.readReal();
-        mcShower.altitude = buffer.readReal();
-        if (header.getVersion() >= 1) {
-            mcShower.depthStart = buffer.readReal();
-        }
-        mcShower.hFirstInt = buffer.readReal();
-        mcShower.xmax = buffer.readReal();
+                mcShower.primaryId = buffer.readInt32();
+                mcShower.energy = buffer.readReal();
+                mcShower.azimuth = buffer.readReal();
+                mcShower.altitude = buffer.readReal();
+                if (header.getVersion() >= 1) {
+                    mcShower.depthStart = buffer.readReal();
+                }
+                mcShower.hFirstInt = buffer.readReal();
+                mcShower.xmax = buffer.readReal();
 
-        if (header.getVersion() >= 1) {
-            mcShower.hmax = buffer.readReal();
-            mcShower.emax = buffer.readReal();
-            mcShower.cmax = buffer.readReal();
-        } else {
-            mcShower.hmax = 0d;
-            mcShower.emax = 0d;
-            mcShower.cmax = 0d;
-        }
+                if (header.getVersion() >= 1) {
+                    mcShower.hmax = buffer.readReal();
+                    mcShower.emax = buffer.readReal();
+                    mcShower.cmax = buffer.readReal();
+                } else {
+                    mcShower.hmax = 0d;
+                    mcShower.emax = 0d;
+                    mcShower.cmax = 0d;
+                }
 
-        mcShower.numProfiles = buffer.readInt16();
+                mcShower.numProfiles = buffer.readInt16();
 
-        // fill the ShowerProfiles
-        for (int i = 0; i < mcShower.numProfiles && i < Constants.H_MAX_PROFILE; i++) {
-            int skip = 0;
-            ShowerProfile profile = new ShowerProfile();
-            profile.id = buffer.readInt32();
-            profile.numSteps = buffer.readInt32();
-            if (profile.numSteps > profile.maxSteps) {
-                if (profile.content != null) {
-                    if (profile.maxSteps > 0) {
-                        profile.content = null;
-                    } else {
-                        skip = 1;
+                // fill the ShowerProfiles
+                for (int i = 0; i < mcShower.numProfiles && i < Constants.H_MAX_PROFILE; i++) {
+                    int skip = 0;
+                    ShowerProfile profile = new ShowerProfile();
+                    profile.id = buffer.readInt32();
+                    profile.numSteps = buffer.readInt32();
+                    if (profile.numSteps > profile.maxSteps) {
+                        if (profile.content != null) {
+                            if (profile.maxSteps > 0) {
+                                profile.content = null;
+                            } else {
+                                skip = 1;
+                            }
+                        }
                     }
+
+                    profile.start = buffer.readReal();
+                    profile.end = buffer.readReal();
+
+                    if (profile.numSteps > 0) {
+                        profile.binsize = (profile.end - profile.start) / (double) profile.numSteps;
+                    }
+                    if (profile.content == null) {
+                        profile.content = new double[profile.numSteps];
+
+                        // TODO: consider check whether there is enough space for allocation
+                        // here in original code there is a check
+                        // whether content could have been allocated
+                        // otherwise there were too little space
+
+                        profile.maxSteps = profile.numSteps;
+                    }
+
+                    if (skip == 1) {
+                        for (int j = 0; j < profile.numSteps; j++) {
+                            buffer.readReal();
+                        }
+                        profile.numSteps *= -1;
+                    } else {
+                        profile.content = buffer.readVectorOfReals(profile.numSteps);
+                    }
+                    mcShower.profile[i] = profile;
                 }
-            }
 
-            profile.start = buffer.readReal();
-            profile.end = buffer.readReal();
-
-            if (profile.numSteps > 0) {
-                profile.binsize = (profile.end - profile.start) / (double) profile.numSteps;
-            }
-            if (profile.content == null) {
-                profile.content = new double[profile.numSteps];
-
-                // TODO: consider check whether there is enough space for allocation
-                // here in original code there is a check
-                // whether content could have been allocated
-                // otherwise there were too little space
-
-                profile.maxSteps = profile.numSteps;
-            }
-
-            if (skip == 1) {
-                for (int j = 0; j < profile.numSteps; j++) {
-                    buffer.readReal();
+                if (header.getVersion() >= 2) {
+                    mcShower.extraParameters = ShowerExtraParameters.readShowerExtraParameters(buffer);
+                    if (mcShower.extraParameters == null) {
+                        log.error("Something went wrong while reading shower extra parameters");
+                        // TODO: can something go wrong? possibly skip until the next block?!
+                    }
+                } else {
+                    mcShower.extraParameters =
+                            ShowerExtraParameters.clearShowerExtraParameters(mcShower.extraParameters);
                 }
-                profile.numSteps *= -1;
-            } else {
-                profile.content = buffer.readVectorOfReals(profile.numSteps);
+                header.getItemEnd();
+                return true;
             }
-            mcShower.profile[i] = profile;
+        } catch (IOException e) {
+            log.error("Something went wrong while reading the header:\n" + e.getMessage());
         }
-
-        if (header.getVersion() >= 2) {
-            mcShower.extraParameters = ShowerExtraParameters.readShowerExtraParameters(buffer);
-            if (mcShower.extraParameters == null) {
-                log.error("Something went wrong while reading shower extra parameters");
-                // TODO: can something go wrong? possibly skip until the next block?!
-            }
-        } else {
-            mcShower.extraParameters =
-                    ShowerExtraParameters.clearShowerExtraParameters(mcShower.extraParameters);
-        }
-        return mcShower;
+        return false;
     }
 }

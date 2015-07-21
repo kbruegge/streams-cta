@@ -95,10 +95,11 @@ public class EventIOStream extends AbstractStream {
             CTAEvent event;
             // MC Shower
             if (header.type == 2020) {
-                header.findAndReadNextHeader();
-                eventData.mcShower = MCShower.readMCShower(buffer, header);
+                eventData.mcShower = new MCShower();
+                if (!eventData.mcShower.readMCShower(buffer)){
+                    log.error("Error happened while reading MC Shower.");
+                }
                 event = new CTAEvent(10, new byte[]{0, 1, 2});
-                header.getItemEnd();
             } else if (header.type == Constants.TYPE_EVENT) {
                 if (!eventData.event.readFullEvent(buffer, -1)) {
                     log.error("Error happened while reading full event data.");
