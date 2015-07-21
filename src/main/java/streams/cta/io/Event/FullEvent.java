@@ -118,7 +118,6 @@ public class FullEvent {
                         // read central event
                         if (!central.readCentralEvent(buffer)) {
                             log.error("Error reading central event.");
-                            header.getItemEnd();
                             break;
                         }
                     } else if (type >= TYPE_TRACK_EVENT && type <= TYPE_TRACK_EVENT + H_MAX_TEL) {
@@ -128,12 +127,10 @@ public class FullEvent {
                         int telNumber = buffer.findTelIndex(telId);
                         if (telNumber < 0) {
                             log.warn("Telescope number out of range for tracking data.");
-                            header.getItemEnd();
                             break;
                         }
                         if (!trackdata[telNumber].readTrackEvent(buffer)) {
                             log.error("Error reading track event.");
-                            header.getItemEnd();
                             break;
                         }
 
@@ -143,13 +140,11 @@ public class FullEvent {
                         int telNumber = buffer.findTelIndex(telId);
                         if (telNumber < 0) {
                             log.warn("Telescope number out of range for telescope event data.");
-                            header.getItemEnd();
                             break;
                         }
 
                         if (!teldata[telNumber].readTelEvent(buffer, what)) {
                             log.error("Error reading telescope event.");
-                            header.getItemEnd();
                             break;
                         }
 
