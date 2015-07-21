@@ -112,7 +112,6 @@ public class FullEvent {
                 shower.known = 0;
 
                 int type = buffer.nextSubitemType();
-                // TODO pay attention to the case of H_MAX_TEL > 100
                 while (type > 0) {
                     if (type == TYPE_CENTRAL_EVENT) {
                         // read central event
@@ -120,7 +119,7 @@ public class FullEvent {
                             log.error("Error reading central event.");
                             break;
                         }
-                    } else if (type >= TYPE_TRACK_EVENT && type <= TYPE_TRACK_EVENT + H_MAX_TEL) {
+                    } else if (isTrackEvent(type)) {
                         // read trackevent
                         int telId = (type - TYPE_TRACK_EVENT) % 100 +
                                 100 * ((type - TYPE_TRACK_EVENT) / 1000);
@@ -134,7 +133,7 @@ public class FullEvent {
                             break;
                         }
 
-                    } else if (type >= TYPE_TEL_EVENT && type <= TYPE_TEL_EVENT + H_MAX_TEL) {
+                    } else if (isTelEvent(type)) {
                         // read televent
                         int telId = (type - TYPE_TEL_EVENT) % 100 + 100 * ((type - TYPE_TEL_EVENT) / 1000);
                         int telNumber = buffer.findTelIndex(telId);
@@ -185,6 +184,38 @@ public class FullEvent {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());
         }
         return false;
+    }
+
+    /**
+     * Verify whether the given type is a telescope event.
+     * @param type object type from header
+     * @return true for a telescope event, false otherwise.
+     */
+    private boolean isTelEvent(int type) {
+        if (H_MAX_TEL > 100) {
+            return type >= TYPE_TEL_EVENT &&
+                    type % 1000 < (TYPE_TEL_EVENT % 1000) + 100 &&
+                    (type - TYPE_TEL_EVENT) % 100 +
+                            100 * ((type - TYPE_TEL_EVENT) / 1000) <= H_MAX_TEL;
+        } else {
+            return type >= TYPE_TEL_EVENT && type <= TYPE_TEL_EVENT + H_MAX_TEL;
+        }
+    }
+
+    /**
+     * Verify whether the given type is a track event.
+     * @param type object type from header
+     * @return true for a track event, false otherwise.
+     */
+    private boolean isTrackEvent(int type) {
+        if (H_MAX_TEL > 100) {
+            return type >= TYPE_TRACK_EVENT &&
+                    type % 1000 < (TYPE_TRACK_EVENT % 1000) + 100 &&
+                    (type - TYPE_TRACK_EVENT) % 100 +
+                            100 * ((type - TYPE_TRACK_EVENT) / 1000) <= H_MAX_TEL;
+        } else {
+            return type >= TYPE_TRACK_EVENT && type <= TYPE_TRACK_EVENT + H_MAX_TEL;
+        }
     }
 
     /**
