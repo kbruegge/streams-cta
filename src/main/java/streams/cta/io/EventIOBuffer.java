@@ -71,6 +71,8 @@ public class EventIOBuffer {
      */
     static int gTelIdxRef = 0;
 
+    public boolean syncMarkerFound = false;
+
     DataInputStream dataStream;
 
     public EventIOBuffer(DataInputStream dataStream) {

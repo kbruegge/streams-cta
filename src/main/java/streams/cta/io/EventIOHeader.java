@@ -72,16 +72,19 @@ public class EventIOHeader {
             //TODO: what to do now?
         }
 
-        buffer.dataStream.mark(1000);
 
         if (buffer.itemLevel > 0) {
             //TODO do the check like in eventio.c line 3192
-        } else if (buffer.itemLevel == 0) {
+        } else if (buffer.itemLevel == 0 && !buffer.syncMarkerFound) {
             EventIOStream.reverse = false;
             boolean found = findSynchronisationMarker();
             if (!found) {
                 return false;
             }
+        }
+
+        if (reset) {
+            buffer.dataStream.mark(100);
         }
 
         wantedType = type;
@@ -161,7 +164,7 @@ public class EventIOHeader {
 
         if (!reset) {
             level = buffer.itemLevel++;
-        }else{
+        } else {
             buffer.dataStream.reset();
         }
 
@@ -216,6 +219,7 @@ public class EventIOHeader {
                 }
 
                 if (state < 0 || state > 3) {
+                    buffer.syncMarkerFound = true;
                     return true;
                 }
 
@@ -243,6 +247,10 @@ public class EventIOHeader {
         }
 
         if (level >= 0 && level <= Constants.MAX_IO_ITEM_LEVEL) {
+            if (level == 0 & buffer.itemLevel == 1) {
+                buffer.syncMarkerFound = false;
+            }
+
             ilevel = level;
             buffer.itemLevel = level;
         } else {
