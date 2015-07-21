@@ -270,9 +270,6 @@ public class EventIOHeader {
         // calculate how much of the byte stream real length has been read
         // and skip the rest of it until the next item
         long skipLength = length - buffer.readLength;// + 12 + (useExtension ? 4 : 0);
-        if (skipLength != 0){
-            log.info("Skipping: " + skipLength + "\ttype: " + typeString);
-        }
         buffer.skipBytes((int) skipLength);
         buffer.readLength = 0;
     }
