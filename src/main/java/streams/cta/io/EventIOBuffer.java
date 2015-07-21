@@ -590,9 +590,9 @@ public class EventIOBuffer {
         return 0;
     }
 
-    private long readCount32() {
+    private long readCount32() throws IOException {
         //TODO implement readcount32
-        return 0;
+        return readCount();
     }
 
     public float readSFloat() throws IOException {
