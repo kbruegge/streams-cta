@@ -100,7 +100,7 @@ public class EventIOBuffer {
      */
     public int nextSubitemType() {
         //TODO use a constant for a maximum header length
-        dataStream.mark(100);
+        dataStream.mark(20);
 
         // Are we beyond the last sub-item?
         if (itemLevel > 0) {
@@ -337,16 +337,7 @@ public class EventIOBuffer {
 
     //TODO check conversion from int to long?!
     public int readLong() throws IOException {
-        byte[] b = new byte[4];
-        dataStream.read(b);
-
-        readLength += 4;
-
-        if (EventIOStream.reverse) {
-            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
-        } else {
-            return ByteBuffer.wrap(b).getInt();
-        }
+        return readInt32();
     }
 
     public short readInt16() throws IOException {
