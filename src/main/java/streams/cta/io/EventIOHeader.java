@@ -114,7 +114,7 @@ public class EventIOHeader {
         version = (typeField >> 20) & 0xfff;
 
         // Encountering corrupted data seems more likely than having version numbers above 2047
-        if ((version & 0x800) != 0){
+        if ((version & 0x800) != 0) {
             log.error("Version number invalid: may be corrupted data:\t" + version);
             return false;
         }
@@ -165,8 +165,6 @@ public class EventIOHeader {
             }
 
             buffer.itemExtension[buffer.itemLevel] = useExtension;
-
-            // TODO length parameter longer than the rest of the data?
         }
 
         if (wantedType > 0 && wantedType != type) {
@@ -253,7 +251,7 @@ public class EventIOHeader {
 
         if (level != buffer.itemLevel - 1) {
             if (level >= buffer.itemLevel) {
-                log.error("Attempt to finish getting an item which is not active.");
+                log.error("Attempt to finish getting an item which is not active: " + type);
             } else {
                 log.error("Item level is inconsistent.");
             }
@@ -278,12 +276,11 @@ public class EventIOHeader {
         if (buffer.itemLevel == 0) {
             // TODO stop reading!!
         }
-
-        //TODO check if this goes right?!
+        
         // calculate how much of the byte stream real length has been read
         // and skip the rest of it until the next item
-        long skipLength = length - buffer.readLength;// + 12 + (useExtension ? 4 : 0);
-        buffer.skipBytes((int) skipLength);
+        int skipLength = (int) length - buffer.readLength;
+        buffer.skipBytes(skipLength);
         buffer.readLength = 0;
     }
 
