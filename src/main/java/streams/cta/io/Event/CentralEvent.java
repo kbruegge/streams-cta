@@ -105,6 +105,7 @@ public class CentralEvent {
                 if (header.getVersion() > 2) {
                     log.error("Unsupported central event version: " + header.getVersion());
                     header.getItemEnd();
+                    return false;
                 } else {
                     globCount = (int) header.getIdentification();
                     cpuTime.readTime(buffer);
