@@ -276,7 +276,7 @@ public class EventIOHeader {
         if (buffer.itemLevel == 0) {
             // TODO stop reading!!
         }
-        
+
         // calculate how much of the byte stream real length has been read
         // and skip the rest of it until the next item
         int skipLength = (int) length - buffer.readLength;

@@ -177,22 +177,23 @@ public class EventIOStream extends AbstractStream {
                     eventData.event.trackdata[itel].telId = telId;
 
                     telData.telId = telId;
+
                     telData.raw = new AdcData();
+                    telData.raw.telId = telId;
 //                    if ((hsdata->event.teldata[itel].raw =
 //                            (AdcData *) calloc(1, sizeof(AdcData))) == NULL) {
 //                        Warning("Not enough memory for AdcData");
 //                        exit(1);
 //                    }
-                    telData.raw.telId = telId;
 
                     telData.pixtm = new PixelTiming();
+                    telData.pixtm.telId = telId;
 //                    if ((hsdata->event.teldata[itel].pixtm =
 //                            (PixelTiming *) calloc(1, sizeof(PixelTiming))) == NULL) {
 //                        Warning("Not enough memory for PixelTiming");
 //                        exit(1);
 //                    }
 
-                    telData.pixtm.telId = telId;
 
 //                    if (do_calibrate && dst_level >= 0) /* Only when needed */
 //                    {
