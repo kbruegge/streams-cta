@@ -160,6 +160,7 @@ public class EventIOStream extends AbstractStream {
 //                if (user_ana)
 //                    do_user_ana(hsdata, item_header.type, 0);
 
+                //TODO ntel > H_MAX_TEL!?
                 for (int itel = 0; itel < eventData.runHeader.ntel; itel++) {
                     int telId = eventData.runHeader.telId[itel];
 
