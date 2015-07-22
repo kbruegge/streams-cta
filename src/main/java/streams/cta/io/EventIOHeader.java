@@ -113,6 +113,12 @@ public class EventIOHeader {
         // bits 20 to 31 are used for the version information
         version = (typeField >> 20) & 0xfff;
 
+        // Encountering corrupted data seems more likely than having version numbers above 2047
+        if ((version & 0x800) != 0){
+            log.error("Version number invalid: may be corrupted data:\t" + version);
+            return false;
+        }
+
         // read identification field
         identification = buffer.readLong();
 
@@ -126,17 +132,18 @@ public class EventIOHeader {
 
         // check whether bit 31 is set
         // as it is a reserved bit it should be set to 0
-        boolean reserved = (lengthField & 0x80000000) == 0;
-        if (!reserved) {
-            log.error("Reserved bit should be set to 0.");
-            return false;
-        }
+//        boolean reserved = (lengthField & 0x80000000) == 0;
+//        if (!reserved) {
+//            log.error("Reserved bit should be set to 0.");
+//            return false;
+//        }
 
         buffer.readLength -= 12;
 
         // read extension if given
-        if (useExtension) {
+        if ((lengthField & 0x80000000) != 0) {
             log.info("Extension exists.");
+            useExtension = true;
             extension = buffer.readUnsignedInt32();
             buffer.readLength -= 4;
             // Actual length consists of bits 0-29 of length field plus bits 0-11 of extension field.
