@@ -36,6 +36,11 @@ public class EventIOHeader {
     long identification;
 
     /**
+     * Extension number
+     */
+    long extension;
+
+    /**
      * Tells how many levels deep we are nested now.
      */
     int level;
@@ -127,8 +132,19 @@ public class EventIOHeader {
             return false;
         }
 
-        // bits 0 to 29 are used for the length of the data block
-        length = (lengthField & 0x3FFFFFFF);
+        buffer.readLength -= 12;
+
+        // read extension if given
+        if (useExtension) {
+            log.info("Extension exists.");
+            extension = buffer.readUnsignedInt32();
+            buffer.readLength -= 4;
+            // Actual length consists of bits 0-29 of length field plus bits 0-11 of extension field.
+            length = (lengthField & 0x3FFFFFFF) | ((extension & 0x0FFF) << 30);
+        } else {
+            // bits 0 to 29 are used for the length of the data block
+            length = (lengthField & 0x3FFFFFFF);
+        }
 
         if (!reset) {
 
@@ -144,16 +160,6 @@ public class EventIOHeader {
             buffer.itemExtension[buffer.itemLevel] = useExtension;
 
             // TODO length parameter longer than the rest of the data?
-        }
-
-        buffer.readLength -= 12;
-
-        // read extension if given
-        if (useExtension) {
-            log.info("Extension exists.");
-            // TODO dont skip
-            buffer.skipBytes(4);
-            buffer.readLength -= 4;
         }
 
         if (wantedType > 0 && wantedType != type) {
