@@ -121,21 +121,19 @@ public class TelEvent {
     PixelList imagePixels;
 
     public TelEvent() {
-        listTrgsect = new int[Constants.H_MAX_SECTORS];
-        timeTrgsect = new double[Constants.H_MAX_SECTORS];
-
-        //TODO when should it be initialized? as we do check for not null!
-        //pixtm = new PixelTiming();
-        //pixcal = new PixelCalibrated();
-
-        //TODO init when the numImageSets known
-//        raw = new AdcData();
-//        img = new ImgData();
         triggerPixels = new PixelList();
         imagePixels = new PixelList();
-        physAddr = new int[4 * Constants.H_MAX_DRAWERS];
         cpuTime = new HTime();
         gpsTime = new HTime();
+    }
+
+    private void initSectorArrays(int numberTriggeredSectors){
+        listTrgsect = new int[numberTriggeredSectors];
+        timeTrgsect = new double[numberTriggeredSectors];
+    }
+
+    private void initPhysicalAdressArray(int numberAdresses){
+        physAddr = new int[numberAdresses];
     }
 
     /**
@@ -299,8 +297,8 @@ public class TelEvent {
                             break;
                         default:
                             if (type > 0) {
-                                log.error("Skipping telescope event sub-item of type " + type
-                                        + " for telescope " + this.telId);
+//                                log.info("Skipping telescope event sub-item of type " + type
+//                                        + " for telescope " + this.telId);
                                 readingSuccessful = buffer.skipSubitem();
                             } else {
                                 header.getItemEnd();
@@ -363,6 +361,9 @@ public class TelEvent {
                 if ((t & 0x100) != 0) {
                     numListTrgsect = header.getVersion() <= 1 ?
                             buffer.readShort() : buffer.readSCount32();
+
+                    // initialize arrays with the right size
+                    initSectorArrays(numListTrgsect);
                     for (int i = 0; i < numListTrgsect; i++) {
                         listTrgsect[i] = header.getVersion() <= 1 ?
                                 buffer.readShort() : buffer.readSCount32();
@@ -382,6 +383,10 @@ public class TelEvent {
                 if ((t & 0x200) != 0) {
                     boolean headerGT1 = header.getVersion() <= 1;
                     numPhysAddr = headerGT1 ? buffer.readShort() : buffer.readSCount32();
+
+                    // initialize array for physical addresses
+                    initPhysicalAdressArray(numPhysAddr);
+
                     for (int i = 0; i < numPhysAddr; i++) {
                         physAddr[i] = headerGT1 ? buffer.readShort() : buffer.readSCount32();
                     }

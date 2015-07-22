@@ -82,17 +82,19 @@ public class CentralEvent {
     int[] teldataList;
 
     public CentralEvent() {
-        teltrgList = new int[Constants.H_MAX_TEL];
-        teltrgTime = new float[Constants.H_MAX_TEL];
-        teltrgTypeMask = new int[Constants.H_MAX_TEL];
-        teltrgTimeByType = new float[Constants.H_MAX_TEL][Constants.MAX_TEL_TRIGGERS];
-        teldataList = new int[Constants.H_MAX_TEL];
-
         globCount = 0;
         teltrgPattern = 0;
         teldataPattern = 0;
         numTelTriggered = 0;
         numTelData = 0;
+    }
+
+    private void initArrays(int numberTriggeredTelescopes){
+        teltrgList = new int[numberTriggeredTelescopes];
+        teltrgTime = new float[numberTriggeredTelescopes];
+        teltrgTypeMask = new int[numberTriggeredTelescopes];
+        teltrgTimeByType = new float[numberTriggeredTelescopes][Constants.MAX_TEL_TRIGGERS];
+        teldataList = new int[numberTriggeredTelescopes];
     }
 
     public boolean readCentralEvent(EventIOBuffer buffer) {
@@ -138,6 +140,9 @@ public class CentralEvent {
                         numTelTriggered = 0;
                         numTelData = 0;
                     }
+
+                    // initialize arrays with the needed number of telescopes
+                    initArrays(numTelTriggered);
 
                     //TODO wtf? versions greater than 2 are not supported so just check for ==2?
                     if (header.getVersion() >= 2) {
