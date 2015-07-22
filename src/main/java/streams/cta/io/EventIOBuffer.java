@@ -109,6 +109,7 @@ public class EventIOBuffer {
             // reading this item's header.
             // TODO do the check as in eventio.c, line 3454
         } else if (itemLevel == 0) {
+            log.error("Item level is 0, so you can not check the next sub-item type.");
             return -1;
         }
 
