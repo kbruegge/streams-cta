@@ -114,12 +114,6 @@ public class RunHeader {
     int maxLenTarget;
     int maxLenObserver;
 
-    public RunHeader() {
-        direction = new double[2];
-        offsetFov = new double[2];
-        convRefPos = new double[2];
-    }
-
     public boolean readRunHeader(EventIOBuffer buffer) {
         EventIOHeader header = new EventIOHeader(buffer);
         try {
@@ -140,6 +134,10 @@ public class RunHeader {
                 } else {
                     reverseFlag = 0;
                 }
+
+                // init array (both others are getting arrays of right size directly)
+                convRefPos = new double[2];
+
                 direction = buffer.readVectorOfReals(2);
                 offsetFov = buffer.readVectorOfReals(2);
                 convDepth = buffer.readReal();
