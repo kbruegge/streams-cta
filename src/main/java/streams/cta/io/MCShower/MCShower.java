@@ -125,44 +125,9 @@ public class MCShower {
 
                 // fill the ShowerProfiles
                 for (int i = 0; i < minProfiles; i++) {
-                    int skip = 0;
                     ShowerProfile profile = new ShowerProfile();
-                    profile.id = buffer.readInt32();
-                    profile.numSteps = buffer.readInt32();
-                    if (profile.numSteps > profile.maxSteps) {
-                        if (profile.content != null) {
-                            if (profile.maxSteps > 0) {
-                                profile.content = null;
-                            } else {
-                                skip = 1;
-                            }
-                        }
-                    }
-
-                    profile.start = buffer.readReal();
-                    profile.end = buffer.readReal();
-
-                    if (profile.numSteps > 0) {
-                        profile.binsize = (profile.end - profile.start) / (double) profile.numSteps;
-                    }
-                    if (profile.content == null) {
-                        profile.content = new double[profile.numSteps];
-
-                        // TODO: consider check whether there is enough space for allocation
-                        // here in original code there is a check
-                        // whether content could have been allocated
-                        // otherwise there were too little space
-
-                        profile.maxSteps = profile.numSteps;
-                    }
-
-                    if (skip == 1) {
-                        for (int j = 0; j < profile.numSteps; j++) {
-                            buffer.readReal();
-                        }
-                        profile.numSteps *= -1;
-                    } else {
-                        profile.content = buffer.readVectorOfReals(profile.numSteps);
+                    if (!profile.readShowerProfile(buffer)){
+                        log.error("Error reading shower profile.");
                     }
                     profiles[i] = profile;
                 }
