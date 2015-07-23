@@ -21,6 +21,7 @@ import stream.io.SourceURL;
 import streams.cta.CTAEvent;
 import streams.cta.Constants;
 import streams.cta.io.Event.AdcData;
+import streams.cta.io.Event.FullEvent;
 import streams.cta.io.Event.ImgData;
 import streams.cta.io.Event.PixelTiming;
 import streams.cta.io.Event.TelEvent;
@@ -101,6 +102,9 @@ public class EventIOStream extends AbstractStream {
                 }
                 event = new CTAEvent(10, new byte[]{0, 1, 2});
             } else if (header.type == Constants.TYPE_EVENT) {
+                if (eventData.event == null){
+                    eventData.event = new FullEvent();
+                }
                 if (!eventData.event.readFullEvent(buffer, -1)) {
                     log.error("Error happened while reading full event data.");
                     //return null;
@@ -133,6 +137,8 @@ public class EventIOStream extends AbstractStream {
                     log.error("Error happened while reading run header.");
                     return null;
                 }
+
+                eventData.event = new FullEvent(eventData.runHeader.ntel);
 
 //                if (!quiet)
 //                    printf("Reading simulated data for %d telescope(s)\n", eventData.runHeader.ntel);
