@@ -57,32 +57,26 @@ public class ShowerExtraParameters {
 
     /**
      * Reset all the values for the object of type ShowerExtraParameters
-     *
-     * @param extraParameters object with the default values set
      */
-    public static ShowerExtraParameters clearShowerExtraParameters(
-            ShowerExtraParameters extraParameters) {
-        extraParameters.id = 0;
-        extraParameters.isSet = 0;
-        extraParameters.weight = 1.0;
+    public void clearShowerExtraParameters() {
+        id = 0;
+        isSet = 0;
+        weight = 1.0;
 
-        if (extraParameters.iparam != null) {
-            for (int i = 0; i < extraParameters.niparam; i++) {
-                extraParameters.iparam[i] = 0;
+        if (iparam != null) {
+            for (int i = 0; i < niparam; i++) {
+                iparam[i] = 0;
             }
         }
 
-        if (extraParameters.fparam != null) {
-            for (int i = 0; i < extraParameters.nfparam; i++) {
-                extraParameters.fparam[i] = 0;
+        if (fparam != null) {
+            for (int i = 0; i < nfparam; i++) {
+                fparam[i] = 0;
             }
         }
-
-        return extraParameters;
     }
 
-    public static ShowerExtraParameters readShowerExtraParameters(EventIOBuffer buffer)
-            throws IOException {
+    public boolean readShowerExtraParameters(EventIOBuffer buffer) throws IOException {
 
         // TODO: check this implementation after such extra parameters has been found
         log.error("Please check the implementation of readShowerExtraParameters " +
@@ -92,8 +86,7 @@ public class ShowerExtraParameters {
         EventIOHeader headerExtraParameters = new EventIOHeader(buffer);
 
         if (headerExtraParameters.findAndReadNextHeader()) {
-            ShowerExtraParameters ep = new ShowerExtraParameters();
-            ep.isSet = 0;
+            isSet = 0;
 
             if (headerExtraParameters.getVersion() != 1) {
                 //TODO we should probably get end of the item
@@ -102,8 +95,8 @@ public class ShowerExtraParameters {
                         + headerExtraParameters.getVersion());
             }
 
-            ep.id = headerExtraParameters.getIdentification();
-            ep.weight = buffer.readReal();
+            id = headerExtraParameters.getIdentification();
+            weight = buffer.readReal();
 
             // detect number of integer and float parameters dynamically
             long ni = buffer.readCount();
@@ -111,36 +104,35 @@ public class ShowerExtraParameters {
 
             // fill the iparam list
             if (ni > 0) {
-                if (ni != ep.niparam) {
-                    ep.iparam = new int[(int) ni];
+                if (ni != niparam) {
+                    iparam = new int[(int) ni];
                     for (int i = 0; i < ni; i++) {
-                        ep.iparam[i] = buffer.readInt32();
+                        iparam[i] = buffer.readInt32();
                     }
                 }
             }
-            ep.niparam = ni;
+            niparam = ni;
 
             // fill the fparam list
             if (nf > 0) {
-                if (nf != ep.nfparam) {
-                    ep.fparam = new double[(int) nf];
+                if (nf != nfparam) {
+                    fparam = new double[(int) nf];
                     for (int i = 0; i < nf; i++) {
-                        ep.fparam[i] = buffer.readReal();
+                        fparam[i] = buffer.readReal();
                     }
                 }
             }
-            ep.nfparam = nf;
+            nfparam = nf;
 
-            ep.isSet = 1;
+            isSet = 1;
 
             // count the levels down etc.
             headerExtraParameters.getItemEnd();
-
-            return ep;
+            return true;
         } else {
             log.error("Something went wrong while searching for or reading "
                     + "header for the subobject 'shower extra parameters'.");
-            return null;
+            return false;
         }
     }
 }

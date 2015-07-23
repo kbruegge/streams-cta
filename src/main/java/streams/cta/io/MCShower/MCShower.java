@@ -76,11 +76,10 @@ public class MCShower {
      */
     int numProfiles;
 
-    ShowerProfile[] profile;
+    ShowerProfile[] profiles;
     ShowerExtraParameters extraParameters;
 
     public MCShower() {
-        profile = new ShowerProfile[Constants.H_MAX_PROFILE];
         extraParameters = new ShowerExtraParameters();
     }
 
@@ -96,33 +95,36 @@ public class MCShower {
                     return false;
                 }
 
-                MCShower mcShower = new MCShower();
-                mcShower.showerNum = header.getIdentification();
+                showerNum = header.getIdentification();
 
-                mcShower.primaryId = buffer.readInt32();
-                mcShower.energy = buffer.readReal();
-                mcShower.azimuth = buffer.readReal();
-                mcShower.altitude = buffer.readReal();
+                primaryId = buffer.readInt32();
+                energy = buffer.readReal();
+                azimuth = buffer.readReal();
+                altitude = buffer.readReal();
                 if (header.getVersion() >= 1) {
-                    mcShower.depthStart = buffer.readReal();
+                    depthStart = buffer.readReal();
                 }
-                mcShower.hFirstInt = buffer.readReal();
-                mcShower.xmax = buffer.readReal();
+                hFirstInt = buffer.readReal();
+                xmax = buffer.readReal();
 
                 if (header.getVersion() >= 1) {
-                    mcShower.hmax = buffer.readReal();
-                    mcShower.emax = buffer.readReal();
-                    mcShower.cmax = buffer.readReal();
+                    hmax = buffer.readReal();
+                    emax = buffer.readReal();
+                    cmax = buffer.readReal();
                 } else {
-                    mcShower.hmax = 0d;
-                    mcShower.emax = 0d;
-                    mcShower.cmax = 0d;
+                    hmax = 0d;
+                    emax = 0d;
+                    cmax = 0d;
                 }
 
-                mcShower.numProfiles = buffer.readInt16();
+                numProfiles = buffer.readInt16();
+
+                int minProfiles = numProfiles < Constants.H_MAX_PROFILE ?
+                        numProfiles : Constants.H_MAX_PROFILE;
+                profiles = new ShowerProfile[minProfiles];
 
                 // fill the ShowerProfiles
-                for (int i = 0; i < mcShower.numProfiles && i < Constants.H_MAX_PROFILE; i++) {
+                for (int i = 0; i < minProfiles; i++) {
                     int skip = 0;
                     ShowerProfile profile = new ShowerProfile();
                     profile.id = buffer.readInt32();
@@ -162,18 +164,17 @@ public class MCShower {
                     } else {
                         profile.content = buffer.readVectorOfReals(profile.numSteps);
                     }
-                    mcShower.profile[i] = profile;
+                    profiles[i] = profile;
                 }
 
                 if (header.getVersion() >= 2) {
-                    mcShower.extraParameters = ShowerExtraParameters.readShowerExtraParameters(buffer);
-                    if (mcShower.extraParameters == null) {
+                    boolean success = extraParameters.readShowerExtraParameters(buffer);
+                    if (!success) {
                         log.error("Something went wrong while reading shower extra parameters");
                         // TODO: can something go wrong? possibly skip until the next block?!
                     }
                 } else {
-                    mcShower.extraParameters =
-                            ShowerExtraParameters.clearShowerExtraParameters(mcShower.extraParameters);
+                    extraParameters.clearShowerExtraParameters();
                 }
                 header.getItemEnd();
                 return true;
