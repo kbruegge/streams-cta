@@ -174,22 +174,12 @@ public class EventIOStream extends AbstractStream {
 
                     telData.telId = telId;
 
+                    //TODO originally one is trying to check whether this objects fits in the memory!
                     telData.raw = new AdcData();
                     telData.raw.telId = telId;
-//                    if ((hsdata->event.teldata[itel].raw =
-//                            (AdcData *) calloc(1, sizeof(AdcData))) == NULL) {
-//                        Warning("Not enough memory for AdcData");
-//                        exit(1);
-//                    }
 
                     telData.pixtm = new PixelTiming();
                     telData.pixtm.telId = telId;
-//                    if ((hsdata->event.teldata[itel].pixtm =
-//                            (PixelTiming *) calloc(1, sizeof(PixelTiming))) == NULL) {
-//                        Warning("Not enough memory for PixelTiming");
-//                        exit(1);
-//                    }
-
 
 //                    if (do_calibrate && dst_level >= 0) /* Only when needed */
 //                    {
@@ -210,11 +200,6 @@ public class EventIOStream extends AbstractStream {
                     telData.maxImageSets = 2;
 
                     eventData.event.teldata[itel] = telData;
-//                    if ((hsdata->event.teldata[itel].img =
-//                            (ImgData *) calloc(2, sizeof(ImgData))) == NULL) {
-//                        Warning("Not enough memory for ImgData");
-//                        exit(1);
-//                    }
 
 //                    hsdata->tel_moni[itel].tel_id = telId;
 //                    hsdata->tel_lascal[itel].tel_id = telId;
