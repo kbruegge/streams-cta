@@ -248,11 +248,6 @@ public class EventIOBuffer {
         gTelIdxInit[gTelIdxRef] = 1;
     }
 
-    public boolean readShower() {
-        //TODO implement and move to another class
-        return false;
-    }
-
     /**
      * Read an byte from the stream as int.
      *

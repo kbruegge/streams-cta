@@ -152,8 +152,7 @@ public class FullEvent {
                         }
                     } else if (type == TYPE_SHOWER) {
                         // read shower
-                        //TODO use THIS header to skip THIS item if something goes wrong
-                        if (!buffer.readShower()) {
+                        if (!shower.readShower(buffer)) {
                             header.getItemEnd();
                             return false;
                         }

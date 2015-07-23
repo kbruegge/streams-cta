@@ -1,6 +1,7 @@
 package streams.cta.io.Event;
 
 import streams.cta.Constants;
+import streams.cta.io.EventIOBuffer;
 
 /**
  * Reconstructed shower parameters. Created by alexey on 30.06.15.
@@ -41,5 +42,10 @@ public class ShowerParameters {
 
     public ShowerParameters() {
         imgList = new int[Constants.H_MAX_TEL];
+    }
+
+    public boolean readShower(EventIOBuffer buffer) {
+        //TODO implement
+        return false;
     }
 }
