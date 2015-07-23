@@ -8,8 +8,6 @@ import java.io.IOException;
 import streams.cta.io.EventIOBuffer;
 import streams.cta.io.EventIOHeader;
 
-import static streams.cta.Constants.H_MAX_TEL;
-
 /**
  * Run header common to measured and simulated data.
  *
@@ -168,38 +166,16 @@ public class RunHeader {
 
                 if (target != null && maxLenTarget > 0) {
                     target = String.valueOf(line, 0, maxLenTarget);
-                    //TODO this seems to never happen in original code?!
-                    //strncpy(target, line, maxLenTarget);
                 } else {
                     target = String.valueOf(line);
-//                    int l = strlen(line);
-//                    maxLenTarget = 0;
-//                    if (target != null) {
-//                        free(target);
-//                    }
-//                    if ((target = (char *) malloc(l + 1)) != NULL){
-//                        strcpy(target, line);
-//                    }
                 }
 
-                //TODO check if it is the right conversion from C to JAVA!
-                // get_string(line, sizeof(line) - 1, iobuf);
                 line = buffer.readString(1024 - 1);
 
                 if (observer != null && maxLenObserver > 0) {
                     observer = String.valueOf(line, 0, maxLenObserver);
-                    //TODO this seems to never happen in original code?!
-//                    strncpy(observer, line, maxLenObserver);
                 } else {
                     observer = String.valueOf(line);
-//                    int l = strlen(line);
-//                    maxLenObserver = 0;
-//                    if (observer != NULL) {
-//                        free(observer);
-//                    }
-//                    if ((observer = (char *) malloc(l + 1)) != null){
-//                        strcpy(observer, line);
-//                    }
                 }
                 header.getItemEnd();
                 return true;
