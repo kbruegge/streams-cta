@@ -84,10 +84,8 @@ public class FullEvent {
         EventIOHeader header = new EventIOHeader(buffer);
         try {
             if (header.findAndReadNextHeader()) {
-                //TODO should we use the header to skip this whole event item in a case any of its subitems are failed to be read?
                 if (header.getVersion() != 0) {
                     log.error("Unsupported FullEvent version: " + header.getVersion());
-                    //TODO we should get item end?!
                     header.getItemEnd();
                     return false;
                 }
@@ -98,11 +96,6 @@ public class FullEvent {
                 central.cpuTime = new HTime();
                 central.gpsTime = new HTime();
 
-                // TODO Run-Header: numTel is set somewhere before this line
-                // read_hess.c: lines 2133
-                // hsdata->event.num_tel = hsdata->run_header.ntel;
-
-                // TODO initialize arrays for teldata and trackdata
                 for (int i = 0; i < numTel; i++) {
                     teldata[i].known = false;
                     trackdata[i].rawKnown = false;
@@ -153,6 +146,7 @@ public class FullEvent {
                     } else if (type == TYPE_SHOWER) {
                         // read shower
                         if (!shower.readShower(buffer)) {
+                            log.error("Error reading shower event.");
                             header.getItemEnd();
                             return false;
                         }
@@ -187,6 +181,7 @@ public class FullEvent {
 
     /**
      * Verify whether the given type is a telescope event.
+     *
      * @param type object type from header
      * @return true for a telescope event, false otherwise.
      */
@@ -203,6 +198,7 @@ public class FullEvent {
 
     /**
      * Verify whether the given type is a track event.
+     *
      * @param type object type from header
      * @return true for a track event, false otherwise.
      */

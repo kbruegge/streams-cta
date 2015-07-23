@@ -34,7 +34,6 @@ public class ShowerExtraParameters {
      */
     double weight;
 
-    //TODO: some further parameters need to be implemented
     /**
      * Number of extra integer parameters.
      */
@@ -83,19 +82,18 @@ public class ShowerExtraParameters {
                 "method and then remove this output.");
 
         // read the header of extra parameters
-        EventIOHeader headerExtraParameters = new EventIOHeader(buffer);
+        EventIOHeader header = new EventIOHeader(buffer);
 
-        if (headerExtraParameters.findAndReadNextHeader()) {
+        if (header.findAndReadNextHeader()) {
             isSet = 0;
 
-            if (headerExtraParameters.getVersion() != 1) {
-                //TODO we should probably get end of the item
-                buffer.skipBytes((int) headerExtraParameters.getLength());
-                log.error("Skipping MCShower because version is not 1, but "
-                        + headerExtraParameters.getVersion());
+            if (header.getVersion() != 1) {
+                header.getItemEnd();
+                log.error("Skipping MCShower because version is not 1, but " + header.getVersion());
+                return false;
             }
 
-            id = headerExtraParameters.getIdentification();
+            id = header.getIdentification();
             weight = buffer.readReal();
 
             // detect number of integer and float parameters dynamically
@@ -127,11 +125,11 @@ public class ShowerExtraParameters {
             isSet = 1;
 
             // count the levels down etc.
-            headerExtraParameters.getItemEnd();
+            header.getItemEnd();
             return true;
         } else {
             log.error("Something went wrong while searching for or reading "
-                    + "header for the subobject 'shower extra parameters'.");
+                    + "header for the sub-object 'shower extra parameters'.");
             return false;
         }
     }

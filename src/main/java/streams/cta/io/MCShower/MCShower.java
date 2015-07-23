@@ -84,10 +84,8 @@ public class MCShower {
         try {
             if (header.findAndReadNextHeader()) {
                 if (header.getVersion() > 2) {
-                    //TODO getItemEnd should be used?
                     log.error("Unsupported MC shower version: " + header.getVersion());
                     header.getItemEnd();
-                    //buffer.skipBytes((int) header.getLength());
                     return false;
                 }
 
