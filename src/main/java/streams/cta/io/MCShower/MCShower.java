@@ -79,10 +79,6 @@ public class MCShower {
     ShowerProfile[] profiles;
     ShowerExtraParameters extraParameters;
 
-    public MCShower() {
-        extraParameters = new ShowerExtraParameters();
-    }
-
     public boolean readMCShower(EventIOBuffer buffer) {
         EventIOHeader header = new EventIOHeader(buffer);
         try {
@@ -132,11 +128,12 @@ public class MCShower {
                     profiles[i] = profile;
                 }
 
+                extraParameters = new ShowerExtraParameters();
                 if (header.getVersion() >= 2) {
-                    boolean success = extraParameters.readShowerExtraParameters(buffer);
-                    if (!success) {
+                    if (!extraParameters.readShowerExtraParameters(buffer)) {
+                        header.getItemEnd();
                         log.error("Something went wrong while reading shower extra parameters");
-                        // TODO: can something go wrong? possibly skip until the next block?!
+                        return false;
                     }
                 } else {
                     extraParameters.clearShowerExtraParameters();
