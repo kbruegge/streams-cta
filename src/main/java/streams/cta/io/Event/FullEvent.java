@@ -30,7 +30,7 @@ public class FullEvent {
     /**
      * Central trigger data and data pattern.
      */
-    CentralEvent central;
+    public CentralEvent central;
 
     /**
      * Raw and/or image data.
@@ -45,7 +45,7 @@ public class FullEvent {
     /**
      * Reconstructed shower parameters.
      */
-    ShowerParameters shower;
+    public ShowerParameters shower;
 
     /**
      * Number of telescopes for which we actually have data.

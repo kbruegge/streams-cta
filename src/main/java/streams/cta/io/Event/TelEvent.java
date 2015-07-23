@@ -17,7 +17,7 @@ public class TelEvent {
 
     static Logger log = LoggerFactory.getLogger(TelEvent.class);
 
-    boolean known;
+    public boolean known;
 
     /**
      * The telescope ID number (1 ... n)

@@ -29,7 +29,7 @@ public class MCShower {
     /**
      * primary energy [TeV]
      */
-    double energy;
+    public double energy;
 
     /**
      * Azimuth (N->E) [rad]

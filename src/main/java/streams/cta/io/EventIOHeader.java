@@ -154,7 +154,6 @@ public class EventIOHeader {
         }
 
         if (!reset) {
-
             // save the length of the item
             buffer.itemLength[buffer.itemLevel] = length;
 
@@ -178,7 +177,6 @@ public class EventIOHeader {
         } else {
             buffer.dataStream.reset();
         }
-
         return true;
     }
 
