@@ -24,7 +24,6 @@ import streams.cta.io.Event.AdcData;
 import streams.cta.io.Event.ImgData;
 import streams.cta.io.Event.PixelTiming;
 import streams.cta.io.Event.TelEvent;
-import streams.cta.io.MCShower.MCShower;
 
 /**
  * Created by alexey on 02.06.15.
@@ -34,6 +33,8 @@ public class EventIOStream extends AbstractStream {
     static Logger log = LoggerFactory.getLogger(EventIOStream.class);
 
     static boolean reverse = false;
+
+    int numberEvents;
 
     private DataInputStream dataStream;
 
@@ -61,7 +62,6 @@ public class EventIOStream extends AbstractStream {
     public void init() throws Exception {
         super.init();
 
-
         // try opening file from the given URL
         File f = new File(this.url.getFile());
         if (this.url.getProtocol().toLowerCase().startsWith("file")
@@ -82,6 +82,8 @@ public class EventIOStream extends AbstractStream {
 
         // import the registered types
         importEventioRegisteredDatatypes();
+
+        numberEvents = 0;
     }
 
     @Override
@@ -103,6 +105,9 @@ public class EventIOStream extends AbstractStream {
                     log.error("Error happened while reading full event data.");
                     //return null;
                 }
+                numberEvents++;
+                //TODO are we interested in some postprocessing as in original code?
+
                 event = new CTAEvent(10, new byte[]{1, 2, 3,});
             } else if (header.type == 2000) {
 
