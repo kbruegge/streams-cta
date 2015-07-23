@@ -33,10 +33,6 @@ public class PixelList {
      */
     int[] pixelList;
 
-    public PixelList() {
-        pixelList = new int[Constants.H_MAX_PIX];
-    }
-
     public boolean readPixelList(EventIOBuffer buffer) {
         /*
          * TODO in original Berloehr uses a pointer to a telescope id which is

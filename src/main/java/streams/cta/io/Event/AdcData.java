@@ -113,15 +113,6 @@ public class AdcData {
     // http://jessicarbrown.com/resources/unsignedtojava.html
     int[][][] adcSample;
 
-    //TODO constructor that does not need the max values for the arrays?!
-    public AdcData() {
-        adcList = new int[Constants.H_MAX_PIX];
-        significant = new short[Constants.H_MAX_PIX];
-        adcKnown = new short[Constants.H_MAX_GAINS][Constants.H_MAX_PIX];
-        adcSum = new long[Constants.H_MAX_GAINS][Constants.H_MAX_PIX];
-        adcSample = new int[Constants.H_MAX_GAINS][Constants.H_MAX_PIX][Constants.H_MAX_SLICES];
-    }
-
     /**
      * Write ADC sum data for one camera in eventio format.
      *
@@ -162,6 +153,10 @@ public class AdcData {
                         scaleHg8 = 1;
                     }
                 }
+
+                significant = new short[(int) numPixels];
+                adcKnown = new short[(int) numGains][(int) numPixels];
+                adcSum = new long[(int) numGains][(int) numPixels];
 
                 // Without zero-suppression and data-reduction, every channel is known
                 // but if either is z.s. or d.r. is on, a channel is only known
@@ -457,15 +452,16 @@ public class AdcData {
                     case 2:
                     /* -------------- Zero suppression mode 2 --------------- */
                     /* List of not zero-suppressed pixels */
-                        long[][] adcSumL = new long[Constants.H_MAX_GAINS][Constants.H_MAX_PIX];
-                        boolean[] withoutLg = new boolean[Constants.H_MAX_PIX];
-                        boolean[] reducedWidth = new boolean[Constants.H_MAX_PIX];
-
                         switch ((int) dataRedMode) {
                             case 0: /* No data reduction */
                             case 1: /* Low low-gain channels were skipped (for two gains) */
                             case 2: /* Width of high-gain channel can be reduced */
                                 listSize = buffer.readShort();
+                                long[][] adcSumL = new long[Constants.H_MAX_GAINS][listSize];
+                                boolean[] withoutLg = new boolean[listSize];
+                                boolean[] reducedWidth = new boolean[listSize];
+                                adcList = new int[listSize];
+
                                 int[] adcListL = buffer.readVectorOfInts(listSize);
                                 mlg = 0;
                                 mhg16 = 0;
@@ -487,19 +483,19 @@ public class AdcData {
 
                                 if (header.getVersion() < 2) {
                                     //TODO check if we should use these IFs?
-                                    //#if (H_MAX_GAINS >= 2)
-                                    if (numGains >= 2) {
-                                        adcSumL[Constants.LO_GAIN] = readAdcSumAsUint16(buffer, mlg);
+                                    if (Constants.H_MAX_GAINS >= 2) {
+                                        if (numGains >= 2) {
+                                            adcSumL[Constants.LO_GAIN] = readAdcSumAsUint16(buffer, mlg);
+                                        }
                                     }
-                                    //#endif
                                     adcSumL[Constants.HI_GAIN] = readAdcSumAsUint16(buffer, mhg16);
                                 } else {
                                     //TODO check if we should use these IFs?
-                                    //#if (H_MAX_GAINS >= 2)
-                                    if (numGains >= 2) {
-                                        adcSumL[Constants.LO_GAIN] = readAdcSumDifferential(buffer, mlg);
+                                    if (Constants.H_MAX_GAINS >= 2) {
+                                        if (numGains >= 2) {
+                                            adcSumL[Constants.LO_GAIN] = readAdcSumDifferential(buffer, mlg);
+                                        }
                                     }
-                                    //#endif
                                     adcSumL[Constants.HI_GAIN] = readAdcSumDifferential(buffer, mhg16);
                                 }
 
@@ -518,15 +514,15 @@ public class AdcData {
                                     }
                                     adcKnown[Constants.HI_GAIN][k] = 1;
                                     //TODO check if we should use these IFs?
-                                    //#if (H_MAX_GAINS >= 2)
-                                    if (withoutLg[j]) {
-                                        adcSum[Constants.LO_GAIN][k] = 0;
-                                        adcKnown[Constants.LO_GAIN][k] = 0;
-                                    } else {
-                                        adcSum[Constants.LO_GAIN][k] = adcSumL[Constants.LO_GAIN][mlg++];
-                                        adcKnown[Constants.LO_GAIN][k] = 1;
+                                    if (Constants.H_MAX_GAINS >= 2) {
+                                        if (withoutLg[j]) {
+                                            adcSum[Constants.LO_GAIN][k] = 0;
+                                            adcKnown[Constants.LO_GAIN][k] = 0;
+                                        } else {
+                                            adcSum[Constants.LO_GAIN][k] = adcSumL[Constants.LO_GAIN][mlg++];
+                                            adcKnown[Constants.LO_GAIN][k] = 1;
+                                        }
                                     }
-                                    //#endif
                                 }
                                 break;
 
@@ -665,8 +661,13 @@ public class AdcData {
                     return false;
                 }
 
+                // initialize adcSample array
+                adcSample = new int[(int) numGains][(int) numPixels][numSamples];
+                adcKnown = new short[(int) numGains][(int) numPixels];
+                adcSum = new long[(int) numGains][(int) numPixels];
+                significant = new short[(int) numPixels];
+
                 if (zeroSupMode != 0) {
-                    int[][] pixelList = new int[Constants.H_MAX_PIX][2];
 
                     // Clear sample mode significance bits
                     for (int ipix = 0; ipix < numPixels; ipix++) {
@@ -680,6 +681,8 @@ public class AdcData {
                         header.getItemEnd();
                         return false;
                     }
+
+                    int[][] pixelList = new int[listSize][2];
 
                     for (int ilist = 0; ilist < listSize; ilist++) {
                         int ipix1 = buffer.readSCount32();

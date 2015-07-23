@@ -118,8 +118,6 @@ public class RunHeader {
         direction = new double[2];
         offsetFov = new double[2];
         convRefPos = new double[2];
-        telId = new int[H_MAX_TEL];
-        telPos = new double[H_MAX_TEL][3];
     }
 
     public boolean readRunHeader(EventIOBuffer buffer) {
@@ -159,6 +157,7 @@ public class RunHeader {
 
                 //TODO check if is the right conversion from C to JAVA!
                 //get_vector_of_real(&tel_pos[0][0], 3 * ntel, iobuf);
+                telPos = new double[3][ntel];
                 for (int i = 0; i < 3; i++) {
                     telPos[i] = buffer.readVectorOfReals(ntel);
                 }

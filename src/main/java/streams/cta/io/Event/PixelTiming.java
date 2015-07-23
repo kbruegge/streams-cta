@@ -109,16 +109,6 @@ public class PixelTiming {
      */
     int[][] pulseSumGlob;
 
-    //TODO constructor that does not need max values for array size
-    public PixelTiming() {
-        pixelList = new int[Constants.H_MAX_PIX * 2];
-        timeType = new int[Constants.H_MAX_PIX_TIMES];
-        timeLevel = new float[Constants.H_MAX_PIX_TIMES];
-        timval = new float[Constants.H_MAX_PIX][Constants.H_MAX_PIX_TIMES];
-        pulseSumLoc = new int[Constants.H_MAX_GAINS][Constants.H_MAX_PIX];
-        pulseSumGlob = new int[Constants.H_MAX_GAINS][Constants.H_MAX_PIX];
-    }
-
     public boolean readPixTime(EventIOBuffer buffer) {
         EventIOHeader header = new EventIOHeader(buffer);
         try {
@@ -203,6 +193,11 @@ public class PixelTiming {
                     granularity = 0.01f;
                 }
                 peakGlobal = buffer.readReal();
+
+                // initialize arrays
+                timval = new float[numPixels][numTypes];
+                pulseSumLoc = new int[numGains][numPixels];
+                pulseSumGlob = new int[numGains][numPixels];
 
                 // The first timing element is always initialised to indicate unknown.
                 for (int i = 0; i < numPixels; i++) {
