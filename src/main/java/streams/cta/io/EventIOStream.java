@@ -80,8 +80,6 @@ public class EventIOStream extends AbstractStream {
         // initialize buffer containing the data stream to read from it
         buffer = new EventIOBuffer(dataStream);
 
-        eventData = new EventIOData();
-
         // import the registered types
         importEventioRegisteredDatatypes();
     }
@@ -92,6 +90,7 @@ public class EventIOStream extends AbstractStream {
         Data item = null;
         EventIOHeader header = new EventIOHeader(buffer);
         if (header.findAndReadNextHeader(true)) {
+            eventData = new EventIOData();
             CTAEvent event;
             // MC Shower
             if (header.type == 2020) {
@@ -115,28 +114,26 @@ public class EventIOStream extends AbstractStream {
 //                    printf("%d of %d events triggered.\n", ntrg, nev);
 
                 // Structures might be allocated from previous run
-                if (eventData != null) {
-                    // Free memory allocated inside ...
-                    for (int itel = 0; itel < eventData.runHeader.ntel; itel++) {
-                        if (eventData.event.teldata[itel].raw != null) {
-                            eventData.event.teldata[itel].raw = null;
-                        }
-                        if (eventData.event.teldata[itel].pixtm != null) {
-                            eventData.event.teldata[itel].pixtm = null;
-                        }
-                        if (eventData.event.teldata[itel].img != null) {
-                            eventData.event.teldata[itel].img = null;
-                        }
-                        if (eventData.event.teldata[itel].pixcal != null) {
-                            eventData.event.teldata[itel].pixcal = null;
-                        }
+                // Free memory allocated inside ...
+                for (int itel = 0; itel < eventData.runHeader.ntel; itel++) {
+                    if (eventData.event.teldata[itel].raw != null) {
+                        eventData.event.teldata[itel].raw = null;
                     }
+                    if (eventData.event.teldata[itel].pixtm != null) {
+                        eventData.event.teldata[itel].pixtm = null;
+                    }
+                    if (eventData.event.teldata[itel].img != null) {
+                        eventData.event.teldata[itel].img = null;
+                    }
+                    if (eventData.event.teldata[itel].pixcal != null) {
+                        eventData.event.teldata[itel].pixcal = null;
+                    }
+                }
                         /* Free main structure */
 //                    if (!dst_processing) {
 //                        free(hsdata);
 //                        hsdata = NULL;
 //                    }
-                }
 
 //                nev = ntrg = 0;
 //                wsum_all = wsum_trg = 0.;
