@@ -37,8 +37,6 @@ public class EventIOStream extends AbstractStream {
 
     int numberEvents;
 
-    private DataInputStream dataStream;
-
     public static HashMap<Integer, String> eventioTypes;
 
     public EventIOData eventData;
@@ -73,10 +71,8 @@ public class EventIOStream extends AbstractStream {
         }
 
         // initialize data stream
-        BufferedInputStream bStream = new BufferedInputStream(
-                url.openStream(),
-                bufferSize);
-        dataStream = new DataInputStream(bStream);
+        BufferedInputStream bStream = new BufferedInputStream(url.openStream(), bufferSize);
+        DataInputStream dataStream = new DataInputStream(bStream);
 
         // initialize buffer containing the data stream to read from it
         buffer = new EventIOBuffer(dataStream);
@@ -102,7 +98,7 @@ public class EventIOStream extends AbstractStream {
                 }
                 event = new CTAEvent(10, new byte[]{0, 1, 2});
             } else if (header.type == Constants.TYPE_EVENT) {
-                if (eventData.event == null){
+                if (eventData.event == null) {
                     eventData.event = new FullEvent();
                 }
                 if (!eventData.event.readFullEvent(buffer, -1)) {
