@@ -203,16 +203,6 @@ public class PixelTiming {
                 for (int i = 0; i < numPixels; i++) {
                     timval[i][0] = -1f;
                 }
-//                #if 0
-//   /* If users are sloppy we may have to initialise the global pulse sums as well. */
-//                if ( with_sum && glob_only_selected )
-//                {
-//                    int igain, ipix;
-//                    for ( igain=0; igain<pixtm->num_gains; igain++ )
-//                        for ( ipix=0; ipix<numPixels; ipix++ )
-//                            pixtm->pulse_sum_glob[igain][ipix] = 0.;
-//                }
-//                #endif
 
                 for (int i = 0; i < listSize; i++) {
                     int k1, k2;
