@@ -221,7 +221,7 @@ public class EventIOStream extends AbstractStream {
             item = DataFactory.create();
             item.put("@event", event);
         } else {
-            log.info("Next sync marker has not been found.");
+            log.info("Next sync marker has not been found: \nstill available datastream :" + buffer.dataStream.available());
         }
         reverse = false;
         return item;

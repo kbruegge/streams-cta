@@ -84,6 +84,7 @@ public class EventIOHeader {
             EventIOStream.reverse = false;
             boolean found = findSynchronisationMarker();
             if (!found) {
+                log.info("Synchronisation marker could not have been found.");
                 return false;
             }
         }

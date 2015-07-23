@@ -84,6 +84,7 @@ public class FullEvent {
         EventIOHeader header = new EventIOHeader(buffer);
         try {
             if (header.findAndReadNextHeader()) {
+                log.info("Telescope event start!");
                 if (header.getVersion() != 0) {
                     log.error("Unsupported FullEvent version: " + header.getVersion());
                     header.getItemEnd();
