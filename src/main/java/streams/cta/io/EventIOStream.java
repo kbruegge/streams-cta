@@ -80,6 +80,7 @@ public class EventIOStream extends AbstractStream {
         // import the registered types
         importEventioRegisteredDatatypes();
 
+        eventData = new EventIOData();
         numberEvents = 0;
     }
 
@@ -89,7 +90,6 @@ public class EventIOStream extends AbstractStream {
         Data item = null;
         EventIOHeader header = new EventIOHeader(buffer);
         if (header.findAndReadNextHeader(true)) {
-            eventData = new EventIOData();
             CTAEvent event;
             // MC Shower
             if (header.type == 2020) {
