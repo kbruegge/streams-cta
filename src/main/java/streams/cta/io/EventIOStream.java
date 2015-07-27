@@ -11,8 +11,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.HashMap;
 
 import stream.Data;
@@ -21,6 +19,12 @@ import stream.data.DataFactory;
 import stream.io.AbstractStream;
 import stream.io.SourceURL;
 import streams.cta.CTAEvent;
+import streams.cta.Constants;
+import streams.cta.io.Event.AdcData;
+import streams.cta.io.Event.FullEvent;
+import streams.cta.io.Event.ImgData;
+import streams.cta.io.Event.PixelTiming;
+import streams.cta.io.Event.TelEvent;
 
 /**
  * Created by alexey on 02.06.15.
@@ -29,11 +33,14 @@ public class EventIOStream extends AbstractStream {
 
     static Logger log = LoggerFactory.getLogger(EventIOStream.class);
 
-    boolean reverse = false;
+    static boolean reverse = false;
 
-    private DataInputStream dataStream;
+    int numberEvents;
 
-    public HashMap<Integer, String> eventioTypes;
+    public static HashMap<Integer, String> eventioTypes;
+
+    public EventIOData eventData;
+    public EventIOBuffer buffer;
 
     @Parameter(
             required = false,
@@ -63,35 +70,163 @@ public class EventIOStream extends AbstractStream {
                     + f.getAbsolutePath());
         }
 
-        BufferedInputStream bStream = new BufferedInputStream(
-                url.openStream(),
-                bufferSize);
-        dataStream = new DataInputStream(bStream);
+        // initialize data stream
+        BufferedInputStream bStream = new BufferedInputStream(url.openStream(), bufferSize);
+        DataInputStream dataStream = new DataInputStream(bStream);
+
+        // initialize buffer containing the data stream to read from it
+        buffer = new EventIOBuffer(dataStream);
 
         // import the registered types
         importEventioRegisteredDatatypes();
+
+        numberEvents = 0;
     }
 
     @Override
     public Data readNext() throws Exception {
-        // now we want to find the synchronisation marker
-        // D41F8A37 or 378A1FD4
-        boolean markerFound = findSynchronisationMarker(dataStream);
 
-        // detect header if a top-level marker was found
-        if (markerFound) {
-            EventIOHeader header = new EventIOHeader(dataStream);
-            header.readHeader();
-            byte[] bytes = new byte[header.length];
-            dataStream.read(bytes);
-            CTAEvent event = new CTAEvent(0, bytes);
-            Data item = DataFactory.create();
+        Data item = null;
+        EventIOHeader header = new EventIOHeader(buffer);
+        if (header.findAndReadNextHeader(true)) {
+            eventData = new EventIOData();
+            CTAEvent event;
+            // MC Shower
+            if (header.type == 2020) {
+                if (!eventData.mcShower.readMCShower(buffer)) {
+                    log.error("Error happened while reading MC Shower.");
+                }
+                event = new CTAEvent(10, new byte[]{0, 1, 2});
+            } else if (header.type == Constants.TYPE_EVENT) {
+                if (eventData.event == null) {
+                    eventData.event = new FullEvent();
+                }
+                if (!eventData.event.readFullEvent(buffer, -1)) {
+                    log.error("Error happened while reading full event data.");
+                    //return null;
+                }
+                numberEvents++;
+                //TODO are we interested in some postprocessing as in original code?
+
+                event = new CTAEvent(10, new byte[]{1, 2, 3,});
+            } else if (header.type == 2000) {
+
+                // Summary of a preceding run in the same file ?
+//                if (!quiet && hsdata != NULL && eventData.runHeader.run > 0)
+//                    show_run_summary(hsdata, nev, ntrg, plidx, wsum_all, wsum_trg,
+//                            rmax_x, rmax_y, rmax_r);
+//                else if (nev > 0)
+//                    printf("%d of %d events triggered.\n", ntrg, nev);
+
+                        /* Free main structure */
+//                    if (!dst_processing) {
+//                        free(hsdata);
+//                        hsdata = NULL;
+//                    }
+
+//                nev = ntrg = 0;
+//                wsum_all = wsum_trg = 0.;
+
+//                nrun++;
+
+                if (!eventData.runHeader.readRunHeader(buffer)) {
+                    log.error("Error happened while reading run header.");
+                    return null;
+                }
+
+                eventData.event = new FullEvent(eventData.runHeader.ntel);
+
+//                if (!quiet)
+//                    printf("Reading simulated data for %d telescope(s)\n", eventData.runHeader.ntel);
+//                if (verbose || rc != 0)
+//                    printf("read_hess_runheader(), rc = %d\n", rc);
+//                fprintf(stderr, "\nStarting run %d\n", eventData.runHeader.run);
+//                if (showdata)
+//                    print_hess_runheader(iobuf);
+
+//                if (user_ana)
+//                    do_user_ana(hsdata, item_header.type, 0);
+
+                //TODO ntel > H_MAX_TEL!?
+                for (int itel = 0; itel < eventData.runHeader.ntel; itel++) {
+                    int telId = eventData.runHeader.telId[itel];
+
+                    // save local reference for easy of code
+                    TelEvent telData = eventData.event.teldata[itel];
+//                    camera_set[itel].telId = telId;
+//                    camera_org[itel].telId = telId;
+//                    pixel_set[itel].telId = telId;
+//                    pixel_disabled[itel].telId = telId;
+//                    cam_soft_set[itel].telId = telId;
+//                    tracking_set[itel].telId = telId;
+//                    point_cor[itel].telId = telId;
+                    eventData.event.numTel = eventData.runHeader.ntel;
+                    eventData.event.trackdata[itel].telId = telId;
+
+                    telData.telId = telId;
+
+                    //TODO originally one is trying to check whether this objects fits in the memory!
+                    telData.raw = new AdcData();
+                    telData.raw.telId = telId;
+
+                    telData.pixtm = new PixelTiming();
+                    telData.pixtm.telId = telId;
+
+//                    if (do_calibrate && dst_level >= 0) /* Only when needed */
+//                    {
+//                        if ((event.teldata[itel].pixcal =
+//                                (PixelCalibrated *) calloc(1, sizeof(PixelCalibrated))) == NULL) {
+//                            Warning("Not enough memory for PixelCalibrated");
+//                            exit(1);
+//                        }
+//                        event.teldata[itel].pixcal->telId = telId;
+//                    }
+
+                    telData.img = new ImgData[2];
+                    telData.img[0] = new ImgData();
+                    telData.img[0].telId = telId;
+                    telData.img[1] = new ImgData();
+                    telData.img[1].telId = telId;
+
+                    telData.maxImageSets = 2;
+
+                    eventData.event.teldata[itel] = telData;
+
+//                    tel_moni[itel].tel_id = telId;
+//                    tel_lascal[itel].tel_id = telId;
+                }
+
+//                skip_run = 0;
+//
+//                if (only_runs.from != 0 || only_runs.to != 0) {
+//                    if (!is_in_range(item_header.ident, &only_runs)) {
+//                        skip_run = 1;
+//                        printf("Ignoring data of run %ld\n", item_header.ident);
+//                        if (nrun > 0)
+//                            continue;
+//                    }
+//                }
+//                if (is_in_range(item_header.ident, &not_runs)) {
+//                    skip_run = 1;
+//                    printf("Ignoring data of run %ld\n", item_header.ident);
+//                    if (nrun > 0)
+//                        continue;
+//                }
+
+                event = new CTAEvent(10, new byte[]{2, 3, 4});
+            } else {
+                header.findAndReadNextHeader();
+                byte[] bytes = buffer.readBytes((int) header.length);
+                event = new CTAEvent(0, bytes);
+                header.getItemEnd();
+            }
+            item = DataFactory.create();
             item.put("@event", event);
-            reverse = false;
-            return item;
+        } else {
+            log.info("Next sync marker has not been found: \nstill available datastream :" + buffer.dataStream.available());
         }
-
-        return null;
+        reverse = false;
+        return item;
     }
 
     /**
@@ -117,170 +252,11 @@ public class EventIOStream extends AbstractStream {
         }
     }
 
-    /**
-     * Try to find the next synchronisation marker "D41F8A37" or its reverse. In case the reverse
-     * marker was found, the upcoming data block and its header should be handled in the proper way
-     * (reverse the bytes).
-     *
-     * @param dataStream DataInputStream to be inspected
-     * @return true, if marker was found; otherwise false.
-     */
-    private boolean findSynchronisationMarker(DataInputStream dataStream) {
-        // TODO: can we make it faster by reading the stream byte by byte?
-        // find_io_block in eventio.c
-//        int firstBit = 0;
-//        int reverse = 1;
-//        int state = 0;
-        byte[] bytes = new byte[4];
-        int syncNormalOrderInt = 0xD41F8A37;
-        int syncReverseOrderInt = 0x378A1FD4;
-        try {
-            while (dataStream.available() > 0) {
-                dataStream.read(bytes);
-                int intBytes = byteArrayToInt(bytes);
-                if (intBytes == syncNormalOrderInt) {
-                    return true;
-                } else if (intBytes == syncReverseOrderInt) {
-                    setReverse(true);
-                    return true;
-                }
-//                int i = b & 0xFF;
-//                String hex = Integer.toHexString(i);
-//                if (firstBit == 0) {
-//                    if (hex.equals(hexArray[0])) {
-//                        firstBit = 1;
-//                        state = 1;
-//                    } else if (hex.equals(hexArray[3])) {
-//                        firstBit = 1;
-//                        state = 2;
-//                        reverse = -1;
-//                        log.info("Reverse datablock");
-//                        setReverse(true);
-//                    }
-//                } else {
-//                    if (hex.equals(hexArray[state])) {
-//                        state += reverse;
-//                    }
-//                }
-//
-//                if (state < 0 || state > 3) {
-//                    return true;
-//                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    /**
-     * Calculate integer value of a byte array with a length of 4
-     *
-     * @param b byte array
-     * @return integer value of a byte array
-     */
-    private int byteArrayToInt(byte[] b) {
-        if (b.length != 4) {
-            // TODO throw exception if this should happen?
-            return 0;
-        }
-        if (reverse) {
-            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
-        } else {
-            return ByteBuffer.wrap(b).getInt();
-        }
-    }
-
     private void setReverse(boolean reverse) {
-        this.reverse = reverse;
+        EventIOStream.reverse = reverse;
     }
 
     public void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
-    }
-
-    /**
-     * Header of EventIO file This class should read the header in front of the data block in
-     * EventIO and determine some essential information as type, length and identification.
-     */
-    class EventIOHeader {
-
-        int length;
-        String type;
-        String identification;
-        DataInputStream dataInputStream;
-
-        public EventIOHeader(DataInputStream dataInputStream) {
-            this.dataInputStream = dataInputStream;
-            length = -1;
-            type = "";
-            identification = "";
-        }
-
-        /**
-         * Read EventIO defined header consisting of 3 - 4 fields of 4 bytes each
-         */
-        private void readHeader() throws IOException {
-            //log.info("Datastream available: \t" + dataStream.available());
-
-            byte[] bytes = new byte[4];
-
-            // read type and check for extension field
-            dataStream.read(bytes);
-            int typeField = byteArrayToInt(bytes);
-
-            // bits 0 to 15 are used for type information
-            int type = typeField & 0x0000ffff;
-            // TODO translate bytes to type. is it a string?
-
-            // bit 16 is the user bit and is not set
-            boolean user_flag = (typeField & 0x00010000) != 0;
-
-            // extension is there if bit 17 is set
-            // means look up if the 2nd bit of the 3rd byte is set
-            boolean use_extension = ((typeField & 0x00020000) != 0);
-
-            // bits 18 and 19 are reserved for future enhancements
-
-            // bits 20 to 31 are used for the version information
-            int version = (typeField >> 20) & 0xfff;
-
-            // read identification field
-            dataStream.read(bytes);
-            int identField = byteArrayToInt(bytes);
-
-
-            // read length
-            dataStream.read(bytes);
-            int lengthField = byteArrayToInt(bytes);
-
-            // check whether bit 30 is set
-            // meaning only subobjects are contained
-            // and no elementary data types
-            boolean onlySubObjects = (lengthField & 0x40000000) != 0;
-
-            // check whether bit 31 is set
-            // as it is a reserved bit it should be set to 0
-            boolean reserved = (lengthField & 0x80000000) == 0;
-            if (!reserved) {
-                log.error("Reserved bit should be set to 0.");
-                return;
-            }
-
-            // bits 0 to 29 are used for the length of the data block
-            length = (lengthField & 0x3FFFFFFF);
-            log.info("length:\t" + length + "\ttype:\t" + eventioTypes.get(type)
-                    + "\tsubobjects:\t" + onlySubObjects);
-            // TODO length parameter longer than the rest of the data?
-
-            // read extension if given
-            if (use_extension) {
-                log.info("Extension exists.");
-                // TODO dont skip
-                dataStream.skipBytes(4);
-            }
-            //log.info("Data block length: \t" + length + "\n");
-        }
-
     }
 }

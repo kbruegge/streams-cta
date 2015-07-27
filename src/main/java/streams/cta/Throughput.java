@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package streams.cta;
 
@@ -12,20 +12,13 @@ import stream.ProcessContext;
 
 /**
  * @author chris
- * 
  */
 public class Throughput extends AbstractProcessor {
 
-	static Logger log = LoggerFactory.getLogger(Throughput.class);
+//	static Logger log = LoggerFactory.getLogger(Throughput.class);
 
 	long eventCount = 0L;
 
-
-
-    @Override
-    public void init(ProcessContext ctx) throws Exception {
-        super.init(ctx);
-    }
 
     /**
 	 * @see stream.Processor#process(stream.Data)
@@ -36,13 +29,4 @@ public class Throughput extends AbstractProcessor {
 		eventCount++;
 		return input;
 	}
-
-	/**
-	 * @see stream.AbstractProcessor#finish()
-	 */
-	@Override
-	public void finish() throws Exception {
-		super.finish();
-	}
-
 }
