@@ -142,11 +142,11 @@ public class EventIOHeader {
 
         // check whether bit 31 is set
         // as it is a reserved bit it should be set to 0
-//        boolean reserved = (lengthField & 0x80000000) == 0;
-//        if (!reserved) {
-//            log.error("Reserved bit should be set to 0.");
-//            return false;
-//        }
+        boolean reserved = (lengthField & 0x80000000) == 0;
+        if (!reserved) {
+            log.error("Reserved bit should be set to 0.");
+            return false;
+        }
 
         if (buffer.itemLevel == 0) {
             buffer.readLengthLocal[buffer.itemLevel] -= 12;
