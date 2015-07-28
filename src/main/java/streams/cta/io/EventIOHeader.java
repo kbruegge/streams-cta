@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 import streams.cta.Constants;
+import streams.cta.io.Event.FullEvent;
 
 /**
  * Header of EventIO file This class should read the header in front of the data block in EventIO
@@ -102,6 +103,14 @@ public class EventIOHeader {
         type = typeField & 0x0000ffff;
         typeString = EventIOStream.eventioTypes.get(type);
 
+        if (typeString == null) {
+            if (FullEvent.isTelEvent(type)) {
+                typeString = EventIOStream.eventioTypes.get(Constants.TYPE_TEL_EVENT);
+            } else if (FullEvent.isTrackEvent(type)) {
+                typeString = EventIOStream.eventioTypes.get(Constants.TYPE_TRACK_EVENT);
+            }
+        }
+
         // bit 16 is the user bit and is not set
         userFlag = (typeField & 0x00010000) != 0;
 
@@ -161,6 +170,7 @@ public class EventIOHeader {
         if (!reset) {
             // save the length of the item
             buffer.itemLength[buffer.itemLevel] = length;
+            buffer.itemType[buffer.itemLevel] = typeString;
 
             if (onlySubObjects) {
                 buffer.subItemLength[buffer.itemLevel] = length;

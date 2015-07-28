@@ -186,7 +186,7 @@ public class FullEvent {
      * @param type object type from header
      * @return true for a telescope event, false otherwise.
      */
-    private boolean isTelEvent(int type) {
+    public static boolean isTelEvent(int type) {
         if (H_MAX_TEL > 100) {
             return type >= TYPE_TEL_EVENT &&
                     type % 1000 < (TYPE_TEL_EVENT % 1000) + 100 &&
@@ -203,7 +203,7 @@ public class FullEvent {
      * @param type object type from header
      * @return true for a track event, false otherwise.
      */
-    private boolean isTrackEvent(int type) {
+    public static boolean isTrackEvent(int type) {
         if (H_MAX_TEL > 100) {
             return type >= TYPE_TRACK_EVENT &&
                     type % 1000 < (TYPE_TRACK_EVENT % 1000) + 100 &&

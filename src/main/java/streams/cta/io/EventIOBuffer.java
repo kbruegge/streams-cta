@@ -28,6 +28,8 @@ public class EventIOBuffer {
      */
     long[] itemLength;
 
+    String[] itemType;
+
     /**
      * Length of its sub-items
      */
@@ -85,6 +87,7 @@ public class EventIOBuffer {
         this.dataStream = dataStream;
         readLength = new int[MAX_IO_ITEM_LEVEL];
         readLengthLocal = new int[MAX_IO_ITEM_LEVEL];
+        itemType = new String[MAX_IO_ITEM_LEVEL];
     }
 
     public void skipBytes(int length) {
