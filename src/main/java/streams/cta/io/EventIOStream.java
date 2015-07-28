@@ -91,8 +91,7 @@ public class EventIOStream extends AbstractStream {
         EventIOHeader header = new EventIOHeader(buffer);
         if (header.findAndReadNextHeader(true)) {
             CTAEvent event;
-            // MC Shower
-            if (header.type == 2020) {
+            if (header.type == Constants.TYPE_MCSHOWER) {
                 if (!eventData.mcShower.readMCShower(buffer)) {
                     log.error("Error happened while reading MC Shower.");
                 }
@@ -108,7 +107,7 @@ public class EventIOStream extends AbstractStream {
                 //TODO are we interested in some postprocessing as in original code?
 
                 event = new CTAEvent(10, new byte[]{1, 2, 3,});
-            } else if (header.type == 2000) {
+            } else if (header.type == Constants.TYPE_RUNHEADER) {
 
                 // Summary of a preceding run in the same file ?
 //                if (!quiet && hsdata != NULL && eventData.runHeader.run > 0)
