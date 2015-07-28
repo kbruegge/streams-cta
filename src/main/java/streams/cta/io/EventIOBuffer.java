@@ -113,8 +113,8 @@ public class EventIOBuffer {
             // First check if we are already beyond the top item and then if we
             // will be beyond the next smaller level (superiour) item after
             // reading this item's header.
-            if (readLength[itemLevel - 1] >= itemLength[0] + 16 + (itemExtension[0] ? 4 : 0) ||
-                    readLength[itemLevel - 1] + 12 >= itemLength[itemLevel - 1]) {
+            if (readLengthLocal[itemLevel] >= itemLength[0] + 16 + (itemExtension[0] ? 4 : 0) ||
+                    readLengthLocal[itemLevel] + 12 >= itemLength[itemLevel - 1]) {
                 return -2;
             }
         } else if (itemLevel == 0) {

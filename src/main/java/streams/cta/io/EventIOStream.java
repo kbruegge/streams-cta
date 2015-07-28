@@ -103,7 +103,6 @@ public class EventIOStream extends AbstractStream {
                 }
                 if (!eventData.event.readFullEvent(buffer, -1)) {
                     log.error("Error happened while reading full event data.");
-                    //return null;
                 }
                 numberEvents++;
                 //TODO are we interested in some postprocessing as in original code?
@@ -134,7 +133,7 @@ public class EventIOStream extends AbstractStream {
                     return null;
                 }
 
-                eventData.event = new FullEvent(eventData.runHeader.ntel);
+                eventData.event = new FullEvent();
 
 //                if (!quiet)
 //                    printf("Reading simulated data for %d telescope(s)\n", eventData.runHeader.ntel);

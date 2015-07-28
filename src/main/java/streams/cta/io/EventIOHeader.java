@@ -275,12 +275,9 @@ public class EventIOHeader {
         int localReadLength = buffer.readLengthLocal[buffer.itemLevel];
         for (int i = 0; i < buffer.itemLevel; i++) {
             buffer.readLength[i] += length + 12 + (useExtension ? 4 : 0);
-            buffer.readLengthLocal[i] += localReadLength;
         }
         buffer.readLength[level] = 0;
 
-        //buffer.readLengthLocal[buffer.itemLevel - 1] += localReadLength;
-        buffer.readLengthLocal[buffer.itemLevel] = 0;
 
         if (level >= 0 && level <= Constants.MAX_IO_ITEM_LEVEL) {
             if (level == 0 & buffer.itemLevel == 1) {
@@ -293,10 +290,14 @@ public class EventIOHeader {
             //TODO: something is wrong
         }
 
-        /* If the item has a length specified, check it. */
-        if (buffer.itemLength[ilevel] >= 0) {
-            //TODO check whether the length that has been read matches the predefined length
+        buffer.readLengthLocal[buffer.itemLevel] += localReadLength;
+        buffer.readLengthLocal[buffer.itemLevel + 1] = 0;
 
+        // If the item has a length specified, check it.
+        if (buffer.itemLength[ilevel] >= 0) {
+
+            // check whether the length that has been read matches the predefined length,
+            // if not one can skip data until the next item
             if (buffer.itemLength[buffer.itemLevel] != buffer.readLength[buffer.itemLevel]) {
                 if (length > buffer.itemLength[buffer.itemLevel]) {
                     log.error("Actual length of item type " + type + " exceeds specified length");

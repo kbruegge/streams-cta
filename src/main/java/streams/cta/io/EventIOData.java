@@ -10,7 +10,6 @@ import streams.cta.io.RunHeader.RunHeader;
 public class EventIOData {
     MCShower mcShower;
 
-    //TODO implement RunHeader as it is needed for event to be interpreted and read right
     RunHeader runHeader;
 
     /**
@@ -35,7 +34,7 @@ public class EventIOData {
 //    RunStat run_stat;
 //    MCRunStat mc_run_stat;
 
-    public EventIOData(){
+    public EventIOData() {
         // initialize run header object containing information about the EventIO run
         runHeader = new RunHeader();
         mcShower = new MCShower();
