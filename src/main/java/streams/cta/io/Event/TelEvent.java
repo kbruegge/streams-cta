@@ -302,7 +302,7 @@ public class TelEvent {
                                 readingSuccessful = buffer.skipSubitem();
                             } else {
                                 header.getItemEnd();
-                                return false;
+                                return true;
                             }
                     }
 
