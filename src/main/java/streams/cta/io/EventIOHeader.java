@@ -139,14 +139,18 @@ public class EventIOHeader {
 //            return false;
 //        }
 
-        buffer.readLength -= 12;
+        if (buffer.itemLevel == 0) {
+            buffer.readLengthLocal[buffer.itemLevel] -= 12;
+        }
 
         // read extension if given
         if ((lengthField & 0x80000000) != 0) {
             log.info("Extension exists.");
             useExtension = true;
             extension = buffer.readUnsignedInt32();
-            buffer.readLength -= 4;
+            if (buffer.itemLevel == 0) {
+                buffer.readLengthLocal[buffer.itemLevel] -= 4;
+            }
             // Actual length consists of bits 0-29 of length field plus bits 0-11 of extension field.
             length = (lengthField & 0x3FFFFFFF) | ((extension & 0x0FFF) << 30);
         } else {
@@ -164,6 +168,7 @@ public class EventIOHeader {
                 buffer.subItemLength[buffer.itemLevel] = 0;
             }
 
+            // For global offsets keep also track where header extensions were found.
             buffer.itemExtension[buffer.itemLevel] = useExtension;
         }
 
@@ -256,6 +261,17 @@ public class EventIOHeader {
             }
         }
 
+
+        int localReadLength = buffer.readLengthLocal[buffer.itemLevel];
+        for (int i = 0; i < buffer.itemLevel; i++) {
+            buffer.readLength[i] += length + 12 + (useExtension ? 4 : 0);
+            buffer.readLengthLocal[i] += localReadLength;
+        }
+        buffer.readLength[level] = 0;
+
+        //buffer.readLengthLocal[buffer.itemLevel - 1] += localReadLength;
+        buffer.readLengthLocal[buffer.itemLevel] = 0;
+
         if (level >= 0 && level <= Constants.MAX_IO_ITEM_LEVEL) {
             if (level == 0 & buffer.itemLevel == 1) {
                 buffer.syncMarkerFound = false;
@@ -270,17 +286,23 @@ public class EventIOHeader {
         /* If the item has a length specified, check it. */
         if (buffer.itemLength[ilevel] >= 0) {
             //TODO check whether the length that has been read matches the predefined length
+
+            if (buffer.itemLength[buffer.itemLevel] != buffer.readLength[buffer.itemLevel]) {
+                if (length > buffer.itemLength[buffer.itemLevel]) {
+                    log.error("Actual length of item type " + type + " exceeds specified length");
+                }
+
+                // calculate how much of the byte stream real length has been read
+                // and skip the rest of it until the next item
+                int skipLength = (int) length - localReadLength;
+                buffer.skipBytes(skipLength);
+
+            }
         }
 
         if (buffer.itemLevel == 0) {
             // TODO stop reading!!
         }
-
-        // calculate how much of the byte stream real length has been read
-        // and skip the rest of it until the next item
-        int skipLength = (int) length - buffer.readLength;
-        buffer.skipBytes(skipLength);
-        buffer.readLength = 0;
     }
 
     public long getVersion() {

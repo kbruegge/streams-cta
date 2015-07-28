@@ -127,12 +127,12 @@ public class TelEvent {
         gpsTime = new HTime();
     }
 
-    private void initSectorArrays(int numberTriggeredSectors){
+    private void initSectorArrays(int numberTriggeredSectors) {
         listTrgsect = new int[numberTriggeredSectors];
         timeTrgsect = new double[numberTriggeredSectors];
     }
 
-    private void initPhysicalAdressArray(int numberAdresses){
+    private void initPhysicalAdressArray(int numberAdresses) {
         physAddr = new int[numberAdresses];
     }
 
