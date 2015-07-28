@@ -149,7 +149,7 @@ public class EventIOHeader {
         }
 
         if (buffer.itemLevel == 0) {
-            buffer.readLengthLocal[buffer.itemLevel] -= 12;
+            buffer.readLength[buffer.itemLevel] -= 12;
         }
 
         // read extension if given
@@ -158,7 +158,7 @@ public class EventIOHeader {
             useExtension = true;
             extension = buffer.readUnsignedInt32();
             if (buffer.itemLevel == 0) {
-                buffer.readLengthLocal[buffer.itemLevel] -= 4;
+                buffer.readLength[buffer.itemLevel] -= 4;
             }
             // Actual length consists of bits 0-29 of length field plus bits 0-11 of extension field.
             length = (lengthField & 0x3FFFFFFF) | ((extension & 0x0FFF) << 30);
@@ -272,13 +272,6 @@ public class EventIOHeader {
         }
 
 
-        int localReadLength = buffer.readLengthLocal[buffer.itemLevel];
-        for (int i = 0; i < buffer.itemLevel; i++) {
-            buffer.readLength[i] += length + 12 + (useExtension ? 4 : 0);
-        }
-        buffer.readLength[level] = 0;
-
-
         if (level >= 0 && level <= Constants.MAX_IO_ITEM_LEVEL) {
             if (level == 0 & buffer.itemLevel == 1) {
                 buffer.syncMarkerFound = false;
@@ -287,11 +280,13 @@ public class EventIOHeader {
             ilevel = level;
             buffer.itemLevel = level;
         } else {
-            //TODO: something is wrong
+            log.error("Level is wrong: " + level);
         }
 
-        buffer.readLengthLocal[buffer.itemLevel] += localReadLength;
-        buffer.readLengthLocal[buffer.itemLevel + 1] = 0;
+        // save read length before setting it to 0
+        int localReadLength = buffer.readLength[buffer.itemLevel + 1];
+        buffer.readLength[buffer.itemLevel] += localReadLength;
+        buffer.readLength[buffer.itemLevel + 1] = 0;
 
         // If the item has a length specified, check it.
         if (buffer.itemLength[ilevel] >= 0) {

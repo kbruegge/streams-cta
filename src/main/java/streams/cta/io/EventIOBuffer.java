@@ -65,8 +65,6 @@ public class EventIOBuffer {
      */
     int[] readLength;
 
-    int[] readLengthLocal;
-
     static int[][] gTelIdx = new int[3][H_MAX_TEL + 1];
     static int[] gTelIdxInit = new int[3];
 
@@ -85,15 +83,15 @@ public class EventIOBuffer {
         itemStartOffset = new long[MAX_IO_ITEM_LEVEL];
         itemExtension = new boolean[MAX_IO_ITEM_LEVEL];
         this.dataStream = dataStream;
+        //readLength = new int[MAX_IO_ITEM_LEVEL];
         readLength = new int[MAX_IO_ITEM_LEVEL];
-        readLengthLocal = new int[MAX_IO_ITEM_LEVEL];
         itemType = new String[MAX_IO_ITEM_LEVEL];
     }
 
     public void skipBytes(int length) {
         try {
             dataStream.skipBytes(length);
-            readLengthLocal[itemLevel] += length;
+            readLength[itemLevel] += length;
         } catch (IOException e) {
             log.error("Skipping bytes produced an error:\n" + e.getMessage());
         }
@@ -113,8 +111,8 @@ public class EventIOBuffer {
             // First check if we are already beyond the top item and then if we
             // will be beyond the next smaller level (superiour) item after
             // reading this item's header.
-            if (readLengthLocal[itemLevel] >= itemLength[0] + 16 + (itemExtension[0] ? 4 : 0) ||
-                    readLengthLocal[itemLevel] + 12 >= itemLength[itemLevel - 1]) {
+            if (readLength[itemLevel] >= itemLength[0] + 16 + (itemExtension[0] ? 4 : 0) ||
+                    readLength[itemLevel] + 12 >= itemLength[itemLevel - 1]) {
                 return -2;
             }
         } else if (itemLevel == 0) {
@@ -127,7 +125,7 @@ public class EventIOBuffer {
             type = readLong() & 0x0000ffff;
 
             // reduce read length after reading as we will reset the stream
-            readLengthLocal[itemLevel] -= 4;
+            readLength[itemLevel] -= 4;
         } catch (IOException e) {
             log.error("Error while checking the type of the subitem:\n" + e.getMessage());
         }
@@ -169,7 +167,7 @@ public class EventIOBuffer {
             identification = readLong();
 
             // reduce read length after reading as we will reset the stream
-            readLengthLocal[itemLevel] -= 8;
+            readLength[itemLevel] -= 8;
 
         } catch (IOException e) {
             log.error("Error while checking the type of the subitem:\n" + e.getMessage());
@@ -264,7 +262,7 @@ public class EventIOBuffer {
      */
     public byte readByte() throws IOException {
         byte result = dataStream.readByte();
-        readLengthLocal[itemLevel] += 1;
+        readLength[itemLevel] += 1;
         return result;
     }
 
@@ -275,7 +273,7 @@ public class EventIOBuffer {
      */
     public short readUnsignedByte() throws IOException {
         short result = (short) dataStream.readUnsignedByte();
-        readLengthLocal[itemLevel] += 1;
+        readLength[itemLevel] += 1;
         return result;
     }
 
@@ -283,7 +281,7 @@ public class EventIOBuffer {
         //TODO do we need to reverse it?
         byte[] bytes = new byte[length];
         dataStream.read(bytes);
-        readLengthLocal[itemLevel] += length;
+        readLength[itemLevel] += length;
         return bytes;
     }
 
@@ -303,7 +301,7 @@ public class EventIOBuffer {
         byte[] b = new byte[4];
         dataStream.read(b, 0, 2);
 
-        readLengthLocal[itemLevel] += 2;
+        readLength[itemLevel] += 2;
 
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
@@ -317,7 +315,7 @@ public class EventIOBuffer {
         byte[] b = new byte[4];
         dataStream.read(b);
 
-        readLengthLocal[itemLevel] += 4;
+        readLength[itemLevel] += 4;
 
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getFloat();
@@ -330,7 +328,7 @@ public class EventIOBuffer {
         byte[] b = new byte[8];
         dataStream.read(b);
 
-        readLengthLocal[itemLevel] += 8;
+        readLength[itemLevel] += 8;
 
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getDouble();
@@ -348,7 +346,7 @@ public class EventIOBuffer {
         byte[] b = new byte[2];
         dataStream.read(b);
 
-        readLengthLocal[itemLevel] += 2;
+        readLength[itemLevel] += 2;
 
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getShort();
@@ -361,7 +359,7 @@ public class EventIOBuffer {
         byte[] b = new byte[4];
         dataStream.read(b);
 
-        readLengthLocal[itemLevel] += 4;
+        readLength[itemLevel] += 4;
 
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
@@ -382,7 +380,7 @@ public class EventIOBuffer {
         //TODO maybe use dataStream.readUnsignedByte()?
         dataStream.read(b, 0, 4);
 
-        readLengthLocal[itemLevel] += 4;
+        readLength[itemLevel] += 4;
 
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getLong();
@@ -395,7 +393,7 @@ public class EventIOBuffer {
         byte[] b = new byte[8];
         dataStream.read(b);
 
-        readLengthLocal[itemLevel] += 8;
+        readLength[itemLevel] += 8;
 
         if (EventIOStream.reverse) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getLong();
@@ -425,7 +423,7 @@ public class EventIOBuffer {
         if (nbytes > nread) {
             skipBytes(nbytes - nread);
         }
-        readLengthLocal[itemLevel] -= nbytes - nread;
+        readLength[itemLevel] -= nbytes - nread;
         // Terminate string with null character
         //result[nread] = '\0';
 
