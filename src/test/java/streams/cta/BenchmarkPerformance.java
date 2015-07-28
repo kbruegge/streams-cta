@@ -8,8 +8,10 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
+
 import stream.Data;
-import streams.cta.io.SyntheticEventStream;
+import stream.io.SourceURL;
+import streams.cta.io.EventIOStream;
 
 /**
  * Created by kai on 02.06.15.
@@ -17,12 +19,13 @@ import streams.cta.io.SyntheticEventStream;
 @State(Scope.Benchmark)
 public class BenchmarkPerformance {
 
-    private SyntheticEventStream stream;
+    private EventIOStream stream;
     private Throughput throughput;
 
     @Setup
     public void setupBenchmark() throws Exception {
-        stream = new SyntheticEventStream();
+        stream = new EventIOStream(
+                new SourceURL("file:../gamma_20deg_180deg_run61251___cta-prod2-sc-sst-x_desert-1640m-Aar.simtel"));
         stream.init();
         throughput = new Throughput();
         throughput.init(null);
@@ -37,8 +40,8 @@ public class BenchmarkPerformance {
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(BenchmarkPerformance.class.getSimpleName())
-                .warmupIterations(10)
-                .measurementIterations(10)
+                .warmupIterations(4)
+                .measurementIterations(8)
                 .forks(4)
                 .build();
 
