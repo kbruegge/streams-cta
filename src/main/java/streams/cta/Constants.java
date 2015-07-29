@@ -68,4 +68,12 @@ public class Constants {
     //< Index to high-gain channels in adc_sum, adc_sample, pedestal, ...
     public static final int HI_GAIN = 0;
 
+    /**
+     * Maximum header size can be as followed with each field having 4 bytes: (sync marker) +
+     * type/version field + identification field + length field + (extension field). The two fields,
+     * sync marker and extension field, do not appear every time, but type, identification and
+     * length are always necessary.
+     */
+    public static final int MAX_HEADER_SIZE = 20;
+
 }

@@ -91,7 +91,7 @@ public class EventIOHeader {
         }
 
         if (reset) {
-            buffer.dataStream.mark(100);
+            buffer.dataStream.mark(Constants.MAX_HEADER_SIZE);
         }
 
         wantedType = type;

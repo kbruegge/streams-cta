@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import static streams.cta.Constants.MAX_HEADER_SIZE;
 import static streams.cta.Constants.H_MAX_TEL;
 import static streams.cta.Constants.MAX_IO_ITEM_LEVEL;
 
@@ -103,8 +104,7 @@ public class EventIOBuffer {
      * @return type of a sub-item
      */
     public int nextSubitemType() {
-        //TODO use a constant for a maximum header length
-        dataStream.mark(20);
+        dataStream.mark(MAX_HEADER_SIZE);
 
         // Are we beyond the last sub-item?
         if (itemLevel > 0) {
@@ -145,9 +145,8 @@ public class EventIOBuffer {
      * @return identification of a sub-item
      */
     public long nextSubitemIdent() {
-        //TODO use a constant for a maximum header length
-        dataStream.mark(100);
-
+        dataStream.mark(MAX_HEADER_SIZE);
+        
         // Are we beyond the last sub-item?
         if (itemLevel > 0) {
             // First check if we are already beyond the top item and then if we
@@ -284,7 +283,6 @@ public class EventIOBuffer {
         return bytes;
     }
 
-    //TODO is it the supposed way to read a short?
     public short readShort() throws IOException {
         return readInt16();
     }
