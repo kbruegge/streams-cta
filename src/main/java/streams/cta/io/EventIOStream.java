@@ -90,56 +90,57 @@ public class EventIOStream extends AbstractStream {
     public Data readNext() throws Exception {
 
         Data item = null;
-        EventIOHeader header = new EventIOHeader(buffer);
-        if (header.findAndReadNextHeader(true)) {
-            CTAEvent event;
-            if (header.type == Constants.TYPE_MCSHOWER) {
-                if (!eventData.mcShower.readMCShower(buffer)) {
-                    log.error("Error happened while reading MC Shower.");
+        boolean eventFound = false;
+        numberRuns = 0;
+        while (!eventFound) {
+            numberRuns++;
+            EventIOHeader header = new EventIOHeader(buffer);
+            if (header.findAndReadNextHeader(true)) {
+                CTAEvent event;
+                if (header.type == Constants.TYPE_MCSHOWER) {
+                    if (!eventData.mcShower.readMCShower(buffer)) {
+                        log.error("Error happened while reading MC Shower.");
+                    }
+                    event = new CTAEvent(10, new byte[]{0, 1, 2});
+                } else if (header.type == Constants.TYPE_EVENT) {
+                    if (eventData.event == null) {
+                        eventData.event = new FullEvent();
+                    }
+                    if (!eventData.event.readFullEvent(buffer, -1)) {
+                        log.error("Error happened while reading full event data.");
+                    }
+                    numberEvents++;
+                    eventFound = true;
+
+                    event = new CTAEvent(10, new byte[]{1, 2, 3,});
+                } else if (header.type == Constants.TYPE_RUNHEADER) {
+
+                    //TODO some summary from previous runs (original code)
+
+                    if (!eventData.runHeader.readRunHeader(buffer)) {
+                        log.error("Error happened while reading run header.");
+                        return null;
+                    }
+
+                    eventData.event = initFullEvent(eventData.runHeader.numberTelescopes);
+
+                    //TODO skip some runs
+
+                    event = new CTAEvent(10, new byte[]{2, 3, 4});
+                } else {
+                    header.findAndReadNextHeader();
+                    buffer.skipBytes((int) header.length);
+                    header.getItemEnd();
+                    event = new CTAEvent(10, new byte[]{1, 2, 3});
                 }
-                event = new CTAEvent(10, new byte[]{0, 1, 2});
-            } else if (header.type == Constants.TYPE_EVENT) {
-                if (eventData.event == null) {
-                    eventData.event = new FullEvent();
-                }
-                if (!eventData.event.readFullEvent(buffer, -1)) {
-                    log.error("Error happened while reading full event data.");
-                }
-                numberEvents++;
-
-                event = new CTAEvent(10, new byte[]{1, 2, 3,});
-            } else if (header.type == Constants.TYPE_RUNHEADER) {
-
-                //TODO some summary from previous runs (original code)
-
-                numberRuns++;
-
-                if (!eventData.runHeader.readRunHeader(buffer)) {
-                    log.error("Error happened while reading run header.");
-                    return null;
-                }
-
-                eventData.event = new FullEvent();
-
-                //TODO do_user_ana from original code
-
-                }
-
-                //TODO skip some runs
-
-                event = new CTAEvent(10, new byte[]{2, 3, 4});
+                item = DataFactory.create();
+                item.put("@event", event);
             } else {
-                header.findAndReadNextHeader();
-                byte[] bytes = buffer.readBytes((int) header.length);
-                event = new CTAEvent(0, bytes);
-                header.getItemEnd();
+                log.info("Next sync marker has not been found: \nstill available datastream :" + buffer.dataStream.available());
             }
-            item = DataFactory.create();
-            item.put("@event", event);
-        } else {
-            log.info("Next sync marker has not been found: \nstill available datastream :" + buffer.dataStream.available());
         }
         reverse = false;
+        log.info("Event number " + numberEvents + "\tNumber runs: " + numberRuns);
         return item;
     }
 
