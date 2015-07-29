@@ -40,7 +40,7 @@ public class BenchmarkPerformance {
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(BenchmarkPerformance.class.getSimpleName())
-                .warmupIterations(4)
+                .warmupIterations(8)
                 .measurementIterations(8)
                 .forks(4)
                 .build();
