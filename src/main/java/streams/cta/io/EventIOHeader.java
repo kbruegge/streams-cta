@@ -72,10 +72,9 @@ public class EventIOHeader {
         //TODO use the wanted type and control it
         long wantedType;
 
-        //TODO use the right constant
-        if (buffer.itemLevel >= 100) {
+        if (buffer.itemLevel >= Constants.MAX_IO_ITEM_LEVEL) {
             log.error("Maximum level of sub-items in I/O Buffer exceeded.");
-            //TODO: what to do now?
+            return false;
         }
 
         if (buffer.itemLevel > 0) {
