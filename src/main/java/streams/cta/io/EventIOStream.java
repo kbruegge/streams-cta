@@ -123,25 +123,6 @@ public class EventIOStream extends AbstractStream {
 
                 //TODO do_user_ana from original code
 
-                eventData.event.numTel = eventData.runHeader.numberTelescopes;
-                //TODO numberTelescopes > H_MAX_TEL!?
-                for (int itel = 0; itel < eventData.runHeader.numberTelescopes; itel++) {
-                    int telId = eventData.runHeader.telId[itel];
-                    eventData.event.trackdata[itel] = new TrackEvent(telId);
-                    eventData.event.teldata[itel] = new TelEvent(telId);
-
-//                    camera_set[itel].telId = telId;
-//                    camera_org[itel].telId = telId;
-//                    pixel_set[itel].telId = telId;
-//                    pixel_disabled[itel].telId = telId;
-//                    cam_soft_set[itel].telId = telId;
-//                    tracking_set[itel].telId = telId;
-//                    point_cor[itel].telId = telId;
-
-                    //TODO do some calibration
-
-//                    tel_moni[itel].tel_id = telId;
-//                    tel_lascal[itel].tel_id = telId;
                 }
 
                 //TODO skip some runs
@@ -160,6 +141,39 @@ public class EventIOStream extends AbstractStream {
         }
         reverse = false;
         return item;
+    }
+
+    /**
+     * Initialize the FullEvent object containing all the different information about an event.
+     * @param numberTelescopes number of telescopes
+     * @return FullEvent object
+     */
+    public FullEvent initFullEvent(int numberTelescopes) {
+        FullEvent event = new FullEvent();
+
+        //TODO do_user_ana from original code
+
+        event.numTel = numberTelescopes;
+        //TODO numberTelescopes > H_MAX_TEL!?
+        for (int itel = 0; itel < numberTelescopes; itel++) {
+            int telId = eventData.runHeader.telId[itel];
+            event.trackdata[itel] = new TrackEvent(telId);
+            event.teldata[itel] = new TelEvent(telId);
+
+//            camera_set[itel].telId = telId;
+//            camera_org[itel].telId = telId;
+//            pixel_set[itel].telId = telId;
+//            pixel_disabled[itel].telId = telId;
+//            cam_soft_set[itel].telId = telId;
+//            tracking_set[itel].telId = telId;
+//            point_cor[itel].telId = telId;
+
+            //TODO do some calibration
+
+//            tel_moni[itel].tel_id = telId;
+//            tel_lascal[itel].tel_id = telId;
+        }
+        return event;
     }
 
     /**
