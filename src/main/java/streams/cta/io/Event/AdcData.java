@@ -535,8 +535,7 @@ public class AdcData {
                         assert (false);
                 }
                 known = 1;
-                header.getItemEnd();
-                return true;
+                return header.getItemEnd();
             }
         } catch (IOException e) {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());
@@ -764,8 +763,7 @@ public class AdcData {
 
                 known |= 2;
 
-                header.getItemEnd();
-                return true;
+                return header.getItemEnd();
             }
         } catch (IOException e) {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());

@@ -75,7 +75,7 @@ public class ShowerExtraParameters {
         }
     }
 
-    public boolean readShowerExtraParameters(EventIOBuffer buffer) throws IOException {
+    public boolean readShowerExtraParameters(EventIOBuffer buffer){
 
         // TODO: check this implementation after such extra parameters has been found
         log.error("Please check the implementation of readShowerExtraParameters " +
@@ -84,53 +84,52 @@ public class ShowerExtraParameters {
         // read the header of extra parameters
         EventIOHeader header = new EventIOHeader(buffer);
 
-        if (header.findAndReadNextHeader()) {
-            isSet = 0;
+        try {
+            if (header.findAndReadNextHeader()) {
+                isSet = 0;
 
-            if (header.getVersion() != 1) {
-                header.getItemEnd();
-                log.error("Skipping MCShower because version is not 1, but " + header.getVersion());
-                return false;
-            }
+                if (header.getVersion() != 1) {
+                    log.error("Skipping MCShower because version is not 1, but " + header.getVersion());
+                    header.getItemEnd();
+                    return false;
+                }
 
-            id = header.getIdentification();
-            weight = buffer.readReal();
+                id = header.getIdentification();
+                weight = buffer.readReal();
 
-            // detect number of integer and float parameters dynamically
-            long ni = buffer.readCount();
-            long nf = buffer.readCount();
+                // detect number of integer and float parameters dynamically
+                long ni = buffer.readCount();
+                long nf = buffer.readCount();
 
-            // fill the iparam list
-            if (ni > 0) {
-                if (ni != niparam) {
-                    iparam = new int[(int) ni];
-                    for (int i = 0; i < ni; i++) {
-                        iparam[i] = buffer.readInt32();
+                // fill the iparam list
+                if (ni > 0) {
+                    if (ni != niparam) {
+                        iparam = new int[(int) ni];
+                        for (int i = 0; i < ni; i++) {
+                            iparam[i] = buffer.readInt32();
+                        }
                     }
                 }
-            }
-            niparam = ni;
+                niparam = ni;
 
-            // fill the fparam list
-            if (nf > 0) {
-                if (nf != nfparam) {
-                    fparam = new double[(int) nf];
-                    for (int i = 0; i < nf; i++) {
-                        fparam[i] = buffer.readReal();
+                // fill the fparam list
+                if (nf > 0) {
+                    if (nf != nfparam) {
+                        fparam = new double[(int) nf];
+                        for (int i = 0; i < nf; i++) {
+                            fparam[i] = buffer.readReal();
+                        }
                     }
                 }
+                nfparam = nf;
+
+                isSet = 1;
+
+                return header.getItemEnd();
             }
-            nfparam = nf;
-
-            isSet = 1;
-
-            // count the levels down etc.
-            header.getItemEnd();
-            return true;
-        } else {
-            log.error("Something went wrong while searching for or reading "
-                    + "header for the sub-object 'shower extra parameters'.");
-            return false;
+        } catch (IOException e) {
+            log.error("Something went wrong while reading the header:\n" + e.getMessage());
         }
+        return false;
     }
 }

@@ -188,8 +188,7 @@ public class EventIOBuffer {
         EventIOHeader header = new EventIOHeader(this);
         try {
             if (header.findAndReadNextHeader()) {
-                header.getItemEnd();
-                return true;
+                return header.getItemEnd();
             }
         } catch (IOException e) {
             e.printStackTrace();

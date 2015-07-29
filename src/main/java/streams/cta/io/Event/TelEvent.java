@@ -301,8 +301,7 @@ public class TelEvent {
 //                                        + " for telescope " + this.telId);
                                 readingSuccessful = buffer.skipSubitem();
                             } else {
-                                header.getItemEnd();
-                                return true;
+                                return header.getItemEnd();
                             }
                     }
 
@@ -317,9 +316,7 @@ public class TelEvent {
                     this.known = true;
                 }
 
-                // TODO return the value from getItemEnd
-                header.getItemEnd();
-                return true;
+                return header.getItemEnd();
             }
         } catch (IOException e) {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());
@@ -391,8 +388,7 @@ public class TelEvent {
                         physAddr[i] = headerGT1 ? buffer.readShort() : buffer.readSCount32();
                     }
                 }
-                header.getItemEnd();
-                return true;
+                return header.getItemEnd();
             }
         } catch (IOException e) {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());

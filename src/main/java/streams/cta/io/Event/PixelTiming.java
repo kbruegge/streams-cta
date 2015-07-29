@@ -241,8 +241,7 @@ public class PixelTiming {
                     }
                 }
                 known = true;
-                header.getItemEnd();
-                return true;
+                return header.getItemEnd();
             }
         } catch (IOException e) {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());

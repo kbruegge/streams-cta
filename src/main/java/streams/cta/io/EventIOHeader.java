@@ -259,32 +259,40 @@ public class EventIOHeader {
      * Find the end of the current item. Update the level if you're leaving one level and skip the
      * bytes left til the data length.
      */
-    public void getItemEnd() {
+    public boolean getItemEnd() {
         //TODO return boolean if finding item end was successful
         int ilevel = -1;
 
         if (level != buffer.itemLevel - 1) {
             if (level >= buffer.itemLevel) {
                 log.error("Attempt to finish getting an item which is not active: " + type);
+                return false;
             } else {
                 log.error("Item level is inconsistent.");
+                return false;
             }
         }
 
 
         if (level >= 0 && level <= Constants.MAX_IO_ITEM_LEVEL) {
+            // mark that for the next item we need to search for sync marker
             if (level == 0 & buffer.itemLevel == 1) {
                 buffer.syncMarkerFound = false;
             }
 
+            // decrease the level
             ilevel = level;
             buffer.itemLevel = level;
         } else {
             log.error("Level is wrong: " + level);
+            return false;
         }
 
         // save read length before setting it to 0
         int localReadLength = buffer.readLength[buffer.itemLevel + 1];
+
+        // sum up read length from itemLevel+1 and itemLevel
+        // as what we read in itemLevel+1 is a sub-item of item in itemLevel
         buffer.readLength[buffer.itemLevel] += localReadLength;
         buffer.readLength[buffer.itemLevel + 1] = 0;
 
@@ -309,6 +317,8 @@ public class EventIOHeader {
         if (buffer.itemLevel == 0) {
             // TODO stop reading!!
         }
+
+        return true;
     }
 
     public long getVersion() {
