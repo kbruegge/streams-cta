@@ -10,10 +10,11 @@ import java.util.Random;
 import stream.Data;
 import stream.data.DataFactory;
 import stream.io.AbstractStream;
-import streams.cta.TelescopeEvent;
+import streams.cta.CTATelescope;
+import streams.cta.CTATelescopeType;
 
 /**
- * @author chris
+ * @author chris, kai
  * 
  */
 public class SyntheticEventStream extends AbstractStream {
@@ -27,6 +28,10 @@ public class SyntheticEventStream extends AbstractStream {
 
 
     long eventId = 1;
+	int telescopeId = 0;
+	int[] brokenPixel = new int[]{2,12,333};
+	double[] gains = new double[numberOfPixels];
+	CTATelescope telescope = new CTATelescope(CTATelescopeType.LST, telescopeId, 0 ,0 ,0, brokenPixel, gains, gains  );
 
 	/**
 	 * @see stream.io.AbstractStream#init()
@@ -49,9 +54,11 @@ public class SyntheticEventStream extends AbstractStream {
             ByteBuffer.wrap(randomBytes).asShortBuffer().get(data[pixel]);
         }
 
-		TelescopeEvent evt = new TelescopeEvent(eventId, data, LocalDateTime.now());
+
 		Data item = DataFactory.create();
-		item.put("@event", evt);
+		item.put("data", data);
+		item.put("@telescope", telescope);
+		item.put("@timestamp", LocalDateTime.now());
 		item.put("@source", this.getClass().getSimpleName());
 
         eventId++;

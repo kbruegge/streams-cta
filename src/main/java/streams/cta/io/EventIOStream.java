@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 
 import stream.Data;
@@ -18,8 +19,8 @@ import stream.annotations.Parameter;
 import stream.data.DataFactory;
 import stream.io.AbstractStream;
 import stream.io.SourceURL;
-import streams.cta.CTAEvent;
 import streams.cta.Constants;
+import streams.cta.container.EventData;
 import streams.cta.io.Event.AdcData;
 import streams.cta.io.Event.FullEvent;
 import streams.cta.io.Event.ImgData;
@@ -48,6 +49,7 @@ public class EventIOStream extends AbstractStream {
             defaultValue = "8*1024")
 
     private int bufferSize = 8 * 1024;
+    private int eventId = 0;
 
     public EventIOStream(SourceURL url) {
         super(url);
@@ -90,13 +92,13 @@ public class EventIOStream extends AbstractStream {
         EventIOHeader header = new EventIOHeader(buffer);
         if (header.findAndReadNextHeader(true)) {
             eventData = new EventIOData();
-            CTAEvent event;
+//            CTAEvent event;
             // MC Shower
             if (header.type == 2020) {
                 if (!eventData.mcShower.readMCShower(buffer)) {
                     log.error("Error happened while reading MC Shower.");
                 }
-                event = new CTAEvent(10, new byte[]{0, 1, 2});
+//                event = new CTAEvent(10, new byte[]{0, 1, 2});
             } else if (header.type == Constants.TYPE_EVENT) {
                 if (eventData.event == null) {
                     eventData.event = new FullEvent();
@@ -108,7 +110,7 @@ public class EventIOStream extends AbstractStream {
                 numberEvents++;
                 //TODO are we interested in some postprocessing as in original code?
 
-                event = new CTAEvent(10, new byte[]{1, 2, 3,});
+//                event = new CTAEvent(10, new byte[]{1, 2, 3,});
             } else if (header.type == 2000) {
 
                 // Summary of a preceding run in the same file ?
@@ -213,14 +215,17 @@ public class EventIOStream extends AbstractStream {
 //                        continue;
 //                }
 
-                event = new CTAEvent(10, new byte[]{2, 3, 4});
+//                event = new CTAEvent(10, new byte[]{2, 3, 4});
             } else {
                 header.findAndReadNextHeader();
                 byte[] bytes = buffer.readBytes((int) header.length);
-                event = new CTAEvent(0, bytes);
+//                event = new CTAEvent(0, bytes);
                 header.getItemEnd();
             }
             item = DataFactory.create();
+            eventId++;
+            short[][] data = new short[1800][30];
+            EventData event = new EventData(0, data);
             item.put("@event", event);
         } else {
             log.info("Next sync marker has not been found: \nstill available datastream :" + buffer.dataStream.available());
