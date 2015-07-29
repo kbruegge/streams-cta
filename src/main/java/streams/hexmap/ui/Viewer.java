@@ -5,7 +5,7 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
-import streams.cta.TelescopeEvent;
+import streams.cta.container.EventData;
 import streams.hexmap.ui.components.EventInfoPanel;
 import streams.hexmap.ui.components.MainPlotPanel;
 import streams.hexmap.ui.components.StreamNavigationPanel;
@@ -213,9 +213,9 @@ public class Viewer extends JFrame {
      * events from the stream
      * @param item the new item from the stream
      */
-	public void setDataItem(Data item, TelescopeEvent telescopeEvent) {
+	public void setDataItem(Data item, EventData eventData) {
         this.item = item;
-        Bus.eventBus.post(new ItemChangedEvent(item, telescopeEvent));
+        Bus.eventBus.post(new ItemChangedEvent(item, eventData));
 	}
 
 }

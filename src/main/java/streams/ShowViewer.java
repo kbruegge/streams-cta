@@ -3,7 +3,7 @@
  */
 package streams;
 
-import streams.cta.TelescopeEvent;
+import streams.cta.container.EventData;
 import streams.hexmap.ui.Viewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +75,7 @@ public class ShowViewer implements StatefulProcessor {
 							});
 				}
 				viewer.setVisible(true);
-                TelescopeEvent event = (TelescopeEvent) input.get("@event");
+                EventData event = (EventData) input.get("@event");
 				viewer.setDataItem(input, event);
 			}
 		};

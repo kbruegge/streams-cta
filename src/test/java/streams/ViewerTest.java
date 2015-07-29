@@ -2,7 +2,7 @@ package streams;
 
 import org.junit.Test;
 import stream.Data;
-import streams.cta.TelescopeEvent;
+import streams.cta.container.EventData;
 import streams.cta.io.SyntheticEventStream;
 import streams.hexmap.ui.Viewer;
 
@@ -47,8 +47,8 @@ public class ViewerTest {
                                 }
                             });
                 }
-                TelescopeEvent telescopeEvent = (TelescopeEvent) item.get("@event");
-                viewer.setDataItem(item, telescopeEvent);
+                EventData eventData = (EventData) item.get("@event");
+                viewer.setDataItem(item, eventData);
                 viewer.setVisible(true);
             }
         };
