@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import static streams.cta.Constants.MAX_HEADER_SIZE;
 import static streams.cta.Constants.H_MAX_TEL;
+import static streams.cta.Constants.MAX_HEADER_SIZE;
 import static streams.cta.Constants.MAX_IO_ITEM_LEVEL;
 
 /**
@@ -108,11 +108,7 @@ public class EventIOBuffer {
 
         // Are we beyond the last sub-item?
         if (itemLevel > 0) {
-            // First check if we are already beyond the top item and then if we
-            // will be beyond the next smaller level (superiour) item after
-            // reading this item's header.
-            if (readLength[itemLevel] >= itemLength[0] + 16 + (itemExtension[0] ? 4 : 0) ||
-                    readLength[itemLevel] + 12 >= itemLength[itemLevel - 1]) {
+            if (!canReadNextItem()) {
                 return -2;
             }
         } else if (itemLevel == 0) {
@@ -139,6 +135,20 @@ public class EventIOBuffer {
     }
 
     /**
+     * Check if we are already beyond the top item and then if we will be beyond the next smaller
+     * level (superior) item after reading this item's header.
+     *
+     * @return true if the end of the top level or next smaller level item is not reached, false
+     * otherwise
+     */
+    public boolean canReadNextItem() {
+        boolean topLevelEndReached =
+                readLength[itemLevel] >= itemLength[0] + 16 + (itemExtension[0] ? 4 : 0);
+        boolean subItemEndReached = readLength[itemLevel] + 12 >= itemLength[itemLevel - 1];
+        return !(topLevelEndReached || subItemEndReached);
+    }
+
+    /**
      * Read the header of a sub-item, recognize the identification field of it and reset the stream
      * back.
      *
@@ -149,10 +159,9 @@ public class EventIOBuffer {
 
         // Are we beyond the last sub-item?
         if (itemLevel > 0) {
-            // First check if we are already beyond the top item and then if we
-            // will be beyond the next smaller level (superiour) item after
-            // reading this item's header.
-            // TODO do the check as in eventio.c, line 3454
+            if (!canReadNextItem()) {
+                return -2;
+            }
         } else if (itemLevel == 0) {
             return -1;
         }

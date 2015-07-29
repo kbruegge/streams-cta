@@ -78,9 +78,12 @@ public class EventIOHeader {
             //TODO: what to do now?
         }
 
-
         if (buffer.itemLevel > 0) {
-            //TODO do the check like in eventio.c line 3192
+            if (!buffer.canReadNextItem()) {
+                log.error("We reached the end of the top item or the end " +
+                        "of the next smaller level item.");
+                return false;
+            }
         } else if (buffer.itemLevel == 0 && !buffer.syncMarkerFound) {
             EventIOStream.reverse = false;
             boolean found = findSynchronisationMarker();
