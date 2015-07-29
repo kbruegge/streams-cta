@@ -104,15 +104,7 @@ public class EventIOHeader {
 
         // bits 0 to 15 are used for typeString information
         type = typeField & 0x0000ffff;
-        typeString = EventIOStream.eventioTypes.get(type);
-
-        if (typeString == null) {
-            if (FullEvent.isTelEvent(type)) {
-                typeString = EventIOStream.eventioTypes.get(Constants.TYPE_TEL_EVENT);
-            } else if (FullEvent.isTrackEvent(type)) {
-                typeString = EventIOStream.eventioTypes.get(Constants.TYPE_TRACK_EVENT);
-            }
-        }
+        typeString = typeToString(type);
 
         // bit 16 is the user bit and is not set
         userFlag = (typeField & 0x00010000) != 0;
@@ -197,6 +189,19 @@ public class EventIOHeader {
             buffer.dataStream.reset();
         }
         return true;
+    }
+
+    public String typeToString(int type) {
+        String typeString = EventIOStream.eventioTypes.get(type);
+
+        if (typeString == null) {
+            if (FullEvent.isTelEvent(type)) {
+                typeString = EventIOStream.eventioTypes.get(Constants.TYPE_TEL_EVENT);
+            } else if (FullEvent.isTrackEvent(this.type)) {
+                typeString = EventIOStream.eventioTypes.get(Constants.TYPE_TRACK_EVENT);
+            }
+        }
+        return typeString;
     }
 
     /**
