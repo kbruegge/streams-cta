@@ -68,10 +68,6 @@ public class FullEvent {
         numTeldata = 0;
         teldata = new TelEvent[numberTelescopes];
         trackdata = new TrackEvent[numberTelescopes];
-        for (int i = 0; i < numberTelescopes; i++) {
-            trackdata[i] = new TrackEvent();
-            teldata[i] = new TelEvent();
-        }
         teldataList = new int[numberTelescopes];
         shower = new ShowerParameters();
         central = new CentralEvent();
@@ -84,7 +80,6 @@ public class FullEvent {
         EventIOHeader header = new EventIOHeader(buffer);
         try {
             if (header.findAndReadNextHeader()) {
-                log.info("Telescope event start!");
                 if (header.getVersion() != 0) {
                     log.error("Unsupported FullEvent version: " + header.getVersion());
                     header.getItemEnd();

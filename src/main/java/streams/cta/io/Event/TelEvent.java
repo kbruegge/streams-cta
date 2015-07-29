@@ -120,11 +120,18 @@ public class TelEvent {
      */
     PixelList imagePixels;
 
-    public TelEvent() {
+    public TelEvent(int telId) {
+        this.telId = telId;
+        raw = new AdcData(telId);
+        pixtm = new PixelTiming(telId);
+        img = new ImgData[2];
+        img[0] = new ImgData(telId);
+        img[1] = new ImgData(telId);
         triggerPixels = new PixelList();
         imagePixels = new PixelList();
         cpuTime = new HTime();
         gpsTime = new HTime();
+        maxImageSets = 2;
     }
 
     private void initSectorArrays(int numberTriggeredSectors) {

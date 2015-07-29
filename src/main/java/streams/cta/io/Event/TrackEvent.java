@@ -52,6 +52,10 @@ public class TrackEvent {
      */
     boolean corKnown;
 
+    public TrackEvent(int id) {
+        telId = id;
+    }
+
     /**
      * Read a tracking position in eventio format.
      *

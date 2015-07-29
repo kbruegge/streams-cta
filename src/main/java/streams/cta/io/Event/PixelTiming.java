@@ -109,6 +109,10 @@ public class PixelTiming {
      */
     int[][] pulseSumGlob;
 
+    public PixelTiming(int id){
+        telId = id;
+    }
+
     public boolean readPixTime(EventIOBuffer buffer) {
         EventIOHeader header = new EventIOHeader(buffer);
         try {

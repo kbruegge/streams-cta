@@ -113,6 +113,10 @@ public class AdcData {
     // http://jessicarbrown.com/resources/unsignedtojava.html
     int[][][] adcSample;
 
+    public AdcData(int id) {
+        telId = id;
+    }
+
     /**
      * Write ADC sum data for one camera in eventio format.
      *

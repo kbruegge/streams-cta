@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import streams.cta.Constants;
 import streams.cta.io.EventIOBuffer;
 import streams.cta.io.EventIOHeader;
 
@@ -183,6 +182,10 @@ public class ImgData {
      * Amplitudes of hotest pixels [mean p.e.]
      */
     double[] hotAmp;
+
+    public ImgData(int id) {
+        telId = id;
+    }
 
     public boolean readTelImage(EventIOBuffer buffer) {
         EventIOHeader header = new EventIOHeader(buffer);
