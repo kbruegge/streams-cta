@@ -20,11 +20,9 @@ import stream.io.AbstractStream;
 import stream.io.SourceURL;
 import streams.cta.CTAEvent;
 import streams.cta.Constants;
-import streams.cta.io.Event.AdcData;
 import streams.cta.io.Event.FullEvent;
-import streams.cta.io.Event.ImgData;
-import streams.cta.io.Event.PixelTiming;
 import streams.cta.io.Event.TelEvent;
+import streams.cta.io.Event.TrackEvent;
 
 /**
  * Created by alexey on 02.06.15.
@@ -36,6 +34,8 @@ public class EventIOStream extends AbstractStream {
     static boolean reverse = false;
 
     int numberEvents;
+
+    int numberRuns;
 
     public static HashMap<Integer, String> eventioTypes;
 
@@ -77,10 +77,12 @@ public class EventIOStream extends AbstractStream {
         // initialize buffer containing the data stream to read from it
         buffer = new EventIOBuffer(dataStream);
 
+        // initialize data object containing the data read from EventIO file
+        eventData = new EventIOData();
+
         // import the registered types
         importEventioRegisteredDatatypes();
 
-        eventData = new EventIOData();
         numberEvents = 0;
     }
 
@@ -104,28 +106,13 @@ public class EventIOStream extends AbstractStream {
                     log.error("Error happened while reading full event data.");
                 }
                 numberEvents++;
-                //TODO are we interested in some postprocessing as in original code?
 
                 event = new CTAEvent(10, new byte[]{1, 2, 3,});
             } else if (header.type == Constants.TYPE_RUNHEADER) {
 
-                // Summary of a preceding run in the same file ?
-//                if (!quiet && hsdata != NULL && eventData.runHeader.run > 0)
-//                    show_run_summary(hsdata, nev, ntrg, plidx, wsum_all, wsum_trg,
-//                            rmax_x, rmax_y, rmax_r);
-//                else if (nev > 0)
-//                    printf("%d of %d events triggered.\n", ntrg, nev);
+                //TODO some summary from previous runs (original code)
 
-                        /* Free main structure */
-//                    if (!dst_processing) {
-//                        free(hsdata);
-//                        hsdata = NULL;
-//                    }
-
-//                nev = ntrg = 0;
-//                wsum_all = wsum_trg = 0.;
-
-//                nrun++;
+                numberRuns++;
 
                 if (!eventData.runHeader.readRunHeader(buffer)) {
                     log.error("Error happened while reading run header.");
@@ -134,23 +121,15 @@ public class EventIOStream extends AbstractStream {
 
                 eventData.event = new FullEvent();
 
-//                if (!quiet)
-//                    printf("Reading simulated data for %d telescope(s)\n", eventData.runHeader.ntel);
-//                if (verbose || rc != 0)
-//                    printf("read_hess_runheader(), rc = %d\n", rc);
-//                fprintf(stderr, "\nStarting run %d\n", eventData.runHeader.run);
-//                if (showdata)
-//                    print_hess_runheader(iobuf);
+                //TODO do_user_ana from original code
 
-//                if (user_ana)
-//                    do_user_ana(hsdata, item_header.type, 0);
-
-                //TODO ntel > H_MAX_TEL!?
-                for (int itel = 0; itel < eventData.runHeader.ntel; itel++) {
+                eventData.event.numTel = eventData.runHeader.numberTelescopes;
+                //TODO numberTelescopes > H_MAX_TEL!?
+                for (int itel = 0; itel < eventData.runHeader.numberTelescopes; itel++) {
                     int telId = eventData.runHeader.telId[itel];
+                    eventData.event.trackdata[itel] = new TrackEvent(telId);
+                    eventData.event.teldata[itel] = new TelEvent(telId);
 
-                    // save local reference for easy of code
-                    TelEvent telData = eventData.event.teldata[itel];
 //                    camera_set[itel].telId = telId;
 //                    camera_org[itel].telId = telId;
 //                    pixel_set[itel].telId = telId;
@@ -158,58 +137,14 @@ public class EventIOStream extends AbstractStream {
 //                    cam_soft_set[itel].telId = telId;
 //                    tracking_set[itel].telId = telId;
 //                    point_cor[itel].telId = telId;
-                    eventData.event.numTel = eventData.runHeader.ntel;
-                    eventData.event.trackdata[itel].telId = telId;
 
-                    telData.telId = telId;
-
-                    //TODO originally one is trying to check whether this objects fits in the memory!
-                    telData.raw = new AdcData();
-                    telData.raw.telId = telId;
-
-                    telData.pixtm = new PixelTiming();
-                    telData.pixtm.telId = telId;
-
-//                    if (do_calibrate && dst_level >= 0) /* Only when needed */
-//                    {
-//                        if ((event.teldata[itel].pixcal =
-//                                (PixelCalibrated *) calloc(1, sizeof(PixelCalibrated))) == NULL) {
-//                            Warning("Not enough memory for PixelCalibrated");
-//                            exit(1);
-//                        }
-//                        event.teldata[itel].pixcal->telId = telId;
-//                    }
-
-                    telData.img = new ImgData[2];
-                    telData.img[0] = new ImgData();
-                    telData.img[0].telId = telId;
-                    telData.img[1] = new ImgData();
-                    telData.img[1].telId = telId;
-
-                    telData.maxImageSets = 2;
-
-                    eventData.event.teldata[itel] = telData;
+                    //TODO do some calibration
 
 //                    tel_moni[itel].tel_id = telId;
 //                    tel_lascal[itel].tel_id = telId;
                 }
 
-//                skip_run = 0;
-//
-//                if (only_runs.from != 0 || only_runs.to != 0) {
-//                    if (!is_in_range(item_header.ident, &only_runs)) {
-//                        skip_run = 1;
-//                        printf("Ignoring data of run %ld\n", item_header.ident);
-//                        if (nrun > 0)
-//                            continue;
-//                    }
-//                }
-//                if (is_in_range(item_header.ident, &not_runs)) {
-//                    skip_run = 1;
-//                    printf("Ignoring data of run %ld\n", item_header.ident);
-//                    if (nrun > 0)
-//                        continue;
-//                }
+                //TODO skip some runs
 
                 event = new CTAEvent(10, new byte[]{2, 3, 4});
             } else {

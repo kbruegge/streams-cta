@@ -69,7 +69,7 @@ public class EventIOHeader {
     }
 
     public boolean findAndReadNextHeader(boolean reset) throws IOException {
-        //TODO use the wanted type and controll it
+        //TODO use the wanted type and control it
         long wantedType;
 
         //TODO use the right constant
@@ -260,9 +260,7 @@ public class EventIOHeader {
      * bytes left til the data length.
      */
     public boolean getItemEnd() {
-        //TODO return boolean if finding item end was successful
-        int ilevel = -1;
-
+        // check for some level errors
         if (level != buffer.itemLevel - 1) {
             if (level >= buffer.itemLevel) {
                 log.error("Attempt to finish getting an item which is not active: " + type);
@@ -274,14 +272,12 @@ public class EventIOHeader {
         }
 
 
+        // decrease the level if the level is inside the allowed range
         if (level >= 0 && level <= Constants.MAX_IO_ITEM_LEVEL) {
             // mark that for the next item we need to search for sync marker
             if (level == 0 & buffer.itemLevel == 1) {
                 buffer.syncMarkerFound = false;
             }
-
-            // decrease the level
-            ilevel = level;
             buffer.itemLevel = level;
         } else {
             log.error("Level is wrong: " + level);
@@ -297,7 +293,7 @@ public class EventIOHeader {
         buffer.readLength[buffer.itemLevel + 1] = 0;
 
         // If the item has a length specified, check it.
-        if (buffer.itemLength[ilevel] >= 0) {
+        if (buffer.itemLength[level] >= 0) {
 
             // check whether the length that has been read matches the predefined length,
             // if not one can skip data until the next item

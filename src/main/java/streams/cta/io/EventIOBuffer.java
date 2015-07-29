@@ -146,7 +146,7 @@ public class EventIOBuffer {
      */
     public long nextSubitemIdent() {
         dataStream.mark(MAX_HEADER_SIZE);
-        
+
         // Are we beyond the last sub-item?
         if (itemLevel > 0) {
             // First check if we are already beyond the top item and then if we
