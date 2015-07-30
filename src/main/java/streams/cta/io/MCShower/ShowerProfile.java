@@ -83,7 +83,6 @@ public class ShowerProfile {
             }
             if (content == null) {
                 content = new double[numSteps];
-                // TODO: consider check whether there is enough space for allocation
                 maxSteps = numSteps;
             }
 

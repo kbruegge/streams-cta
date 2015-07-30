@@ -190,6 +190,12 @@ public class EventIOHeader {
         return true;
     }
 
+    /**
+     * Using the type code try to get the right EventIO type as text description.
+     *
+     * @param type number of type
+     * @return description/name of the type
+     */
     public String typeToString(int type) {
         String typeString = EventIOStream.eventioTypes.get(type);
 
@@ -219,7 +225,6 @@ public class EventIOHeader {
      * @return true, if marker was found; otherwise false.
      */
     private boolean findSynchronisationMarker() {
-        // find_io_block in eventio.c
         int firstBit = 0;
         int reverse = 1;
         int state = 0;
@@ -227,8 +232,9 @@ public class EventIOHeader {
         int[] syncMarker = {0xD4, 0x1F, 0x8A, 0x37};
 
         try {
+            byte b;
             while (buffer.dataStream.available() > 0) {
-                byte b = buffer.dataStream.readByte();
+                b = buffer.dataStream.readByte();
 
                 if (firstBit == 0) {
                     if (b == syncMarker[0]) {

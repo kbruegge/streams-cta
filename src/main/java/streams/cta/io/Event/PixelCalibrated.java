@@ -66,7 +66,8 @@ public class PixelCalibrated {
     float[] pixelPe;
 
     //TODO constructor that does not need maximum values for array size
-    public PixelCalibrated() {
+    public PixelCalibrated(int telId) {
+        this.telId = telId;
         pixelList = new int[H_MAX_PIX];
         significant = new byte[H_MAX_PIX];
         pixelPe = new float[H_MAX_PIX];

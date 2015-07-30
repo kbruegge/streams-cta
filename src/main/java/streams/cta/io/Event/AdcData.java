@@ -351,6 +351,7 @@ public class AdcData {
 
                                     int zbits = buffer.readUnsignedShort();
 
+                                    //TODO find out what is the meaning of those variables
                                     m = 0;
                                     mlg = 0;
                                     mhg16 = 0;
@@ -391,7 +392,8 @@ public class AdcData {
                                                 }
                                             }
                                         } else {
-                                            mlg = mhg16 = m;
+                                            mlg = m;
+                                            mhg16 = m;
                                         }
 
                                         if (m > 0) {
@@ -565,7 +567,7 @@ public class AdcData {
         // Old format: 16-bit unsigned, good for <= 16 samples of <= 12 bits or such.
         int[] shortAdcSum = buffer.readVectorOfUnsignedShort((int) number);
         long[] result = new long[(int) number];
-        for (int i = 0; i < shortAdcSum.length; i++) {
+        for (int i = 0; i < number; i++) {
             result[i] = shortAdcSum[i];
         }
         return result;
@@ -772,10 +774,10 @@ public class AdcData {
     private int[] readAdcSampleDifferential(EventIOBuffer buffer, int numSamples)
             throws IOException {
         // New format: store as variable-size integers.
-        int ibin;
-        int prevAmp = 0, thisAmp;
+        int prevAmp = 0;
+        int thisAmp;
         int[] adcSample = new int[numSamples];
-        for (ibin = 0; ibin < numSamples; ibin++) {
+        for (int ibin = 0; ibin < numSamples; ibin++) {
             thisAmp = buffer.readSCount32() + prevAmp;
             adcSample[ibin] = thisAmp;
             prevAmp = thisAmp;
