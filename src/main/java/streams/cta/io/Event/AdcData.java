@@ -9,8 +9,8 @@ import streams.cta.Constants;
 import streams.cta.io.EventIOBuffer;
 import streams.cta.io.EventIOHeader;
 
-import static streams.cta.Constants.H_MAX_GAINS;
 import static streams.cta.Constants.HI_GAIN;
+import static streams.cta.Constants.H_MAX_GAINS;
 import static streams.cta.Constants.LO_GAIN;
 
 /**
@@ -173,6 +173,7 @@ public class AdcData {
                 for (int j = 0; j < numPixels; j++) {
                     significant[j] = (short) (known ? 1 : 0);
                 }
+
                 for (int igains = 0; igains < numGains; igains++) {
                     for (int ipix = 0; ipix < numPixels; ipix++) {
                         adcKnown[igains][ipix] = known;
@@ -215,121 +216,121 @@ public class AdcData {
                                     }
                                 }
                                 break;
-                            //TODO original code: #if (H_MAX_GAINS >= 2) ???
                             case 1:
-                                // Low low-gain channels were skipped (for two gains)
-                                int k = 0;
-                                while (k < numPixels) {
-                                    //TODO check why in original code vector of uint16 is read
-                                    //get_vector_of_uint16( & cflags, 1, iobuf);
-                                    cflags = buffer.readUnsignedShort();
-                                    if (k + 16 <= numPixels) {
-                                        n = 16;
-                                    } else {
-                                        n = numPixels - k;
-                                    }
-                                    for (int j = 0; j < n; j++) {
-                                        if ((cflags & (1 << j)) != 0) {
-                                            mlg++;
-                                        }
-                                    }
-
-                                    if (header.getVersion() < 3) {
-                                        if (numGains >= 2) {
-                                            lgval = readAdcSumAsUint16(buffer, mlg);
-                                        }
-                                        // TODO check if the pointer logic is right
-                                        // get_adcsum_as_uint16(&raw->adc_sum[Constants.HI_GAIN][k], n, iobuf)
-                                        adcSum[HI_GAIN] = readAdcSumAsUint16(buffer, n);
-                                        ;
-                                    } else {
-                                        if (numGains >= 2) {
-                                            lgval = readAdcSumDifferential(buffer, mlg);
-                                        }
-                                        // TODO check if the pointer logic is right
-                                        // get_adcsum_differential(&raw->adc_sum[HI_GAIN][k], n, iobuf)
-                                        adcSum[HI_GAIN] = readAdcSumDifferential(buffer, n);
-                                        ;
-                                    }
-
-                                    mlg = 0;
-                                    for (int j = 0; j < n; j++) {
-                                        if ((cflags & (1 << j)) != 0) {
-                                            adcSum[LO_GAIN][k + j] = lgval[mlg++];
-                                            adcKnown[LO_GAIN][k + j] = true;
+                                if (H_MAX_GAINS >= 2) {
+                                    // Low low-gain channels were skipped (for two gains)
+                                    int k = 0;
+                                    while (k < numPixels) {
+                                        //TODO check why in original code vector of uint16 is read
+                                        //get_vector_of_uint16( & cflags, 1, iobuf);
+                                        cflags = buffer.readUnsignedShort();
+                                        if (k + 16 <= numPixels) {
+                                            n = 16;
                                         } else {
-                                            adcSum[LO_GAIN][k + j] = 0;
-                                            adcKnown[LO_GAIN][k + j] = false;
+                                            n = numPixels - k;
                                         }
-                                        significant[k + j] = 1;
-                                        adcKnown[HI_GAIN][k + j] = true;
-                                    }
-                                    k += n;
-                                }
-                                break;
-
-                            case 2: /* Width of high-gain channel can be reduced */
-                                k = 0;
-                                while (k < numPixels) {
-                                    //TODO check why in original code vector of uint16 is read
-                                    //get_vector_of_uint16( & cflags, 1, iobuf);
-                                    cflags = buffer.readUnsignedShort();
-
-                                    bflags = buffer.readUnsignedShort();
-
-                                    mlg = mhg16 = mhg8 = 0;
-                                    if (k + 16 <= numPixels) {
-                                        n = 16;
-                                    } else {
-                                        n = numPixels - k;
-                                    }
-                                    for (int j = 0; j < n; j++) {
-                                        if ((cflags & (1 << j)) != 0) {
-                                            mlg++;
-                                            mhg16++;
-                                        } else if ((bflags & (1 << j)) != 0) {
-                                            mhg8++;
-                                        } else {
-                                            mhg16++;
-                                        }
-                                    }
-
-                                    if (header.getVersion() < 3) {
-                                        if (numGains >= 2) {
-                                            lgval = readAdcSumAsUint16(buffer, mlg);
-                                        }
-                                        hgval = readAdcSumAsUint16(buffer, mhg16);
-                                    } else {
-                                        if (numGains >= 2) {
-                                            lgval = readAdcSumDifferential(buffer, mlg);
-                                        }
-                                        hgval = readAdcSumDifferential(buffer, mhg16);
-                                    }
-                                    hgval8 = buffer.readVectorOfUnsignedBytes(mhg8);
-                                    //get_vector_of_uint8(hgval8, mhg8, iobuf);
-                                    mlg = mhg8 = mhg16 = 0;
-                                    for (int j = 0; j < n; j++) {
-                                        if ((cflags & (1 << j)) != 0) {
-                                            adcSum[LO_GAIN][k + j] = lgval[mlg++];
-                                            adcKnown[LO_GAIN][k + j] = true;
-                                            adcSum[HI_GAIN][k + j] = hgval[mhg16++];
-                                        } else {
-                                            if ((bflags & (1 << j)) != 0) {
-                                                adcSum[HI_GAIN][k + j] =
-                                                        hgval8[mhg8++] * scaleHg8 + offsetHg8;
-                                            } else {
-                                                adcSum[HI_GAIN][k + j] = hgval[mhg16++];
+                                        for (int j = 0; j < n; j++) {
+                                            if ((cflags & (1 << j)) != 0) {
+                                                mlg++;
                                             }
                                         }
-                                        significant[k + j] = 1;
-                                        adcKnown[HI_GAIN][k + j] = true;
+
+                                        if (header.getVersion() < 3) {
+                                            if (numGains >= 2) {
+                                                lgval = readAdcSumAsUint16(buffer, mlg);
+                                            }
+                                            // TODO check if the pointer logic is right
+                                            // get_adcsum_as_uint16(&raw->adc_sum[Constants.HI_GAIN][k], n, iobuf)
+                                            adcSum[HI_GAIN] = readAdcSumAsUint16(buffer, n);
+                                            ;
+                                        } else {
+                                            if (numGains >= 2) {
+                                                lgval = readAdcSumDifferential(buffer, mlg);
+                                            }
+                                            // TODO check if the pointer logic is right
+                                            // get_adcsum_differential(&raw->adc_sum[HI_GAIN][k], n, iobuf)
+                                            adcSum[HI_GAIN] = readAdcSumDifferential(buffer, n);
+                                            ;
+                                        }
+
+                                        mlg = 0;
+                                        for (int j = 0; j < n; j++) {
+                                            if ((cflags & (1 << j)) != 0) {
+                                                adcSum[LO_GAIN][k + j] = lgval[mlg++];
+                                                adcKnown[LO_GAIN][k + j] = true;
+                                            } else {
+                                                adcSum[LO_GAIN][k + j] = 0;
+                                                adcKnown[LO_GAIN][k + j] = false;
+                                            }
+                                            significant[k + j] = 1;
+                                            adcKnown[HI_GAIN][k + j] = true;
+                                        }
+                                        k += n;
                                     }
-                                    k += n;
+                                    break;
                                 }
-                                break;
-                            //#endif
+                            case 2: /* Width of high-gain channel can be reduced */
+                                if (H_MAX_GAINS >= 2) {
+                                    int k = 0;
+                                    while (k < numPixels) {
+                                        //TODO check why in original code vector of uint16 is read
+                                        //get_vector_of_uint16( & cflags, 1, iobuf);
+                                        cflags = buffer.readUnsignedShort();
+
+                                        bflags = buffer.readUnsignedShort();
+
+                                        mlg = mhg16 = mhg8 = 0;
+                                        if (k + 16 <= numPixels) {
+                                            n = 16;
+                                        } else {
+                                            n = numPixels - k;
+                                        }
+                                        for (int j = 0; j < n; j++) {
+                                            if ((cflags & (1 << j)) != 0) {
+                                                mlg++;
+                                                mhg16++;
+                                            } else if ((bflags & (1 << j)) != 0) {
+                                                mhg8++;
+                                            } else {
+                                                mhg16++;
+                                            }
+                                        }
+
+                                        if (header.getVersion() < 3) {
+                                            if (numGains >= 2) {
+                                                lgval = readAdcSumAsUint16(buffer, mlg);
+                                            }
+                                            hgval = readAdcSumAsUint16(buffer, mhg16);
+                                        } else {
+                                            if (numGains >= 2) {
+                                                lgval = readAdcSumDifferential(buffer, mlg);
+                                            }
+                                            hgval = readAdcSumDifferential(buffer, mhg16);
+                                        }
+                                        hgval8 = buffer.readVectorOfUnsignedBytes(mhg8);
+                                        //get_vector_of_uint8(hgval8, mhg8, iobuf);
+                                        mlg = mhg8 = mhg16 = 0;
+                                        for (int j = 0; j < n; j++) {
+                                            if ((cflags & (1 << j)) != 0) {
+                                                adcSum[LO_GAIN][k + j] = lgval[mlg++];
+                                                adcKnown[LO_GAIN][k + j] = true;
+                                                adcSum[HI_GAIN][k + j] = hgval[mhg16++];
+                                            } else {
+                                                if ((bflags & (1 << j)) != 0) {
+                                                    adcSum[HI_GAIN][k + j] =
+                                                            hgval8[mhg8++] * scaleHg8 + offsetHg8;
+                                                } else {
+                                                    adcSum[HI_GAIN][k + j] = hgval[mhg16++];
+                                                }
+                                            }
+                                            significant[k + j] = 1;
+                                            adcKnown[HI_GAIN][k + j] = true;
+                                        }
+                                        k += n;
+                                    }
+                                    break;
+                                }
                             default:
-                                //TODO is it the default behaviour?
                                 assert (false);
                         }
                         break;
