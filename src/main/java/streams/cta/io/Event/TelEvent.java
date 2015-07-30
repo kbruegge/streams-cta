@@ -363,11 +363,6 @@ public class TelEvent {
                     if (version <= 1 && (t & 0x400) != 0) {
                         fillTimeTrgSect(buffer);
                         knownTimeTrgsect = true;
-                    } else {
-                        //TODO can we miss this as part, as in this case it is already filled with zeros?
-                        for (int i = 0; i < numListTrgsect; i++) {
-                            timeTrgsect[i] = 0;
-                        }
                     }
                 }
 
@@ -398,8 +393,9 @@ public class TelEvent {
     }
 
     private void fillListTrgSect(EventIOBuffer buffer, long version) throws IOException {
+        boolean vers = version <= 1;
         for (int i = 0; i < numListTrgsect; i++) {
-            listTrgsect[i] = version <= 1 ? buffer.readShort() : buffer.readSCount32();
+            listTrgsect[i] = vers ? buffer.readShort() : buffer.readSCount32();
         }
     }
 }

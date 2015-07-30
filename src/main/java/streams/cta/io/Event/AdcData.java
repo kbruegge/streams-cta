@@ -145,6 +145,7 @@ public class AdcData {
                 // We have sums and not samples.
                 numSamples = 0;
 
+                //TODO remove constant magic numbers with Constants
                 if (numPixels > Constants.H_MAX_PIX || numGains > Constants.H_MAX_GAINS ||
                         ((numPixels >= 32768) && (zeroSupMode > 1)) || zeroSupMode > 2 ||
                         dataRedMode > 2) {
@@ -170,14 +171,14 @@ public class AdcData {
                 // but if either is z.s. or d.r. is on, a channel is only known
                 // if marked as such in the data.
                 boolean known = zeroSupMode == 0 && dataRedMode == 0;
+                short signific = (short) (known ? 1 : 0);
                 for (int j = 0; j < numPixels; j++) {
-                    significant[j] = (short) (known ? 1 : 0);
+                    significant[j] = signific;
                 }
 
                 for (int igains = 0; igains < numGains; igains++) {
                     for (int ipix = 0; ipix < numPixels; ipix++) {
                         adcKnown[igains][ipix] = known;
-                        adcSum[igains][ipix] = 0;
                     }
                 }
 
@@ -613,16 +614,10 @@ public class AdcData {
         listKnown = false;
         listSize = 0;
 
-        for (int igain = 0; igain < numGains; igain++) {
-            for (int ipix = 0; ipix < numPixels; ipix++) {
-                significant[ipix] = 0;
-                adcKnown[igain][ipix] = false;
-                adcSum[igain][ipix] = 0;
-                for (int isample = 0; isample < numSamples; isample++) {
-                    adcSample[igain][ipix][isample] = 0;
-                }
-            }
-        }
+        significant = new short[(int) numPixels];
+        adcKnown = new boolean[(int) numGains][(int) numPixels];
+        adcSum = new long[(int) numGains][(int) numPixels];
+        adcSample = new int[(int) numGains][(int) numPixels][numSamples];
     }
 
     public boolean readTelACSSamples(EventIOBuffer buffer, int what) {
