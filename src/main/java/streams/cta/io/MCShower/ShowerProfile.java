@@ -1,4 +1,4 @@
-package streams.cta.io.MCShower;
+package streams.cta.io.mcshower;
 
 import java.io.IOException;
 

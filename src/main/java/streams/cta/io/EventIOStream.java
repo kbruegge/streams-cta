@@ -20,9 +20,9 @@ import stream.io.AbstractStream;
 import stream.io.SourceURL;
 import streams.cta.CTAEvent;
 import streams.cta.Constants;
-import streams.cta.io.Event.FullEvent;
-import streams.cta.io.Event.TelEvent;
-import streams.cta.io.Event.TrackEvent;
+import streams.cta.io.event.FullEvent;
+import streams.cta.io.event.TelEvent;
+import streams.cta.io.event.TrackEvent;
 
 /**
  * Created by alexey on 02.06.15.

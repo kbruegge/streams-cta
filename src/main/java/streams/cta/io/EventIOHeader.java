@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 import streams.cta.Constants;
-import streams.cta.io.Event.FullEvent;
+import streams.cta.io.event.FullEvent;
 
 /**
  * Header of EventIO file This class should read the header in front of the data block in EventIO

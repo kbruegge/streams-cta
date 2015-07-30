@@ -1,4 +1,4 @@
-package streams.cta.io.MCShower;
+package streams.cta.io.mcshower;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
