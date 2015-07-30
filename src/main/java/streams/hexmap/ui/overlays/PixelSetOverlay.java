@@ -1,7 +1,7 @@
 package streams.hexmap.ui.overlays;
 
 import streams.hexmap.CameraPixel;
-import streams.hexmap.FactPixelMapping;
+import streams.hexmap.FactHexPixelMapping;
 import streams.hexmap.ui.components.cameradisplay.FactHexMapDisplay;
 import streams.hexmap.ui.components.cameradisplay.Tile;
 
@@ -27,7 +27,7 @@ public class PixelSetOverlay implements CameraMapOverlay, Serializable {
         set.add(p);
     }
     public void addById(int id){
-        set.add(FactPixelMapping.getInstance().getPixelFromId(id));
+        set.add(FactHexPixelMapping.getInstance().getPixelFromId(id));
     }
 
     public int[] toIntArray(){

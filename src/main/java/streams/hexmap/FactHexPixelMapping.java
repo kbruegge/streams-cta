@@ -26,7 +26,7 @@ import java.util.ArrayList;
  * @author Kai
  * 
  */
-public class FactPixelMapping implements PixelMapping {
+public class FactHexPixelMapping extends HexPixelMapping {
 
     //store each pixel by its 'geometric' or axial coordinate.
     private final FactCameraPixel[][] offsetCoordinates = new FactCameraPixel[45][40];
@@ -43,36 +43,29 @@ public class FactPixelMapping implements PixelMapping {
     private int yOffset = 19;
 
 
-    static Logger log = LoggerFactory.getLogger(FactPixelMapping.class);
+    static Logger log = LoggerFactory.getLogger(FactHexPixelMapping.class);
 
 
-    private static FactPixelMapping mapping;
+    private static FactHexPixelMapping mapping;
 
-    public static FactPixelMapping getInstance() {
+    public static FactHexPixelMapping getInstance() {
         if (mapping ==  null){
             String pixelMap = "/hexmap/pixel-map.csv";
-            URL map = FactPixelMapping.class.getResource(pixelMap);
-            if(map == null){
+            URL mapUrl = FactHexPixelMapping.class.getResource(pixelMap);
+            if(mapUrl == null){
                 String msg = "Could not load pixel mapping from URL: " + pixelMap + ". Does the file exist?";
                 log.error(msg);
                 throw new InstantiationError(msg);
             }
-            mapping = new FactPixelMapping(map);
+            mapping = new FactHexPixelMapping(mapUrl);
         }
         return mapping;
     }
 
-    private FactPixelMapping(URL mappingURL) {
-        if(mappingURL == null){
-            log.error("Could not find the pixel-map.csv. URL was null");
-        }
-        if (mappingURL != null) {
-            if(mappingURL.getFile().isEmpty()){
-                throw new RuntimeException("Could not find Fact-mapping file");
-            }
-        }
-        load(mappingURL);
+    public FactHexPixelMapping(URL url){
+        super(url);
     }
+
 
     public int getNumberRows() {
         return 45;
@@ -82,83 +75,11 @@ public class FactPixelMapping implements PixelMapping {
         return 40;
     }
 
-    /**
-     * Get the FactCameraPixel sitting below the coordinates passed to the method.
-     * The center of the coordinate system in the camera is the center of the camera.
-     *
-     * @param xCoordinate
-     * @param yCoordinate
-     * @return The pixel below the point or NULL if the pixels does not exist.
-     */
-    public FactCameraPixel getPixelBelowCoordinatesInMM(double xCoordinate, double yCoordinate){
-        //get some pixel near the point provided
-        //in pixel units
-        xCoordinate /= 9.5;
-        yCoordinate /= -9.5;
-        yCoordinate += 0.5;
-
-        //if (xCoordinate*xCoordinate + yCoordinate*yCoordinate >= 440){
-        //    return null;
-        //}
-        //distance from center to corner
-        double size  = 1.0/Math.sqrt(3);
-
-        double axial_q = 2.0/3.0 * xCoordinate/size;
-        double axial_r = (0.5773502693 * yCoordinate - 1.0/3.0 *xCoordinate)/size;
+//    public FactCameraPixel[] getNeighboursFromID(int id){
+//        return getNeighboursForPixel(getPixelFromId(id));
+//    }
 
 
-        double cube_x = axial_q;
-        double cube_z = axial_r;
-        double cube_y = -cube_x-cube_z;
-
-
-        //now round maybe violating the constraint
-        int rx = (int) Math.round(cube_x);
-        int rz = (int) Math.round(cube_z);
-        int ry = (int) Math.round(cube_y);
-
-        //artificially fix the constraint.
-        double x_diff = Math.abs(rx -cube_x);
-        double z_diff = Math.abs(rz -cube_z);
-        double y_diff = Math.abs(ry -cube_y);
-
-        if(x_diff > y_diff && x_diff > z_diff){
-            rx = -ry-rz;
-        } else if(y_diff > z_diff){
-            ry = -rx-rz;
-        } else {
-            rz = -rx-ry;
-        }
-
-
-        //now convert cube coordinates back to even-q
-        int qd = rx;
-        int rd = rz + (rx - (rx&1))/2;
-
-        FactCameraPixel p = getPixelFromOffsetCoordinates(qd, rd);
-        return p;
-
-
-
-    }
-    public FactCameraPixel[] getNeighboursFromID(int id){
-        return getNeighboursForPixel(getPixelFromId(id));
-    }
-    public FactCameraPixel[] getNeighboursForPixel(CameraPixel p) {
-        ArrayList<FactCameraPixel> l = new ArrayList<>();
-        //check if x coordinate is even or not
-        int parity = (p.geometricX & 1);
-        //get the neighbour in each direction and store them in hte list
-        for (int direction = 0; direction <= 5; direction++) {
-            int[] d = neighbourOffsets[parity][direction];
-            FactCameraPixel np = getPixelFromOffsetCoordinates(p.geometricX + d[0], p.geometricY + d[1]);
-            if (np != null){
-                l.add(np);
-            }
-        }
-        FactCameraPixel[] t = new FactCameraPixel[l.size()];
-        return l.toArray(t);
-    }
 
     /**
      * Takes a data item containing a row from the mapping file.
@@ -181,8 +102,8 @@ public class FactPixelMapping implements PixelMapping {
      * This expects a file containing information on 1440 Pixel
      * @param mapping url to the mapping file
      */
-	private void load(URL mapping){
-
+    @Override
+    protected void load(URL mapping){
 
         //use the csv stream to read stuff from the csv file
         CsvStream stream = null;

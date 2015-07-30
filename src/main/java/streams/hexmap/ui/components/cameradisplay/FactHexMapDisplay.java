@@ -7,7 +7,7 @@ import com.google.common.eventbus.Subscribe;
 import streams.cta.TelescopeEvent;
 import streams.hexmap.CameraPixel;
 import streams.hexmap.FactCameraPixel;
-import streams.hexmap.FactPixelMapping;
+import streams.hexmap.FactHexPixelMapping;
 import streams.hexmap.ui.Bus;
 import streams.hexmap.ui.EventObserver;
 import streams.hexmap.ui.SliceObserver;
@@ -43,7 +43,7 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
 	//camera specific informations
 	private final double PIXEL_RADIUS = 7;
     private final int NUMBER_OF_CAMERA_PIXEL = 1440;
-    final private FactPixelMapping pixelMapping;
+    final private FactHexPixelMapping pixelMapping;
 
     FactHexTile tiles[];
 
@@ -98,7 +98,7 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
 		Bus.eventBus.register(this);
 
 		this.scale = scale;
-		this.pixelMapping = FactPixelMapping.getInstance();
+		this.pixelMapping = FactHexPixelMapping.getInstance();
 		this.canvasHeight = canvasHeight;
 		this.canvasWidth = canvasWidth;
 		this.rows = pixelMapping.getNumberRows();
