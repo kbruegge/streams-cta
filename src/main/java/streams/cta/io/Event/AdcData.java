@@ -169,12 +169,7 @@ public class AdcData {
                 // Without zero-suppression and data-reduction, every channel is known
                 // but if either is z.s. or d.r. is on, a channel is only known
                 // if marked as such in the data.
-                boolean known;
-                if (zeroSupMode == 0 && dataRedMode == 0) {
-                    known = true;
-                } else {
-                    known = false;
-                }
+                boolean known = zeroSupMode == 0 && dataRedMode == 0;
                 for (int j = 0; j < numPixels; j++) {
                     significant[j] = (short) (known ? 1 : 0);
                 }
