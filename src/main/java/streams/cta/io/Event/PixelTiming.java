@@ -109,6 +109,10 @@ public class PixelTiming {
      */
     int[][] pulseSumGlob;
 
+    public PixelTiming(int id){
+        telId = id;
+    }
+
     public boolean readPixTime(EventIOBuffer buffer) {
         EventIOHeader header = new EventIOHeader(buffer);
         try {
@@ -241,8 +245,7 @@ public class PixelTiming {
                     }
                 }
                 known = true;
-                header.getItemEnd();
-                return true;
+                return header.getItemEnd();
             }
         } catch (IOException e) {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());

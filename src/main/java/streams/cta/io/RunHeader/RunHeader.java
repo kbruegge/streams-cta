@@ -73,7 +73,7 @@ public class RunHeader {
     /**
      * Number of telescopes involved.
      */
-    public int ntel;
+    public int numberTelescopes;
 
     /**
      * ID numbers of telescopes used in this run.
@@ -146,16 +146,16 @@ public class RunHeader {
                     convRefPos[0] = 0.;
                     convRefPos[1] = 0.;
                 }
-                ntel = buffer.readInt32();
-                telId = buffer.readVectorOfInts(ntel);
+                numberTelescopes = buffer.readInt32();
+                telId = buffer.readVectorOfInts(numberTelescopes);
 
-                buffer.setTelIdx(ntel, telId);
+                buffer.setTelIdx(numberTelescopes, telId);
 
                 //TODO check if is the right conversion from C to JAVA!
-                //get_vector_of_real(&tel_pos[0][0], 3 * ntel, iobuf);
-                telPos = new double[3][ntel];
+                //get_vector_of_real(&tel_pos[0][0], 3 * numberTelescopes, iobuf);
+                telPos = new double[3][numberTelescopes];
                 for (int i = 0; i < 3; i++) {
-                    telPos[i] = buffer.readVectorOfReals(ntel);
+                    telPos[i] = buffer.readVectorOfReals(numberTelescopes);
                 }
                 minTelTrig = buffer.readInt32();
                 duration = buffer.readInt32();
@@ -177,8 +177,7 @@ public class RunHeader {
                 } else {
                     observer = String.valueOf(line);
                 }
-                header.getItemEnd();
-                return true;
+                return header.getItemEnd();
             }
         } catch (IOException e) {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());

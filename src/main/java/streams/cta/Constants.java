@@ -35,8 +35,10 @@ public class Constants {
     public static final int H_MAX_HOTPIX = 5;
 
     public static final int TYPE_BASE = 2000;
+    public static final int TYPE_RUNHEADER = 2000;
     public static final int TYPE_CENTRAL_EVENT = 2009;
     public static final int TYPE_EVENT = 2010;
+    public static final int TYPE_MCSHOWER = 2020;
     public static final int TYPE_TRACK_EVENT = 2100;
     public static final int TYPE_TEL_EVENT = 2200;
     public static final int TYPE_TELADCSUM = TYPE_BASE + 12;
@@ -65,5 +67,13 @@ public class Constants {
 
     //< Index to high-gain channels in adc_sum, adc_sample, pedestal, ...
     public static final int HI_GAIN = 0;
+
+    /**
+     * Maximum header size can be as followed with each field having 4 bytes: (sync marker) +
+     * type/version field + identification field + length field + (extension field). The two fields,
+     * sync marker and extension field, do not appear every time, but type, identification and
+     * length are always necessary.
+     */
+    public static final int MAX_HEADER_SIZE = 20;
 
 }

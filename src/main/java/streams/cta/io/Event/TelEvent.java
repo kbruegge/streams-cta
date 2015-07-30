@@ -120,19 +120,26 @@ public class TelEvent {
      */
     PixelList imagePixels;
 
-    public TelEvent() {
+    public TelEvent(int telId) {
+        this.telId = telId;
+        raw = new AdcData(telId);
+        pixtm = new PixelTiming(telId);
+        img = new ImgData[2];
+        img[0] = new ImgData(telId);
+        img[1] = new ImgData(telId);
         triggerPixels = new PixelList();
         imagePixels = new PixelList();
         cpuTime = new HTime();
         gpsTime = new HTime();
+        maxImageSets = 2;
     }
 
-    private void initSectorArrays(int numberTriggeredSectors){
+    private void initSectorArrays(int numberTriggeredSectors) {
         listTrgsect = new int[numberTriggeredSectors];
         timeTrgsect = new double[numberTriggeredSectors];
     }
 
-    private void initPhysicalAdressArray(int numberAdresses){
+    private void initPhysicalAdressArray(int numberAdresses) {
         physAddr = new int[numberAdresses];
     }
 
@@ -301,8 +308,7 @@ public class TelEvent {
 //                                        + " for telescope " + this.telId);
                                 readingSuccessful = buffer.skipSubitem();
                             } else {
-                                header.getItemEnd();
-                                return false;
+                                return header.getItemEnd();
                             }
                     }
 
@@ -317,9 +323,7 @@ public class TelEvent {
                     this.known = true;
                 }
 
-                // TODO return the value from getItemEnd
-                header.getItemEnd();
-                return true;
+                return header.getItemEnd();
             }
         } catch (IOException e) {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());
@@ -391,8 +395,7 @@ public class TelEvent {
                         physAddr[i] = headerGT1 ? buffer.readShort() : buffer.readSCount32();
                     }
                 }
-                header.getItemEnd();
-                return true;
+                return header.getItemEnd();
             }
         } catch (IOException e) {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());

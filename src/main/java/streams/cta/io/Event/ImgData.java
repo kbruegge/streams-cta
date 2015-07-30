@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import streams.cta.Constants;
 import streams.cta.io.EventIOBuffer;
 import streams.cta.io.EventIOHeader;
 
@@ -184,6 +183,10 @@ public class ImgData {
      */
     double[] hotAmp;
 
+    public ImgData(int id) {
+        telId = id;
+    }
+
     public boolean readTelImage(EventIOBuffer buffer) {
         EventIOHeader header = new EventIOHeader(buffer);
         try {
@@ -298,8 +301,7 @@ public class ImgData {
                 }
 
                 known = true;
-                header.getItemEnd();
-                return true;
+                return header.getItemEnd();
             }
         } catch (IOException e) {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());

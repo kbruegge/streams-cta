@@ -9,6 +9,10 @@ import streams.cta.Constants;
 import streams.cta.io.EventIOBuffer;
 import streams.cta.io.EventIOHeader;
 
+import static streams.cta.Constants.H_MAX_GAINS;
+import static streams.cta.Constants.HI_GAIN;
+import static streams.cta.Constants.LO_GAIN;
+
 /**
  * ADC data (either sampled or sum mode) Created by alexey on 30.06.15.
  */
@@ -69,7 +73,7 @@ public class AdcData {
     /**
      * Was list of significant pixels filled in?
      */
-    long listKnown;
+    boolean listKnown;
 
     /**
      * Size of the list of available pixels (with list mode).
@@ -95,7 +99,7 @@ public class AdcData {
     // TODO use SHORT or maybe BYTE but using 'byteValue & 0xff' for arithmetic operations?
     // http://stackoverflow.com/questions/16809009/using-char-as-an-unsigned-16-bit-value-in-java
     // http://jessicarbrown.com/resources/unsignedtojava.html
-    short[][] adcKnown;
+    boolean[][] adcKnown;
 
     /**
      * Sum of ADC values. uint32_t
@@ -112,6 +116,10 @@ public class AdcData {
     // http://stackoverflow.com/questions/16809009/using-char-as-an-unsigned-16-bit-value-in-java
     // http://jessicarbrown.com/resources/unsignedtojava.html
     int[][][] adcSample;
+
+    public AdcData(int id) {
+        telId = id;
+    }
 
     /**
      * Write ADC sum data for one camera in eventio format.
@@ -155,24 +163,24 @@ public class AdcData {
                 }
 
                 significant = new short[(int) numPixels];
-                adcKnown = new short[(int) numGains][(int) numPixels];
+                adcKnown = new boolean[(int) numGains][(int) numPixels];
                 adcSum = new long[(int) numGains][(int) numPixels];
 
                 // Without zero-suppression and data-reduction, every channel is known
                 // but if either is z.s. or d.r. is on, a channel is only known
                 // if marked as such in the data.
-                int k;
+                boolean known;
                 if (zeroSupMode == 0 && dataRedMode == 0) {
-                    k = 1;
+                    known = true;
                 } else {
-                    k = 0;
+                    known = false;
                 }
                 for (int j = 0; j < numPixels; j++) {
-                    significant[j] = (short) k;
+                    significant[j] = (short) (known ? 1 : 0);
                 }
                 for (int igains = 0; igains < numGains; igains++) {
                     for (int ipix = 0; ipix < numPixels; ipix++) {
-                        adcKnown[igains][ipix] = (short) k;
+                        adcKnown[igains][ipix] = known;
                         adcSum[igains][ipix] = 0;
                     }
                 }
@@ -215,7 +223,7 @@ public class AdcData {
                             //TODO original code: #if (H_MAX_GAINS >= 2) ???
                             case 1:
                                 // Low low-gain channels were skipped (for two gains)
-                                k = 0;
+                                int k = 0;
                                 while (k < numPixels) {
                                     //TODO check why in original code vector of uint16 is read
                                     //get_vector_of_uint16( & cflags, 1, iobuf);
@@ -237,29 +245,29 @@ public class AdcData {
                                         }
                                         // TODO check if the pointer logic is right
                                         // get_adcsum_as_uint16(&raw->adc_sum[Constants.HI_GAIN][k], n, iobuf)
-                                        adcSum[Constants.HI_GAIN] = readAdcSumAsUint16(buffer, n);
+                                        adcSum[HI_GAIN] = readAdcSumAsUint16(buffer, n);
                                         ;
                                     } else {
                                         if (numGains >= 2) {
                                             lgval = readAdcSumDifferential(buffer, mlg);
                                         }
                                         // TODO check if the pointer logic is right
-                                        // get_adcsum_differential(&raw->adc_sum[Constants.HI_GAIN][k], n, iobuf)
-                                        adcSum[Constants.HI_GAIN] = readAdcSumDifferential(buffer, n);
+                                        // get_adcsum_differential(&raw->adc_sum[HI_GAIN][k], n, iobuf)
+                                        adcSum[HI_GAIN] = readAdcSumDifferential(buffer, n);
                                         ;
                                     }
 
                                     mlg = 0;
                                     for (int j = 0; j < n; j++) {
                                         if ((cflags & (1 << j)) != 0) {
-                                            adcSum[Constants.LO_GAIN][k + j] = lgval[mlg++];
-                                            adcKnown[Constants.LO_GAIN][k + j] = 1;
+                                            adcSum[LO_GAIN][k + j] = lgval[mlg++];
+                                            adcKnown[LO_GAIN][k + j] = true;
                                         } else {
-                                            adcSum[Constants.LO_GAIN][k + j] = 0;
-                                            adcKnown[Constants.LO_GAIN][k + j] = 0;
+                                            adcSum[LO_GAIN][k + j] = 0;
+                                            adcKnown[LO_GAIN][k + j] = false;
                                         }
-                                        adcKnown[Constants.HI_GAIN][k + j] = 1;
                                         significant[k + j] = 1;
+                                        adcKnown[HI_GAIN][k + j] = true;
                                     }
                                     k += n;
                                 }
@@ -307,19 +315,19 @@ public class AdcData {
                                     mlg = mhg8 = mhg16 = 0;
                                     for (int j = 0; j < n; j++) {
                                         if ((cflags & (1 << j)) != 0) {
-                                            adcSum[Constants.LO_GAIN][k + j] = lgval[mlg++];
-                                            adcKnown[Constants.LO_GAIN][k + j] = 1;
-                                            adcSum[Constants.HI_GAIN][k + j] = hgval[mhg16++];
+                                            adcSum[LO_GAIN][k + j] = lgval[mlg++];
+                                            adcKnown[LO_GAIN][k + j] = true;
+                                            adcSum[HI_GAIN][k + j] = hgval[mhg16++];
                                         } else {
                                             if ((bflags & (1 << j)) != 0) {
-                                                adcSum[Constants.HI_GAIN][k + j] =
+                                                adcSum[HI_GAIN][k + j] =
                                                         hgval8[mhg8++] * scaleHg8 + offsetHg8;
                                             } else {
-                                                adcSum[Constants.HI_GAIN][k + j] = hgval[mhg16++];
+                                                adcSum[HI_GAIN][k + j] = hgval[mhg16++];
                                             }
                                         }
-                                        adcKnown[Constants.HI_GAIN][k + j] = 1;
                                         significant[k + j] = 1;
+                                        adcKnown[HI_GAIN][k + j] = true;
                                     }
                                     k += n;
                                 }
@@ -338,7 +346,7 @@ public class AdcData {
                             case 0: /* No data reduction */
                             case 1: /* Low low-gain channels were skipped (for two gains) */
                             case 2: /* Width of high-gain channel can be reduced */
-                                k = 0;
+                                int k = 0;
                                 while (k < numPixels) {
                                     if (k + 16 <= numPixels) {
                                         n = 16;
@@ -414,27 +422,25 @@ public class AdcData {
                                                 if ((zbits & (1 << j)) != 0) {
                                                     significant[k + j] = 1;
                                                     if (dataRedMode < 1 || (cflags & (1 << j)) != 0) {
-                                                        //TODO should we use those IFs?
-                                                        //#if (H_MAX_GAINS >= 2)
-                                                        adcSum[Constants.LO_GAIN][k + j] = lgval[mlg++];
-                                                        //#endif
-                                                        adcSum[Constants.HI_GAIN][k + j] = hgval[mhg16++];
-                                                        //#if (H_MAX_GAINS >= 2)
-                                                        adcKnown[Constants.LO_GAIN][k + j] = 1;
-                                                        //#endif
-                                                        adcKnown[Constants.HI_GAIN][k + j] = 1;
+                                                        if (H_MAX_GAINS >= 2) {
+                                                            adcSum[LO_GAIN][k + j] = lgval[mlg++];
+                                                        }
+                                                        adcSum[HI_GAIN][k + j] = hgval[mhg16++];
+                                                        if (H_MAX_GAINS >= 2) {
+                                                            adcKnown[LO_GAIN][k + j] = true;
+                                                        }
+                                                        adcKnown[HI_GAIN][k + j] = true;
                                                     } else {
-                                                        //TODO should we use those IFs?
-                                                        //#if (H_MAX_GAINS >= 2)
-                                                        adcSum[Constants.LO_GAIN][k + j] = 0;
-                                                        //#endif
+                                                        if (H_MAX_GAINS >= 2) {
+                                                            adcSum[LO_GAIN][k + j] = 0;
+                                                        }
                                                         if (dataRedMode == 2 && (bflags & (1 << j)) != 0) {
-                                                            adcSum[Constants.HI_GAIN][k + j] =
+                                                            adcSum[HI_GAIN][k + j] =
                                                                     hgval8[mhg8++] * scaleHg8 + offsetHg8;
                                                         } else {
-                                                            adcSum[Constants.HI_GAIN][k + j] = hgval[mhg16++];
+                                                            adcSum[HI_GAIN][k + j] = hgval[mhg16++];
                                                         }
-                                                        adcKnown[Constants.HI_GAIN][k + j] = 1;
+                                                        adcKnown[HI_GAIN][k + j] = true;
                                                     }
                                                 }
                                             }
@@ -467,7 +473,7 @@ public class AdcData {
                                 mhg16 = 0;
                                 mhg8 = 0;
                                 for (int j = 0; j < listSize; j++) {
-                                    k = adcListL[j] & 0x1fff;
+                                    int k = adcListL[j] & 0x1fff;
                                     adcList[j] = k;
                                     withoutLg[j] = ((adcListL[j] & 0x2000) != 0);
                                     reducedWidth[j] = ((adcListL[j] & 0x4000) != 0);
@@ -482,21 +488,19 @@ public class AdcData {
                                 }
 
                                 if (header.getVersion() < 2) {
-                                    //TODO check if we should use these IFs?
-                                    if (Constants.H_MAX_GAINS >= 2) {
+                                    if (H_MAX_GAINS >= 2) {
                                         if (numGains >= 2) {
-                                            adcSumL[Constants.LO_GAIN] = readAdcSumAsUint16(buffer, mlg);
+                                            adcSumL[LO_GAIN] = readAdcSumAsUint16(buffer, mlg);
                                         }
                                     }
-                                    adcSumL[Constants.HI_GAIN] = readAdcSumAsUint16(buffer, mhg16);
+                                    adcSumL[HI_GAIN] = readAdcSumAsUint16(buffer, mhg16);
                                 } else {
-                                    //TODO check if we should use these IFs?
-                                    if (Constants.H_MAX_GAINS >= 2) {
+                                    if (H_MAX_GAINS >= 2) {
                                         if (numGains >= 2) {
-                                            adcSumL[Constants.LO_GAIN] = readAdcSumDifferential(buffer, mlg);
+                                            adcSumL[LO_GAIN] = readAdcSumDifferential(buffer, mlg);
                                         }
                                     }
-                                    adcSumL[Constants.HI_GAIN] = readAdcSumDifferential(buffer, mhg16);
+                                    adcSumL[HI_GAIN] = readAdcSumDifferential(buffer, mhg16);
                                 }
 
                                 short[] adcHg8 = buffer.readVectorOfUnsignedBytes(mhg8);
@@ -505,22 +509,21 @@ public class AdcData {
                                 mhg16 = 0;
                                 mhg8 = 0;
                                 for (int j = 0; j < listSize; j++) {
-                                    k = adcList[j];
+                                    int k = adcList[j];
                                     significant[k] = 1;
                                     if (reducedWidth[j]) {
-                                        adcSum[Constants.HI_GAIN][k] = adcHg8[mhg8++] * scaleHg8 + offsetHg8;
+                                        adcSum[HI_GAIN][k] = adcHg8[mhg8++] * scaleHg8 + offsetHg8;
                                     } else {
-                                        adcSum[Constants.HI_GAIN][k] = adcSumL[Constants.HI_GAIN][mhg16++];
+                                        adcSum[HI_GAIN][k] = adcSumL[HI_GAIN][mhg16++];
                                     }
-                                    adcKnown[Constants.HI_GAIN][k] = 1;
-                                    //TODO check if we should use these IFs?
-                                    if (Constants.H_MAX_GAINS >= 2) {
+                                    adcKnown[HI_GAIN][k] = true;
+                                    if (H_MAX_GAINS >= 2) {
                                         if (withoutLg[j]) {
-                                            adcSum[Constants.LO_GAIN][k] = 0;
-                                            adcKnown[Constants.LO_GAIN][k] = 0;
+                                            adcSum[LO_GAIN][k] = 0;
+                                            adcKnown[LO_GAIN][k] = false;
                                         } else {
-                                            adcSum[Constants.LO_GAIN][k] = adcSumL[Constants.LO_GAIN][mlg++];
-                                            adcKnown[Constants.LO_GAIN][k] = 1;
+                                            adcSum[LO_GAIN][k] = adcSumL[LO_GAIN][mlg++];
+                                            adcKnown[LO_GAIN][k] = true;
                                         }
                                     }
                                 }
@@ -534,9 +537,8 @@ public class AdcData {
                     default:
                         assert (false);
                 }
-                known = 1;
-                header.getItemEnd();
-                return true;
+                this.known = 1;
+                return header.getItemEnd();
             }
         } catch (IOException e) {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());
@@ -586,7 +588,7 @@ public class AdcData {
         // TODO changed types of telId, numPixels and numGains to LONG. change back and handle it right?
         zeroSupMode = ident & 0x1f;
         dataRedMode = (ident >> 5) & 0x1f;
-        listKnown = (ident >> 10) & 0x01;
+        listKnown = ((ident >> 10) & 0x01) != 0;
         if (header.getVersion() == 0) {
             // High-order bits may be missing.
             telId = (ident >> 25) & 0x1f;
@@ -610,13 +612,13 @@ public class AdcData {
      */
     public void resetAdc() {
         known = 0;
-        listKnown = 0;
+        listKnown = false;
         listSize = 0;
 
         for (int igain = 0; igain < numGains; igain++) {
             for (int ipix = 0; ipix < numPixels; ipix++) {
                 significant[ipix] = 0;
-                adcKnown[igain][ipix] = 0;
+                adcKnown[igain][ipix] = false;
                 adcSum[igain][ipix] = 0;
                 for (int isample = 0; isample < numSamples; isample++) {
                     adcSample[igain][ipix][isample] = 0;
@@ -643,7 +645,7 @@ public class AdcData {
                 extractDataFromID(buffer, header, flags);
 
                 if ((zeroSupMode != 0 && version < 3)
-                        || dataRedMode != 0 || listKnown != 0) {
+                        || dataRedMode != 0 || listKnown) {
                     log.warn("Unsupported ADC sample format.");
                     header.getItemEnd();
                     return false;
@@ -653,7 +655,7 @@ public class AdcData {
 
                 numSamples = buffer.readShort();
 
-                if (numPixels > Constants.H_MAX_PIX || numGains > Constants.H_MAX_GAINS
+                if (numPixels > Constants.H_MAX_PIX || numGains > H_MAX_GAINS
                         || numSamples > Constants.H_MAX_SLICES) {
                     log.warn("Invalid raw data block is skipped.");
                     header.getItemEnd();
@@ -663,7 +665,7 @@ public class AdcData {
 
                 // initialize adcSample array
                 adcSample = new int[(int) numGains][(int) numPixels][numSamples];
-                adcKnown = new short[(int) numGains][(int) numPixels];
+                adcKnown = new boolean[(int) numGains][(int) numPixels];
                 adcSum = new long[(int) numGains][(int) numPixels];
                 significant = new short[(int) numPixels];
 
@@ -709,7 +711,7 @@ public class AdcData {
 
                                 // Should the sampled data also be summed up here? There might
                                 // be sum data preceding this sample mode data!
-                                if (adcKnown[igain][ipix] == 0) {
+                                if (!adcKnown[igain][ipix]) {
                                     if ((what & Constants.RAWSUM_FLAG) != 0) {
                                         // Sum up all samples
                                         int sum = 0;
@@ -720,7 +722,7 @@ public class AdcData {
                                         // No overflow of 32-bit unsigned assumed
                                         adcSum[igain][ipix] = sum;
 
-                                        adcKnown[igain][ipix] = 1;
+                                        adcKnown[igain][ipix] = true;
                                     } else {
                                         adcSum[igain][ipix] = 0;
                                     }
@@ -741,7 +743,7 @@ public class AdcData {
                             // sum data, we keep that. Note that having non-zero-suppressed
                             // samples after sum data is normally used.In realistic data,
                             // there will be no sum known at this point.
-                            if (adcKnown[igain][ipix] == 0) {
+                            if (!adcKnown[igain][ipix]) {
                                 if ((what & Constants.RAWSUM_FLAG) != 0) {
                                     // Sum up all samples
                                     int sum = 0;
@@ -753,7 +755,7 @@ public class AdcData {
                                 } else {
                                     adcSum[igain][ipix] = 0;
                                 }
-                                adcKnown[igain][ipix] = 1;
+                                adcKnown[igain][ipix] = true;
                             }
                         }
                     }
@@ -764,8 +766,7 @@ public class AdcData {
 
                 known |= 2;
 
-                header.getItemEnd();
-                return true;
+                return header.getItemEnd();
             }
         } catch (IOException e) {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());
