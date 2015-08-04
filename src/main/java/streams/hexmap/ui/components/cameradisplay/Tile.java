@@ -95,11 +95,6 @@ public abstract class Tile extends Component {
 		this.value = value;
 	}
 
-
-    public Color getFillColor() {
-        return fillColor;
-    }
-
     public void setFillColor(Color fillColor) {
         this.fillColor = fillColor;
     }

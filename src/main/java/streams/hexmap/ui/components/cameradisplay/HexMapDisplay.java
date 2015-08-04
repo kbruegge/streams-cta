@@ -8,6 +8,7 @@ import streams.cta.TelescopeEvent;
 import streams.hexmap.CameraPixel;
 import streams.hexmap.FactCameraPixel;
 import streams.hexmap.FactHexPixelMapping;
+import streams.hexmap.HexPixelMapping;
 import streams.hexmap.ui.Bus;
 import streams.hexmap.ui.EventObserver;
 import streams.hexmap.ui.SliceObserver;
@@ -36,20 +37,18 @@ import java.util.*;
  * with one edge on the bottom. Also has a colorbar next to it.
  * 
  */
-public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserver, MouseListener, EventObserver {
+public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserver, MouseListener, EventObserver {
 
-	static Logger log = LoggerFactory.getLogger(FactHexMapDisplay.class);
+	static Logger log = LoggerFactory.getLogger(HexMapDisplay.class);
 
 	//camera specific informations
 	private final double PIXEL_RADIUS = 7;
-    private final int NUMBER_OF_CAMERA_PIXEL = 1440;
-    final private FactHexPixelMapping pixelMapping;
+    final private HexPixelMapping pixelMapping;
 
-    FactHexTile tiles[];
+    HexTile tiles[];
 
 	int canvasWidth;
 	int canvasHeight;
-	int rows = 0, cols = 0;
 
 	public double[][] sliceValues;
 
@@ -92,8 +91,8 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
 	 * @param scale A scaling factor to change the size of the drawn pixels.
 	 *
 	 */
-	public FactHexMapDisplay(double scale, int canvasWidth, int canvasHeight,
-			boolean mouseAction) {
+	public HexMapDisplay(double scale, int canvasWidth, int canvasHeight,
+						 boolean mouseAction) {
 
 		Bus.eventBus.register(this);
 
@@ -101,12 +100,10 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
 		this.pixelMapping = FactHexPixelMapping.getInstance();
 		this.canvasHeight = canvasHeight;
 		this.canvasWidth = canvasWidth;
-		this.rows = pixelMapping.getNumberRows();
-		this.cols = pixelMapping.getNumberCols();
 
-		tiles = new FactHexTile[pixelMapping.getNumberOfPixel()];
+		tiles = new HexTile[pixelMapping.getNumberOfPixel()];
 		for (int i = 0; i < tiles.length; i++) {
-			FactHexTile t = new FactHexTile(pixelMapping.getPixelFromId(i), PIXEL_RADIUS*this.scale);
+			HexTile t = new HexTile(pixelMapping.getPixelFromId(i), PIXEL_RADIUS*this.scale);
 			tiles[i] = t;
 		}
 
@@ -116,7 +113,7 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
 		}
 	}
 
-	public FactHexMapDisplay(double scale, int canvasWidth, int canvasHeight) {
+	public HexMapDisplay(double scale, int canvasWidth, int canvasHeight) {
 		this(scale, canvasWidth, canvasHeight, true);
 	}
 
@@ -171,8 +168,7 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
 	 * @param dataItem
 	 * @return
 	 */
-	private ArrayList<CameraMapOverlay> updateOverlays(
-			Set<Pair<String, Color>> items, Data dataItem) {
+	private ArrayList<CameraMapOverlay> updateOverlays(Set<Pair<String, Color>> items, Data dataItem) {
 
 		ArrayList<CameraMapOverlay> overlays = new ArrayList<>();
 		for (Pair<String, Color> s : items) {

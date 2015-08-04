@@ -30,23 +30,16 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
             {{1, 1}, {1, 0}, {0, -1}, {-1, 0}, {-1, 1}, {0, 1}}  //pixel with a even x coordinate
     };
 
-    protected HexPixelMapping(URL mappingURL) {
-        if(mappingURL == null){
-            log.error("Could not find the file for pixel mapping. URL was null");
-        }
-        if (mappingURL != null) {
-            if(mappingURL.getFile().isEmpty()){
-                throw new RuntimeException("Could not find pixel mapping file");
-            }
-        }
-        load(mappingURL);
-    }
 
     public abstract int getNumberOfPixel();
-    protected abstract void load(URL url);
 
     public abstract T getPixelFromId(int id);
     public abstract T getPixelFromOffsetCoordinates(int x, int y);
+
+
+    public ArrayList<T> getNeighboursForPixelId(int pixelId) {
+        return getNeighboursForPixel(getPixelFromId(pixelId));
+    }
 
     public ArrayList<T> getNeighboursForPixel(CameraPixel p) {
         ArrayList<T> l = new ArrayList<>();

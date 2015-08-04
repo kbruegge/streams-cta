@@ -1,6 +1,6 @@
 package streams.hexmap.ui.overlays;
 
-import streams.hexmap.ui.components.cameradisplay.FactHexMapDisplay;
+import streams.hexmap.ui.components.cameradisplay.HexMapDisplay;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -34,7 +34,7 @@ public class LineOverlay implements CameraMapOverlay, Serializable {
     }
 
     @Override
-    public void paint(Graphics2D g2, FactHexMapDisplay map) {
+    public void paint(Graphics2D g2, HexMapDisplay map) {
         double radius = map.getTileRadiusInPixels();
         g2.setPaint(fillColor);
         g2.setStroke(new BasicStroke(2));

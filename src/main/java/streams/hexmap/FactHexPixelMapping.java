@@ -26,18 +26,13 @@ import java.util.ArrayList;
  * @author Kai
  * 
  */
-public class FactHexPixelMapping extends HexPixelMapping {
+public class FactHexPixelMapping extends HexPixelMapping<FactCameraPixel> {
 
     //store each pixel by its 'geometric' or axial coordinate.
     private final FactCameraPixel[][] offsetCoordinates = new FactCameraPixel[45][40];
-    public final FactCameraPixel[] pixelArray = new FactCameraPixel[1440];
+    private final FactCameraPixel[] pixelArray = new FactCameraPixel[1440];
     private final int[] chId2softId = new int[1440];
     private final int[] software2chId = new int[1440];
-
-    private final int[][][] neighbourOffsets = {
-            {{1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {0, 1}}, //uneven
-            {{1, 1}, {1, 0}, {0, -1}, {-1, 0}, {-1, 1}, {0, 1}}  //pixel with a even x coordinate
-    };
 
     private int xOffset = 22;
     private int yOffset = 19;
@@ -56,28 +51,19 @@ public class FactHexPixelMapping extends HexPixelMapping {
                 String msg = "Could not load pixel mapping from URL: " + pixelMap + ". Does the file exist?";
                 log.error(msg);
                 throw new InstantiationError(msg);
+            } else {
+                mapping = new FactHexPixelMapping(mapUrl);
             }
-            mapping = new FactHexPixelMapping(mapUrl);
         }
         return mapping;
     }
 
-    public FactHexPixelMapping(URL url){
-        super(url);
+    private FactHexPixelMapping(URL mappingURL) {
+        if(mappingURL.getFile().isEmpty()){
+            throw new RuntimeException("Could not find pixel mapping file");
+        }
+        load(mappingURL);
     }
-
-
-    public int getNumberRows() {
-        return 45;
-    }
-
-    public int getNumberCols() {
-        return 40;
-    }
-
-//    public FactCameraPixel[] getNeighboursFromID(int id){
-//        return getNeighboursForPixel(getPixelFromId(id));
-//    }
 
 
 
@@ -102,7 +88,6 @@ public class FactHexPixelMapping extends HexPixelMapping {
      * This expects a file containing information on 1440 Pixel
      * @param mapping url to the mapping file
      */
-    @Override
     protected void load(URL mapping){
 
         //use the csv stream to read stuff from the csv file
@@ -114,7 +99,6 @@ public class FactHexPixelMapping extends HexPixelMapping {
             log.error(e.toString());
         }
 
-        //we should sort this by chid
         for (int i = 0; i < 1440; i++) {
             Data item = null;
             try {
