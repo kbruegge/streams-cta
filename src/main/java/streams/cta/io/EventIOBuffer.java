@@ -305,7 +305,11 @@ public class EventIOBuffer {
         //TODO check if filling up to an int with zeros is better than dataStream.readUnsignedShort()
         //TODO maybe use dataStream.readUnsignedByte()?
         byte[] b = new byte[4];
-        dataStream.read(b, 0, 2);
+        if (EventIOStream.reverse) {
+            dataStream.read(b, 0, 2);
+        }else{
+            dataStream.read(b, 2, 2);
+        }
 
         readLength[itemLevel] += 2;
 
