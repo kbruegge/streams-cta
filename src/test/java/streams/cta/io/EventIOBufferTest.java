@@ -91,16 +91,24 @@ public class EventIOBufferTest {
 
     @Test
     public void testReadShort() throws Exception {
-        short[] s = new short[]{1000, -2000};
-        outDataStream.writeShort(s[0]);
-        outDataStream.writeShort(s[1]);
-        outDataStream.close();
 
-        short readShort = buffer.readShort();
-        assertEquals(s[0], readShort);
+        short toread = (short) 0xAABB;
+        
+        // check BigEndian
+        EventIOStream.reverse = false;
+        short towrite = (short) 0xAABB;
+        outDataStream.writeShort(towrite);
+        outDataStream.flush();
+        int readShort = buffer.readShort();
+        assertEquals(toread, readShort);
 
+        // check LittleEndian
+        EventIOStream.reverse = true;
+        towrite = (short) 0xBBAA;
+        outDataStream.writeShort(towrite);
+        outDataStream.flush();
         readShort = buffer.readShort();
-        assertEquals(s[1], readShort);
+        assertEquals(toread, readShort);
     }
 
     @Test
