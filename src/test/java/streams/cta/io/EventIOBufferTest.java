@@ -92,22 +92,22 @@ public class EventIOBufferTest {
     }
 
     @Test
+    /**
+     * ReadShort uses readInt16 internally, thus no further tests are called for readInt16
+     */
     public void testReadShort() throws Exception {
-
-        short toread = (short) 0xAABB;
+        short toread = (short) 0xFFFF;
 
         // check BigEndian
         EventIOStream.reverse = false;
-        short towrite = (short) 0xAABB;
-        outDataStream.writeShort(towrite);
+        outDataStream.writeShort(toread);
         outDataStream.flush();
         int readShort = buffer.readShort();
         assertEquals(toread, readShort);
 
         // check LittleEndian
         EventIOStream.reverse = true;
-        towrite = (short) 0xBBAA;
-        outDataStream.writeShort(towrite);
+        outDataStream.writeShort(Short.reverseBytes(toread));
         outDataStream.flush();
         readShort = buffer.readShort();
         assertEquals(toread, readShort);
@@ -116,19 +116,21 @@ public class EventIOBufferTest {
     @Test
     public void testReadUnsignedShort() throws Exception {
 
+        int toread = 0x0000FFFE;
+
         // check BigEndian
         EventIOStream.reverse = false;
-        outDataStream.writeShort(0xFFFE);
+        outDataStream.writeShort((short)toread);
         outDataStream.flush();
         int readShort = buffer.readUnsignedShort();
-        assertEquals(0xFFFE, readShort);
+        assertEquals(toread, readShort);
 
         // check LittleEndian
         EventIOStream.reverse = true;
-        outDataStream.writeShort(0xFEFF);
+        outDataStream.writeShort(Short.reverseBytes((short) toread));
         outDataStream.close();
         readShort = buffer.readUnsignedShort();
-        assertEquals(0xFFFE, readShort);
+        assertEquals(toread, readShort);
     }
 
     @Test
@@ -155,27 +157,65 @@ public class EventIOBufferTest {
 
     @Test
     public void testReadDouble() throws Exception {
+        double toread =  1.171539d;
 
-    }
+        // check BigEndian
+        EventIOStream.reverse = false;
+        byte[] b = ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN).putDouble(toread).array();
+        outDataStream.write(b);
+        outDataStream.flush();
+        double readReal = buffer.readDouble();
+        assertEquals(toread, readReal, 0.1);
 
-    @Test
-    public void testReadLong() throws Exception {
-
-    }
-
-    @Test
-    public void testReadInt16() throws Exception {
-
+        // check LittleEndian
+        EventIOStream.reverse = true;
+        b = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putDouble(toread).array();
+        outDataStream.write(b);
+        outDataStream.close();
+        readReal = buffer.readDouble();
+        assertEquals(toread, readReal, 0.1);
     }
 
     @Test
     public void testReadInt32() throws Exception {
+        int toread = 0xAABBCCDD;
 
+        // check BigEndian
+        EventIOStream.reverse = false;
+        int towrite = toread;
+        outDataStream.writeInt(towrite);
+        outDataStream.flush();
+        int readInt32 = buffer.readInt32();
+        assertEquals(toread, readInt32);
+
+        // check LittleEndian
+        EventIOStream.reverse = true;
+        towrite = Integer.reverseBytes(toread);
+        outDataStream.writeInt(towrite);
+        outDataStream.flush();
+        readInt32 = buffer.readInt32();
+        assertEquals(toread, readInt32);
     }
 
     @Test
     public void testReadUnsignedInt32() throws Exception {
+        long toread = 0x00000000AABBCCDDL;
 
+        // check BigEndian
+        EventIOStream.reverse = false;
+        int towrite = (int)toread;
+        outDataStream.writeInt(towrite);
+        outDataStream.flush();
+        long readInt32 = buffer.readUnsignedInt32();
+        assertEquals(toread, readInt32);
+
+        // check LittleEndian
+        EventIOStream.reverse = true;
+        towrite = Integer.reverseBytes(towrite);
+        outDataStream.writeInt(towrite);
+        outDataStream.flush();
+        readInt32 = buffer.readUnsignedInt32();
+        assertEquals(toread, readInt32);
     }
 
     @Test

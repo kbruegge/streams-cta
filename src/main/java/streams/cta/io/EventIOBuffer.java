@@ -379,7 +379,11 @@ public class EventIOBuffer {
 
         //TODO check if filling up to an int with zeros is better than dataStream.readUnsignedShort()
         //TODO maybe use dataStream.readUnsignedByte()?
-        dataStream.read(b, 0, 4);
+        if (EventIOStream.reverse){
+            dataStream.read(b, 0, 4);
+        }else{
+            dataStream.read(b, 4, 4);
+        }
 
         readLength[itemLevel] += 4;
 
