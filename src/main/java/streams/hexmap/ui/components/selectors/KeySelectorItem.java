@@ -1,5 +1,8 @@
 package streams.hexmap.ui.components.selectors;
 
+import streams.hexmap.ui.plotting.LinePlotData;
+import streams.hexmap.ui.plotting.PlotData;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -8,14 +11,14 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 /**
+ * This is a little gui element containing a checkbox and a button to choose the color.
  * Created by kaibrugge on 14.05.14.
  */
-public class SeriesKeySelectorItem extends JPanel  {
+public class KeySelectorItem extends JPanel  {
     private final JButton colorButton;
     private final JLabel label;
     private JCheckBox checkBox;
-    public String key;
-    public Color color;
+    public final PlotData linePlotData;
 
     @Override
     public boolean equals(Object obj){
@@ -23,39 +26,31 @@ public class SeriesKeySelectorItem extends JPanel  {
             return false;
         if (obj == this)
             return true;
-        if (!(obj instanceof SeriesKeySelectorItem))
-            return false;
-        SeriesKeySelectorItem i = (SeriesKeySelectorItem) obj;
-        if (this.key.equals(i.key)){
-            return true;
-        } else {
-            return false;
-        }
+        return linePlotData.equals(obj);
     }
     @Override
     public int hashCode(){
-        return key.hashCode();
+        return linePlotData.hashCode();
     }
 
-    public SeriesKeySelectorItem(final String key, final Color c, final KeySelector selector){
-        this.key = key;
-        this.color = c;
+    public KeySelectorItem(final PlotData plotData, final KeySelector selector){
+        this.linePlotData = plotData;
         setLayout(new BorderLayout(0, 0));
         colorButton = new JButton("Color");
-        colorButton.setForeground(c);
+        colorButton.setForeground(linePlotData.getColor());
         colorButton.setPreferredSize(new Dimension(90, 25));
         setMaximumSize(new Dimension(280, 30));
         setPreferredSize(new Dimension(250, 30));
 
-        label = new JLabel(key);
+        label = new JLabel(linePlotData.getName());
         checkBox = new JCheckBox();
         checkBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if(e.getStateChange()==ItemEvent.SELECTED){
-                    selector.addSelected(SeriesKeySelectorItem.this);
+                    selector.addSelected(KeySelectorItem.this);
                 } else if (e.getStateChange()==ItemEvent.DESELECTED){
-                    selector.removeSelected(SeriesKeySelectorItem.this);
+                    selector.removeSelected(KeySelectorItem.this);
                 }
             }
         });
@@ -64,9 +59,10 @@ public class SeriesKeySelectorItem extends JPanel  {
         colorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                color = JColorChooser.showDialog(null, "Choose color", Color.DARK_GRAY);
+                Color color = JColorChooser.showDialog(null, "Choose color", Color.DARK_GRAY);
+                linePlotData.setColor(color);
                 colorButton.setForeground(color);
-                selector.addSelected(SeriesKeySelectorItem.this);
+                selector.addSelected(KeySelectorItem.this);
                 checkBox.setSelected(true);
             }
         });

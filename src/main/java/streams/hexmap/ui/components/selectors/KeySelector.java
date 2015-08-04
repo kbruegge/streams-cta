@@ -3,9 +3,9 @@ package streams.hexmap.ui.components.selectors;
 import com.google.common.eventbus.Subscribe;
 import streams.hexmap.ui.Bus;
 import streams.hexmap.ui.EventObserver;
-import org.apache.commons.math3.util.Pair;
 import stream.Data;
 import streams.hexmap.ui.events.ItemChangedEvent;
+import streams.hexmap.ui.plotting.PlotData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,13 +23,13 @@ import java.util.Set;
  *
  * Created by kaibrugge on 15.05.14.
  */
-public abstract class KeySelector extends JPanel implements EventObserver{
+public abstract class  KeySelector extends JPanel implements EventObserver{
 
     private final JPanel keySelectionContentPanel = new JPanel();
     private final JScrollPane keyScrollPane = new JScrollPane(keySelectionContentPanel);
 
-    private Set<SeriesKeySelectorItem> items = new HashSet<>();
-    protected Set<SeriesKeySelectorItem> selectedItems = new HashSet<>();
+    private Set<KeySelectorItem> items = new HashSet<>();
+    protected Set<KeySelectorItem> selectedItems = new HashSet<>();
 
 
     public KeySelector(){
@@ -54,7 +54,7 @@ public abstract class KeySelector extends JPanel implements EventObserver{
     @Subscribe
     public void handleEventChange(ItemChangedEvent itemChangedEvent){
 
-        Set<SeriesKeySelectorItem> newItems = filterItems(itemChangedEvent.item);
+        Set<KeySelectorItem> newItems = filterItems(itemChangedEvent.item);
         //keep old items selected
         selectedItems.retainAll(newItems);
         //keep old items on the display and add new ones. This is a cut and a union
@@ -62,7 +62,7 @@ public abstract class KeySelector extends JPanel implements EventObserver{
         items.addAll(newItems);
 
         keySelectionContentPanel.removeAll();
-        for(SeriesKeySelectorItem k : items){
+        for(KeySelectorItem k : items){
             k.setAlignmentX(Component.LEFT_ALIGNMENT);
             keySelectionContentPanel.add(k);
         }
@@ -70,27 +70,28 @@ public abstract class KeySelector extends JPanel implements EventObserver{
         keySelectionContentPanel.repaint();
     }
 
-    public Set<Pair<String, Color>> getSelectedItemPairs(){
-        Set<Pair<String, Color>> pairSet = new HashSet<>();
-        for(SeriesKeySelectorItem k : selectedItems) {
-            pairSet.add(Pair.create(k.key, k.color));
+    public Set<PlotData> getSelectedPlotData(){
+        Set<PlotData> selectedPlotData = new HashSet<>();
+        for(KeySelectorItem k : selectedItems) {
+            selectedPlotData.add(k.linePlotData);
         }
-        return pairSet;
+        return selectedPlotData;
     }
 
 
-    public void addSelected(SeriesKeySelectorItem selectedItem) {
+    public void addSelected(KeySelectorItem selectedItem) {
         selectedItems.add(selectedItem);
         selectionUpdate();
     }
 
-    public void removeSelected(SeriesKeySelectorItem deselectedItem) {
+    public void removeSelected(KeySelectorItem deselectedItem) {
         selectedItems.remove(deselectedItem);
         selectionUpdate();
     }
 
     public abstract void selectionUpdate();
-    public abstract Set<SeriesKeySelectorItem> filterItems(Data item);
+    public abstract Set<KeySelectorItem> filterItems(Data item);
+    public abstract Set<? extends PlotData> getPlotData();
 
 }
 
