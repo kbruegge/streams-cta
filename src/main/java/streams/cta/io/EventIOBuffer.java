@@ -307,7 +307,7 @@ public class EventIOBuffer {
         byte[] b = new byte[4];
         if (EventIOStream.reverse) {
             dataStream.read(b, 0, 2);
-        }else{
+        } else {
             dataStream.read(b, 2, 2);
         }
 
@@ -320,31 +320,22 @@ public class EventIOBuffer {
         }
     }
 
+    /**
+     * Read a 32-bit floating point number in IEEE format (4 bytes).
+     *
+     * @return float value that is read from readInt32()
+     */
     public float readReal() throws IOException {
-        //TODO does the original code uses float or double?! reading like unsigned float to a double?
-        byte[] b = new byte[4];
-        dataStream.read(b);
-
-        readLength[itemLevel] += 4;
-
-        if (EventIOStream.reverse) {
-            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-        } else {
-            return ByteBuffer.wrap(b).getFloat();
-        }
+        return Float.intBitsToFloat(readInt32());
     }
 
+    /**
+     * Read a 64-bit floating point number in IEEE format (8 bytes)
+     *
+     * @return double value that is read from readInt64()
+     */
     public double readDouble() throws IOException {
-        byte[] b = new byte[8];
-        dataStream.read(b);
-
-        readLength[itemLevel] += 8;
-
-        if (EventIOStream.reverse) {
-            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getDouble();
-        } else {
-            return ByteBuffer.wrap(b).getDouble();
-        }
+        return Double.longBitsToDouble(readInt64());
     }
 
     //TODO check conversion from int to long?!

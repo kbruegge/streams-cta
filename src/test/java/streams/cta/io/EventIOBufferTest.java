@@ -9,6 +9,8 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import static org.junit.Assert.assertEquals;
 
@@ -93,7 +95,7 @@ public class EventIOBufferTest {
     public void testReadShort() throws Exception {
 
         short toread = (short) 0xAABB;
-        
+
         // check BigEndian
         EventIOStream.reverse = false;
         short towrite = (short) 0xAABB;
@@ -132,6 +134,23 @@ public class EventIOBufferTest {
     @Test
     public void testReadReal() throws Exception {
 
+        float toread =  1.171539f;
+
+        // check BigEndian
+        EventIOStream.reverse = false;
+        byte[] b = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putFloat(toread).array();
+        outDataStream.write(b);
+        outDataStream.flush();
+        float readReal = buffer.readReal();
+        assertEquals(toread, readReal, 0.1);
+
+        // check LittleEndian
+        EventIOStream.reverse = true;
+        b = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(toread).array();
+        outDataStream.write(b);
+        outDataStream.close();
+        readReal = buffer.readReal();
+        assertEquals(toread, readReal, 0.1);
     }
 
     @Test
