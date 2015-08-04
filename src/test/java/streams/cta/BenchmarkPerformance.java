@@ -1,9 +1,6 @@
 package streams.cta;
 
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -22,7 +19,7 @@ public class BenchmarkPerformance {
     private EventIOStream stream;
     private Throughput throughput;
 
-    @Setup
+    @Setup(Level.Iteration)
     public void setupBenchmark() throws Exception {
         stream = new EventIOStream(
                 new SourceURL("file:../gamma_20deg_180deg_run61251___cta-prod2-sc-sst-x_desert-1640m-Aar.simtel"));
@@ -32,10 +29,12 @@ public class BenchmarkPerformance {
     }
 
     @Benchmark
-    public void benchmarkSyntheticStream() throws Exception {
+    public Data benchmarkSyntheticStream() throws Exception {
         Data item = stream.readNext();
         throughput.process(item);
+        return item;
     }
+
 
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()

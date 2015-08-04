@@ -21,6 +21,7 @@ import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stream.Data;
+import streams.hexmap.ui.plotting.OverlayPlotData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -67,7 +68,7 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 
 
 	private ArrayList<CameraMapOverlay> overlays = new ArrayList<>();
-	private Set<Pair<String, Color>> overlayKeys = new HashSet<>();
+//	private Set<Pair<String, Color>> overlayKeys = new HashSet<>();
 	Set<FactCameraPixel> selectedPixels = new LinkedHashSet<>();
 
 	// formater to display doubles nicely
@@ -139,7 +140,7 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 
 		this.dataItem = itemChangedEvent.item;
 
-		overlays = updateOverlays(overlayKeys, dataItem);
+//		overlays = updateOverlays(overlayKeys, dataItem);
 
 		minValueInData = Double.MAX_VALUE;
 		maxValueInData = Double.MIN_VALUE;
@@ -153,12 +154,7 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 		}
 	}
 
-	public void setOverlayItemsToDisplay(Set<Pair<String, Color>> items) {
-		overlayKeys = items;
-		overlays = updateOverlays(items, dataItem);
-		this.repaint();
-	}
-
+	
 	/**
 	 * We call this method whenever a new Overlay is supposed to be drawn.
 	 * When the user checks a checkbox for example below the cameradisplay for example. Or chooses
@@ -245,6 +241,7 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 					slice = sliceValues[tile.getCameraPixel().id].length - 1;
 				}
 				double value = sliceValues[tile.getCameraPixel().id][slice];
+
 				tile.setFillColor(this.colormap.getColorFromValue(value,
 						minValueInData, maxValueInData));
 				if (selectedPixels.contains(p)) {
@@ -269,11 +266,10 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 			// draw cross across screen to indicate center of component
             g2.setColor(Color.red);
             g2.drawString("Work In Progress", 50, 50);
-			 Line2D line = new Line2D.Double(0,0, getWidth(),getHeight());
-			 g2.draw(line);
-			//
-			 line = new Line2D.Double(getWidth(),0,0,getHeight());
-			 g2.draw(line);
+            Line2D line = new Line2D.Double(0,0, getWidth(),getHeight());
+            g2.draw(line);
+            line = new Line2D.Double(getWidth(),0,0,getHeight());
+            g2.draw(line);
 
 			if (includeScale) {
 				g2.translate(this.canvasWidth - 40, 0);

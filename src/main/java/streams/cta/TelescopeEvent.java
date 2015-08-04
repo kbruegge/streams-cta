@@ -3,11 +3,12 @@
  */
 package streams.cta;
 
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * @author chris
+ * @author kai
  * 
  */
 public class TelescopeEvent implements Serializable {
@@ -18,11 +19,12 @@ public class TelescopeEvent implements Serializable {
     public final LocalDateTime timeStamp;
     public final int roi;
 
-
     public TelescopeEvent(long eventId, short[][] data, LocalDateTime timeStamp) {
         this.data = data;
         this.eventId = eventId;
         this.timeStamp = timeStamp;
         this.roi = data[0].length;
     }
+
+
 }

@@ -5,6 +5,7 @@ package streams.hexmap.ui.components;
 
 import com.google.common.eventbus.Subscribe;
 import streams.Utils;
+import streams.cta.TelescopeEvent;
 import streams.hexmap.CameraPixel;
 import streams.hexmap.ui.Bus;
 import streams.hexmap.ui.EventObserver;
@@ -23,6 +24,8 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import stream.Data;
+import streams.hexmap.ui.plotting.IntervalPlotData;
+import streams.hexmap.ui.plotting.LinePlotData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,10 +35,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * This is the panel containing the jfreechart plotting stuff. It can plot the timeseries for selected pixels or
+ * if showAverage is True show the averaged timeseries over all pixel
  *
  *  @author Kai
  */
-public class MainPlotPanel extends JPanel implements EventObserver, SliceObserver, PixelSelectionObserver{
+public class MainPlotPanel extends JPanel implements SliceObserver, PixelSelectionObserver{
 
 	/** The unique class ID */
 	private static final long serialVersionUID = -4365922853855318209L;
@@ -46,16 +51,9 @@ public class MainPlotPanel extends JPanel implements EventObserver, SliceObserve
     private boolean showAverage = false;
     private boolean hasTicks = false;
 
-    private HashSet<CameraPixel> selectedPixel = new HashSet<>();
-    private Data item;
-    private int roi = 300;
+    private Set<CameraPixel> selectedPixel = new HashSet<>();
 
-    private Set<Pair<String, Color>> itemsToPlot = new HashSet<>();
-
-    private Set<Pair<String, Color>> markerToPlot = new HashSet<>();
     private int currentSlice = 0;
-    private Pair<String, Color> defaultPair;
-
 
     public void setRange(int min, int max){
         plot.getDomainAxis().setRange(min , max);
@@ -77,7 +75,7 @@ public class MainPlotPanel extends JPanel implements EventObserver, SliceObserve
 
 
         //draw the dashed line showing the current slice
-        addSliceMarker();
+        addSliceMarkerToPlot();
 
 
         final JFreeChart chart = new JFreeChart(plot);
@@ -107,13 +105,6 @@ public class MainPlotPanel extends JPanel implements EventObserver, SliceObserve
     }
 
 
-    @Override
-    @Subscribe
-    public void handleEventChange(ItemChangedEvent itemChangedEvent) {
-        this.item = itemChangedEvent.item;
-        this.roi = itemChangedEvent.telescopeEvent.roi;
-        drawPlot();
-    }
 
     @Override
     @Subscribe
@@ -128,17 +119,8 @@ public class MainPlotPanel extends JPanel implements EventObserver, SliceObserve
     public void handlePixelSelectionChange(Set<CameraPixel> selectedPixel) {
         this.selectedPixel.clear();
         this.selectedPixel.addAll(selectedPixel);
-        drawPlot();
     }
 
-
-
-    public void setItemsToPlot(Set<Pair<String, Color>> items){
-        itemsToPlot =  items;
-    }
-    public void setMarkerToPlot(Set<Pair<String, Color>> marker) {
-        markerToPlot = marker;
-    }
 
 
     public void clearPlot(){
@@ -152,40 +134,34 @@ public class MainPlotPanel extends JPanel implements EventObserver, SliceObserve
         plot.clearDomainMarkers();
     }
 
-    public void drawPlot() {
+    public void drawPlot(Set<LinePlotData> dataToPLot, Set<IntervalPlotData> intervalsToPLot) {
         clearPlot();
-
-        if(itemsToPlot != null && defaultPair != null){
-            itemsToPlot.add(defaultPair);
-        }
-
-        //add the slice marker
-        addSliceMarker();
+        addSliceMarkerToPlot();
 
         //we will be adding multiple datasets to the plot. each dataset needs an index.
         int dataSetCounter = 0;
 
         //iterate over all the selected keys with their corresponding colors
-        for (Pair<String, Color> selectorItem: itemsToPlot){
-            String key = selectorItem.getKey();
-            Color c = selectorItem.getValue();
-            if (item != null && item.containsKey(key)){
+        for (LinePlotData linePlotData: dataToPLot){
+            double[][] data = linePlotData.getPlotData();
+            Color c = linePlotData.getColor();
+            String name = linePlotData.getName();
+            if (data != null ){
                 //for each key we have to plot we create a new renderer so we can have a custom color for every key
-                double[] data = Utils.toDoubleArray(item.get(key));
                 XYLineAndShapeRenderer r = new XYLineAndShapeRenderer();
                 r.setSeriesPaint(0, c);
                 r.setBaseShapesVisible(hasTicks);
                 //we also create a new dataset for each key
                 XYSeriesCollection dataset =  new XYSeriesCollection();
                 if(showAverage) {
-                    double[] average = Utils.averageSlicesForEachPixel(data, roi);
-                    dataset.addSeries(createSeries(key, average));
+//                    double[] average = Utils.averageSlicesForEachPixel(data, roi);
+//                    dataset.addSeries(createSeries(name, average));
                 }else{
                     //for each pixel add a new series to the dataset
                     int seriesCounter = 0;
                     for(CameraPixel p : selectedPixel) {
                         r.setSeriesPaint(seriesCounter, c);
-                        dataset.addSeries(createSeriesForPixel(key+"_" + p.id, data, roi, p));
+                        dataset.addSeries(createSeriesForPixel(name+"_" + p.id, data[p.id]));
                         seriesCounter++;
                     }
                 }
@@ -196,14 +172,12 @@ public class MainPlotPanel extends JPanel implements EventObserver, SliceObserve
             dataSetCounter++;
         }
 
-        for (Pair<String, Color> m : markerToPlot) {
-            if (item != null && item.containsKey(m.getKey())) {
+        for (IntervalPlotData m : intervalsToPLot) {
                 for(CameraPixel p: selectedPixel){
-                    IntervalMarker marker = ((IntervalMarker[]) item.get(m.getKey()))[p.id];
-                    marker.setPaint(m.getValue());
+                    IntervalMarker marker = m.getIntervalMarkers()[p.id];
+                    marker.setPaint(m.getColor());
                     plot.addDomainMarker(marker);
                 }
-            }
         }
         //call this to update the plot
         plot.datasetChanged(null);
@@ -212,7 +186,7 @@ public class MainPlotPanel extends JPanel implements EventObserver, SliceObserve
     /**
      * adds the slice marker to the plot
      */
-    private void addSliceMarker() {
+    private void addSliceMarkerToPlot() {
         sliceMarker = new ValueMarker(currentSlice);
         sliceMarker.setPaint(Color.gray);
         sliceMarker.setStroke(new BasicStroke(1.0f, // Width
@@ -226,17 +200,10 @@ public class MainPlotPanel extends JPanel implements EventObserver, SliceObserve
     }
 
 
-    private XYSeries createSeriesForPixel(String name, double[] data, int roi, CameraPixel p ) {
+    private XYSeries createSeriesForPixel(String name, double[] pixelData) {
         XYSeries series = new XYSeries(name);
-        if(data.length == 1440){
-            series.add(0, data[p.id]);
-            return series;
-        }
-        series.setDescription(name);
-        int start = p.id * roi;
-        int end = p.id * roi + roi;
-		for (int i = start; i < end; i++) {
-			series.add((double) (i - start), data[i]);
+		for (int i = 0; i < pixelData.length; i++) {
+			series.add(i, pixelData[i]);
 		}
 		return series;
 	}

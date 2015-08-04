@@ -9,7 +9,7 @@ import streams.cta.TelescopeEvent;
 import streams.hexmap.ui.components.EventInfoPanel;
 import streams.hexmap.ui.components.MainPlotPanel;
 import streams.hexmap.ui.components.StreamNavigationPanel;
-import streams.hexmap.ui.components.cameradisplay.DisplayPanel;
+import streams.hexmap.ui.components.cameradisplay.CameraDisplayPanel;
 import streams.hexmap.ui.events.ItemChangedEvent;
 import streams.hexmap.ui.windows.CameraWindow;
 import streams.hexmap.ui.windows.PlotDisplayWindow;
@@ -39,7 +39,7 @@ public class Viewer extends JFrame {
 
 
     //------some components for the viewer
-    final DisplayPanel mapDisplay = new DisplayPanel();
+    final CameraDisplayPanel mapDisplay = new CameraDisplayPanel();
     final StreamNavigationPanel navigation = new StreamNavigationPanel();
     final MainPlotPanel chartPanel = new MainPlotPanel(550, 350, true);
     final EventInfoPanel eventInfoPanel = new EventInfoPanel(600, 320);

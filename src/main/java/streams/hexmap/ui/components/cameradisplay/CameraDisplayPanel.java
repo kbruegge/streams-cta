@@ -13,7 +13,6 @@ import streams.hexmap.ui.EventObserver;
 import streams.hexmap.ui.colormaps.ColorMapping;
 import streams.hexmap.ui.components.selectors.CameraOverlayKeySelector;
 import streams.hexmap.ui.events.ItemChangedEvent;
-import streams.hexmap.ui.events.OverlaySelectionChangedEvent;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,14 +32,13 @@ import java.io.IOException;
 import java.util.Set;
 
 /**
- * This panel contains the hexmap with the overlay selector below it. The
- * colorbar is part of the hexmap.
+ * This panel contains the hexmap with the overlay selector below it. The colorbar is part of the hexmap.
  * 
  * Created by kaibrugge on 02.06.14.
  */
-public class DisplayPanel extends JPanel implements EventObserver {
+public class CameraDisplayPanel extends JPanel implements EventObserver {
 
-	static Logger log = LoggerFactory.getLogger(DisplayPanel.class);
+	static Logger log = LoggerFactory.getLogger(CameraDisplayPanel.class);
 
 	final HexMapDisplay hexmap = new HexMapDisplay(1, 600, 530);
 	final CameraOverlayKeySelector selector = new CameraOverlayKeySelector();
@@ -60,16 +58,16 @@ public class DisplayPanel extends JPanel implements EventObserver {
 	@Override
 	@Subscribe
 	public void handleEventChange(ItemChangedEvent itemKeyPair) {
-		hexmap.setOverlayItemsToDisplay(selector.getSelectedItemPairs());
+//		hexmap.setOverlayItemsToDisplay(selector.getSelectedPlotData());
 		// hexmap.handleEventChange(itemKeyPair);
 	}
 
-	@Subscribe
-	public void handleSelectionChange(OverlaySelectionChangedEvent e) {
-		hexmap.setOverlayItemsToDisplay(selector.getSelectedItemPairs());
-	}
+//	@Subscribe
+//	public void handleSelectionChange(OverlaySelectionChangedEvent e) {
+//		hexmap.setOverlayItemsToDisplay(selector.getPlotData());
+//	}
 
-	public DisplayPanel() {
+	public CameraDisplayPanel() {
 		Bus.eventBus.register(this);
 
 		// get all classes that implement the colormapping interface

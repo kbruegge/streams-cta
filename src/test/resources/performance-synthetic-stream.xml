@@ -1,15 +1,28 @@
 <application>
 
-    <properties>
-        <data.file.gamma>../gamma_20deg_180deg_run61251___cta-prod2-sc-sst-x_desert-1640m-Aar.simtel</data.file.gamma>
-        <data.file.proton>../proton_20deg_0deg_run32286___cta-prod2_desert-1640m-Aar.simtel</data.file.proton>
-    </properties>
-    
-    <stream id="cta:data" class="streams.cta.io.EventIOStream"
-            url="file:${data.file.proton}"/>
-    
-    <process input="cta:data">
-		   <streams.cta.Throughput />
+
+    <stream id="telescope_1:data" class="streams.cta.TelescopeStream"
+            url="tcp:/192.123.92.1"/>
+
+
+    <stream id="telescope_2:data" class="streams.cta.TelescopeStream"
+            url="tcp:/192.123.92.2"/>
+
+    <process input="telescope_1:data">
+        <streams.cta.Analysis />
+        <Enqueue queues="gammas" condition="%{data.@label} == gamma" />
+    </process>
+
+    <process input="telescope_2:data">
+        <streams.cta.Analysis />
+        <Enqueue queues="gammas" condition="%{data.@label} == gamma" />
+    </process>
+
+
+    <stream.io.BlockingQueue id="gammas"/>
+    <process input="gammas">
+        <streams.cta.Stereo />
+        <PrintData/>
     </process>
     
 </application>
