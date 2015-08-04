@@ -15,34 +15,18 @@ import stream.ProcessContext;
  */
 public class Throughput extends AbstractProcessor {
 
-    static Logger log = LoggerFactory.getLogger(Throughput.class);
+//	static Logger log = LoggerFactory.getLogger(Throughput.class);
 
-    long pixelCount = 0L;
+	long eventCount = 0L;
 
-
-    @Override
-    public void init(ProcessContext ctx) throws Exception {
-        super.init(ctx);
-    }
 
     /**
-     * @see stream.Processor#process(stream.Data)
-     */
-    @Override
-    public Data process(Data input) {
-        if (input != null) {
-            CTAEvent ev = (CTAEvent) input.get("@event");
-            pixelCount += ev.numberOfPixels;
-        }
-        return input;
-    }
-
-    /**
-     * @see stream.AbstractProcessor#finish()
-     */
-    @Override
-    public void finish() throws Exception {
-        super.finish();
-    }
-
+	 * @see stream.Processor#process(stream.Data)
+	 */
+	@Override
+	public Data process(Data input) {
+        TelescopeEvent ev = (TelescopeEvent) input.get("@event");
+		eventCount++;
+		return input;
+	}
 }
