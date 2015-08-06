@@ -1,12 +1,11 @@
 package streams.hexmap.ui.components.selectors;
 
+import streams.cta.TelescopeEvent;
 import streams.hexmap.ui.Bus;
 import streams.hexmap.ui.events.OverlaySelectionChangedEvent;
 import streams.hexmap.ui.overlays.CameraMapOverlay;
 import stream.Data;
-import streams.hexmap.ui.plotting.LinePlotData;
 import streams.hexmap.ui.plotting.OverlayPlotData;
-import streams.hexmap.ui.plotting.PlotData;
 
 import java.awt.*;
 import java.util.HashSet;
@@ -18,13 +17,13 @@ import java.util.Set;
  */
 public class CameraOverlayKeySelector extends KeySelector {
 
-    @Override
-    public void selectionUpdate() {
-        Bus.eventBus.post(new OverlaySelectionChangedEvent(this.getPlotData()));
-    }
+//    @Override
+//    public void selectionUpdate() {
+//        Bus.eventBus.post(new OverlaySelectionChangedEvent(getSelectedPlotData()));
+//    }
 
     @Override
-    public Set<KeySelectorItem> filterItems(Data item) {
+    public Set<KeySelectorItem> filterItems(Data item, TelescopeEvent telescopeEvent) {
         Set<KeySelectorItem> newItems = new HashSet<>();
         for  (String key: item.keySet()){
             try {
@@ -37,10 +36,6 @@ public class CameraOverlayKeySelector extends KeySelector {
         return newItems;
     }
 
-    @Override
-    public Set<OverlayPlotData> getPlotData() {
-        return null;
-    }
 
 
 }

@@ -26,22 +26,4 @@ public class PlotData {
     public void setColor(Color color) {
         this.color = color;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        PlotData plotData = (PlotData) o;
-
-        if (color != null ? !color.equals(plotData.color) : plotData.color != null) return false;
-        return !(name != null ? !name.equals(plotData.name) : plotData.name != null);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = color != null ? color.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        return result;
-    }
 }

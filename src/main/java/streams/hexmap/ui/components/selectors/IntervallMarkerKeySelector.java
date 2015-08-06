@@ -1,12 +1,9 @@
 package streams.hexmap.ui.components.selectors;
 
-import streams.hexmap.ui.Bus;
-import streams.hexmap.ui.events.IntervallMarkerSelectionChangedEvent;
+import streams.cta.TelescopeEvent;
 import org.jfree.chart.plot.IntervalMarker;
 import stream.Data;
 import streams.hexmap.ui.plotting.IntervalPlotData;
-import streams.hexmap.ui.plotting.LinePlotData;
-import streams.hexmap.ui.plotting.PlotData;
 
 import java.awt.*;
 import java.util.HashSet;
@@ -16,13 +13,9 @@ import java.util.Set;
  * Created by kaibrugge on 02.06.14.
  */
 public class IntervallMarkerKeySelector extends KeySelector {
-    @Override
-    public void selectionUpdate() {
-        Bus.eventBus.post(new IntervallMarkerSelectionChangedEvent(getPlotData()));
-    }
 
     @Override
-    public Set<KeySelectorItem> filterItems(Data item) {
+    public Set<KeySelectorItem> filterItems(Data item, TelescopeEvent telescopeEvent) {
         Set<KeySelectorItem> newItems = new HashSet<>();
         for (String key : item.keySet()) {
             try {
@@ -38,8 +31,4 @@ public class IntervallMarkerKeySelector extends KeySelector {
         return newItems;
     }
 
-    @Override
-    public Set<IntervalPlotData> getPlotData() {
-        return null;
-    }
 }

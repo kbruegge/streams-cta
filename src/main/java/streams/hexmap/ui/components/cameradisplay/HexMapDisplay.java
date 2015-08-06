@@ -21,7 +21,6 @@ import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stream.Data;
-import streams.hexmap.ui.plotting.OverlayPlotData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -154,7 +153,7 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 		}
 	}
 
-	
+
 	/**
 	 * We call this method whenever a new Overlay is supposed to be drawn.
 	 * When the user checks a checkbox for example below the cameradisplay for example. Or chooses
@@ -443,12 +442,6 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 	@Override
 	public Dimension getPreferredSize() {
 		return getMinimumSize();
-	}
-
-	// ------Getter and Setter----------------
-	@Override
-	public int getNumberOfTiles() {
-		return tiles.length;
 	}
 
 	public double getTileRadiusInPixels() {

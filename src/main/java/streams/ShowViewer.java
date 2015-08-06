@@ -63,16 +63,13 @@ public class ShowViewer implements StatefulProcessor {
                     }
 					viewer.getNextButton().setEnabled(true);
 					viewer.getNextButton().addActionListener(
-							new ActionListener() {
-								@Override
-								public void actionPerformed(ActionEvent arg0) {
-									synchronized (lock) {
-										lock.set(!lock.get());
-										log.debug("Notifying all listeners on lock...");
-										lock.notifyAll();
-									}
-								}
-							});
+							arg0 -> {
+                                synchronized (lock) {
+                                    lock.set(!lock.get());
+                                    log.debug("Notifying all listeners on lock...");
+                                    lock.notifyAll();
+                                }
+                            });
 				}
 				viewer.setVisible(true);
                 TelescopeEvent event = (TelescopeEvent) input.get("@event");

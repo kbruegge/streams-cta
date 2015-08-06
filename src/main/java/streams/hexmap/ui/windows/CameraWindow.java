@@ -24,7 +24,7 @@ import java.awt.event.ActionListener;
  */
 public class CameraWindow implements EventObserver {
     private final CameraDisplayPanel hexMapDisplay;
-    private final JComboBox keyComboBox = new JComboBox();
+    private final JComboBox<String> keyComboBox = new JComboBox<>();
     private Data dataItem;
 
 
@@ -88,10 +88,11 @@ public class CameraWindow implements EventObserver {
         keyComboBox.removeAllItems();
         for(String key : dataItem.keySet()){
             double[] data = Utils.toDoubleArray(dataItem.get(key));
-            if(data != null && data.length > 0 && data.length%1440 == 0) {
+            if(data != null && data.length > 0 && data.length%itemChangedEvent.telescopeEvent.roi == 0) {
                 keyComboBox.addItem(key);
                 if(key.equals(selectedKey)){
                     keyComboBox.setSelectedItem(key);
+                    selectedKey = key;
                 }
             }
         }

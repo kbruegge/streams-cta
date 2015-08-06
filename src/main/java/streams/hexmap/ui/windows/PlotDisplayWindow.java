@@ -6,20 +6,23 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
+import streams.cta.TelescopeEvent;
 import streams.hexmap.ui.Bus;
-import streams.hexmap.ui.components.MainPlotPanel;
+import streams.hexmap.ui.EventObserver;
+import streams.hexmap.ui.components.SelectedLinePlotPanel;
 import streams.hexmap.ui.components.selectors.IntervallMarkerKeySelector;
-import streams.hexmap.ui.components.selectors.TelescopeEventSelector;
-import streams.hexmap.ui.events.IntervallMarkerSelectionChangedEvent;
+import streams.hexmap.ui.components.selectors.LinePlotSelector;
+import streams.hexmap.ui.events.ItemChangedEvent;
 import streams.hexmap.ui.events.PlotSelectionChangedEvent;
 
 import javax.swing.*;
 
-public class PlotDisplayWindow {
+public class PlotDisplayWindow implements EventObserver{
 
-	private final MainPlotPanel plotPanel = new MainPlotPanel(750, 480, false);
-    private final TelescopeEventSelector keySelector = new TelescopeEventSelector();
+	private final SelectedLinePlotPanel plotPanel = new SelectedLinePlotPanel(750, 480);
+    private final LinePlotSelector keySelector = new LinePlotSelector();
     private final IntervallMarkerKeySelector intervalKeySelector = new IntervallMarkerKeySelector();
+    private TelescopeEvent telescopeEvent;
 
     public PlotDisplayWindow() {
         Bus.eventBus.register(this);
@@ -54,15 +57,24 @@ public class PlotDisplayWindow {
     }
 
 
-    @Subscribe
-    public void handleKeySelectionChange(IntervallMarkerSelectionChangedEvent e){
-        plotPanel.drawPlot(keySelector.getPlotData(), intervalKeySelector.getPlotData());
-    }
+//    @Subscribe
+//    public void handleKeySelectionChange(IntervallMarkerSelectionChangedEvent e){
+//        plotPanel.drawPlot(keySelector.getPlotData(), intervalKeySelector.getPlotData());
+//    }
+
 
     @Subscribe
     public void handleKeySelectionChange(PlotSelectionChangedEvent e){
-        plotPanel.drawPlot(keySelector.getPlotData(), intervalKeySelector.getPlotData());
+        plotPanel.drawPlot(keySelector.getSelectedPlotData(), intervalKeySelector.getSelectedPlotData(), telescopeEvent);
     }
+
+    @Override
+    public void handleEventChange(ItemChangedEvent itemChangedEvent) {
+        this.telescopeEvent = itemChangedEvent.telescopeEvent;
+        keySelector.updateSelectionItems(itemChangedEvent);
+        plotPanel.drawPlot(keySelector.getSelectedPlotData(), intervalKeySelector.getSelectedPlotData(), telescopeEvent);
+    }
+
 
     public static void main(String[]args){
         PlotDisplayWindow p = new PlotDisplayWindow();
