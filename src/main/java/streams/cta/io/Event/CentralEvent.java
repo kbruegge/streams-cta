@@ -124,7 +124,7 @@ public class CentralEvent {
                             return false;
                         }
 
-                        teltrgList = buffer.readVectorOfInts(numTelTriggered);
+                        teltrgList = buffer.readVectorOfShorts(numTelTriggered);
                         teltrgTime = buffer.readVectorOfFloats(numTelTriggered);
                         numTelData = buffer.readShort();
 
@@ -136,7 +136,7 @@ public class CentralEvent {
                             return false;
                         }
 
-                        teldataList = buffer.readVectorOfInts(numTelData);
+                        teldataList = buffer.readVectorOfShorts(numTelData);
                     } else {
                         numTelTriggered = 0;
                         numTelData = 0;
@@ -165,7 +165,7 @@ public class CentralEvent {
                             if (ntt > 1) {
                                 for (int triggers = 0; triggers < Constants.MAX_TEL_TRIGGERS; triggers++) {
                                     if ((teltrgTypeMask[telCount] & (1 << triggers)) == 1) {
-                                        teltrgTimeByType[telCount][triggers] = buffer.readReal();
+                                        teltrgTimeByType[telCount][triggers] = buffer.readFloat();
                                     }
                                 }
                             }

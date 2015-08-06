@@ -58,7 +58,7 @@ public class PixelList {
                 }
 
                 if (header.getVersion() < 1) {
-                    pixelList = buffer.readVectorOfInts(pixels);
+                    pixelList = buffer.readVectorOfShorts(pixels);
                 } else {
                     pixelList = buffer.readVectorOfIntsScount(pixels);
                 }

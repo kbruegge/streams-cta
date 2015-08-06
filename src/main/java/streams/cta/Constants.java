@@ -76,4 +76,6 @@ public class Constants {
      */
     public static final int MAX_HEADER_SIZE = 20;
 
+    public static final int LITTLE_ENDIAN = 0;
+    public static final int BIG_ENDIAN = 1;
 }

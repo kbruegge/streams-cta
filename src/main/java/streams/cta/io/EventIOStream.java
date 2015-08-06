@@ -31,7 +31,7 @@ public class EventIOStream extends AbstractStream {
 
     static Logger log = LoggerFactory.getLogger(EventIOStream.class);
 
-    static boolean reverse = false;
+    static int byteOrder = 0;
 
     int numberEvents;
 
@@ -139,7 +139,7 @@ public class EventIOStream extends AbstractStream {
                 log.info("Next sync marker has not been found: \nstill available datastream :" + buffer.dataStream.available());
             }
         }
-        reverse = false;
+        byteOrder = Constants.LITTLE_ENDIAN;
         log.info("Event number " + numberEvents + "\tNumber runs: " + numberRuns);
         return item;
     }
@@ -200,8 +200,8 @@ public class EventIOStream extends AbstractStream {
         }
     }
 
-    private void setReverse(boolean reverse) {
-        EventIOStream.reverse = reverse;
+    private void setReverse(int byteOrder) {
+        EventIOStream.byteOrder = byteOrder;
     }
 
     public void setBufferSize(int bufferSize) {
