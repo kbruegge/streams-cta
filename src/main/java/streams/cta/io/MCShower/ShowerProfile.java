@@ -51,7 +51,7 @@ public class ShowerProfile {
     /**
      * Histogram contents (allocated on demand).
      */
-    double[] content;
+    float[] content;
 
     /**
      * Read shower profile data. This data has no special header and is called from MCShower
@@ -82,7 +82,7 @@ public class ShowerProfile {
                 binSize = (end - start) / (double) numSteps;
             }
             if (content == null) {
-                content = new double[numSteps];
+                content = new float[numSteps];
                 maxSteps = numSteps;
             }
 
@@ -92,7 +92,7 @@ public class ShowerProfile {
                 }
                 numSteps *= -1;
             } else {
-                content = buffer.readVectorOfReals(numSteps);
+                content = buffer.readVectorOfFloats(numSteps);
             }
             return true;
         } catch (IOException e) {

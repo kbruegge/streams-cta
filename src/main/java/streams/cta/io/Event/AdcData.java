@@ -467,7 +467,7 @@ public class AdcData {
                                 boolean[] reducedWidth = new boolean[listSize];
                                 adcList = new int[listSize];
 
-                                int[] adcListL = buffer.readVectorOfInts(listSize);
+                                int[] adcListL = buffer.readVectorOfShorts(listSize);
                                 mlg = 0;
                                 mhg16 = 0;
                                 mhg8 = 0;

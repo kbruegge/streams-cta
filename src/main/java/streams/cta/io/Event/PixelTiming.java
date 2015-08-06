@@ -163,9 +163,9 @@ public class PixelTiming {
                 }
                 if (header.getVersion() <= 1) {
                     if (listType == 1) {
-                        pixelList = buffer.readVectorOfInts(listSize);
+                        pixelList = buffer.readVectorOfShorts(listSize);
                     } else {
-                        pixelList = buffer.readVectorOfInts(2 * listSize);
+                        pixelList = buffer.readVectorOfShorts(2 * listSize);
                     }
                 } else {
                     if (listType == 1) {
@@ -187,7 +187,7 @@ public class PixelTiming {
                     header.getItemEnd();
                     return false;
                 }
-                timeType = buffer.readVectorOfInts(numTypes);
+                timeType = buffer.readVectorOfShorts(numTypes);
                 timeLevel = buffer.readVectorOfFloats(numTypes);
                 granularity = buffer.readReal();
                 if (granularity > 0.) {

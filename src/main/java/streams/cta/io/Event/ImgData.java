@@ -181,7 +181,7 @@ public class ImgData {
     /**
      * Amplitudes of hotest pixels [mean p.e.]
      */
-    double[] hotAmp;
+    float[] hotAmp;
 
     public ImgData(int id) {
         telId = id;
@@ -270,13 +270,13 @@ public class ImgData {
                     // ADC sum of high-intensity pixels in data
                     if (version <= 5) {
                         numHot = buffer.readShort();
-                        hotAmp = buffer.readVectorOfReals(numHot);
+                        hotAmp = buffer.readVectorOfFloats(numHot);
                         if (version >= 1) {
-                            hotPixel = buffer.readVectorOfInts(numHot);
+                            hotPixel = buffer.readVectorOfShorts(numHot);
                         }
                     } else {
                         numHot = buffer.readSCount32();
-                        hotAmp = buffer.readVectorOfReals(numHot);
+                        hotAmp = buffer.readVectorOfFloats(numHot);
                         if (version >= 1) {
                             hotPixel = buffer.readVectorOfIntsScount(numHot);
                         }

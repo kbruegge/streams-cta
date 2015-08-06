@@ -78,7 +78,7 @@ public class ShowerParameters {
                 }
 
                 if (header.getVersion() >= 2) {
-                    imgList = buffer.readVectorOfInts(numImg);
+                    imgList = buffer.readVectorOfShorts(numImg);
                 }
 
                 if ((resultBits & 0x01) != 0) {

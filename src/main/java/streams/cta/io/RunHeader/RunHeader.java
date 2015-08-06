@@ -49,14 +49,14 @@ public class RunHeader {
      * Tracking/pointing direction in [radians]: [0]=Azimuth, [1]=Altitude in mode 0, [0]=R.A.,
      * [1]=Declination in mode 1.
      */
-    double[] direction;
+    float[] direction;
 
     /**
      * Offset of pointing dir. in camera f.o.v. divided by focal length, i.e. converted to
      * [radians]: [0]=Camera x (downwards in normal pointing, i.e. increasing Alt, [1]=Camera y ->
      * Az).
      */
-    double[] offsetFov;
+    float[] offsetFov;
 
     /**
      * Atmospheric depth of convergence point. In [g/cm^2] from the top of the atmosphere along the
@@ -68,7 +68,7 @@ public class RunHeader {
     /**
      * Reference position for convergent pointing. X,y in [m] at the telescope reference height.
      */
-    double[] convRefPos;
+    float[] convRefPos;
 
     /**
      * Number of telescopes involved.
@@ -84,7 +84,7 @@ public class RunHeader {
      * x,y,z positions of the telescopes [m]. x is counted from array reference position towards
      * North, y towards West, z upwards.
      */
-    double[][] telPos;
+    float[][] telPos;
 
     /**
      * Minimum number of tel. in system trigger.
@@ -134,49 +134,38 @@ public class RunHeader {
                 }
 
                 // init array (both others are getting arrays of right size directly)
-                convRefPos = new double[2];
+                convRefPos = new float[2];
 
-                direction = buffer.readVectorOfReals(2);
-                offsetFov = buffer.readVectorOfReals(2);
+                direction = buffer.readVectorOfFloats(2);
+                offsetFov = buffer.readVectorOfFloats(2);
                 convDepth = buffer.readReal();
                 if (header.getVersion() >= 1) {
                     // New in version 1
-                    convRefPos = buffer.readVectorOfReals(2);
+                    convRefPos = buffer.readVectorOfFloats(2);
                 } else {
-                    convRefPos[0] = 0.;
-                    convRefPos[1] = 0.;
+                    convRefPos[0] = 0.f;
+                    convRefPos[1] = 0.f;
                 }
                 numberTelescopes = buffer.readInt32();
-                telId = buffer.readVectorOfInts(numberTelescopes);
+                telId = buffer.readVectorOfShorts(numberTelescopes);
 
                 buffer.setTelIdx(numberTelescopes, telId);
 
                 //TODO check if is the right conversion from C to JAVA!
                 //get_vector_of_real(&tel_pos[0][0], 3 * numberTelescopes, iobuf);
-                telPos = new double[3][numberTelescopes];
+                telPos = new float[3][numberTelescopes];
                 for (int i = 0; i < 3; i++) {
-                    telPos[i] = buffer.readVectorOfReals(numberTelescopes);
+                    telPos[i] = buffer.readVectorOfFloats(numberTelescopes);
                 }
                 minTelTrig = buffer.readInt32();
                 duration = buffer.readInt32();
 
                 //TODO check if it is the right conversion from C to JAVA!
                 //get_string(line, sizeof(line) - 1, iobuf);
-                char[] line = buffer.readString(1024 - 1);
+                target = buffer.readString(1024 - 1);
 
-                if (target != null && maxLenTarget > 0) {
-                    target = String.valueOf(line, 0, maxLenTarget);
-                } else {
-                    target = String.valueOf(line);
-                }
+                observer = buffer.readString(1024 - 1);
 
-                line = buffer.readString(1024 - 1);
-
-                if (observer != null && maxLenObserver > 0) {
-                    observer = String.valueOf(line, 0, maxLenObserver);
-                } else {
-                    observer = String.valueOf(line);
-                }
                 return header.getItemEnd();
             }
         } catch (IOException e) {
