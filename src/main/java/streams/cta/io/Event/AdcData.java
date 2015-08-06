@@ -1,4 +1,4 @@
-package streams.cta.io.Event;
+package streams.cta.io.event;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,8 +9,8 @@ import streams.cta.Constants;
 import streams.cta.io.EventIOBuffer;
 import streams.cta.io.EventIOHeader;
 
-import static streams.cta.Constants.H_MAX_GAINS;
 import static streams.cta.Constants.HI_GAIN;
+import static streams.cta.Constants.H_MAX_GAINS;
 import static streams.cta.Constants.LO_GAIN;
 
 /**
@@ -145,6 +145,7 @@ public class AdcData {
                 // We have sums and not samples.
                 numSamples = 0;
 
+                //TODO remove constant magic numbers with Constants
                 if (numPixels > Constants.H_MAX_PIX || numGains > Constants.H_MAX_GAINS ||
                         ((numPixels >= 32768) && (zeroSupMode > 1)) || zeroSupMode > 2 ||
                         dataRedMode > 2) {
@@ -169,19 +170,15 @@ public class AdcData {
                 // Without zero-suppression and data-reduction, every channel is known
                 // but if either is z.s. or d.r. is on, a channel is only known
                 // if marked as such in the data.
-                boolean known;
-                if (zeroSupMode == 0 && dataRedMode == 0) {
-                    known = true;
-                } else {
-                    known = false;
-                }
+                boolean known = zeroSupMode == 0 && dataRedMode == 0;
+                short signific = (short) (known ? 1 : 0);
                 for (int j = 0; j < numPixels; j++) {
-                    significant[j] = (short) (known ? 1 : 0);
+                    significant[j] = signific;
                 }
+
                 for (int igains = 0; igains < numGains; igains++) {
                     for (int ipix = 0; ipix < numPixels; ipix++) {
                         adcKnown[igains][ipix] = known;
-                        adcSum[igains][ipix] = 0;
                     }
                 }
 
@@ -220,121 +217,121 @@ public class AdcData {
                                     }
                                 }
                                 break;
-                            //TODO original code: #if (H_MAX_GAINS >= 2) ???
                             case 1:
-                                // Low low-gain channels were skipped (for two gains)
-                                int k = 0;
-                                while (k < numPixels) {
-                                    //TODO check why in original code vector of uint16 is read
-                                    //get_vector_of_uint16( & cflags, 1, iobuf);
-                                    cflags = buffer.readUnsignedShort();
-                                    if (k + 16 <= numPixels) {
-                                        n = 16;
-                                    } else {
-                                        n = numPixels - k;
-                                    }
-                                    for (int j = 0; j < n; j++) {
-                                        if ((cflags & (1 << j)) != 0) {
-                                            mlg++;
-                                        }
-                                    }
-
-                                    if (header.getVersion() < 3) {
-                                        if (numGains >= 2) {
-                                            lgval = readAdcSumAsUint16(buffer, mlg);
-                                        }
-                                        // TODO check if the pointer logic is right
-                                        // get_adcsum_as_uint16(&raw->adc_sum[Constants.HI_GAIN][k], n, iobuf)
-                                        adcSum[HI_GAIN] = readAdcSumAsUint16(buffer, n);
-                                        ;
-                                    } else {
-                                        if (numGains >= 2) {
-                                            lgval = readAdcSumDifferential(buffer, mlg);
-                                        }
-                                        // TODO check if the pointer logic is right
-                                        // get_adcsum_differential(&raw->adc_sum[HI_GAIN][k], n, iobuf)
-                                        adcSum[HI_GAIN] = readAdcSumDifferential(buffer, n);
-                                        ;
-                                    }
-
-                                    mlg = 0;
-                                    for (int j = 0; j < n; j++) {
-                                        if ((cflags & (1 << j)) != 0) {
-                                            adcSum[LO_GAIN][k + j] = lgval[mlg++];
-                                            adcKnown[LO_GAIN][k + j] = true;
+                                if (H_MAX_GAINS >= 2) {
+                                    // Low low-gain channels were skipped (for two gains)
+                                    int k = 0;
+                                    while (k < numPixels) {
+                                        //TODO check why in original code vector of uint16 is read
+                                        //get_vector_of_uint16( & cflags, 1, iobuf);
+                                        cflags = buffer.readUnsignedShort();
+                                        if (k + 16 <= numPixels) {
+                                            n = 16;
                                         } else {
-                                            adcSum[LO_GAIN][k + j] = 0;
-                                            adcKnown[LO_GAIN][k + j] = false;
+                                            n = numPixels - k;
                                         }
-                                        significant[k + j] = 1;
-                                        adcKnown[HI_GAIN][k + j] = true;
-                                    }
-                                    k += n;
-                                }
-                                break;
-
-                            case 2: /* Width of high-gain channel can be reduced */
-                                k = 0;
-                                while (k < numPixels) {
-                                    //TODO check why in original code vector of uint16 is read
-                                    //get_vector_of_uint16( & cflags, 1, iobuf);
-                                    cflags = buffer.readUnsignedShort();
-
-                                    bflags = buffer.readUnsignedShort();
-
-                                    mlg = mhg16 = mhg8 = 0;
-                                    if (k + 16 <= numPixels) {
-                                        n = 16;
-                                    } else {
-                                        n = numPixels - k;
-                                    }
-                                    for (int j = 0; j < n; j++) {
-                                        if ((cflags & (1 << j)) != 0) {
-                                            mlg++;
-                                            mhg16++;
-                                        } else if ((bflags & (1 << j)) != 0) {
-                                            mhg8++;
-                                        } else {
-                                            mhg16++;
-                                        }
-                                    }
-
-                                    if (header.getVersion() < 3) {
-                                        if (numGains >= 2) {
-                                            lgval = readAdcSumAsUint16(buffer, mlg);
-                                        }
-                                        hgval = readAdcSumAsUint16(buffer, mhg16);
-                                    } else {
-                                        if (numGains >= 2) {
-                                            lgval = readAdcSumDifferential(buffer, mlg);
-                                        }
-                                        hgval = readAdcSumDifferential(buffer, mhg16);
-                                    }
-                                    hgval8 = buffer.readVectorOfUnsignedBytes(mhg8);
-                                    //get_vector_of_uint8(hgval8, mhg8, iobuf);
-                                    mlg = mhg8 = mhg16 = 0;
-                                    for (int j = 0; j < n; j++) {
-                                        if ((cflags & (1 << j)) != 0) {
-                                            adcSum[LO_GAIN][k + j] = lgval[mlg++];
-                                            adcKnown[LO_GAIN][k + j] = true;
-                                            adcSum[HI_GAIN][k + j] = hgval[mhg16++];
-                                        } else {
-                                            if ((bflags & (1 << j)) != 0) {
-                                                adcSum[HI_GAIN][k + j] =
-                                                        hgval8[mhg8++] * scaleHg8 + offsetHg8;
-                                            } else {
-                                                adcSum[HI_GAIN][k + j] = hgval[mhg16++];
+                                        for (int j = 0; j < n; j++) {
+                                            if ((cflags & (1 << j)) != 0) {
+                                                mlg++;
                                             }
                                         }
-                                        significant[k + j] = 1;
-                                        adcKnown[HI_GAIN][k + j] = true;
+
+                                        if (header.getVersion() < 3) {
+                                            if (numGains >= 2) {
+                                                lgval = readAdcSumAsUint16(buffer, mlg);
+                                            }
+                                            // TODO check if the pointer logic is right
+                                            // get_adcsum_as_uint16(&raw->adc_sum[Constants.HI_GAIN][k], n, iobuf)
+                                            adcSum[HI_GAIN] = readAdcSumAsUint16(buffer, n);
+                                            ;
+                                        } else {
+                                            if (numGains >= 2) {
+                                                lgval = readAdcSumDifferential(buffer, mlg);
+                                            }
+                                            // TODO check if the pointer logic is right
+                                            // get_adcsum_differential(&raw->adc_sum[HI_GAIN][k], n, iobuf)
+                                            adcSum[HI_GAIN] = readAdcSumDifferential(buffer, n);
+                                            ;
+                                        }
+
+                                        mlg = 0;
+                                        for (int j = 0; j < n; j++) {
+                                            if ((cflags & (1 << j)) != 0) {
+                                                adcSum[LO_GAIN][k + j] = lgval[mlg++];
+                                                adcKnown[LO_GAIN][k + j] = true;
+                                            } else {
+                                                adcSum[LO_GAIN][k + j] = 0;
+                                                adcKnown[LO_GAIN][k + j] = false;
+                                            }
+                                            significant[k + j] = 1;
+                                            adcKnown[HI_GAIN][k + j] = true;
+                                        }
+                                        k += n;
                                     }
-                                    k += n;
+                                    break;
                                 }
-                                break;
-                            //#endif
+                            case 2: /* Width of high-gain channel can be reduced */
+                                if (H_MAX_GAINS >= 2) {
+                                    int k = 0;
+                                    while (k < numPixels) {
+                                        //TODO check why in original code vector of uint16 is read
+                                        //get_vector_of_uint16( & cflags, 1, iobuf);
+                                        cflags = buffer.readUnsignedShort();
+
+                                        bflags = buffer.readUnsignedShort();
+
+                                        mlg = mhg16 = mhg8 = 0;
+                                        if (k + 16 <= numPixels) {
+                                            n = 16;
+                                        } else {
+                                            n = numPixels - k;
+                                        }
+                                        for (int j = 0; j < n; j++) {
+                                            if ((cflags & (1 << j)) != 0) {
+                                                mlg++;
+                                                mhg16++;
+                                            } else if ((bflags & (1 << j)) != 0) {
+                                                mhg8++;
+                                            } else {
+                                                mhg16++;
+                                            }
+                                        }
+
+                                        if (header.getVersion() < 3) {
+                                            if (numGains >= 2) {
+                                                lgval = readAdcSumAsUint16(buffer, mlg);
+                                            }
+                                            hgval = readAdcSumAsUint16(buffer, mhg16);
+                                        } else {
+                                            if (numGains >= 2) {
+                                                lgval = readAdcSumDifferential(buffer, mlg);
+                                            }
+                                            hgval = readAdcSumDifferential(buffer, mhg16);
+                                        }
+                                        hgval8 = buffer.readVectorOfUnsignedBytes(mhg8);
+                                        //get_vector_of_uint8(hgval8, mhg8, iobuf);
+                                        mlg = mhg8 = mhg16 = 0;
+                                        for (int j = 0; j < n; j++) {
+                                            if ((cflags & (1 << j)) != 0) {
+                                                adcSum[LO_GAIN][k + j] = lgval[mlg++];
+                                                adcKnown[LO_GAIN][k + j] = true;
+                                                adcSum[HI_GAIN][k + j] = hgval[mhg16++];
+                                            } else {
+                                                if ((bflags & (1 << j)) != 0) {
+                                                    adcSum[HI_GAIN][k + j] =
+                                                            hgval8[mhg8++] * scaleHg8 + offsetHg8;
+                                                } else {
+                                                    adcSum[HI_GAIN][k + j] = hgval[mhg16++];
+                                                }
+                                            }
+                                            significant[k + j] = 1;
+                                            adcKnown[HI_GAIN][k + j] = true;
+                                        }
+                                        k += n;
+                                    }
+                                    break;
+                                }
                             default:
-                                //TODO is it the default behaviour?
                                 assert (false);
                         }
                         break;
@@ -356,6 +353,7 @@ public class AdcData {
 
                                     int zbits = buffer.readUnsignedShort();
 
+                                    //TODO find out what is the meaning of those variables
                                     m = 0;
                                     mlg = 0;
                                     mhg16 = 0;
@@ -396,7 +394,8 @@ public class AdcData {
                                                 }
                                             }
                                         } else {
-                                            mlg = mhg16 = m;
+                                            mlg = m;
+                                            mhg16 = m;
                                         }
 
                                         if (m > 0) {
@@ -468,7 +467,7 @@ public class AdcData {
                                 boolean[] reducedWidth = new boolean[listSize];
                                 adcList = new int[listSize];
 
-                                int[] adcListL = buffer.readVectorOfInts(listSize);
+                                int[] adcListL = buffer.readVectorOfShorts(listSize);
                                 mlg = 0;
                                 mhg16 = 0;
                                 mhg8 = 0;
@@ -570,7 +569,7 @@ public class AdcData {
         // Old format: 16-bit unsigned, good for <= 16 samples of <= 12 bits or such.
         int[] shortAdcSum = buffer.readVectorOfUnsignedShort((int) number);
         long[] result = new long[(int) number];
-        for (int i = 0; i < shortAdcSum.length; i++) {
+        for (int i = 0; i < number; i++) {
             result[i] = shortAdcSum[i];
         }
         return result;
@@ -615,16 +614,10 @@ public class AdcData {
         listKnown = false;
         listSize = 0;
 
-        for (int igain = 0; igain < numGains; igain++) {
-            for (int ipix = 0; ipix < numPixels; ipix++) {
-                significant[ipix] = 0;
-                adcKnown[igain][ipix] = false;
-                adcSum[igain][ipix] = 0;
-                for (int isample = 0; isample < numSamples; isample++) {
-                    adcSample[igain][ipix][isample] = 0;
-                }
-            }
-        }
+        significant = new short[(int) numPixels];
+        adcKnown = new boolean[(int) numGains][(int) numPixels];
+        adcSum = new long[(int) numGains][(int) numPixels];
+        adcSample = new int[(int) numGains][(int) numPixels][numSamples];
     }
 
     public boolean readTelACSSamples(EventIOBuffer buffer, int what) {
@@ -777,10 +770,10 @@ public class AdcData {
     private int[] readAdcSampleDifferential(EventIOBuffer buffer, int numSamples)
             throws IOException {
         // New format: store as variable-size integers.
-        int ibin;
-        int prevAmp = 0, thisAmp;
+        int prevAmp = 0;
+        int thisAmp;
         int[] adcSample = new int[numSamples];
-        for (ibin = 0; ibin < numSamples; ibin++) {
+        for (int ibin = 0; ibin < numSamples; ibin++) {
             thisAmp = buffer.readSCount32() + prevAmp;
             adcSample[ibin] = thisAmp;
             prevAmp = thisAmp;

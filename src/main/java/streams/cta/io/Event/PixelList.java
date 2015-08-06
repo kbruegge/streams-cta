@@ -1,4 +1,4 @@
-package streams.cta.io.Event;
+package streams.cta.io.event;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +58,7 @@ public class PixelList {
                 }
 
                 if (header.getVersion() < 1) {
-                    pixelList = buffer.readVectorOfInts(pixels);
+                    pixelList = buffer.readVectorOfShorts(pixels);
                 } else {
                     pixelList = buffer.readVectorOfIntsScount(pixels);
                 }

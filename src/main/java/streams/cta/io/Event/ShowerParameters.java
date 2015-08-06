@@ -1,4 +1,4 @@
-package streams.cta.io.Event;
+package streams.cta.io.event;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,24 +34,24 @@ public class ShowerParameters {
     /**
      * Azimuth angle [radians from N->E]
      */
-    double azimuthAngle;
-    double altitude;       ///< Altitude [radians]
-    double errDirX;  ///< Error estimate in nominal plane X direction (|| Alt) [rad]
-    double errDirY;  ///< Error estimate in nominal plane Y direction (|| Az) [rad]
-    double errDir3;  ///< ?
-    double corePosX;        ///< X core position [m]
-    double corePosY;        ///< Y core position [m]
-    double errCoreX; ///< Error estimate in X coordinate [m]
-    double errCoreY; ///< Error estimate in Y coordinate [m]
-    double errCore3; ///< ?
-    double meanScaledLength;      ///< Mean scaled image length [gammas ~1 (HEGRA-style) or ~0 (HESS-style)].
-    double errMeanScaledLength;
-    double meanScaledWidth;      ///< Mean scaled image width [gammas ~1 (HEGRA-style) or ~0 (HESS-style)].
-    double errMeanScaledWidth;
-    double energy;    ///< Primary energy [TeV], assuming a gamma.
-    double errEnergy;
-    double xmax;      ///< Atmospheric depth of shower maximum [g/cm^2].
-    double errXmax;
+    float azimuthAngle;
+    float altitude;       ///< Altitude [radians]
+    float errDirX;  ///< Error estimate in nominal plane X direction (|| Alt) [rad]
+    float errDirY;  ///< Error estimate in nominal plane Y direction (|| Az) [rad]
+    float errDir3;  ///< ?
+    float corePosX;        ///< X core position [m]
+    float corePosY;        ///< Y core position [m]
+    float errCoreX; ///< Error estimate in X coordinate [m]
+    float errCoreY; ///< Error estimate in Y coordinate [m]
+    float errCore3; ///< ?
+    float meanScaledLength;      ///< Mean scaled image length [gammas ~1 (HEGRA-style) or ~0 (HESS-style)].
+    float errMeanScaledLength;
+    float meanScaledWidth;      ///< Mean scaled image width [gammas ~1 (HEGRA-style) or ~0 (HESS-style)].
+    float errMeanScaledWidth;
+    float energy;    ///< Primary energy [TeV], assuming a gamma.
+    float errEnergy;
+    float xmax;      ///< Atmospheric depth of shower maximum [g/cm^2].
+    float errXmax;
 
     public boolean readShower(EventIOBuffer buffer) {
         EventIOHeader header = new EventIOHeader(buffer);
@@ -78,82 +78,83 @@ public class ShowerParameters {
                 }
 
                 if (header.getVersion() >= 2) {
-                    imgList = buffer.readVectorOfInts(numImg);
+                    imgList = buffer.readVectorOfShorts(numImg);
                 }
 
                 if ((resultBits & 0x01) != 0) {
-                    azimuthAngle = buffer.readReal();
-                    altitude = buffer.readReal();
+                    azimuthAngle = buffer.readFloat();
+                    altitude = buffer.readFloat();
                 } else {
-                    azimuthAngle = 0.;
-                    altitude = 0.;
+                    azimuthAngle = 0.f;
+                    altitude = 0.f;
                 }
 
                 if ((resultBits & 0x02) != 0) {
-                    errDirX = buffer.readReal();
-                    errDirY = buffer.readReal();
-                    errDir3 = buffer.readReal();
+                    errDirX = buffer.readFloat();
+                    errDirY = buffer.readFloat();
+                    errDir3 = buffer.readFloat();
                 } else {
-                    errDirX = 0.;
-                    errDirY = 0.;
-                    errDir3 = 0.;
+                    errDirX = 0.f;
+                    errDirY = 0.f;
+                    errDir3 = 0.f;
                 }
 
                 if ((resultBits & 0x04) != 0) {
-                    corePosX = buffer.readReal();
-                    corePosY = buffer.readReal();
+                    corePosX = buffer.readFloat();
+                    corePosY = buffer.readFloat();
                 } else {
-                    corePosX = 0.;
-                    corePosY = 0.;
+                    corePosX = 0.f;
+                    corePosY = 0.f;
                 }
 
                 if ((resultBits & 0x08) != 0) {
-                    errCoreX = buffer.readReal();
-                    errCoreY = buffer.readReal();
-                    errCore3 = buffer.readReal();
+                    errCoreX = buffer.readFloat();
+                    errCoreY = buffer.readFloat();
+                    errCore3 = buffer.readFloat();
                 } else {
-                    errCoreX = 0.;
-                    errCoreY = 0.;
-                    errCore3 = 0.;
+                    errCoreX = 0.f;
+                    errCoreY = 0.f;
+                    errCore3 = 0.f;
                 }
 
                 if ((resultBits & 0x10) != 0) {
-                    meanScaledLength = buffer.readReal();
-                    meanScaledWidth = buffer.readReal();
+                    meanScaledLength = buffer.readFloat();
+                    meanScaledWidth = buffer.readFloat();
                 } else {
-                    meanScaledLength = -1;
-                    meanScaledWidth = -1;
+                    meanScaledLength = -1.f;
+                    meanScaledWidth = -1.f;
                 }
 
                 if ((resultBits & 0x20) != 0) {
-                    errMeanScaledLength = buffer.readReal();
-                    errMeanScaledWidth = buffer.readReal();
+                    errMeanScaledLength = buffer.readFloat();
+                    errMeanScaledWidth = buffer.readFloat();
                 } else {
-                    errMeanScaledLength = errMeanScaledWidth = 0.;
+                    errMeanScaledLength = 0.f;
+                    errMeanScaledWidth = 0.f;
                 }
 
                 if ((resultBits & 0x40) != 0) {
-                    energy = buffer.readReal();
+                    energy = buffer.readFloat();
                 } else {
-                    energy = -1.;
+                    energy = -1.f;
                 }
 
                 if ((resultBits & 0x80) != 0) {
-                    errEnergy = buffer.readReal();
+                    errEnergy = buffer.readFloat();
                 } else {
-                    errEnergy = 0.;
+                    errEnergy = 0.f;
                 }
 
-                xmax = 0.;
+                xmax = 0.f;
 
                 if ((resultBits & 0x0100) != 0) {
-                    xmax = buffer.readReal();
+                    xmax = buffer.readFloat();
                 }
 
-                errXmax = 0.;
+                errXmax = 0.f;
 
                 if ((resultBits & 0x0200) != 0) {
-                    errXmax = buffer.readReal();
+                    errXmax = buffer.readFloat();
                 }
 
                 known = 1;

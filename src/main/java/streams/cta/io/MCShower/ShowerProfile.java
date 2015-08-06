@@ -1,4 +1,4 @@
-package streams.cta.io.MCShower;
+package streams.cta.io.mcshower;
 
 import java.io.IOException;
 
@@ -36,22 +36,22 @@ public class ShowerProfile {
     /**
      * Start of ordinate ([m] or [g/cm^2])
      */
-    double start;
+    float start;
 
     /**
      * End of it.
      */
-    double end;
+    float end;
 
     /**
      * (End-Start)/numSteps; not saved
      */
-    double binSize;
+    float binSize;
 
     /**
      * Histogram contents (allocated on demand).
      */
-    double[] content;
+    float[] content;
 
     /**
      * Read shower profile data. This data has no special header and is called from MCShower
@@ -75,25 +75,24 @@ public class ShowerProfile {
                 }
             }
 
-            start = buffer.readReal();
-            end = buffer.readReal();
+            start = buffer.readFloat();
+            end = buffer.readFloat();
 
             if (numSteps > 0) {
-                binSize = (end - start) / (double) numSteps;
+                binSize = (end - start) / (float) numSteps;
             }
             if (content == null) {
-                content = new double[numSteps];
-                // TODO: consider check whether there is enough space for allocation
+                content = new float[numSteps];
                 maxSteps = numSteps;
             }
 
             if (skip == 1) {
                 for (int j = 0; j < numSteps; j++) {
-                    buffer.readReal();
+                    buffer.readFloat();
                 }
                 numSteps *= -1;
             } else {
-                content = buffer.readVectorOfReals(numSteps);
+                content = buffer.readVectorOfFloats(numSteps);
             }
             return true;
         } catch (IOException e) {

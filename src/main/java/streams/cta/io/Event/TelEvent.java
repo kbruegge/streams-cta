@@ -1,4 +1,4 @@
-package streams.cta.io.Event;
+package streams.cta.io.event;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +67,7 @@ public class TelEvent {
     /**
      * Times when trigger groups (as in list) fired.
      */
-    double[] timeTrgsect;
+    float[] timeTrgsect;
 
 //   char type_trgsect[H_MAX_SECTORS]; ///< 0: majority, 1: analog sum, 2: digital sum.
 
@@ -136,7 +136,7 @@ public class TelEvent {
 
     private void initSectorArrays(int numberTriggeredSectors) {
         listTrgsect = new int[numberTriggeredSectors];
-        timeTrgsect = new double[numberTriggeredSectors];
+        timeTrgsect = new float[numberTriggeredSectors];
     }
 
     private void initPhysicalAdressArray(int numberAdresses) {
@@ -262,9 +262,7 @@ public class TelEvent {
                                     log.warn("Telescope calibrated pixel intensities found, " +
                                             "allocating structures.");
                                 }
-                                pixcal = new PixelCalibrated();
-                                //TODO in original we construct it with a sizeof(PixelCalibrated) and check whether it failed due to not enough memory
-                                pixcal.telId = telId;
+                                pixcal = new PixelCalibrated(telId);
                             }
                             readingSuccessful = pixcal.readPixelCalibrated(buffer);
                             break;
@@ -311,18 +309,8 @@ public class TelEvent {
                                 return header.getItemEnd();
                             }
                     }
-
-                    // if reading was not successful, get to the end of this item
-                    // and stop while loop
-                    if (!readingSuccessful) {
-                        // TODO this is not necessary as we do this later befor "return true"
-                        //header.getItemEnd();
-                        break;
-                    }
-
                     this.known = true;
                 }
-
                 return header.getItemEnd();
             }
         } catch (IOException e) {
@@ -341,8 +329,9 @@ public class TelEvent {
         EventIOHeader header = new EventIOHeader(buffer);
         try {
             if (header.findAndReadNextHeader()) {
-                if (header.getVersion() > 2) {
-                    log.error("Unsupported telescope event header version: " + header.getVersion());
+                long version = header.getVersion();
+                if (version > 2) {
+                    log.error("Unsupported telescope event header version: " + version);
                     header.getItemEnd();
                     return false;
                 }
@@ -363,29 +352,22 @@ public class TelEvent {
                 knownTimeTrgsect = false;
 
                 if ((t & 0x100) != 0) {
-                    numListTrgsect = header.getVersion() <= 1 ?
+                    numListTrgsect = version <= 1 ?
                             buffer.readShort() : buffer.readSCount32();
 
                     // initialize arrays with the right size
                     initSectorArrays(numListTrgsect);
-                    for (int i = 0; i < numListTrgsect; i++) {
-                        listTrgsect[i] = header.getVersion() <= 1 ?
-                                buffer.readShort() : buffer.readSCount32();
-                    }
-                    if (header.getVersion() <= 1 && (t & 0x400) != 0) {
-                        for (int i = 0; i < numListTrgsect; i++) {
-                            timeTrgsect[i] = buffer.readReal();
-                        }
+
+                    fillListTrgSect(buffer, version);
+
+                    if (version <= 1 && (t & 0x400) != 0) {
+                        fillTimeTrgSect(buffer);
                         knownTimeTrgsect = true;
-                    } else {
-                        for (int i = 0; i < numListTrgsect; i++) {
-                            timeTrgsect[i] = 0;
-                        }
                     }
                 }
 
                 if ((t & 0x200) != 0) {
-                    boolean headerGT1 = header.getVersion() <= 1;
+                    boolean headerGT1 = version <= 1;
                     numPhysAddr = headerGT1 ? buffer.readShort() : buffer.readSCount32();
 
                     // initialize array for physical addresses
@@ -402,5 +384,18 @@ public class TelEvent {
         }
 
         return false;
+    }
+
+    private void fillTimeTrgSect(EventIOBuffer buffer) throws IOException {
+        for (int i = 0; i < numListTrgsect; i++) {
+            timeTrgsect[i] = buffer.readFloat();
+        }
+    }
+
+    private void fillListTrgSect(EventIOBuffer buffer, long version) throws IOException {
+        boolean vers = version <= 1;
+        for (int i = 0; i < numListTrgsect; i++) {
+            listTrgsect[i] = vers ? buffer.readShort() : buffer.readSCount32();
+        }
     }
 }

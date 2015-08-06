@@ -1,4 +1,4 @@
-package streams.cta.io.Event;
+package streams.cta.io.event;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,12 +38,12 @@ public class ImgData {
     /**
      * Image amplitude (="SIZE") [mean p.e.]
      */
-    double amplitude;
+    float amplitude;
 
     /**
      * Pixel amplitude clipping level [mean p.e.] or zero for no clipping.
      */
-    double clipAmp;
+    float clipAmp;
 
     /**
      * Number of pixels in saturation (ADC saturation or dedicated clipping).
@@ -55,34 +55,34 @@ public class ImgData {
     /**
      * X position (c.o.g.) [rad], corrected for any camera rotation.
      */
-    double x;
+    float x;
 
     /**
      * Error on x (0: error not known, <0: x not known) [rad]
      */
-    double xErr;
+    float xErr;
 
     /**
      * Y position (c.o.g.) [rad], corrected for any camera rotation.
      */
-    double y;
+    float y;
 
     /**
      * Error on y (0: error not known, <0: y not known) [rad]
      */
-    double yErr;
+    float yErr;
 
     /** Orientation */
 
     /**
      * Angle of major axis w.r.t. x axis [rad], corrected for any camera rotation.
      */
-    double phi;
+    float phi;
 
     /**
      * Error on phi (0: error not known, <0: phi not known) [rad]
      */
-    double phiErr;
+    float phiErr;
 
 
     /** Shape */
@@ -90,42 +90,42 @@ public class ImgData {
     /**
      * Length (major axis) [rad]
      */
-    double length;
+    float length;
 
     /**
      * Error on length (0: error not known, <0: length not known) [rad]
      */
-    double lengthErr;
+    float lengthErr;
 
     /**
      * Width (minor axis) [rad]
      */
-    double width;
+    float width;
 
     /**
      * Error on width (0: error not known, <0: width not known) [rad]
      */
-    double widthErr;
+    float widthErr;
 
     /**
      * Skewness, indicating asymmetry of image
      */
-    double skewness;
+    float skewness;
 
     /**
      * Error (0: error not known, <0: skewness not known)
      */
-    double skewnessErr;
+    float skewnessErr;
 
     /**
      * Kurtosis, indicating sharpness of peak of image
      */
-    double kurtosis;
+    float kurtosis;
 
     /**
      * Error (0: error not known, <0: kurtosis not known)
      */
-    double kurtosisErr;
+    float kurtosisErr;
 
     /**
      * Number of hottest pixels used for concentration
@@ -135,7 +135,7 @@ public class ImgData {
     /**
      * Fraction of total amplitude in numConc hottest pixels
      */
-    double concentration;
+    float concentration;
 
 
     /** Timing */
@@ -143,27 +143,27 @@ public class ImgData {
     /**
      * Slope in peak times along major axis as given by phi. [ns/rad]
      */
-    double tmSlope;
+    float tmSlope;
 
     /**
      * R.m.s. average residual time after slope correction. [ns]
      */
-    double tmResidual;
+    float tmResidual;
 
     /**
      * Average pulse width (50% of peak or time over threshold) [ns]
      */
-    double tmWidth1;
+    float tmWidth1;
 
     /**
      * Average pulse width (20% of peak or 0) [ns]
      */
-    double tmWidth2;
+    float tmWidth2;
 
     /**
      * Average pixel rise time (or 0) [ns]
      */
-    double tmRise;
+    float tmRise;
 
 
     /** Individual pixels */
@@ -181,7 +181,7 @@ public class ImgData {
     /**
      * Amplitudes of hotest pixels [mean p.e.]
      */
-    double[] hotAmp;
+    float[] hotAmp;
 
     public ImgData(int id) {
         telId = id;
@@ -212,7 +212,7 @@ public class ImgData {
                 // always reset it
                 pixels = 0;
                 numSat = 0;
-                clipAmp = 0.;
+                clipAmp = 0.f;
                 if (version >= 6) {
                     pixels = buffer.readSCount32();
                 } else if (version >= 2) {
@@ -225,58 +225,58 @@ public class ImgData {
                         numSat = buffer.readShort();
                     }
                     if (numSat > 0 && version >= 5) {
-                        clipAmp = buffer.readReal();
+                        clipAmp = buffer.readFloat();
                     }
                 }
 
-                amplitude = buffer.readReal();
-                x = buffer.readReal();
-                y = buffer.readReal();
-                phi = buffer.readReal();
-                length = buffer.readReal();
-                width = buffer.readReal();
+                amplitude = buffer.readFloat();
+                x = buffer.readFloat();
+                y = buffer.readFloat();
+                phi = buffer.readFloat();
+                length = buffer.readFloat();
+                width = buffer.readFloat();
                 numConc = buffer.readShort();
-                concentration = buffer.readReal();
+                concentration = buffer.readFloat();
 
                 if ((identification & 0x100) != 0) {
                     // Error estimates of 1st+2nd moments in data
-                    xErr = buffer.readReal();
-                    yErr = buffer.readReal();
-                    phiErr = buffer.readReal();
-                    lengthErr = buffer.readReal();
-                    widthErr = buffer.readReal();
+                    xErr = buffer.readFloat();
+                    yErr = buffer.readFloat();
+                    phiErr = buffer.readFloat();
+                    lengthErr = buffer.readFloat();
+                    widthErr = buffer.readFloat();
                 } else {
-                    xErr = 0.;
-                    yErr = 0.;
-                    phiErr = 0.;
-                    lengthErr = 0.;
-                    widthErr = 0.;
+                    xErr = 0.f;
+                    yErr = 0.f;
+                    phiErr = 0.f;
+                    lengthErr = 0.f;
+                    widthErr = 0.f;
                 }
 
                 if ((identification & 0x200) != 0) {
                     // 3rd+4th moments plus errors in data
-                    skewness = buffer.readReal();
-                    skewnessErr = buffer.readReal();
-                    kurtosis = buffer.readReal();
-                    kurtosisErr = buffer.readReal();
+                    skewness = buffer.readFloat();
+                    skewnessErr = buffer.readFloat();
+                    kurtosis = buffer.readFloat();
+                    kurtosisErr = buffer.readFloat();
                 } else {
-                    skewness = 0.;
-                    skewnessErr = -1.;
-                    kurtosis = 0.;
-                    kurtosisErr = -1.;
+                    skewness = 0.f;
+                    skewnessErr = -1.f;
+                    kurtosis = 0.f;
+                    kurtosisErr = -1.f;
                 }
 
                 if ((identification & 0x400) != 0) {
                     // ADC sum of high-intensity pixels in data
                     if (version <= 5) {
                         numHot = buffer.readShort();
-                        hotAmp = buffer.readVectorOfReals(numHot);
+                        hotAmp = buffer.readVectorOfFloats(numHot);
                         if (version >= 1) {
-                            hotPixel = buffer.readVectorOfInts(numHot);
+                            hotPixel = buffer.readVectorOfShorts(numHot);
                         }
                     } else {
                         numHot = buffer.readSCount32();
-                        hotAmp = buffer.readVectorOfReals(numHot);
+                        hotAmp = buffer.readVectorOfFloats(numHot);
                         if (version >= 1) {
                             hotPixel = buffer.readVectorOfIntsScount(numHot);
                         }
@@ -287,17 +287,17 @@ public class ImgData {
 
                 if ((identification & 0x800) != 0 && version >= 3) {
                     // New in version 3: timing summary
-                    tmSlope = buffer.readReal();
-                    tmResidual = buffer.readReal();
-                    tmWidth1 = buffer.readReal();
-                    tmWidth2 = buffer.readReal();
-                    tmRise = buffer.readReal();
+                    tmSlope = buffer.readFloat();
+                    tmResidual = buffer.readFloat();
+                    tmWidth1 = buffer.readFloat();
+                    tmWidth2 = buffer.readFloat();
+                    tmRise = buffer.readFloat();
                 } else {
-                    tmSlope = 0.;
-                    tmResidual = 0.;
-                    tmWidth1 = 0.;
-                    tmWidth2 = 0.;
-                    tmRise = 0.;
+                    tmSlope = 0.f;
+                    tmResidual = 0.f;
+                    tmWidth1 = 0.f;
+                    tmWidth2 = 0.f;
+                    tmRise = 0.f;
                 }
 
                 known = true;

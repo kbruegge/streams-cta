@@ -1,4 +1,4 @@
-package streams.cta.io.MCShower;
+package streams.cta.io.mcshower;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,47 +29,47 @@ public class MCShower {
     /**
      * primary energy [TeV]
      */
-    public double energy;
+    public float energy;
 
     /**
      * Azimuth (N->E) [rad]
      */
-    double azimuth;
+    float azimuth;
 
     /**
      * Altitude [rad]
      */
-    double altitude;
+    float altitude;
 
     /**
      * Atmospheric depth where particle started [g/cm^2].
      */
-    double depthStart;
+    float depthStart;
 
     /**
      * height of first interaction a.s.l. [m]
      */
-    double hFirstInt;
+    float hFirstInt;
 
     /**
      * Atmospheric depth of shower maximum [g/cm^2], derived from all charged particles.
      */
-    double xmax;
+    float xmax;
 
     /**
      * Height of shower maximum [m] in xmax.
      */
-    double hmax;
+    float hmax;
 
     /**
      * Atm. depth of maximum in electron number.
      */
-    double emax;
+    float emax;
 
     /**
      * Atm. depth of max. in Cherenkov photon emission.
      */
-    double cmax;
+    float cmax;
 
     /**
      * Number of profiles filled.
@@ -92,23 +92,23 @@ public class MCShower {
                 showerNum = header.getIdentification();
 
                 primaryId = buffer.readInt32();
-                energy = buffer.readReal();
-                azimuth = buffer.readReal();
-                altitude = buffer.readReal();
+                energy = buffer.readFloat();
+                azimuth = buffer.readFloat();
+                altitude = buffer.readFloat();
                 if (header.getVersion() >= 1) {
-                    depthStart = buffer.readReal();
+                    depthStart = buffer.readFloat();
                 }
-                hFirstInt = buffer.readReal();
-                xmax = buffer.readReal();
+                hFirstInt = buffer.readFloat();
+                xmax = buffer.readFloat();
 
                 if (header.getVersion() >= 1) {
-                    hmax = buffer.readReal();
-                    emax = buffer.readReal();
-                    cmax = buffer.readReal();
+                    hmax = buffer.readFloat();
+                    emax = buffer.readFloat();
+                    cmax = buffer.readFloat();
                 } else {
-                    hmax = 0d;
-                    emax = 0d;
-                    cmax = 0d;
+                    hmax = 0f;
+                    emax = 0f;
+                    cmax = 0f;
                 }
 
                 numProfiles = buffer.readInt16();

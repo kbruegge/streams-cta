@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 import streams.cta.Constants;
-import streams.cta.io.Event.FullEvent;
+import streams.cta.io.event.FullEvent;
 
 /**
  * Header of EventIO file This class should read the header in front of the data block in EventIO
@@ -84,7 +84,7 @@ public class EventIOHeader {
                 return false;
             }
         } else if (buffer.itemLevel == 0 && !buffer.syncMarkerFound) {
-            EventIOStream.reverse = false;
+            EventIOStream.byteOrder = Constants.LITTLE_ENDIAN;
             boolean found = findSynchronisationMarker();
             if (!found) {
                 log.info("Synchronisation marker could not have been found.");
@@ -190,6 +190,12 @@ public class EventIOHeader {
         return true;
     }
 
+    /**
+     * Using the type code try to get the right EventIO type as text description.
+     *
+     * @param type number of type
+     * @return description/name of the type
+     */
     public String typeToString(int type) {
         String typeString = EventIOStream.eventioTypes.get(type);
 
@@ -219,7 +225,6 @@ public class EventIOHeader {
      * @return true, if marker was found; otherwise false.
      */
     private boolean findSynchronisationMarker() {
-        // find_io_block in eventio.c
         int firstBit = 0;
         int reverse = 1;
         int state = 0;
@@ -227,18 +232,19 @@ public class EventIOHeader {
         int[] syncMarker = {0xD4, 0x1F, 0x8A, 0x37};
 
         try {
+            byte b;
             while (buffer.dataStream.available() > 0) {
-                byte b = buffer.dataStream.readByte();
+                b = buffer.dataStream.readByte();
 
                 if (firstBit == 0) {
                     if (b == syncMarker[0]) {
                         firstBit = 1;
                         state = 1;
+                        EventIOStream.byteOrder = Constants.BIG_ENDIAN;
                     } else if (b == syncMarker[3]) {
                         firstBit = 1;
                         state = 2;
                         reverse = -1;
-                        EventIOStream.reverse = true;
                     }
                 } else {
                     if (b == (byte) syncMarker[state]) {
