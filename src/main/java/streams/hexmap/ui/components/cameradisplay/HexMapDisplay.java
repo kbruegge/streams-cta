@@ -151,6 +151,7 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 				maxValueInData = maxValueInData <  value ?  value : maxValueInData ;
 			}
 		}
+		this.repaint();
 	}
 
 
