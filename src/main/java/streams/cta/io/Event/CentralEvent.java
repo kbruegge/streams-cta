@@ -165,7 +165,7 @@ public class CentralEvent {
                             if (ntt > 1) {
                                 for (int triggers = 0; triggers < Constants.MAX_TEL_TRIGGERS; triggers++) {
                                     if ((teltrgTypeMask[telCount] & (1 << triggers)) == 1) {
-                                        teltrgTimeByType[telCount][triggers] = buffer.readReal();
+                                        teltrgTimeByType[telCount][triggers] = buffer.readFloat();
                                     }
                                 }
                             }

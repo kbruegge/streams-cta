@@ -67,7 +67,7 @@ public class TelEvent {
     /**
      * Times when trigger groups (as in list) fired.
      */
-    double[] timeTrgsect;
+    float[] timeTrgsect;
 
 //   char type_trgsect[H_MAX_SECTORS]; ///< 0: majority, 1: analog sum, 2: digital sum.
 
@@ -136,7 +136,7 @@ public class TelEvent {
 
     private void initSectorArrays(int numberTriggeredSectors) {
         listTrgsect = new int[numberTriggeredSectors];
-        timeTrgsect = new double[numberTriggeredSectors];
+        timeTrgsect = new float[numberTriggeredSectors];
     }
 
     private void initPhysicalAdressArray(int numberAdresses) {
@@ -388,7 +388,7 @@ public class TelEvent {
 
     private void fillTimeTrgSect(EventIOBuffer buffer) throws IOException {
         for (int i = 0; i < numListTrgsect; i++) {
-            timeTrgsect[i] = buffer.readReal();
+            timeTrgsect[i] = buffer.readFloat();
         }
     }
 

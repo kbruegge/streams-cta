@@ -63,7 +63,7 @@ public class RunHeader {
      * system viewing direction. Typically 0 for parallel viewing or about Xmax(0.x TeV) for
      * convergent viewing.
      */
-    double convDepth;
+    float convDepth;
 
     /**
      * Reference position for convergent pointing. X,y in [m] at the telescope reference height.
@@ -138,7 +138,7 @@ public class RunHeader {
 
                 direction = buffer.readVectorOfFloats(2);
                 offsetFov = buffer.readVectorOfFloats(2);
-                convDepth = buffer.readReal();
+                convDepth = buffer.readFloat();
                 if (header.getVersion() >= 1) {
                     // New in version 1
                     convRefPos = buffer.readVectorOfFloats(2);

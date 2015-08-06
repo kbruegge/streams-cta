@@ -317,7 +317,7 @@ public class EventIOBuffer {
      *
      * @return float value that is read from readInt32()
      */
-    public float readReal() throws IOException {
+    public float readFloat() throws IOException {
         return Float.intBitsToFloat(readInt32());
     }
 
@@ -714,7 +714,7 @@ public class EventIOBuffer {
     public float[] readVectorOfFloats(int number) throws IOException {
         float[] result = new float[number];
         for (int i = 0; i < number; i++) {
-            result[i] = readReal();
+            result[i] = readFloat();
         }
         return result;
     }

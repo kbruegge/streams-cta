@@ -36,17 +36,17 @@ public class ShowerProfile {
     /**
      * Start of ordinate ([m] or [g/cm^2])
      */
-    double start;
+    float start;
 
     /**
      * End of it.
      */
-    double end;
+    float end;
 
     /**
      * (End-Start)/numSteps; not saved
      */
-    double binSize;
+    float binSize;
 
     /**
      * Histogram contents (allocated on demand).
@@ -75,11 +75,11 @@ public class ShowerProfile {
                 }
             }
 
-            start = buffer.readReal();
-            end = buffer.readReal();
+            start = buffer.readFloat();
+            end = buffer.readFloat();
 
             if (numSteps > 0) {
-                binSize = (end - start) / (double) numSteps;
+                binSize = (end - start) / (float) numSteps;
             }
             if (content == null) {
                 content = new float[numSteps];
@@ -88,7 +88,7 @@ public class ShowerProfile {
 
             if (skip == 1) {
                 for (int j = 0; j < numSteps; j++) {
-                    buffer.readReal();
+                    buffer.readFloat();
                 }
                 numSteps *= -1;
             } else {

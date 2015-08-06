@@ -32,7 +32,7 @@ public class ShowerExtraParameters {
      * and the remaining showers may have a larger weight to compensate for that. For backwards
      * compatibility this should be set to 1.0 when no additional weight is needed.
      */
-    double weight;
+    float weight;
 
     /**
      * Number of extra integer parameters.
@@ -52,7 +52,7 @@ public class ShowerExtraParameters {
     /**
      * Space for extra floats, at least of size nfparam.
      */
-    double[] fparam;
+    float[] fparam;
 
     /**
      * Reset all the values for the object of type ShowerExtraParameters
@@ -60,7 +60,7 @@ public class ShowerExtraParameters {
     public void clearShowerExtraParameters() {
         id = 0;
         isSet = 0;
-        weight = 1.0;
+        weight = 1.0f;
 
         if (iparam != null) {
             for (int i = 0; i < niparam; i++) {
@@ -95,7 +95,7 @@ public class ShowerExtraParameters {
                 }
 
                 id = header.getIdentification();
-                weight = buffer.readReal();
+                weight = buffer.readFloat();
 
                 // detect number of integer and float parameters dynamically
                 long ni = buffer.readCount();
@@ -115,9 +115,9 @@ public class ShowerExtraParameters {
                 // fill the fparam list
                 if (nf > 0) {
                     if (nf != nfparam) {
-                        fparam = new double[(int) nf];
+                        fparam = new float[(int) nf];
                         for (int i = 0; i < nf; i++) {
-                            fparam[i] = buffer.readReal();
+                            fparam[i] = buffer.readFloat();
                         }
                     }
                 }

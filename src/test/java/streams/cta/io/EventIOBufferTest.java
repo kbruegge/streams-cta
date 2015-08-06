@@ -144,7 +144,7 @@ public class EventIOBufferTest {
         byte[] b = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putFloat(toread).array();
         outDataStream.write(b);
         outDataStream.flush();
-        float readReal = buffer.readReal();
+        float readReal = buffer.readFloat();
         assertEquals(toread, readReal, 0.1);
 
         // check LittleEndian
@@ -152,7 +152,7 @@ public class EventIOBufferTest {
         b = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(toread).array();
         outDataStream.write(b);
         outDataStream.close();
-        readReal = buffer.readReal();
+        readReal = buffer.readFloat();
         assertEquals(toread, readReal, 0.1);
     }
 
