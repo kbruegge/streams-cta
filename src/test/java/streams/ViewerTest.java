@@ -23,7 +23,6 @@ public class ViewerTest {
     Viewer viewer = Viewer.getInstance();
 
     //this can't be called during an automated unit test cause it needs some user input to exit
-    @Test
     public void viewer() throws Exception {
 
         syntheticEventStream.init();
@@ -66,7 +65,6 @@ public class ViewerTest {
 
     }
 
-    @Test
     public void testViewerXML() throws Exception {
         final URL url = ViewerTest.class
                 .getResource("/viewer.xml");
