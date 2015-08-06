@@ -84,7 +84,7 @@ public class EventIOHeader {
                 return false;
             }
         } else if (buffer.itemLevel == 0 && !buffer.syncMarkerFound) {
-            EventIOStream.reverse = false;
+            EventIOStream.byteOrder = Constants.LITTLE_ENDIAN;
             boolean found = findSynchronisationMarker();
             if (!found) {
                 log.info("Synchronisation marker could not have been found.");
@@ -240,11 +240,11 @@ public class EventIOHeader {
                     if (b == syncMarker[0]) {
                         firstBit = 1;
                         state = 1;
+                        EventIOStream.byteOrder = Constants.BIG_ENDIAN;
                     } else if (b == syncMarker[3]) {
                         firstBit = 1;
                         state = 2;
                         reverse = -1;
-                        EventIOStream.reverse = true;
                     }
                 } else {
                     if (b == (byte) syncMarker[state]) {

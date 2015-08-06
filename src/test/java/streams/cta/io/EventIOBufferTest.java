@@ -17,6 +17,9 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
+import static streams.cta.Constants.LITTLE_ENDIAN;
+import static streams.cta.Constants.BIG_ENDIAN;
+
 /**
  * Created by alexey on 04/08/15.
  */
@@ -38,7 +41,7 @@ public class EventIOBufferTest {
         // initialize buffer containing the data stream to read from it
         buffer = new EventIOBuffer(dataStream);
 
-        EventIOStream.reverse = false;
+        EventIOStream.byteOrder = BIG_ENDIAN;
     }
 
     @After
@@ -103,14 +106,14 @@ public class EventIOBufferTest {
         short toread = 0xF;
 
         // check BigEndian
-        EventIOStream.reverse = false;
+        EventIOStream.byteOrder = BIG_ENDIAN;
         outDataStream.writeByte(toread);
         outDataStream.flush();
         short readShort = buffer.readUnsignedByte();
         assertEquals(toread, readShort);
 
         // check LittleEndian
-        EventIOStream.reverse = true;
+        EventIOStream.byteOrder = LITTLE_ENDIAN;
         outDataStream.writeByte(toread);
         outDataStream.close();
         readShort = buffer.readUnsignedByte();
@@ -125,14 +128,14 @@ public class EventIOBufferTest {
         short toread = (short) 0xFFFF;
 
         // check BigEndian
-        EventIOStream.reverse = false;
+        EventIOStream.byteOrder = BIG_ENDIAN;
         outDataStream.writeShort(toread);
         outDataStream.flush();
         int readShort = buffer.readShort();
         assertEquals(toread, readShort);
 
         // check LittleEndian
-        EventIOStream.reverse = true;
+        EventIOStream.byteOrder = LITTLE_ENDIAN;
         outDataStream.writeShort(Short.reverseBytes(toread));
         outDataStream.flush();
         readShort = buffer.readShort();
@@ -145,14 +148,14 @@ public class EventIOBufferTest {
         int toread = 0x0000FFFF;
 
         // check BigEndian
-        EventIOStream.reverse = false;
+        EventIOStream.byteOrder = BIG_ENDIAN;
         outDataStream.writeShort((short) toread);
         outDataStream.flush();
         int readShort = buffer.readUnsignedShort();
         assertEquals(toread, readShort);
 
         // check LittleEndian
-        EventIOStream.reverse = true;
+        EventIOStream.byteOrder = LITTLE_ENDIAN;
         outDataStream.writeShort(Short.reverseBytes((short) toread));
         outDataStream.close();
         readShort = buffer.readUnsignedShort();
@@ -165,7 +168,7 @@ public class EventIOBufferTest {
         float toread = 1.171539f;
 
         // check BigEndian
-        EventIOStream.reverse = false;
+        EventIOStream.byteOrder = BIG_ENDIAN;
         byte[] b = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putFloat(toread).array();
         outDataStream.write(b);
         outDataStream.flush();
@@ -173,7 +176,7 @@ public class EventIOBufferTest {
         assertEquals(toread, readReal, 0.1);
 
         // check LittleEndian
-        EventIOStream.reverse = true;
+        EventIOStream.byteOrder = LITTLE_ENDIAN;
         b = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(toread).array();
         outDataStream.write(b);
         outDataStream.close();
@@ -186,7 +189,7 @@ public class EventIOBufferTest {
         double toread = 1.171539d;
 
         // check BigEndian
-        EventIOStream.reverse = false;
+        EventIOStream.byteOrder = BIG_ENDIAN;
         byte[] b = ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN).putDouble(toread).array();
         outDataStream.write(b);
         outDataStream.flush();
@@ -194,7 +197,7 @@ public class EventIOBufferTest {
         assertEquals(toread, readReal, 0.1);
 
         // check LittleEndian
-        EventIOStream.reverse = true;
+        EventIOStream.byteOrder = LITTLE_ENDIAN;
         b = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putDouble(toread).array();
         outDataStream.write(b);
         outDataStream.close();
@@ -207,7 +210,7 @@ public class EventIOBufferTest {
         int toread = 0xAABBCCDD;
 
         // check BigEndian
-        EventIOStream.reverse = false;
+        EventIOStream.byteOrder = BIG_ENDIAN;
         int towrite = toread;
         outDataStream.writeInt(towrite);
         outDataStream.flush();
@@ -215,7 +218,7 @@ public class EventIOBufferTest {
         assertEquals(toread, readInt32);
 
         // check LittleEndian
-        EventIOStream.reverse = true;
+        EventIOStream.byteOrder = LITTLE_ENDIAN;
         towrite = Integer.reverseBytes(toread);
         outDataStream.writeInt(towrite);
         outDataStream.flush();
@@ -228,7 +231,7 @@ public class EventIOBufferTest {
         long toread = 0x00000000AABBCCDDL;
 
         // check BigEndian
-        EventIOStream.reverse = false;
+        EventIOStream.byteOrder = BIG_ENDIAN;
         int towrite = (int) toread;
         outDataStream.writeInt(towrite);
         outDataStream.flush();
@@ -236,7 +239,7 @@ public class EventIOBufferTest {
         assertEquals(toread, readInt32);
 
         // check LittleEndian
-        EventIOStream.reverse = true;
+        EventIOStream.byteOrder = LITTLE_ENDIAN;
         towrite = Integer.reverseBytes(towrite);
         outDataStream.writeInt(towrite);
         outDataStream.flush();
@@ -249,14 +252,14 @@ public class EventIOBufferTest {
         long toread = 0x00000000AABBCCDDL;
 
         // check BigEndian
-        EventIOStream.reverse = false;
+        EventIOStream.byteOrder = BIG_ENDIAN;
         outDataStream.writeLong(toread);
         outDataStream.flush();
         long readInt64 = buffer.readInt64();
         assertEquals(toread, readInt64);
 
         // check LittleEndian
-        EventIOStream.reverse = true;
+        EventIOStream.byteOrder = LITTLE_ENDIAN;
         outDataStream.writeLong(Long.reverseBytes(toread));
         outDataStream.flush();
         readInt64 = buffer.readInt64();
@@ -269,7 +272,7 @@ public class EventIOBufferTest {
         short toreadLength = (short) toread.length();
 
         // check BigEndian
-        EventIOStream.reverse = false;
+        EventIOStream.byteOrder = BIG_ENDIAN;
         outDataStream.writeShort(toreadLength);
         outDataStream.write(toread.getBytes());
         outDataStream.flush();
@@ -278,7 +281,7 @@ public class EventIOBufferTest {
         assertEquals(toread, readString);
 
         // check LittleEndian
-        EventIOStream.reverse = true;
+        EventIOStream.byteOrder = LITTLE_ENDIAN;
         outDataStream.writeShort(Short.reverseBytes(toreadLength));
         outDataStream.write(toread.getBytes());
         outDataStream.flush();
@@ -335,7 +338,7 @@ public class EventIOBufferTest {
         int toreadLength = toread.length;
 
         // check BigEndian
-        EventIOStream.reverse = false;
+        EventIOStream.byteOrder = BIG_ENDIAN;
         for (int towrite : toread) {
             outDataStream.writeShort((short) towrite);
         }
@@ -346,7 +349,7 @@ public class EventIOBufferTest {
         }
 
         // check LittleEndian
-        EventIOStream.reverse = true;
+        EventIOStream.byteOrder = LITTLE_ENDIAN;
         for (int towrite : toread) {
             outDataStream.writeShort(Short.reverseBytes((short) towrite));
         }
@@ -363,7 +366,7 @@ public class EventIOBufferTest {
         int toreadLength = toread.length;
 
         // check BigEndian
-        EventIOStream.reverse = false;
+        EventIOStream.byteOrder = BIG_ENDIAN;
         for (short towrite : toread) {
             outDataStream.writeShort(towrite);
         }
@@ -374,7 +377,7 @@ public class EventIOBufferTest {
         }
 
         // check LittleEndian
-        EventIOStream.reverse = true;
+        EventIOStream.byteOrder = LITTLE_ENDIAN;
         for (short towrite : toread) {
             outDataStream.writeShort(Short.reverseBytes(towrite));
         }
@@ -391,7 +394,7 @@ public class EventIOBufferTest {
         int toreadLength = toread.length;
 
         // check BigEndian
-        EventIOStream.reverse = false;
+        EventIOStream.byteOrder = BIG_ENDIAN;
         for (float towrite : toread) {
             byte[] b = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putFloat(towrite).array();
             outDataStream.write(b);
@@ -401,7 +404,7 @@ public class EventIOBufferTest {
         assertArrayEquals(toread, readVectorOfFloats, 0.1f);
 
         // check LittleEndian
-        EventIOStream.reverse = true;
+        EventIOStream.byteOrder = LITTLE_ENDIAN;
         for (float towrite : toread) {
             byte[] b = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(towrite).array();
             outDataStream.write(b);

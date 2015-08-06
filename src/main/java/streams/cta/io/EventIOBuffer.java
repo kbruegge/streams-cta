@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+
 import static streams.cta.Constants.H_MAX_TEL;
+import static streams.cta.Constants.LITTLE_ENDIAN;
 import static streams.cta.Constants.MAX_HEADER_SIZE;
 import static streams.cta.Constants.MAX_IO_ITEM_LEVEL;
 
@@ -296,7 +298,7 @@ public class EventIOBuffer {
         //TODO check if filling up to an int with zeros is better than dataStream.readUnsignedShort()
         //TODO maybe use dataStream.readUnsignedByte()?
         byte[] b = new byte[4];
-        if (EventIOStream.reverse) {
+        if (EventIOStream.byteOrder == LITTLE_ENDIAN) {
             dataStream.read(b, 0, 2);
         } else {
             dataStream.read(b, 2, 2);
@@ -304,7 +306,7 @@ public class EventIOBuffer {
 
         readLength[itemLevel] += 2;
 
-        if (EventIOStream.reverse) {
+        if (EventIOStream.byteOrder == LITTLE_ENDIAN) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
         } else {
             return ByteBuffer.wrap(b).getInt();
@@ -339,7 +341,7 @@ public class EventIOBuffer {
 
         readLength[itemLevel] += 2;
 
-        if (EventIOStream.reverse) {
+        if (EventIOStream.byteOrder == LITTLE_ENDIAN) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getShort();
         } else {
             return ByteBuffer.wrap(b).getShort();
@@ -352,7 +354,7 @@ public class EventIOBuffer {
 
         readLength[itemLevel] += 4;
 
-        if (EventIOStream.reverse) {
+        if (EventIOStream.byteOrder == LITTLE_ENDIAN) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
         } else {
             return ByteBuffer.wrap(b).getInt();
@@ -369,7 +371,7 @@ public class EventIOBuffer {
 
         //TODO check if filling up to an int with zeros is better than dataStream.readUnsignedShort()
         //TODO maybe use dataStream.readUnsignedByte()?
-        if (EventIOStream.reverse) {
+        if (EventIOStream.byteOrder == LITTLE_ENDIAN) {
             dataStream.read(b, 0, 4);
         } else {
             dataStream.read(b, 4, 4);
@@ -377,7 +379,7 @@ public class EventIOBuffer {
 
         readLength[itemLevel] += 4;
 
-        if (EventIOStream.reverse) {
+        if (EventIOStream.byteOrder == LITTLE_ENDIAN) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getLong();
         } else {
             return ByteBuffer.wrap(b).getLong();
@@ -390,7 +392,7 @@ public class EventIOBuffer {
 
         readLength[itemLevel] += 8;
 
-        if (EventIOStream.reverse) {
+        if (EventIOStream.byteOrder == LITTLE_ENDIAN) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getLong();
         } else {
             return ByteBuffer.wrap(b).getLong();
