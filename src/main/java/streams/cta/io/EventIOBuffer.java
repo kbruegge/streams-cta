@@ -84,7 +84,6 @@ public class EventIOBuffer {
         itemStartOffset = new long[MAX_IO_ITEM_LEVEL];
         itemExtension = new boolean[MAX_IO_ITEM_LEVEL];
         this.dataStream = dataStream;
-        //readLength = new int[MAX_IO_ITEM_LEVEL];
         readLength = new int[MAX_IO_ITEM_LEVEL];
         itemType = new String[MAX_IO_ITEM_LEVEL];
     }

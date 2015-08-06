@@ -4,6 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -14,6 +15,7 @@ import java.nio.ByteOrder;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 /**
  * Created by alexey on 04/08/15.
@@ -30,7 +32,7 @@ public class EventIOBufferTest {
         // initialize data stream
         f = new File("testInputStream.txt");
         outDataStream = new DataOutputStream(new FileOutputStream(f));
-        FileInputStream bStream = new FileInputStream(f);
+        BufferedInputStream bStream = new BufferedInputStream(new FileInputStream(f), 1000);
         DataInputStream dataStream = new DataInputStream(bStream);
 
         // initialize buffer containing the data stream to read from it
@@ -58,12 +60,35 @@ public class EventIOBufferTest {
 
     @Test
     public void testNextSubitemType() throws Exception {
+        int type = 0x0011;
+        int version = 0x01010000;
+        outDataStream.writeInt(type | version);
+        outDataStream.flush();
 
+        // make it possible to check the next subitem
+        buffer.itemLevel = 1;
+        buffer.itemLength[0] = 1024;
+        buffer.itemLength[1] = 1024;
+        long readType = buffer.nextSubitemType();
+        assertEquals(type, readType);
     }
 
     @Test
     public void testNextSubitemIdent() throws Exception {
+        int type = 0x0011;
+        outDataStream.writeInt(type);
+        int ident = 0x1111;
+        outDataStream.writeInt(ident);
+        outDataStream.writeChars("Something more after the ident.");
+        outDataStream.flush();
 
+        // make it possible to check the next subitem
+        buffer.itemLevel = 1;
+        buffer.itemLength[0] = 1024;
+        buffer.itemLength[1] = 1024;
+        long readIdent = buffer.nextSubitemIdent();
+        assertEquals(ident, readIdent);
+        assertNotSame(type, readIdent);
     }
 
     @Test
