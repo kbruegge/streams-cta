@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -67,28 +68,28 @@ public class EventIOBufferTest {
 
     @Test
     public void testReadByte() throws Exception {
-        byte[] b = new byte[]{1, 2, 3, 4};
-        outDataStream.write(b);
+        outDataStream.writeByte(12);
         outDataStream.close();
-        assertEquals(buffer.readByte(), b[0]);
-        buffer.skipBytes(2);
-        assertEquals(buffer.readByte(), b[3]);
+        assertEquals(12, buffer.readByte());
     }
 
     @Test
     public void testReadUnsignedByte() throws Exception {
+        short toread = 0xF;
 
-    }
+        // check BigEndian
+        EventIOStream.reverse = false;
+        outDataStream.writeByte(toread);
+        outDataStream.flush();
+        short readShort = buffer.readUnsignedByte();
+        assertEquals(toread, readShort);
 
-    @Test
-    public void testReadBytes() throws Exception {
-        byte[] b = new byte[]{1, 2, 3, 4};
-        outDataStream.write(b);
+        // check LittleEndian
+        EventIOStream.reverse = true;
+        outDataStream.writeByte(toread);
         outDataStream.close();
-        byte[] readB = buffer.readBytes(4);
-        for (int i = 0; i < readB.length; i++) {
-            assertEquals(readB[i], b[i]);
-        }
+        readShort = buffer.readUnsignedByte();
+        assertEquals(toread, readShort);
     }
 
     @Test
@@ -116,11 +117,11 @@ public class EventIOBufferTest {
     @Test
     public void testReadUnsignedShort() throws Exception {
 
-        int toread = 0x0000FFFE;
+        int toread = 0x0000FFFF;
 
         // check BigEndian
         EventIOStream.reverse = false;
-        outDataStream.writeShort((short)toread);
+        outDataStream.writeShort((short) toread);
         outDataStream.flush();
         int readShort = buffer.readUnsignedShort();
         assertEquals(toread, readShort);
@@ -136,7 +137,7 @@ public class EventIOBufferTest {
     @Test
     public void testReadReal() throws Exception {
 
-        float toread =  1.171539f;
+        float toread = 1.171539f;
 
         // check BigEndian
         EventIOStream.reverse = false;
@@ -157,7 +158,7 @@ public class EventIOBufferTest {
 
     @Test
     public void testReadDouble() throws Exception {
-        double toread =  1.171539d;
+        double toread = 1.171539d;
 
         // check BigEndian
         EventIOStream.reverse = false;
@@ -203,7 +204,7 @@ public class EventIOBufferTest {
 
         // check BigEndian
         EventIOStream.reverse = false;
-        int towrite = (int)toread;
+        int towrite = (int) toread;
         outDataStream.writeInt(towrite);
         outDataStream.flush();
         long readInt32 = buffer.readUnsignedInt32();
@@ -220,12 +221,45 @@ public class EventIOBufferTest {
 
     @Test
     public void testReadInt64() throws Exception {
+        long toread = 0x00000000AABBCCDDL;
 
+        // check BigEndian
+        EventIOStream.reverse = false;
+        outDataStream.writeLong(toread);
+        outDataStream.flush();
+        long readInt64 = buffer.readInt64();
+        assertEquals(toread, readInt64);
+
+        // check LittleEndian
+        EventIOStream.reverse = true;
+        outDataStream.writeLong(Long.reverseBytes(toread));
+        outDataStream.flush();
+        readInt64 = buffer.readInt64();
+        assertEquals(toread, readInt64);
     }
 
     @Test
     public void testReadString() throws Exception {
+        String toread = "This is a test for reading string value.";
+        short toreadLength = (short) toread.length();
 
+        // check BigEndian
+        EventIOStream.reverse = false;
+        outDataStream.writeShort(toreadLength);
+        outDataStream.write(toread.getBytes());
+        outDataStream.flush();
+        String readString = buffer.readString();
+        assertEquals(0, buffer.dataStream.available());
+        assertEquals(toread, readString);
+
+        // check LittleEndian
+        EventIOStream.reverse = true;
+        outDataStream.writeShort(Short.reverseBytes(toreadLength));
+        outDataStream.write(toread.getBytes());
+        outDataStream.flush();
+        readString = buffer.readString();
+        assertEquals(0, buffer.dataStream.available());
+        assertEquals(toread, readString);
     }
 
     @Test
@@ -245,36 +279,110 @@ public class EventIOBufferTest {
 
     @Test
     public void testReadVectorOfBytes() throws Exception {
-
+        byte[] b = new byte[]{1, 2, 3, 4};
+        outDataStream.write(b);
+        outDataStream.close();
+        assertArrayEquals(b, buffer.readVectorOfBytes(4));
     }
 
     @Test
     public void testReadVectorOfChars() throws Exception {
-
+        String toread = "test";
+        outDataStream.write(toread.getBytes());
+        outDataStream.close();
+        assertArrayEquals(toread.toCharArray(), buffer.readVectorOfChars(toread.length()));
     }
 
     @Test
     public void testReadVectorOfUnsignedBytes() throws Exception {
-
+        byte[] toread = {0xF, 0x2, 0xA, 0x5};
+        outDataStream.write(toread);
+        outDataStream.flush();
+        short[] readShort = buffer.readVectorOfUnsignedBytes(4);
+        for (int i = 0; i < 4; i++) {
+            assertEquals(toread[i], readShort[i]);
+        }
     }
 
     @Test
     public void testReadVectorOfUnsignedShort() throws Exception {
+        int[] toread = {0xFFFF, 0x2222, 0xAAAA, 0x2315};
+        int toreadLength = toread.length;
 
+        // check BigEndian
+        EventIOStream.reverse = false;
+        for (int towrite : toread) {
+            outDataStream.writeShort((short) towrite);
+        }
+        outDataStream.flush();
+        int[] readShort = buffer.readVectorOfUnsignedShort(toreadLength);
+        for (int i = 0; i < toreadLength; i++) {
+            assertEquals(toread[i], readShort[i]);
+        }
+
+        // check LittleEndian
+        EventIOStream.reverse = true;
+        for (int towrite : toread) {
+            outDataStream.writeShort(Short.reverseBytes((short) towrite));
+        }
+        outDataStream.close();
+        readShort = buffer.readVectorOfUnsignedShort(toreadLength);
+        for (int i = 0; i < toreadLength; i++) {
+            assertEquals(toread[i], readShort[i]);
+        }
     }
 
     @Test
-    public void testReadVectorOfInts() throws Exception {
+    public void testReadVectorOfShort() throws Exception {
+        short[] toread = {0x1FFF, 0x2222, 0x21AA, 0x2315};
+        int toreadLength = toread.length;
 
+        // check BigEndian
+        EventIOStream.reverse = false;
+        for (short towrite : toread) {
+            outDataStream.writeShort(towrite);
+        }
+        outDataStream.flush();
+        int[] readVectorOfInts = buffer.readVectorOfShort(toreadLength);
+        for (int i = 0; i < toreadLength; i++) {
+            assertEquals(toread[i], readVectorOfInts[i]);
+        }
+
+        // check LittleEndian
+        EventIOStream.reverse = true;
+        for (short towrite : toread) {
+            outDataStream.writeShort(Short.reverseBytes(towrite));
+        }
+        outDataStream.close();
+        readVectorOfInts = buffer.readVectorOfShort(toreadLength);
+        for (int i = 0; i < toreadLength; i++) {
+            assertEquals(toread[i], readVectorOfInts[i]);
+        }
     }
 
     @Test
     public void testReadVectorOfFloats() throws Exception {
+        float[] toread = {1.171539f, 2.1234f, -30.432f, -100.3f};
+        int toreadLength = toread.length;
 
-    }
+        // check BigEndian
+        EventIOStream.reverse = false;
+        for (float towrite : toread) {
+            byte[] b = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putFloat(towrite).array();
+            outDataStream.write(b);
+        }
+        outDataStream.flush();
+        float[] readVectorOfFloats = buffer.readVectorOfFloats(toreadLength);
+        assertArrayEquals(toread, readVectorOfFloats, 0.1f);
 
-    @Test
-    public void testReadVectorOfReals() throws Exception {
-
+        // check LittleEndian
+        EventIOStream.reverse = true;
+        for (float towrite : toread) {
+            byte[] b = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(towrite).array();
+            outDataStream.write(b);
+        }
+        outDataStream.close();
+        readVectorOfFloats = buffer.readVectorOfFloats(toreadLength);
+        assertArrayEquals(toread, readVectorOfFloats, 0.1f);
     }
 }

@@ -284,14 +284,6 @@ public class EventIOBuffer {
         return result;
     }
 
-    public byte[] readBytes(int length) throws IOException {
-        //TODO do we need to reverse it?
-        byte[] bytes = new byte[length];
-        dataStream.read(bytes);
-        readLength[itemLevel] += length;
-        return bytes;
-    }
-
     public short readShort() throws IOException {
         return readInt16();
     }
@@ -338,7 +330,6 @@ public class EventIOBuffer {
         return Double.longBitsToDouble(readInt64());
     }
 
-    //TODO check conversion from int to long?!
     public int readLong() throws IOException {
         return readInt32();
     }
@@ -379,9 +370,9 @@ public class EventIOBuffer {
 
         //TODO check if filling up to an int with zeros is better than dataStream.readUnsignedShort()
         //TODO maybe use dataStream.readUnsignedByte()?
-        if (EventIOStream.reverse){
+        if (EventIOStream.reverse) {
             dataStream.read(b, 0, 4);
-        }else{
+        } else {
             dataStream.read(b, 4, 4);
         }
 
@@ -416,23 +407,30 @@ public class EventIOBuffer {
      * available for the trailing zero byte.
      */
 
-    public char[] readString(int nmax) throws IOException {
+    public String readString(int nmax) throws IOException {
         int nbytes = readShort();
         int nread = (nmax - 1 < nbytes) ? nmax - 1 : nbytes; /* minimum of both */
 
         // Read up to the accepted maximum length
-        // get_vector_of_byte((BYTE *) s, nread, iobuf);
         char[] result = readVectorOfChars(nread);
 
         // Ignore the rest of the string
         if (nbytes > nread) {
             skipBytes(nbytes - nread);
         }
-        readLength[itemLevel] -= nbytes - nread;
-        // Terminate string with null character
-        //result[nread] = '\0';
 
-        return result;
+        // reduce the read length
+        readLength[itemLevel] -= nbytes - nread;
+        return String.valueOf(result);
+    }
+
+    /**
+     * Calls internally readString(int nmax) with nmax=Short.MAX_VALUE to get the whole string
+     * value. Get a string of ASCII characters with leading count of bytes (stored with 16 bits)
+     * from an I/O buffer.
+     */
+    public String readString() throws IOException {
+        return readString(Short.MAX_VALUE);
     }
 
     /**
@@ -649,11 +647,10 @@ public class EventIOBuffer {
      * @return array of bytes
      */
     public byte[] readVectorOfBytes(int number) throws IOException {
-        byte[] result = new byte[number];
-        for (int i = 0; i < number; i++) {
-            result[i] = readByte();
-        }
-        return result;
+        byte[] bytes = new byte[number];
+        dataStream.read(bytes);
+        readLength[itemLevel] += number;
+        return bytes;
     }
 
     /**
@@ -690,7 +687,7 @@ public class EventIOBuffer {
      * concern.
      *
      * @param number number of elements to load
-     * @return array of elements
+     * @return array of int elements
      */
     public int[] readVectorOfUnsignedShort(int number) throws IOException {
         int[] result = new int[number];
@@ -700,7 +697,13 @@ public class EventIOBuffer {
         return result;
     }
 
-    public int[] readVectorOfInts(int number) throws IOException {
+    /**
+     * Read a vector of shorts from an I/O buffer.
+     *
+     * @param number number of elements to load
+     * @return array of int elements
+     */
+    public int[] readVectorOfShorts(int number) throws IOException {
         int[] result = new int[number];
         for (int i = 0; i < number; i++) {
             result[i] = readShort();
@@ -716,11 +719,11 @@ public class EventIOBuffer {
         return result;
     }
 
-    public double[] readVectorOfReals(int vectorSize)
+    public double[] readVectorOfDoubles(int vectorSize)
             throws IOException {
         double[] vector = new double[vectorSize];
         for (int i = 0; i < vectorSize; i++) {
-            vector[i] = readReal();
+            vector[i] = readDouble();
         }
         return vector;
     }
