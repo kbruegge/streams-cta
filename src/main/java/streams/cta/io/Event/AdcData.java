@@ -115,7 +115,7 @@ public class AdcData {
     // TODO use INT or maybe SHORT but using 'intValue & 0xffff' for arithmetic operations?
     // http://stackoverflow.com/questions/16809009/using-char-as-an-unsigned-16-bit-value-in-java
     // http://jessicarbrown.com/resources/unsignedtojava.html
-    int[][][] adcSample;
+    short[][][] adcSample;
 
     public AdcData(int id) {
         telId = id;
@@ -617,7 +617,7 @@ public class AdcData {
         significant = new short[(int) numPixels];
         adcKnown = new boolean[(int) numGains][(int) numPixels];
         adcSum = new long[(int) numGains][(int) numPixels];
-        adcSample = new int[(int) numGains][(int) numPixels][numSamples];
+        adcSample = new short[(int) numGains][(int) numPixels][numSamples];
     }
 
     public boolean readTelACSSamples(EventIOBuffer buffer, int what) {
@@ -657,7 +657,7 @@ public class AdcData {
                 }
 
                 // initialize adcSample array
-                adcSample = new int[(int) numGains][(int) numPixels][numSamples];
+                adcSample = new short[(int) numGains][(int) numPixels][numSamples];
                 adcKnown = new boolean[(int) numGains][(int) numPixels];
                 adcSum = new long[(int) numGains][(int) numPixels];
                 significant = new short[(int) numPixels];
@@ -727,7 +727,15 @@ public class AdcData {
                     for (int igain = 0; igain < numGains; igain++) {
                         for (int ipix = 0; ipix < numPixels; ipix++) {
                             if (version < 3) {
-                                adcSample[igain][ipix] = buffer.readVectorOfUnsignedShort(numSamples);
+                                for (int isample = 0; isample < numSamples; isample++) {
+                                    //adcSample[igain][ipix] = buffer.readVectorOfUnsignedShort(numSamples);
+                                    int value = buffer.readUnsignedShort();
+                                    // TODO check if the SHORT cast is ok
+                                    if (value > Short.MAX_VALUE){
+                                        log.error("ADC Sample contains unsigned short values.");
+                                    }
+                                    adcSample[igain][ipix][isample] = (short) value;
+                                }
                             } else {
                                 adcSample[igain][ipix] = readAdcSampleDifferential(buffer, numSamples);
                             }
@@ -767,15 +775,20 @@ public class AdcData {
         return false;
     }
 
-    private int[] readAdcSampleDifferential(EventIOBuffer buffer, int numSamples)
+    private short[] readAdcSampleDifferential(EventIOBuffer buffer, int numSamples)
             throws IOException {
         // New format: store as variable-size integers.
         int prevAmp = 0;
         int thisAmp;
-        int[] adcSample = new int[numSamples];
+        short[] adcSample = new short[numSamples];
         for (int ibin = 0; ibin < numSamples; ibin++) {
             thisAmp = buffer.readSCount32() + prevAmp;
-            adcSample[ibin] = thisAmp;
+
+            // TODO check if the SHORT cast is ok
+            if (thisAmp > Short.MAX_VALUE){
+                log.error("ADC Sample data contains unsigned short values.");
+            }
+            adcSample[ibin] = (short) thisAmp;
             prevAmp = thisAmp;
         }
         return adcSample;
