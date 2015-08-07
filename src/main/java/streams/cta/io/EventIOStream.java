@@ -90,7 +90,7 @@ public class EventIOStream extends AbstractStream {
     @Override
     public Data readNext() throws Exception {
 
-        Data item = null;
+        Data item;
         boolean eventFound = false;
         numberRuns = 0;
         item = DataFactory.create();
@@ -112,18 +112,12 @@ public class EventIOStream extends AbstractStream {
                     numberEvents++;
                     eventFound = true;
 
-                    short[][][] rawData = new short[eventData.event.central.numTelTriggered][][];
-                    for (int i = 0; i < eventData.event.central.numTelTriggered; i++) {
-                        rawData[i] = eventData.event.teldata[i].raw.adcSample[0];
-                    }
                     //TODO: add more telescope data into the item
-                    item.put("@raw_data", rawData[0]);
+                    item.put("@raw_data", eventData.event.teldata[0].raw.adcSample[0]);
                     long seconds = eventData.event.central.gpsTime.seconds;
                     long nanoseconds = eventData.event.central.gpsTime.nanoseconds;
                     item.put("@timestamp", LocalDateTime.ofEpochSecond(seconds, (int) nanoseconds, ZoneOffset.UTC));
-                    item.put("@telescope", new CTATelescope(CTATelescopeType.LST, 12, 0,0,0,null, null, null));
-
-
+                    item.put("@telescope", new CTATelescope(CTATelescopeType.LST, 12, 0, 0, 0, null, null, null));
                 } else if (header.type == Constants.TYPE_RUNHEADER) {
 
                     //TODO some summary from previous runs (original code)
@@ -143,7 +137,8 @@ public class EventIOStream extends AbstractStream {
                 }
 
             } else {
-                log.info("Next sync marker has not been found: \nstill available datastream :" + buffer.dataStream.available());
+                log.info("Next sync marker has not been found: \nstill available datastream :"
+                        + buffer.dataStream.available());
             }
         }
         byteOrder = Constants.LITTLE_ENDIAN;
@@ -167,8 +162,6 @@ public class EventIOStream extends AbstractStream {
         event.triggeredTelescopeIds = eventData.runHeader.telId;
 //        for (int itel = 0; itel < numberTelescopes; itel++) {
 //            short telId = eventData.runHeader.telId[itel];
-//            event.trackdata[itel] = new TrackEvent(telId);
-//            event.teldata[itel] = new TelEvent(telId);
 
 //            camera_set[itel].telId = telId;
 //            camera_org[itel].telId = telId;
@@ -205,7 +198,8 @@ public class EventIOStream extends AbstractStream {
                 eventioTypes.put(Integer.valueOf(lineSplit[0]), lineSplit[1]);
             }
         } catch (IOException e) {
-            log.error("Error while trying to read the EventioRegisteredNames.dat in order to import the datatypes.");
+            log.error("Error while trying to read the EventioRegisteredNames.dat " +
+                    "in order to import the datatypes.");
         }
     }
 

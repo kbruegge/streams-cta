@@ -133,12 +133,13 @@ public class RunHeader {
                     reverseFlag = 0;
                 }
 
-                // init array (both others are getting arrays of right size directly)
-                convRefPos = new float[2];
 
                 direction = buffer.readVectorOfFloats(2);
                 offsetFov = buffer.readVectorOfFloats(2);
                 convDepth = buffer.readFloat();
+
+                // init array (both others are getting arrays of right size directly)
+                convRefPos = new float[2];
                 if (header.getVersion() >= 1) {
                     // New in version 1
                     convRefPos = buffer.readVectorOfFloats(2);
