@@ -1,11 +1,11 @@
 package streams.cta;
 
+import java.time.LocalDateTime;
+
 import stream.Data;
 import stream.Processor;
 import stream.annotations.Parameter;
 import streams.cta.container.ExtractedData;
-
-import java.time.LocalDateTime;
 
 /**
  * Created by kai on 27.07.15.
@@ -23,7 +23,7 @@ public abstract class CTAExtractedDataProcessor implements Processor {
         CTATelescope telescope = (CTATelescope) input.get("@telescope");
 
         ExtractedData data = (ExtractedData) input.get(eventKey);
-        if(data != null && timeStamp != null && telescope != null) {
+        if (data != null && timeStamp != null && telescope != null) {
             return process(input, telescope, timeStamp, data);
         }
         return null;

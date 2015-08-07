@@ -5,8 +5,7 @@ package streams.cta;
  */
 public enum TriggerType {
     TRIGGER(0),
-    PEDESTAL(1)
-    ;
+    PEDESTAL(1);
 
     TriggerType(int type) {
         this.type = type;

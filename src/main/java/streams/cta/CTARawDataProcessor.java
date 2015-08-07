@@ -1,10 +1,10 @@
 package streams.cta;
 
+import java.time.LocalDateTime;
+
 import stream.Data;
 import stream.Processor;
 import stream.annotations.Parameter;
-
-import java.time.LocalDateTime;
 
 /**
  * Created by kai on 02.06.15.
@@ -21,7 +21,7 @@ public abstract class CTARawDataProcessor implements Processor {
         CTATelescope telescope = (CTATelescope) input.get("@telescope");
 
         short[][] data = (short[][]) input.get(eventKey);
-        if(data != null && data[0] !=  null && timeStamp != null && telescope != null) {
+        if (data != null && data[0] != null && timeStamp != null && telescope != null) {
             return process(input, telescope, timeStamp, data);
         }
         return null;
