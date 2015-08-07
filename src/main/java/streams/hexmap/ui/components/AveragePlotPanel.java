@@ -27,22 +27,27 @@ public class AveragePlotPanel extends PlotPanel {
         //        addSliceMarkerToPlot();
         for (LinePlotData linePLot : linePlots){
 
-            XYLineAndShapeRenderer r = new XYLineAndShapeRenderer();
-            r.setSeriesPaint(0, Color.RED);
-            r.setBaseShapesVisible(hasTicks);
-            //we also create a new dataset for each key
-            XYSeriesCollection dataset =  new XYSeriesCollection();
-
-            double[] average = averageSlicesForEachPixel(linePLot.getPlotData());
-            dataset.addSeries(createSeries("Mean voltage in all pixels", average));
-
-            plot.setDataset(0, dataset);
-            plot.setRenderer(0, r);
-
-            //call this to update the plot
-            plot.datasetChanged(null);
+            double [][] data = linePLot.getPlotData();
+            drawPlot(data);
         }
 
+    }
+
+    public void drawPlot(double[][] data) {
+        XYLineAndShapeRenderer r = new XYLineAndShapeRenderer();
+        r.setSeriesPaint(0, Color.RED);
+        r.setBaseShapesVisible(hasTicks);
+        //we also create a new dataset for each key
+        XYSeriesCollection dataset =  new XYSeriesCollection();
+
+        double[] average = averageSlicesForEachPixel(data);
+        dataset.addSeries(createSeries("Mean voltage in all pixels", average));
+
+        plot.setDataset(0, dataset);
+        plot.setRenderer(0, r);
+
+        //call this to update the plot
+        plot.datasetChanged(null);
     }
 
 

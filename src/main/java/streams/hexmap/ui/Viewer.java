@@ -6,6 +6,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 import streams.cta.CTATelescope;
+import streams.hexmap.ui.components.AveragePlotPanel;
 import streams.hexmap.ui.components.EventInfoPanel;
 import streams.hexmap.ui.components.MainPlotPanel;
 import streams.hexmap.ui.components.StreamNavigationPanel;
@@ -42,7 +43,7 @@ public class Viewer extends JFrame {
     //------some components for the viewer
     final CameraDisplayPanel mapDisplay = new CameraDisplayPanel();
     final StreamNavigationPanel navigation = new StreamNavigationPanel();
-    final MainPlotPanel chartPanel = new MainPlotPanel(550, 350, true);
+    final AveragePlotPanel chartPanel = new AveragePlotPanel(550, 350);
     final EventInfoPanel eventInfoPanel = new EventInfoPanel(600, 320);
 
 
@@ -216,6 +217,13 @@ public class Viewer extends JFrame {
      */
 	public void setDataItem(Data item, LocalDateTime timeStamp, CTATelescope telescope, short[][] rawData) {
         this.item = item;
+        double[][] data = new double[rawData.length][rawData[0].length];
+        for (int pixel = 0; pixel < rawData.length; pixel++) {
+            for (int slice = 0; slice < rawData[0].length; slice++) {
+                data[pixel][slice] = rawData[pixel][slice];
+            }
+        }
+        this.chartPanel.drawPlot(data);
         Bus.eventBus.post(new ItemChangedEvent(item, timeStamp, telescope, rawData ));
 	}
 

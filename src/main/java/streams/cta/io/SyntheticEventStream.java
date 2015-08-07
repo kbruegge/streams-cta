@@ -34,7 +34,7 @@ public class SyntheticEventStream extends AbstractStream {
 	CTATelescope telescope = new CTATelescope(CTATelescopeType.LST, telescopeId, 0 ,0 ,0, brokenPixel, gains, gains  );
 
 	public double f(int x){
-        return 100*Math.exp(-0.04*Math.pow((x - 10), 2));
+        return 100*Math.exp(-0.04*Math.pow((x - (10 + 4*(random.nextDouble() - 0.5))), 2));
     }
 
 	/**
