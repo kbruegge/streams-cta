@@ -22,7 +22,7 @@ public class TelEvent {
     /**
      * The telescope ID number (1 ... n)
      */
-    public int telId;
+    public short telId;
 
     /**
      * The counter for local triggers.
@@ -120,7 +120,7 @@ public class TelEvent {
      */
     PixelList imagePixels;
 
-    public TelEvent(int telId) {
+    public TelEvent(short telId) {
         this.telId = telId;
         raw = new AdcData(telId);
         pixtm = new PixelTiming(telId);

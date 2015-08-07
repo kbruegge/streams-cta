@@ -49,7 +49,7 @@ public class PixelTiming {
     /**
      * The actual list of pixel numbers.
      */
-    int[] pixelList;
+    short[] pixelList;
 
     /**
      * Minimum base-to-peak raw amplitude difference applied in pixel selection.
@@ -74,7 +74,7 @@ public class PixelTiming {
     /**
      * Which types come in which order.
      */
-    int[] timeType;
+    short[] timeType;
 
     /**
      * The width and startpos types apply above some fraction from base to peak.
@@ -109,7 +109,7 @@ public class PixelTiming {
      */
     int[][] pulseSumGlob;
 
-    public PixelTiming(int id){
+    public PixelTiming(int id) {
         telId = id;
     }
 
@@ -168,10 +168,18 @@ public class PixelTiming {
                         pixelList = buffer.readVectorOfShorts(2 * listSize);
                     }
                 } else {
+                    int numValues;
                     if (listType == 1) {
-                        pixelList = buffer.readVectorOfIntsScount(listSize);
+                        numValues = listSize;
                     } else {
-                        pixelList = buffer.readVectorOfIntsScount(2 * listSize);
+                        numValues = 2 * listSize;
+                    }
+                    for (int i = 0; i < numValues; i++) {
+                        int value = buffer.readSCount32();
+                        if (value > Short.MAX_VALUE) {
+                            log.error("Pixel list contains values greater than Short.MAX_VALUE.");
+                        }
+                        pixelList[i] = (short) value;
                     }
                 }
                 threshold = buffer.readShort();

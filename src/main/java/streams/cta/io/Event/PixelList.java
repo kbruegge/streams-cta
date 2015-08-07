@@ -31,7 +31,7 @@ public class PixelList {
     /**
      * The actual list of pixel numbers.
      */
-    int[] pixelList;
+    short[] pixelList;
 
     public boolean readPixelList(EventIOBuffer buffer) {
         /*
@@ -60,7 +60,14 @@ public class PixelList {
                 if (header.getVersion() < 1) {
                     pixelList = buffer.readVectorOfShorts(pixels);
                 } else {
-                    pixelList = buffer.readVectorOfIntsScount(pixels);
+                    for (int i = 0; i < pixels; i++) {
+                        int value = buffer.readSCount32();
+                        if (value > Short.MAX_VALUE) {
+                            log.error("Pixel list values are greater than Short.MAX_VALUE.");
+                        }
+                        pixelList[i] = (short) value;
+                    }
+                    //pixelList = buffer.readVectorOfIntsScount(pixels);
                 }
                 return header.getItemEnd();
             }
