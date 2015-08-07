@@ -114,9 +114,7 @@ public class EventIOStream extends AbstractStream {
 
                     //TODO: add more telescope data into the item
                     item.put("@raw_data", eventData.event.teldata[0].raw.adcSample[0]);
-                    long seconds = eventData.event.central.gpsTime.seconds;
-                    long nanoseconds = eventData.event.central.gpsTime.nanoseconds;
-                    item.put("@timestamp", LocalDateTime.ofEpochSecond(seconds, (int) nanoseconds, ZoneOffset.UTC));
+                    item.put("@timestamp", eventData.event.central.cpuTime.getAsLocalDateTime());
                     item.put("@telescope", new CTATelescope(CTATelescopeType.LST, 12, 0, 0, 0, null, null, null));
                 } else if (header.type == Constants.TYPE_RUNHEADER) {
 
