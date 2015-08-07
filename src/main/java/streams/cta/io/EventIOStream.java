@@ -24,6 +24,7 @@ import streams.cta.CTATelescope;
 import streams.cta.CTATelescopeType;
 import streams.cta.Constants;
 import streams.cta.io.event.FullEvent;
+import streams.cta.io.mcshower.MCShower;
 
 /**
  * Created by alexey on 02.06.15.
@@ -98,11 +99,15 @@ public class EventIOStream extends AbstractStream {
             numberRuns++;
             EventIOHeader header = new EventIOHeader(buffer);
             if (header.findAndReadNextHeader(true)) {
-                if (header.type == Constants.TYPE_MCSHOWER) {
-                    if (!eventData.mcShower.readMCShower(buffer)) {
-                        log.error("Error happened while reading MC Shower.");
-                    }
-                } else if (header.type == Constants.TYPE_EVENT) {
+//                if (header.type == Constants.TYPE_MCSHOWER) {
+//                    if (eventData.mcShower == null){
+//                        eventData.mcShower = new MCShower();
+//                    }
+//                    if (!eventData.mcShower.readMCShower(buffer)) {
+//                        log.error("Error happened while reading MC Shower.");
+//                    }
+//                } else
+                if (header.type == Constants.TYPE_EVENT) {
                     if (eventData.event == null) {
                         eventData.event = new FullEvent();
                     }

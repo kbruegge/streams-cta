@@ -37,6 +37,5 @@ public class EventIOData {
     public EventIOData() {
         // initialize run header object containing information about the EventIO run
         runHeader = new RunHeader();
-        mcShower = new MCShower();
     }
 }
