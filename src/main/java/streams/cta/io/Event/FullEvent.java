@@ -50,12 +50,17 @@ public class FullEvent {
     /**
      * Number of telescopes for which we actually have data.
      */
-    int numTeldata;
+    public int numTeldata;
 
     /**
      * List of IDs of telescopes with data.
      */
-    int[] teldataList;
+    public int[] teldataList;
+
+    /**
+     * Data retrieved by RunHeader. It contains information about the telescopes ID.
+     */
+    public short[] triggeredTelescopeIds;
 
     public FullEvent() {
         this(H_MAX_TEL);
@@ -92,15 +97,11 @@ public class FullEvent {
                 central.cpuTime = new HTime();
                 central.gpsTime = new HTime();
 
-                for (int i = 0; i < numTel; i++) {
-                    teldata[i].known = false;
-                    trackdata[i].rawKnown = false;
-                    trackdata[i].corKnown = false;
-                }
-
                 shower.known = 0;
 
                 int type = buffer.nextSubitemType();
+                short telNumber = 0;
+                short trackNumber = 0;
                 while (type > 0) {
                     if (type == TYPE_CENTRAL_EVENT) {
                         // read central event
@@ -112,25 +113,29 @@ public class FullEvent {
                         // read trackevent
                         int telId = (type - TYPE_TRACK_EVENT) % 100 +
                                 100 * ((type - TYPE_TRACK_EVENT) / 1000);
-                        int telNumber = buffer.findTelIndex(telId);
-                        if (telNumber < 0) {
+                        //int telNumber = buffer.findTelIndex(telId);
+                        if (trackNumber < 0) {
                             log.warn("Telescope number out of range for tracking data.");
                             break;
                         }
-                        if (!trackdata[telNumber].readTrackEvent(buffer)) {
+
+                        trackdata[trackNumber] = new TrackEvent((short) telId);
+                        if (!trackdata[trackNumber].readTrackEvent(buffer)) {
                             log.error("Error reading track event.");
                             break;
                         }
+                        trackNumber++;
 
                     } else if (isTelEvent(type)) {
                         // read televent
                         int telId = (type - TYPE_TEL_EVENT) % 100 + 100 * ((type - TYPE_TEL_EVENT) / 1000);
-                        int telNumber = buffer.findTelIndex(telId);
+                        //int telNumber = buffer.findTelIndex(telId);
                         if (telNumber < 0) {
                             log.warn("Telescope number out of range for telescope event data.");
                             break;
                         }
 
+                        teldata[telNumber] = new TelEvent((short) telId);
                         if (!teldata[telNumber].readTelEvent(buffer, what)) {
                             log.error("Error reading telescope event.");
                             break;
@@ -139,6 +144,8 @@ public class FullEvent {
                         if ((numTeldata < H_MAX_TEL) && teldata[telNumber].known) {
                             teldataList[numTeldata++] = teldata[telNumber].telId;
                         }
+
+                        telNumber++;
                     } else if (type == TYPE_SHOWER) {
                         // read shower
                         if (!shower.readShower(buffer)) {

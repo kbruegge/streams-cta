@@ -115,7 +115,7 @@ public class AdcData {
     // TODO use INT or maybe SHORT but using 'intValue & 0xffff' for arithmetic operations?
     // http://stackoverflow.com/questions/16809009/using-char-as-an-unsigned-16-bit-value-in-java
     // http://jessicarbrown.com/resources/unsignedtojava.html
-    short[][][] adcSample;
+    public short[][][] adcSample;
 
     public AdcData(int id) {
         telId = id;
@@ -467,7 +467,7 @@ public class AdcData {
                                 boolean[] reducedWidth = new boolean[listSize];
                                 adcList = new int[listSize];
 
-                                int[] adcListL = buffer.readVectorOfShorts(listSize);
+                                short[] adcListL = buffer.readVectorOfShorts(listSize);
                                 mlg = 0;
                                 mhg16 = 0;
                                 mhg8 = 0;
@@ -731,7 +731,7 @@ public class AdcData {
                                     //adcSample[igain][ipix] = buffer.readVectorOfUnsignedShort(numSamples);
                                     int value = buffer.readUnsignedShort();
                                     // TODO check if the SHORT cast is ok
-                                    if (value > Short.MAX_VALUE){
+                                    if (value > Short.MAX_VALUE) {
                                         log.error("ADC Sample contains unsigned short values.");
                                     }
                                     adcSample[igain][ipix][isample] = (short) value;
@@ -785,7 +785,7 @@ public class AdcData {
             thisAmp = buffer.readSCount32() + prevAmp;
 
             // TODO check if the SHORT cast is ok
-            if (thisAmp > Short.MAX_VALUE){
+            if (thisAmp > Short.MAX_VALUE) {
                 log.error("ADC Sample data contains unsigned short values.");
             }
             adcSample[ibin] = (short) thisAmp;

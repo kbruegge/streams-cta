@@ -78,7 +78,7 @@ public class RunHeader {
     /**
      * ID numbers of telescopes used in this run.
      */
-    public int[] telId;
+    public short[] telId;
 
     /**
      * x,y,z positions of the telescopes [m]. x is counted from array reference position towards

@@ -480,7 +480,7 @@ public class EventIOBufferTest {
             outDataStream.writeShort(towrite);
         }
         outDataStream.flush();
-        int[] readVectorOfInts = buffer.readVectorOfShorts(toreadLength);
+        short[] readVectorOfInts = buffer.readVectorOfShorts(toreadLength);
         for (int i = 0; i < toreadLength; i++) {
             assertEquals(toread[i], readVectorOfInts[i]);
         }

@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-
 import static streams.cta.Constants.H_MAX_TEL;
 import static streams.cta.Constants.LITTLE_ENDIAN;
 import static streams.cta.Constants.MAX_HEADER_SIZE;
@@ -238,7 +237,7 @@ public class EventIOBuffer {
      * @param ntel The number of telescope following.
      * @param idx  The list of telescope IDs mapped to indices 0, 1, ...
      */
-    public void setTelIdx(int ntel, int[] idx) {
+    public void setTelIdx(int ntel, short[] idx) {
         //TODO check if the java implementation is right
         for (int i = 0; i < H_MAX_TEL + 1; i++) {
             gTelIdx[gTelIdxRef][i] = -1;
@@ -709,8 +708,8 @@ public class EventIOBuffer {
      * @param number number of elements to load
      * @return array of int elements
      */
-    public int[] readVectorOfShorts(int number) throws IOException {
-        int[] result = new int[number];
+    public short[] readVectorOfShorts(int number) throws IOException {
+        short[] result = new short[number];
         for (int i = 0; i < number; i++) {
             result[i] = readShort();
         }

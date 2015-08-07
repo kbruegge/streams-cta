@@ -176,7 +176,7 @@ public class ImgData {
     /**
      * Pixel IDs of hotest pixels
      */
-    int[] hotPixel;
+    short[] hotPixel;
 
     /**
      * Amplitudes of hotest pixels [mean p.e.]
@@ -278,7 +278,15 @@ public class ImgData {
                         numHot = buffer.readSCount32();
                         hotAmp = buffer.readVectorOfFloats(numHot);
                         if (version >= 1) {
-                            hotPixel = buffer.readVectorOfIntsScount(numHot);
+                            //hotPixel = buffer.readVectorOfIntsScount(numHot);
+                            for (int i = 0; i < numHot; i++) {
+                                int value = buffer.readSCount32();
+                                if (value > Short.MAX_VALUE) {
+                                    log.error("Hot Pixel value is greater than Short.MAX_VALUE.");
+                                }
+                                hotPixel[i] = (short) value;
+                            }
+
                         }
                     }
                 } else {

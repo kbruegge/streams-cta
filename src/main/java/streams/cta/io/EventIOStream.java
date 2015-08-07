@@ -18,11 +18,8 @@ import stream.annotations.Parameter;
 import stream.data.DataFactory;
 import stream.io.AbstractStream;
 import stream.io.SourceURL;
-import streams.cta.CTAEvent;
 import streams.cta.Constants;
 import streams.cta.io.event.FullEvent;
-import streams.cta.io.event.TelEvent;
-import streams.cta.io.event.TrackEvent;
 
 /**
  * Created by alexey on 02.06.15.
@@ -96,12 +93,10 @@ public class EventIOStream extends AbstractStream {
             numberRuns++;
             EventIOHeader header = new EventIOHeader(buffer);
             if (header.findAndReadNextHeader(true)) {
-                CTAEvent event;
                 if (header.type == Constants.TYPE_MCSHOWER) {
                     if (!eventData.mcShower.readMCShower(buffer)) {
                         log.error("Error happened while reading MC Shower.");
                     }
-                    event = new CTAEvent(10, new byte[]{0, 1, 2});
                 } else if (header.type == Constants.TYPE_EVENT) {
                     if (eventData.event == null) {
                         eventData.event = new FullEvent();
@@ -112,7 +107,10 @@ public class EventIOStream extends AbstractStream {
                     numberEvents++;
                     eventFound = true;
 
-                    event = new CTAEvent(10, new byte[]{1, 2, 3,});
+                    short[][][] rawData = new short[eventData.event.central.numTelTriggered][][];
+                    for (int i = 0; i < eventData.event.central.numTelTriggered; i++) {
+                        rawData[i] = eventData.event.teldata[i].raw.adcSample[0];
+                    }
                 } else if (header.type == Constants.TYPE_RUNHEADER) {
 
                     //TODO some summary from previous runs (original code)
@@ -125,16 +123,13 @@ public class EventIOStream extends AbstractStream {
                     eventData.event = initFullEvent(eventData.runHeader.numberTelescopes);
 
                     //TODO skip some runs
-
-                    event = new CTAEvent(10, new byte[]{2, 3, 4});
                 } else {
                     header.findAndReadNextHeader();
                     buffer.skipBytes((int) header.length);
                     header.getItemEnd();
-                    event = new CTAEvent(10, new byte[]{1, 2, 3});
                 }
                 item = DataFactory.create();
-                item.put("@event", event);
+                item.put("@event", null);
             } else {
                 log.info("Next sync marker has not been found: \nstill available datastream :" + buffer.dataStream.available());
             }
@@ -146,6 +141,7 @@ public class EventIOStream extends AbstractStream {
 
     /**
      * Initialize the FullEvent object containing all the different information about an event.
+     *
      * @param numberTelescopes number of telescopes
      * @return FullEvent object
      */
@@ -156,10 +152,11 @@ public class EventIOStream extends AbstractStream {
 
         event.numTel = numberTelescopes;
         //TODO numberTelescopes > H_MAX_TEL!?
-        for (int itel = 0; itel < numberTelescopes; itel++) {
-            int telId = eventData.runHeader.telId[itel];
-            event.trackdata[itel] = new TrackEvent(telId);
-            event.teldata[itel] = new TelEvent(telId);
+        event.triggeredTelescopeIds = eventData.runHeader.telId;
+//        for (int itel = 0; itel < numberTelescopes; itel++) {
+//            short telId = eventData.runHeader.telId[itel];
+//            event.trackdata[itel] = new TrackEvent(telId);
+//            event.teldata[itel] = new TelEvent(telId);
 
 //            camera_set[itel].telId = telId;
 //            camera_org[itel].telId = telId;
@@ -169,11 +166,11 @@ public class EventIOStream extends AbstractStream {
 //            tracking_set[itel].telId = telId;
 //            point_cor[itel].telId = telId;
 
-            //TODO do some calibration
+        //TODO do some calibration
 
 //            tel_moni[itel].tel_id = telId;
 //            tel_lascal[itel].tel_id = telId;
-        }
+//        }
         return event;
     }
 

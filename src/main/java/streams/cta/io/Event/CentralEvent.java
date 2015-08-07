@@ -49,12 +49,12 @@ public class CentralEvent {
     /**
      * How many telescopes triggered.
      */
-    int numTelTriggered;
+    public int numTelTriggered;
 
     /**
      * List of IDs of triggered telescopes.
      */
-    int[] teltrgList;
+    short[] teltrgList;
 
     /**
      * Relative time of trigger signal after correction for nominal delay [ns].
@@ -79,7 +79,7 @@ public class CentralEvent {
     /**
      * List of IDs of telescopes with data.
      */
-    int[] teldataList;
+    short[] teldataList;
 
     public CentralEvent() {
         globCount = 0;
@@ -90,11 +90,11 @@ public class CentralEvent {
     }
 
     private void initArrays(int numberTriggeredTelescopes){
-        teltrgList = new int[numberTriggeredTelescopes];
+        teltrgList = new short[numberTriggeredTelescopes];
         teltrgTime = new float[numberTriggeredTelescopes];
         teltrgTypeMask = new int[numberTriggeredTelescopes];
         teltrgTimeByType = new float[numberTriggeredTelescopes][Constants.MAX_TEL_TRIGGERS];
-        teldataList = new int[numberTriggeredTelescopes];
+        teldataList = new short[numberTriggeredTelescopes];
     }
 
     public boolean readCentralEvent(EventIOBuffer buffer) {

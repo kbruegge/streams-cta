@@ -22,7 +22,7 @@ public class ShowerParameters {
     int numRead;     ///< Number of telescopes read out.
     int numImg;      ///< Number of images used for shower parameters.
     int imgPattern;  ///< Bit pattern of which telescopes were used (for small no. of telescopes only).
-    int[] imgList; ///< With more than 16 or 32 telescopes, we can only use the list.
+    short[] imgList; ///< With more than 16 or 32 telescopes, we can only use the list.
 
     /**
      * Bit pattern of what results are available: Bits 0 + 1: direction + errors Bits 2 + 3: core
