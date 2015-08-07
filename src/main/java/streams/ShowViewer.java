@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * @author chris
+ * @author chris, kai
  */
 public class ShowViewer implements StatefulProcessor {
 
@@ -48,11 +48,7 @@ public class ShowViewer implements StatefulProcessor {
      */
     @Override
     public Data process(final Data input) {
-        LocalDateTime timeStamp = (LocalDateTime) input.get("@timestamp");
-        CTATelescope telescope = (CTATelescope) input.get("@telescope");
-        short[][] data = (short[][]) input.get("@raw_data");
 
-        System.out.println("telescpe_ " + telescope.toString() );
         lock.set(true);
 
         Thread t = new Thread() {
@@ -73,7 +69,6 @@ public class ShowViewer implements StatefulProcessor {
                             });
                 }
                 viewer.setVisible(true);
-//                EventData event = (EventData) input.get("@event");
                 LocalDateTime timeStamp = (LocalDateTime) input.get("@timestamp");
                 CTATelescope telescope = (CTATelescope) input.get("@telescope");
                 short[][] data = (short[][]) input.get("@raw_data");

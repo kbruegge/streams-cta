@@ -8,7 +8,6 @@ import com.jgoodies.forms.layout.RowSpec;
 import streams.cta.CTATelescope;
 import streams.hexmap.ui.components.AveragePlotPanel;
 import streams.hexmap.ui.components.EventInfoPanel;
-import streams.hexmap.ui.components.MainPlotPanel;
 import streams.hexmap.ui.components.StreamNavigationPanel;
 import streams.hexmap.ui.components.cameradisplay.CameraDisplayPanel;
 import streams.hexmap.ui.events.ItemChangedEvent;
