@@ -11,6 +11,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 
 import stream.Data;
@@ -18,6 +20,8 @@ import stream.annotations.Parameter;
 import stream.data.DataFactory;
 import stream.io.AbstractStream;
 import stream.io.SourceURL;
+import streams.cta.CTATelescope;
+import streams.cta.CTATelescopeType;
 import streams.cta.Constants;
 import streams.cta.io.event.FullEvent;
 
@@ -89,6 +93,7 @@ public class EventIOStream extends AbstractStream {
         Data item = null;
         boolean eventFound = false;
         numberRuns = 0;
+        item = DataFactory.create();
         while (!eventFound) {
             numberRuns++;
             EventIOHeader header = new EventIOHeader(buffer);
@@ -111,6 +116,14 @@ public class EventIOStream extends AbstractStream {
                     for (int i = 0; i < eventData.event.central.numTelTriggered; i++) {
                         rawData[i] = eventData.event.teldata[i].raw.adcSample[0];
                     }
+                    //TODO: add more telescope data into the item
+                    item.put("@raw_data", rawData[0]);
+                    long seconds = eventData.event.central.cpuTime.seconds;
+                    long nanoseconds = eventData.event.central.cpuTime.nanoseconds;
+                    item.put("@timestamp", LocalDateTime.ofEpochSecond(seconds, (int) nanoseconds, ZoneOffset.UTC));
+                    item.put("@telescope", new CTATelescope(CTATelescopeType.LST, 12, 0,0,0,null, null, null));
+
+
                 } else if (header.type == Constants.TYPE_RUNHEADER) {
 
                     //TODO some summary from previous runs (original code)
@@ -128,8 +141,7 @@ public class EventIOStream extends AbstractStream {
                     buffer.skipBytes((int) header.length);
                     header.getItemEnd();
                 }
-                item = DataFactory.create();
-                item.put("@event", null);
+
             } else {
                 log.info("Next sync marker has not been found: \nstill available datastream :" + buffer.dataStream.available());
             }

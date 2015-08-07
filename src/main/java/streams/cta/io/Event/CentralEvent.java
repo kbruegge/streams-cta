@@ -27,12 +27,12 @@ public class CentralEvent {
     /**
      * CPU time at central trigger station.
      */
-    HTime cpuTime;
+    public HTime cpuTime;
 
     /**
      * GPS time at central trigger station.
      */
-    HTime gpsTime;
+    public HTime gpsTime;
 
     /**
      * Bit pattern of telescopes having sent a trigger signal to the central station. (Historical;
