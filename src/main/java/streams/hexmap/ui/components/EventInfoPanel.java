@@ -9,7 +9,6 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
-import streams.cta.container.EventData;
 import streams.hexmap.CameraPixel;
 import streams.hexmap.FactCameraPixel;
 import streams.hexmap.ui.Bus;
@@ -84,10 +83,9 @@ public class EventInfoPanel extends JPanel implements EventObserver, PixelSelect
 
         //get the current event
         Data item = itemChangedEvent.item;
-        EventData eventData = itemChangedEvent.eventData;
 
         timeField.setText(itemChangedEvent.timeStamp.toString());
-        roiField.setText(String.valueOf(eventData.data[0].length));
+        roiField.setText(String.valueOf(itemChangedEvent.roi));
         //set the fields if theres data in the event
 
         eventNumber.setText(String.valueOf(item.get("@eventId")));

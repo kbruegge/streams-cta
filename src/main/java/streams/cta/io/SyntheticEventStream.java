@@ -33,6 +33,10 @@ public class SyntheticEventStream extends AbstractStream {
 	double[] gains = new double[numberOfPixels];
 	CTATelescope telescope = new CTATelescope(CTATelescopeType.LST, telescopeId, 0 ,0 ,0, brokenPixel, gains, gains  );
 
+	public double f(int x){
+        return 100*Math.exp(-0.04*Math.pow((x - 10), 2));
+    }
+
 	/**
 	 * @see stream.io.AbstractStream#init()
 	 */
@@ -48,15 +52,20 @@ public class SyntheticEventStream extends AbstractStream {
 	public Data readNext() throws Exception {
         data = new short[numberOfPixels][numberOfSlices];
 
+
         for (int pixel = 0; pixel < numberOfPixels; pixel++) {
-            randomBytes = new byte[numberOfSlices*2];
-            random.nextBytes(randomBytes);
-            ByteBuffer.wrap(randomBytes).asShortBuffer().get(data[pixel]);
+            for (int x = 0; x < numberOfSlices; x++) {
+                data[pixel][x] = (short) f(x);
+                data[pixel][x] += 10*random.nextGaussian();
+            }
+//            randomBytes = new byte[numberOfSlices*2];
+//            random.nextBytes(randomBytes);
+//            ByteBuffer.wrap(randomBytes).asShortBuffer().get(data[pixel]);
         }
 
 
 		Data item = DataFactory.create();
-		item.put("data", data);
+		item.put("@rawdata", data);
 		item.put("@telescope", telescope);
 		item.put("@timestamp", LocalDateTime.now());
 		item.put("@source", this.getClass().getSimpleName());

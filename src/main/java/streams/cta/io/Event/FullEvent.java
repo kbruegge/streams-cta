@@ -1,4 +1,4 @@
-package streams.cta.io.Event;
+package streams.cta.io.event;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,10 +68,6 @@ public class FullEvent {
         numTeldata = 0;
         teldata = new TelEvent[numberTelescopes];
         trackdata = new TrackEvent[numberTelescopes];
-        for (int i = 0; i < numberTelescopes; i++) {
-            trackdata[i] = new TrackEvent();
-            teldata[i] = new TelEvent();
-        }
         teldataList = new int[numberTelescopes];
         shower = new ShowerParameters();
         central = new CentralEvent();
@@ -84,7 +80,6 @@ public class FullEvent {
         EventIOHeader header = new EventIOHeader(buffer);
         try {
             if (header.findAndReadNextHeader()) {
-                log.info("Telescope event start!");
                 if (header.getVersion() != 0) {
                     log.error("Unsupported FullEvent version: " + header.getVersion());
                     header.getItemEnd();
@@ -171,8 +166,7 @@ public class FullEvent {
                     replicateForMonoData();
                 }
 
-                header.getItemEnd();
-                return true;
+                return header.getItemEnd();
             }
         } catch (IOException e) {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());
@@ -186,7 +180,7 @@ public class FullEvent {
      * @param type object type from header
      * @return true for a telescope event, false otherwise.
      */
-    private boolean isTelEvent(int type) {
+    public static boolean isTelEvent(int type) {
         if (H_MAX_TEL > 100) {
             return type >= TYPE_TEL_EVENT &&
                     type % 1000 < (TYPE_TEL_EVENT % 1000) + 100 &&
@@ -203,7 +197,7 @@ public class FullEvent {
      * @param type object type from header
      * @return true for a track event, false otherwise.
      */
-    private boolean isTrackEvent(int type) {
+    public static boolean isTrackEvent(int type) {
         if (H_MAX_TEL > 100) {
             return type >= TYPE_TRACK_EVENT &&
                     type % 1000 < (TYPE_TRACK_EVENT % 1000) + 100 &&

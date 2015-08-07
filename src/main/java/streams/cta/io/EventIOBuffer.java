@@ -8,7 +8,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+
 import static streams.cta.Constants.H_MAX_TEL;
+import static streams.cta.Constants.LITTLE_ENDIAN;
+import static streams.cta.Constants.MAX_HEADER_SIZE;
 import static streams.cta.Constants.MAX_IO_ITEM_LEVEL;
 
 /**
@@ -27,6 +30,8 @@ public class EventIOBuffer {
      * Length of each level of items
      */
     long[] itemLength;
+
+    String[] itemType;
 
     /**
      * Length of its sub-items
@@ -61,7 +66,7 @@ public class EventIOBuffer {
     /**
      * Count the length of a byte stream that has been read.
      */
-    int readLength;
+    int[] readLength;
 
     static int[][] gTelIdx = new int[3][H_MAX_TEL + 1];
     static int[] gTelIdxInit = new int[3];
@@ -81,13 +86,14 @@ public class EventIOBuffer {
         itemStartOffset = new long[MAX_IO_ITEM_LEVEL];
         itemExtension = new boolean[MAX_IO_ITEM_LEVEL];
         this.dataStream = dataStream;
-        readLength = 0;
+        readLength = new int[MAX_IO_ITEM_LEVEL];
+        itemType = new String[MAX_IO_ITEM_LEVEL];
     }
 
     public void skipBytes(int length) {
         try {
             dataStream.skipBytes(length);
-            readLength += length;
+            readLength[itemLevel] += length;
         } catch (IOException e) {
             log.error("Skipping bytes produced an error:\n" + e.getMessage());
         }
@@ -99,15 +105,13 @@ public class EventIOBuffer {
      * @return type of a sub-item
      */
     public int nextSubitemType() {
-        //TODO use a constant for a maximum header length
-        dataStream.mark(20);
+        dataStream.mark(MAX_HEADER_SIZE);
 
         // Are we beyond the last sub-item?
         if (itemLevel > 0) {
-            // First check if we are already beyond the top item and then if we
-            // will be beyond the next smaller level (superiour) item after
-            // reading this item's header.
-            // TODO do the check as in eventio.c, line 3454
+            if (!canReadNextItem()) {
+                return -2;
+            }
         } else if (itemLevel == 0) {
             log.error("Item level is 0, so you can not check the next sub-item type.");
             return -1;
@@ -118,7 +122,7 @@ public class EventIOBuffer {
             type = readLong() & 0x0000ffff;
 
             // reduce read length after reading as we will reset the stream
-            readLength -= 4;
+            readLength[itemLevel] -= 4;
         } catch (IOException e) {
             log.error("Error while checking the type of the subitem:\n" + e.getMessage());
         }
@@ -132,21 +136,33 @@ public class EventIOBuffer {
     }
 
     /**
+     * Check if we are already beyond the top item and then if we will be beyond the next smaller
+     * level (superior) item after reading this item's header.
+     *
+     * @return true if the end of the top level or next smaller level item is not reached, false
+     * otherwise
+     */
+    public boolean canReadNextItem() {
+        boolean topLevelEndReached =
+                readLength[itemLevel] >= itemLength[0] + 16 + (itemExtension[0] ? 4 : 0);
+        boolean subItemEndReached = readLength[itemLevel] + 12 >= itemLength[itemLevel - 1];
+        return !(topLevelEndReached || subItemEndReached);
+    }
+
+    /**
      * Read the header of a sub-item, recognize the identification field of it and reset the stream
      * back.
      *
      * @return identification of a sub-item
      */
     public long nextSubitemIdent() {
-        //TODO use a constant for a maximum header length
-        dataStream.mark(100);
+        dataStream.mark(MAX_HEADER_SIZE);
 
         // Are we beyond the last sub-item?
         if (itemLevel > 0) {
-            // First check if we are already beyond the top item and then if we
-            // will be beyond the next smaller level (superiour) item after
-            // reading this item's header.
-            // TODO do the check as in eventio.c, line 3454
+            if (!canReadNextItem()) {
+                return -2;
+            }
         } else if (itemLevel == 0) {
             return -1;
         }
@@ -160,7 +176,7 @@ public class EventIOBuffer {
             identification = readLong();
 
             // reduce read length after reading as we will reset the stream
-            readLength -= 8;
+            readLength[itemLevel] -= 8;
 
         } catch (IOException e) {
             log.error("Error while checking the type of the subitem:\n" + e.getMessage());
@@ -181,8 +197,7 @@ public class EventIOBuffer {
         EventIOHeader header = new EventIOHeader(this);
         try {
             if (header.findAndReadNextHeader()) {
-                header.getItemEnd();
-                return true;
+                return header.getItemEnd();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -255,7 +270,7 @@ public class EventIOBuffer {
      */
     public byte readByte() throws IOException {
         byte result = dataStream.readByte();
-        readLength += 1;
+        readLength[itemLevel] += 1;
         return result;
     }
 
@@ -266,19 +281,10 @@ public class EventIOBuffer {
      */
     public short readUnsignedByte() throws IOException {
         short result = (short) dataStream.readUnsignedByte();
-        readLength += 1;
+        readLength[itemLevel] += 1;
         return result;
     }
 
-    public byte[] readBytes(int length) throws IOException {
-        //TODO do we need to reverse it?
-        byte[] bytes = new byte[length];
-        dataStream.read(bytes);
-        readLength += length;
-        return bytes;
-    }
-
-    //TODO is it the supposed way to read a short?
     public short readShort() throws IOException {
         return readInt16();
     }
@@ -292,45 +298,39 @@ public class EventIOBuffer {
         //TODO check if filling up to an int with zeros is better than dataStream.readUnsignedShort()
         //TODO maybe use dataStream.readUnsignedByte()?
         byte[] b = new byte[4];
-        dataStream.read(b, 0, 2);
+        if (EventIOStream.byteOrder == LITTLE_ENDIAN) {
+            dataStream.read(b, 0, 2);
+        } else {
+            dataStream.read(b, 2, 2);
+        }
 
-        readLength += 2;
+        readLength[itemLevel] += 2;
 
-        if (EventIOStream.reverse) {
+        if (EventIOStream.byteOrder == LITTLE_ENDIAN) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
         } else {
             return ByteBuffer.wrap(b).getInt();
         }
     }
 
-    public float readReal() throws IOException {
-        //TODO does the original code uses float or double?! reading like unsigned float to a double?
-        byte[] b = new byte[4];
-        dataStream.read(b);
-
-        readLength += 4;
-
-        if (EventIOStream.reverse) {
-            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-        } else {
-            return ByteBuffer.wrap(b).getFloat();
-        }
+    /**
+     * Read a 32-bit floating point number in IEEE format (4 bytes).
+     *
+     * @return float value that is read from readInt32()
+     */
+    public float readFloat() throws IOException {
+        return Float.intBitsToFloat(readInt32());
     }
 
+    /**
+     * Read a 64-bit floating point number in IEEE format (8 bytes)
+     *
+     * @return double value that is read from readInt64()
+     */
     public double readDouble() throws IOException {
-        byte[] b = new byte[8];
-        dataStream.read(b);
-
-        readLength += 8;
-
-        if (EventIOStream.reverse) {
-            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getDouble();
-        } else {
-            return ByteBuffer.wrap(b).getDouble();
-        }
+        return Double.longBitsToDouble(readInt64());
     }
 
-    //TODO check conversion from int to long?!
     public int readLong() throws IOException {
         return readInt32();
     }
@@ -339,9 +339,9 @@ public class EventIOBuffer {
         byte[] b = new byte[2];
         dataStream.read(b);
 
-        readLength += 2;
+        readLength[itemLevel] += 2;
 
-        if (EventIOStream.reverse) {
+        if (EventIOStream.byteOrder == LITTLE_ENDIAN) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getShort();
         } else {
             return ByteBuffer.wrap(b).getShort();
@@ -352,9 +352,9 @@ public class EventIOBuffer {
         byte[] b = new byte[4];
         dataStream.read(b);
 
-        readLength += 4;
+        readLength[itemLevel] += 4;
 
-        if (EventIOStream.reverse) {
+        if (EventIOStream.byteOrder == LITTLE_ENDIAN) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
         } else {
             return ByteBuffer.wrap(b).getInt();
@@ -371,11 +371,15 @@ public class EventIOBuffer {
 
         //TODO check if filling up to an int with zeros is better than dataStream.readUnsignedShort()
         //TODO maybe use dataStream.readUnsignedByte()?
-        dataStream.read(b, 0, 4);
+        if (EventIOStream.byteOrder == LITTLE_ENDIAN) {
+            dataStream.read(b, 0, 4);
+        } else {
+            dataStream.read(b, 4, 4);
+        }
 
-        readLength += 4;
+        readLength[itemLevel] += 4;
 
-        if (EventIOStream.reverse) {
+        if (EventIOStream.byteOrder == LITTLE_ENDIAN) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getLong();
         } else {
             return ByteBuffer.wrap(b).getLong();
@@ -386,9 +390,9 @@ public class EventIOBuffer {
         byte[] b = new byte[8];
         dataStream.read(b);
 
-        readLength += 8;
+        readLength[itemLevel] += 8;
 
-        if (EventIOStream.reverse) {
+        if (EventIOStream.byteOrder == LITTLE_ENDIAN) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getLong();
         } else {
             return ByteBuffer.wrap(b).getLong();
@@ -404,23 +408,30 @@ public class EventIOBuffer {
      * available for the trailing zero byte.
      */
 
-    public char[] readString(int nmax) throws IOException {
+    public String readString(int nmax) throws IOException {
         int nbytes = readShort();
         int nread = (nmax - 1 < nbytes) ? nmax - 1 : nbytes; /* minimum of both */
 
         // Read up to the accepted maximum length
-        // get_vector_of_byte((BYTE *) s, nread, iobuf);
         char[] result = readVectorOfChars(nread);
 
         // Ignore the rest of the string
         if (nbytes > nread) {
             skipBytes(nbytes - nread);
         }
-        readLength -= nbytes - nread;
-        // Terminate string with null character
-        //result[nread] = '\0';
 
-        return result;
+        // reduce the read length
+        readLength[itemLevel] -= nbytes - nread;
+        return String.valueOf(result);
+    }
+
+    /**
+     * Calls internally readString(int nmax) with nmax=Short.MAX_VALUE to get the whole string
+     * value. Get a string of ASCII characters with leading count of bytes (stored with 16 bits)
+     * from an I/O buffer.
+     */
+    public String readString() throws IOException {
+        return readString(Short.MAX_VALUE);
     }
 
     /**
@@ -637,11 +648,10 @@ public class EventIOBuffer {
      * @return array of bytes
      */
     public byte[] readVectorOfBytes(int number) throws IOException {
-        byte[] result = new byte[number];
-        for (int i = 0; i < number; i++) {
-            result[i] = readByte();
-        }
-        return result;
+        byte[] bytes = new byte[number];
+        dataStream.read(bytes);
+        readLength[itemLevel] += number;
+        return bytes;
     }
 
     /**
@@ -678,7 +688,7 @@ public class EventIOBuffer {
      * concern.
      *
      * @param number number of elements to load
-     * @return array of elements
+     * @return array of int elements
      */
     public int[] readVectorOfUnsignedShort(int number) throws IOException {
         int[] result = new int[number];
@@ -688,7 +698,13 @@ public class EventIOBuffer {
         return result;
     }
 
-    public int[] readVectorOfInts(int number) throws IOException {
+    /**
+     * Read a vector of shorts from an I/O buffer.
+     *
+     * @param number number of elements to load
+     * @return array of int elements
+     */
+    public int[] readVectorOfShorts(int number) throws IOException {
         int[] result = new int[number];
         for (int i = 0; i < number; i++) {
             result[i] = readShort();
@@ -699,16 +715,16 @@ public class EventIOBuffer {
     public float[] readVectorOfFloats(int number) throws IOException {
         float[] result = new float[number];
         for (int i = 0; i < number; i++) {
-            result[i] = readReal();
+            result[i] = readFloat();
         }
         return result;
     }
 
-    public double[] readVectorOfReals(int vectorSize)
+    public double[] readVectorOfDoubles(int vectorSize)
             throws IOException {
         double[] vector = new double[vectorSize];
         for (int i = 0; i < vectorSize; i++) {
-            vector[i] = readReal();
+            vector[i] = readDouble();
         }
         return vector;
     }

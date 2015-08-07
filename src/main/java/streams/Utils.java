@@ -1,7 +1,7 @@
 package streams;
 
 import streams.hexmap.FactCameraPixel;
-import streams.hexmap.FactPixelMapping;
+import streams.hexmap.FactHexPixelMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stream.Data;
@@ -79,7 +79,7 @@ public class Utils {
 			List<Integer> showerPixel) {
 		ArrayList<ArrayList<Integer>> listOfLists = new ArrayList<>();
 		HashSet<Integer> marked = new HashSet<>();
-		FactPixelMapping pixelMap = FactPixelMapping.getInstance();
+		FactHexPixelMapping pixelMap = FactHexPixelMapping.getInstance();
 
 		for (int pix : showerPixel) {
 			if (!marked.contains(pix)) {
@@ -90,8 +90,7 @@ public class Utils {
 				// cannot use the enhanced for loop here.
 				for (int index = 0; index < q.size() && !q.isEmpty(); index++) {
 					// add neighbours to q
-					FactCameraPixel[] neighbors = pixelMap
-							.getNeighboursFromID(q.get(index));
+					ArrayList<FactCameraPixel> neighbors = pixelMap.getNeighboursForPixelId(q.get(index));
 					for (FactCameraPixel i : neighbors) {
 						if (showerPixel.contains(i.id)
 								&& !marked.contains(i.id)) {

@@ -2,7 +2,7 @@ package streams.hexmap.ui.events;
 
 import stream.Data;
 import streams.cta.CTATelescope;
-import streams.cta.container.EventData;
+import streams.hexmap.TelescopeEvent;
 
 import java.time.LocalDateTime;
 
@@ -12,15 +12,19 @@ import java.time.LocalDateTime;
  * Created by kai on 06.06.15.
  */
 public class ItemChangedEvent {
+
+
     public final Data item;
     public final LocalDateTime timeStamp;
     public final CTATelescope telescope;
-    public final EventData eventData;
+    public final short[][] rawData;
+    public final int roi;
 
-    public ItemChangedEvent(Data item, LocalDateTime timeStamp, CTATelescope telescope, EventData eventData) {
+    public ItemChangedEvent(Data item, LocalDateTime timeStamp, CTATelescope telescope, short[][] rawData) {
         this.item = item;
         this.timeStamp = timeStamp;
         this.telescope = telescope;
-        this.eventData = eventData;
+        this.rawData = rawData;
+        this.roi = rawData[0].length;
     }
 }

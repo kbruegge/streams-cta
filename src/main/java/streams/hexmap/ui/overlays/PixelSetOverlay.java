@@ -1,8 +1,8 @@
 package streams.hexmap.ui.overlays;
 
 import streams.hexmap.CameraPixel;
-import streams.hexmap.FactPixelMapping;
-import streams.hexmap.ui.components.cameradisplay.FactHexMapDisplay;
+import streams.hexmap.FactHexPixelMapping;
+import streams.hexmap.ui.components.cameradisplay.HexMapDisplay;
 import streams.hexmap.ui.components.cameradisplay.Tile;
 
 import java.awt.*;
@@ -27,7 +27,7 @@ public class PixelSetOverlay implements CameraMapOverlay, Serializable {
         set.add(p);
     }
     public void addById(int id){
-        set.add(FactPixelMapping.getInstance().getPixelFromId(id));
+        set.add(FactHexPixelMapping.getInstance().getPixelFromId(id));
     }
 
     public int[] toIntArray(){
@@ -56,7 +56,7 @@ public class PixelSetOverlay implements CameraMapOverlay, Serializable {
     }
 
     @Override
-    public void paint(Graphics2D g2, FactHexMapDisplay map) {
+    public void paint(Graphics2D g2, HexMapDisplay map) {
         for (Tile t : map.getTiles()){
             if(set.contains(t.getCameraPixel())){
                 if (t.getBorderColor() != Color.BLACK){

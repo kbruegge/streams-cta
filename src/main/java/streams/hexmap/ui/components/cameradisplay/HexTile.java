@@ -1,9 +1,6 @@
 package streams.hexmap.ui.components.cameradisplay;
 
 import streams.hexmap.CameraPixel;
-import streams.hexmap.FactCameraPixel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 
@@ -12,14 +9,14 @@ import java.awt.*;
  * @author kai
  *
  */
-public class FactHexTile extends Tile {
+public class HexTile extends Tile {
 
 	private double height;
 	private double width;
     private double radius;
-    private FactCameraPixel pixel;
+    private CameraPixel pixel;
 
-    public FactHexTile(FactCameraPixel p, double radius){
+    public HexTile(CameraPixel p, double radius){
         this.pixel = p;
         this.radius = radius;
         this.width =radius * 2;
@@ -80,8 +77,8 @@ public class FactHexTile extends Tile {
 
 
 	public boolean equals( Object o ){
-		if( o instanceof FactHexTile){
-			FactHexTile other = (FactHexTile) o;
+		if( o instanceof HexTile){
+			HexTile other = (HexTile) o;
 			if( this.pixel.equals(other.getCameraPixel())){
 				return true;
 			}

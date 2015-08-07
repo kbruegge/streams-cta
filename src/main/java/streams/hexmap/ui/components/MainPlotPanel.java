@@ -111,7 +111,7 @@ public class MainPlotPanel extends JPanel implements EventObserver, SliceObserve
     @Subscribe
     public void handleEventChange(ItemChangedEvent itemChangedEvent) {
         this.item = itemChangedEvent.item;
-        this.roi = itemChangedEvent.eventData.roi;
+        this.roi = itemChangedEvent.roi;
         drawPlot();
     }
 

@@ -6,28 +6,25 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
+import streams.hexmap.TelescopeEvent;
 import streams.hexmap.ui.Bus;
 import streams.hexmap.ui.EventObserver;
-import streams.hexmap.ui.components.MainPlotPanel;
+import streams.hexmap.ui.components.SelectedLinePlotPanel;
 import streams.hexmap.ui.components.selectors.IntervallMarkerKeySelector;
-import streams.hexmap.ui.components.selectors.KeySelector;
-import streams.hexmap.ui.components.selectors.TimeSeriesKeySelector;
-import streams.hexmap.ui.events.IntervallMarkerSelectionChangedEvent;
+import streams.hexmap.ui.components.selectors.LinePlotSelector;
 import streams.hexmap.ui.events.ItemChangedEvent;
-import streams.hexmap.ui.events.TimeSeriesSelectionChangedEvent;
-import org.apache.commons.math3.util.Pair;
-import stream.Data;
+import streams.hexmap.ui.events.PlotSelectionChangedEvent;
 
 import javax.swing.*;
 
-public class PlotDisplayWindow implements EventObserver {
+public class PlotDisplayWindow implements EventObserver{
 
-	private final MainPlotPanel plotPanel = new MainPlotPanel(750, 480, false);
-    private final KeySelector keySelector = new TimeSeriesKeySelector();
-    private final KeySelector intervalKeySelector = new IntervallMarkerKeySelector();
+	private final SelectedLinePlotPanel plotPanel = new SelectedLinePlotPanel(750, 480);
+    private final LinePlotSelector keySelector = new LinePlotSelector();
+    private final IntervallMarkerKeySelector intervalKeySelector = new IntervallMarkerKeySelector();
+    private TelescopeEvent telescopeEvent;
 
     public PlotDisplayWindow() {
-        //keySelector.addItem(new SeriesKeySelectorItem(key, Color.DARK_GRAY, keySelector));
         Bus.eventBus.register(this);
 	}
 
@@ -60,33 +57,22 @@ public class PlotDisplayWindow implements EventObserver {
     }
 
 
+//    @Subscribe
+//    public void handleKeySelectionChange(IntervallMarkerSelectionChangedEvent e){
+//        plotPanel.drawPlot(keySelector.getPlotData(), intervalKeySelector.getPlotData());
+//    }
+
+
     @Subscribe
-    public void handleKeySelectionChange(TimeSeriesSelectionChangedEvent e){
-        plotPanel.setItemsToPlot(keySelector.getSelectedItemPairs());
-        //plotPanel.setMarkerToPlot(selectedMarker);
-        plotPanel.drawPlot();
-    }
-    @Subscribe
-    public void handleKeySelectionChange(IntervallMarkerSelectionChangedEvent e){
-        //plotPanel.setItemsToPlot(selectedItems);
-        plotPanel.setMarkerToPlot(intervalKeySelector.getSelectedItemPairs());
-        plotPanel.drawPlot();
+    public void handleKeySelectionChange(PlotSelectionChangedEvent e){
+        plotPanel.drawPlot(keySelector.getSelectedPlotData(), intervalKeySelector.getSelectedPlotData());
     }
 
-    /**
-     * Adds the keys we can display in the plot window to the list on right side of the screen.
-     * @param itemChangedEvent the current data item we want to display
-     */
     @Override
-    @Subscribe
     public void handleEventChange(ItemChangedEvent itemChangedEvent) {
-
-        plotPanel.setItemsToPlot(keySelector.getSelectedItemPairs());
-        plotPanel.setMarkerToPlot(intervalKeySelector.getSelectedItemPairs());
-
-        plotPanel.drawPlot();
+        keySelector.updateSelectionItems(itemChangedEvent);
+        plotPanel.drawPlot(keySelector.getSelectedPlotData(), intervalKeySelector.getSelectedPlotData());
     }
-
 
 
     public static void main(String[]args){

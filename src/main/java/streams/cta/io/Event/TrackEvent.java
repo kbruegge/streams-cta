@@ -1,4 +1,4 @@
-package streams.cta.io.Event;
+package streams.cta.io.event;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,22 +25,22 @@ public class TrackEvent {
     /**
      * Raw azimuth angle [radians from N->E].
      */
-    double azimuthRaw;
+    float azimuthRaw;
 
     /**
      * Raw altitude angle [radians].
      */
-    double altitudeRaw;
+    float altitudeRaw;
 
     /**
      * Azimuth corrected for pointing errors.
      */
-    double azimuthCor;
+    float azimuthCor;
 
     /**
      * Azimuth corrected for pointing errors.
      */
-    double altitudeCor;
+    float altitudeCor;
 
     /**
      * Set if raw angles are known.
@@ -51,6 +51,10 @@ public class TrackEvent {
      * Set if corrected angles are known.
      */
     boolean corKnown;
+
+    public TrackEvent(int id) {
+        telId = id;
+    }
 
     /**
      * Read a tracking position in eventio format.
@@ -79,16 +83,15 @@ public class TrackEvent {
 
                 //TODO is it right? aziRaw -> altRaw and then altCor -> aziCor
                 if (rawKnown) {
-                    azimuthRaw = buffer.readReal();
-                    altitudeRaw = buffer.readReal();
+                    azimuthRaw = buffer.readFloat();
+                    altitudeRaw = buffer.readFloat();
                 }
 
                 if (corKnown) {
-                    altitudeCor = buffer.readReal();
-                    azimuthCor = buffer.readReal();
+                    altitudeCor = buffer.readFloat();
+                    azimuthCor = buffer.readFloat();
                 }
-                header.getItemEnd();
-                return true;
+                return header.getItemEnd();
             }
         } catch (IOException e) {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());

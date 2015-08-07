@@ -4,10 +4,10 @@
 package streams.hexmap.ui.components.cameradisplay;
 
 import com.google.common.eventbus.Subscribe;
-import streams.cta.container.EventData;
 import streams.hexmap.CameraPixel;
 import streams.hexmap.FactCameraPixel;
-import streams.hexmap.FactPixelMapping;
+import streams.hexmap.FactHexPixelMapping;
+import streams.hexmap.HexPixelMapping;
 import streams.hexmap.ui.Bus;
 import streams.hexmap.ui.EventObserver;
 import streams.hexmap.ui.SliceObserver;
@@ -36,20 +36,18 @@ import java.util.*;
  * with one edge on the bottom. Also has a colorbar next to it.
  * 
  */
-public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserver, MouseListener, EventObserver {
+public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserver, MouseListener, EventObserver {
 
-	static Logger log = LoggerFactory.getLogger(FactHexMapDisplay.class);
+	static Logger log = LoggerFactory.getLogger(HexMapDisplay.class);
 
 	//camera specific informations
 	private final double PIXEL_RADIUS = 7;
-    private final int NUMBER_OF_CAMERA_PIXEL = 1440;
-    final private FactPixelMapping pixelMapping;
+    final private HexPixelMapping pixelMapping;
 
-    FactHexTile tiles[];
+    HexTile tiles[];
 
 	int canvasWidth;
 	int canvasHeight;
-	int rows = 0, cols = 0;
 
 	public double[][] sliceValues;
 
@@ -68,7 +66,7 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
 
 
 	private ArrayList<CameraMapOverlay> overlays = new ArrayList<>();
-	private Set<Pair<String, Color>> overlayKeys = new HashSet<>();
+//	private Set<Pair<String, Color>> overlayKeys = new HashSet<>();
 	Set<FactCameraPixel> selectedPixels = new LinkedHashSet<>();
 
 	// formater to display doubles nicely
@@ -92,21 +90,19 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
 	 * @param scale A scaling factor to change the size of the drawn pixels.
 	 *
 	 */
-	public FactHexMapDisplay(double scale, int canvasWidth, int canvasHeight,
-			boolean mouseAction) {
+	public HexMapDisplay(double scale, int canvasWidth, int canvasHeight,
+						 boolean mouseAction) {
 
 		Bus.eventBus.register(this);
 
 		this.scale = scale;
-		this.pixelMapping = FactPixelMapping.getInstance();
+		this.pixelMapping = FactHexPixelMapping.getInstance();
 		this.canvasHeight = canvasHeight;
 		this.canvasWidth = canvasWidth;
-		this.rows = pixelMapping.getNumberRows();
-		this.cols = pixelMapping.getNumberCols();
 
-		tiles = new FactHexTile[pixelMapping.getNumberOfPixel()];
+		tiles = new HexTile[pixelMapping.getNumberOfPixel()];
 		for (int i = 0; i < tiles.length; i++) {
-			FactHexTile t = new FactHexTile(pixelMapping.getPixelFromId(i), PIXEL_RADIUS*this.scale);
+			HexTile t = new HexTile(pixelMapping.getPixelFromId(i), PIXEL_RADIUS*this.scale);
 			tiles[i] = t;
 		}
 
@@ -116,7 +112,7 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
 		}
 	}
 
-	public FactHexMapDisplay(double scale, int canvasWidth, int canvasHeight) {
+	public HexMapDisplay(double scale, int canvasWidth, int canvasHeight) {
 		this(scale, canvasWidth, canvasHeight, true);
 	}
 
@@ -137,31 +133,28 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
     @Override
 	public void handleEventChange(ItemChangedEvent itemChangedEvent) {
 		log.debug("hexmap got a new item");
-        EventData eventData = itemChangedEvent.eventData;
+//        EventData eventData = itemChangedEvent.eventData;
 		int numberOfPixel = itemChangedEvent.telescope.type.numberOfPixel;
-        sliceValues = new double[numberOfPixel][eventData.roi];
+        int roi = itemChangedEvent.roi;
+        sliceValues = new double[numberOfPixel][roi];
 
 		this.dataItem = itemChangedEvent.item;
 
-		overlays = updateOverlays(overlayKeys, dataItem);
+//		overlays = updateOverlays(overlayKeys, dataItem);
 
 		minValueInData = Double.MAX_VALUE;
 		maxValueInData = Double.MIN_VALUE;
 		for (int pixel = 0; pixel < numberOfPixel; pixel++) {
-			for (int i = 0; i < eventData.roi; i++) {
-				short value = eventData.data[pixel][i];
+			for (int i = 0; i < roi; i++) {
+				short value = itemChangedEvent.rawData[pixel][i];
 				sliceValues[pixel][i] = value;
 				minValueInData = minValueInData >  value ?  value : minValueInData;
 				maxValueInData = maxValueInData <  value ?  value : maxValueInData ;
 			}
 		}
-	}
-
-	public void setOverlayItemsToDisplay(Set<Pair<String, Color>> items) {
-		overlayKeys = items;
-		overlays = updateOverlays(items, dataItem);
 		this.repaint();
 	}
+
 
 	/**
 	 * We call this method whenever a new Overlay is supposed to be drawn.
@@ -172,8 +165,7 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
 	 * @param dataItem
 	 * @return
 	 */
-	private ArrayList<CameraMapOverlay> updateOverlays(
-			Set<Pair<String, Color>> items, Data dataItem) {
+	private ArrayList<CameraMapOverlay> updateOverlays(Set<Pair<String, Color>> items, Data dataItem) {
 
 		ArrayList<CameraMapOverlay> overlays = new ArrayList<>();
 		for (Pair<String, Color> s : items) {
@@ -250,6 +242,7 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
 					slice = sliceValues[tile.getCameraPixel().id].length - 1;
 				}
 				double value = sliceValues[tile.getCameraPixel().id][slice];
+
 				tile.setFillColor(this.colormap.getColorFromValue(value,
 						minValueInData, maxValueInData));
 				if (selectedPixels.contains(p)) {
@@ -274,11 +267,10 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
 			// draw cross across screen to indicate center of component
             g2.setColor(Color.red);
             g2.drawString("Work In Progress", 50, 50);
-			 Line2D line = new Line2D.Double(0,0, getWidth(),getHeight());
-			 g2.draw(line);
-			//
-			 line = new Line2D.Double(getWidth(),0,0,getHeight());
-			 g2.draw(line);
+            Line2D line = new Line2D.Double(0,0, getWidth(),getHeight());
+            g2.draw(line);
+            line = new Line2D.Double(getWidth(),0,0,getHeight());
+            g2.draw(line);
 
 			if (includeScale) {
 				g2.translate(this.canvasWidth - 40, 0);
@@ -452,12 +444,6 @@ public class FactHexMapDisplay extends JPanel implements PixelMapDisplay,SliceOb
 	@Override
 	public Dimension getPreferredSize() {
 		return getMinimumSize();
-	}
-
-	// ------Getter and Setter----------------
-	@Override
-	public int getNumberOfTiles() {
-		return tiles.length;
 	}
 
 	public double getTileRadiusInPixels() {

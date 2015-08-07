@@ -5,11 +5,11 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
-import streams.cta.container.EventData;
+import streams.cta.CTATelescope;
 import streams.hexmap.ui.components.EventInfoPanel;
 import streams.hexmap.ui.components.MainPlotPanel;
 import streams.hexmap.ui.components.StreamNavigationPanel;
-import streams.hexmap.ui.components.cameradisplay.DisplayPanel;
+import streams.hexmap.ui.components.cameradisplay.CameraDisplayPanel;
 import streams.hexmap.ui.events.ItemChangedEvent;
 import streams.hexmap.ui.windows.CameraWindow;
 import streams.hexmap.ui.windows.PlotDisplayWindow;
@@ -24,6 +24,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.time.LocalDateTime;
 
 /**
  * Here the components of the gui are layed out. like the position of the camera map or the chart display in the window.
@@ -39,7 +40,7 @@ public class Viewer extends JFrame {
 
 
     //------some components for the viewer
-    final DisplayPanel mapDisplay = new DisplayPanel();
+    final CameraDisplayPanel mapDisplay = new CameraDisplayPanel();
     final StreamNavigationPanel navigation = new StreamNavigationPanel();
     final MainPlotPanel chartPanel = new MainPlotPanel(550, 350, true);
     final EventInfoPanel eventInfoPanel = new EventInfoPanel(600, 320);
@@ -213,9 +214,9 @@ public class Viewer extends JFrame {
      * events from the stream
      * @param item the new item from the stream
      */
-	public void setDataItem(Data item, EventData eventData) {
+	public void setDataItem(Data item, LocalDateTime timeStamp, CTATelescope telescope, short[][] rawData) {
         this.item = item;
-        Bus.eventBus.post(new ItemChangedEvent(item, eventData));
+        Bus.eventBus.post(new ItemChangedEvent(item, timeStamp, telescope, rawData ));
 	}
 
 }

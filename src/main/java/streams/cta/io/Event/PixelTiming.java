@@ -1,4 +1,4 @@
-package streams.cta.io.Event;
+package streams.cta.io.event;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,6 +109,10 @@ public class PixelTiming {
      */
     int[][] pulseSumGlob;
 
+    public PixelTiming(int id){
+        telId = id;
+    }
+
     public boolean readPixTime(EventIOBuffer buffer) {
         EventIOHeader header = new EventIOHeader(buffer);
         try {
@@ -159,9 +163,9 @@ public class PixelTiming {
                 }
                 if (header.getVersion() <= 1) {
                     if (listType == 1) {
-                        pixelList = buffer.readVectorOfInts(listSize);
+                        pixelList = buffer.readVectorOfShorts(listSize);
                     } else {
-                        pixelList = buffer.readVectorOfInts(2 * listSize);
+                        pixelList = buffer.readVectorOfShorts(2 * listSize);
                     }
                 } else {
                     if (listType == 1) {
@@ -183,16 +187,16 @@ public class PixelTiming {
                     header.getItemEnd();
                     return false;
                 }
-                timeType = buffer.readVectorOfInts(numTypes);
+                timeType = buffer.readVectorOfShorts(numTypes);
                 timeLevel = buffer.readVectorOfFloats(numTypes);
-                granularity = buffer.readReal();
+                granularity = buffer.readFloat();
                 if (granularity > 0.) {
                     scale = granularity;
                 } else {
                     scale = 0.01f;
                     granularity = 0.01f;
                 }
-                peakGlobal = buffer.readReal();
+                peakGlobal = buffer.readFloat();
 
                 // initialize arrays
                 timval = new float[numPixels][numTypes];
@@ -241,8 +245,7 @@ public class PixelTiming {
                     }
                 }
                 known = true;
-                header.getItemEnd();
-                return true;
+                return header.getItemEnd();
             }
         } catch (IOException e) {
             log.error("Something went wrong while reading the header:\n" + e.getMessage());

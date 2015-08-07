@@ -1,17 +1,14 @@
 package streams;
 
-import org.junit.Test;
 import stream.Data;
-import streams.cta.container.EventData;
+import streams.cta.CTATelescope;
 import streams.cta.io.SyntheticEventStream;
 import streams.hexmap.ui.Viewer;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.fail;
 
 /**
  * Created by kaibrugge on 20.03.14.
@@ -23,7 +20,6 @@ public class ViewerTest {
     Viewer viewer = Viewer.getInstance();
 
     //this can't be called during an automated unit test cause it needs some user input to exit
-    @Test
     public void viewer() throws Exception {
 
         syntheticEventStream.init();
@@ -37,18 +33,14 @@ public class ViewerTest {
 
                     viewer.getNextButton().setEnabled(true);
                     viewer.getNextButton().addActionListener(
-                            new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent arg0) {
-                                    synchronized (lock) {
-                                        lock.set(!lock.get());
-                                        lock.notifyAll();
-                                    }
+                            arg0 -> {
+                                synchronized (lock) {
+                                    lock.set(!lock.get());
+                                    lock.notifyAll();
                                 }
                             });
                 }
-                EventData eventData = (EventData) item.get("@event");
-                viewer.setDataItem(item, eventData);
+                viewer.setDataItem(item, (LocalDateTime) item.get("@timeStamp"),(CTATelescope) item.get("@telescope"), (short[][])item.get("@rawdata"));
                 viewer.setVisible(true);
             }
         };
@@ -66,7 +58,6 @@ public class ViewerTest {
 
     }
 
-    @Test
     public void testViewerXML() throws Exception {
         final URL url = ViewerTest.class
                 .getResource("/viewer.xml");

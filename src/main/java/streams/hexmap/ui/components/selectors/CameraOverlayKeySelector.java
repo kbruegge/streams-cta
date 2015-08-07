@@ -1,9 +1,12 @@
 package streams.hexmap.ui.components.selectors;
 
+import streams.hexmap.TelescopeEvent;
 import streams.hexmap.ui.Bus;
+import streams.hexmap.ui.events.ItemChangedEvent;
 import streams.hexmap.ui.events.OverlaySelectionChangedEvent;
 import streams.hexmap.ui.overlays.CameraMapOverlay;
 import stream.Data;
+import streams.hexmap.ui.plotting.OverlayPlotData;
 
 import java.awt.*;
 import java.util.HashSet;
@@ -15,22 +18,26 @@ import java.util.Set;
  */
 public class CameraOverlayKeySelector extends KeySelector {
 
-    @Override
-    public void selectionUpdate() {
-        Bus.eventBus.post(new OverlaySelectionChangedEvent(getSelectedItemPairs()));
-    }
+//    @Override
+//    public void selectionUpdate() {
+//        Bus.eventBus.post(new OverlaySelectionChangedEvent(getSelectedPlotData()));
+//    }
 
     @Override
-    public Set<SeriesKeySelectorItem> filterItems(Data item) {
-        Set<SeriesKeySelectorItem> newItems = new HashSet<>();
+    public Set<KeySelectorItem> filterItems(ItemChangedEvent itemChangedEvent) {
+        Set<KeySelectorItem> newItems = new HashSet<>();
+        Data item = itemChangedEvent.item;
         for  (String key: item.keySet()){
             try {
                 CameraMapOverlay b = (CameraMapOverlay) item.get(key);
-                newItems.add(new SeriesKeySelectorItem(key, new Color(186, 217, 246), this));
+                newItems.add(new KeySelectorItem(new OverlayPlotData(b, Color.GRAY, key), this));
             } catch (ClassCastException e){
                 continue;
             }
         }
         return newItems;
     }
+
+
+
 }

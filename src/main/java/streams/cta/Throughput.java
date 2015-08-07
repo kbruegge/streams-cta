@@ -5,7 +5,6 @@ package streams.cta;
 
 import stream.AbstractProcessor;
 import stream.Data;
-import streams.cta.container.EventData;
 
 /**
  * @author chris
@@ -22,7 +21,6 @@ public class Throughput extends AbstractProcessor {
 	 */
 	@Override
 	public Data process(Data input) {
-        EventData ev = (EventData) input.get("@event");
 		eventCount++;
 		return input;
 	}

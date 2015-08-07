@@ -36,7 +36,7 @@ public class StreamNavigationPanel extends JPanel implements EventObserver {
     public void handleEventChange(ItemChangedEvent itemChangedEvent) {
         Data item = itemChangedEvent.item;
 
-        slider.setMaximum(itemChangedEvent.eventData.roi - 1);
+        slider.setMaximum(itemChangedEvent.roi - 1);
 
 //        Long eventNum = itemChangedEvent.eventData.eventId;
 //        eventNumber.setText(eventNum.toString());
@@ -48,7 +48,7 @@ public class StreamNavigationPanel extends JPanel implements EventObserver {
         if (file != null){
             fileField.setText(file.toString());
         }
-        slider.setMaximum(itemChangedEvent.eventData.roi - 1);
+        slider.setMaximum(itemChangedEvent.roi - 1);
     }
 
 	JTextField sliceField = new JTextField(4);

@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 import streams.cta.Constants;
+import streams.cta.io.event.FullEvent;
 
 /**
  * Header of EventIO file This class should read the header in front of the data block in EventIO
@@ -68,20 +69,22 @@ public class EventIOHeader {
     }
 
     public boolean findAndReadNextHeader(boolean reset) throws IOException {
-        //TODO use the wanted type and controll it
+        //TODO use the wanted type and control it
         long wantedType;
 
-        //TODO use the right constant
-        if (buffer.itemLevel >= 100) {
+        if (buffer.itemLevel >= Constants.MAX_IO_ITEM_LEVEL) {
             log.error("Maximum level of sub-items in I/O Buffer exceeded.");
-            //TODO: what to do now?
+            return false;
         }
 
-
         if (buffer.itemLevel > 0) {
-            //TODO do the check like in eventio.c line 3192
+            if (!buffer.canReadNextItem()) {
+                log.error("We reached the end of the top item or the end " +
+                        "of the next smaller level item.");
+                return false;
+            }
         } else if (buffer.itemLevel == 0 && !buffer.syncMarkerFound) {
-            EventIOStream.reverse = false;
+            EventIOStream.byteOrder = Constants.LITTLE_ENDIAN;
             boolean found = findSynchronisationMarker();
             if (!found) {
                 log.info("Synchronisation marker could not have been found.");
@@ -90,7 +93,7 @@ public class EventIOHeader {
         }
 
         if (reset) {
-            buffer.dataStream.mark(100);
+            buffer.dataStream.mark(Constants.MAX_HEADER_SIZE);
         }
 
         wantedType = type;
@@ -100,7 +103,7 @@ public class EventIOHeader {
 
         // bits 0 to 15 are used for typeString information
         type = typeField & 0x0000ffff;
-        typeString = EventIOStream.eventioTypes.get(type);
+        typeString = typeToString(type);
 
         // bit 16 is the user bit and is not set
         userFlag = (typeField & 0x00010000) != 0;
@@ -133,20 +136,24 @@ public class EventIOHeader {
 
         // check whether bit 31 is set
         // as it is a reserved bit it should be set to 0
-//        boolean reserved = (lengthField & 0x80000000) == 0;
-//        if (!reserved) {
-//            log.error("Reserved bit should be set to 0.");
-//            return false;
-//        }
+        boolean reserved = (lengthField & 0x80000000) == 0;
+        if (!reserved) {
+            log.error("Reserved bit should be set to 0.");
+            return false;
+        }
 
-        buffer.readLength -= 12;
+        if (buffer.itemLevel == 0) {
+            buffer.readLength[buffer.itemLevel] -= 12;
+        }
 
         // read extension if given
         if ((lengthField & 0x80000000) != 0) {
             log.info("Extension exists.");
             useExtension = true;
             extension = buffer.readUnsignedInt32();
-            buffer.readLength -= 4;
+            if (buffer.itemLevel == 0) {
+                buffer.readLength[buffer.itemLevel] -= 4;
+            }
             // Actual length consists of bits 0-29 of length field plus bits 0-11 of extension field.
             length = (lengthField & 0x3FFFFFFF) | ((extension & 0x0FFF) << 30);
         } else {
@@ -157,6 +164,7 @@ public class EventIOHeader {
         if (!reset) {
             // save the length of the item
             buffer.itemLength[buffer.itemLevel] = length;
+            buffer.itemType[buffer.itemLevel] = typeString;
 
             if (onlySubObjects) {
                 buffer.subItemLength[buffer.itemLevel] = length;
@@ -164,6 +172,7 @@ public class EventIOHeader {
                 buffer.subItemLength[buffer.itemLevel] = 0;
             }
 
+            // For global offsets keep also track where header extensions were found.
             buffer.itemExtension[buffer.itemLevel] = useExtension;
         }
 
@@ -182,6 +191,25 @@ public class EventIOHeader {
     }
 
     /**
+     * Using the type code try to get the right EventIO type as text description.
+     *
+     * @param type number of type
+     * @return description/name of the type
+     */
+    public String typeToString(int type) {
+        String typeString = EventIOStream.eventioTypes.get(type);
+
+        if (typeString == null) {
+            if (FullEvent.isTelEvent(type)) {
+                typeString = EventIOStream.eventioTypes.get(Constants.TYPE_TEL_EVENT);
+            } else if (FullEvent.isTrackEvent(this.type)) {
+                typeString = EventIOStream.eventioTypes.get(Constants.TYPE_TRACK_EVENT);
+            }
+        }
+        return typeString;
+    }
+
+    /**
      * Searches the stream for the sync marker and reads EventIO defined header consisting of 3 - 4
      * fields of 4 bytes each
      */
@@ -197,7 +225,6 @@ public class EventIOHeader {
      * @return true, if marker was found; otherwise false.
      */
     private boolean findSynchronisationMarker() {
-        // find_io_block in eventio.c
         int firstBit = 0;
         int reverse = 1;
         int state = 0;
@@ -205,18 +232,19 @@ public class EventIOHeader {
         int[] syncMarker = {0xD4, 0x1F, 0x8A, 0x37};
 
         try {
+            byte b;
             while (buffer.dataStream.available() > 0) {
-                byte b = buffer.dataStream.readByte();
+                b = buffer.dataStream.readByte();
 
                 if (firstBit == 0) {
                     if (b == syncMarker[0]) {
                         firstBit = 1;
                         state = 1;
+                        EventIOStream.byteOrder = Constants.BIG_ENDIAN;
                     } else if (b == syncMarker[3]) {
                         firstBit = 1;
                         state = 2;
                         reverse = -1;
-                        EventIOStream.reverse = true;
                     }
                 } else {
                     if (b == (byte) syncMarker[state]) {
@@ -244,43 +272,62 @@ public class EventIOHeader {
      * Find the end of the current item. Update the level if you're leaving one level and skip the
      * bytes left til the data length.
      */
-    public void getItemEnd() {
-        //TODO return boolean if finding item end was successful
-        int ilevel = -1;
-
+    public boolean getItemEnd() {
+        // check for some level errors
         if (level != buffer.itemLevel - 1) {
             if (level >= buffer.itemLevel) {
                 log.error("Attempt to finish getting an item which is not active: " + type);
+                return false;
             } else {
                 log.error("Item level is inconsistent.");
+                return false;
             }
         }
 
+
+        // decrease the level if the level is inside the allowed range
         if (level >= 0 && level <= Constants.MAX_IO_ITEM_LEVEL) {
+            // mark that for the next item we need to search for sync marker
             if (level == 0 & buffer.itemLevel == 1) {
                 buffer.syncMarkerFound = false;
             }
-
-            ilevel = level;
             buffer.itemLevel = level;
         } else {
-            //TODO: something is wrong
+            log.error("Level is wrong: " + level);
+            return false;
         }
 
-        /* If the item has a length specified, check it. */
-        if (buffer.itemLength[ilevel] >= 0) {
-            //TODO check whether the length that has been read matches the predefined length
+        // save read length before setting it to 0
+        int localReadLength = buffer.readLength[buffer.itemLevel + 1];
+
+        // sum up read length from itemLevel+1 and itemLevel
+        // as what we read in itemLevel+1 is a sub-item of item in itemLevel
+        buffer.readLength[buffer.itemLevel] += localReadLength;
+        buffer.readLength[buffer.itemLevel + 1] = 0;
+
+        // If the item has a length specified, check it.
+        if (buffer.itemLength[level] >= 0) {
+
+            // check whether the length that has been read matches the predefined length,
+            // if not one can skip data until the next item
+            if (buffer.itemLength[buffer.itemLevel] != buffer.readLength[buffer.itemLevel]) {
+                if (length > buffer.itemLength[buffer.itemLevel]) {
+                    log.error("Actual length of item type " + type + " exceeds specified length");
+                }
+
+                // calculate how much of the byte stream real length has been read
+                // and skip the rest of it until the next item
+                int skipLength = (int) length - localReadLength;
+                buffer.skipBytes(skipLength);
+
+            }
         }
 
         if (buffer.itemLevel == 0) {
             // TODO stop reading!!
         }
 
-        // calculate how much of the byte stream real length has been read
-        // and skip the rest of it until the next item
-        int skipLength = (int) length - buffer.readLength;
-        buffer.skipBytes(skipLength);
-        buffer.readLength = 0;
+        return true;
     }
 
     public long getVersion() {

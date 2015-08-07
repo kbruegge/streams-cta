@@ -7,7 +7,7 @@ import com.jgoodies.forms.layout.RowSpec;
 import streams.Utils;
 import streams.hexmap.ui.Bus;
 import streams.hexmap.ui.EventObserver;
-import streams.hexmap.ui.components.cameradisplay.DisplayPanel;
+import streams.hexmap.ui.components.cameradisplay.CameraDisplayPanel;
 import stream.Data;
 import streams.hexmap.ui.events.ItemChangedEvent;
 
@@ -23,8 +23,8 @@ import java.awt.event.ActionListener;
  * Created by kaibrugge on 13.05.14.
  */
 public class CameraWindow implements EventObserver {
-    private final DisplayPanel hexMapDisplay;
-    private final JComboBox keyComboBox = new JComboBox();
+    private final CameraDisplayPanel hexMapDisplay;
+    private final JComboBox<String> keyComboBox = new JComboBox<>();
     private Data dataItem;
 
 
@@ -45,7 +45,7 @@ public class CameraWindow implements EventObserver {
         });
 
 
-        hexMapDisplay = new DisplayPanel();
+        hexMapDisplay = new CameraDisplayPanel();
         hexMapDisplay.setBackground(Color.BLACK);
 
         Bus.eventBus.register(this);
@@ -88,10 +88,11 @@ public class CameraWindow implements EventObserver {
         keyComboBox.removeAllItems();
         for(String key : dataItem.keySet()){
             double[] data = Utils.toDoubleArray(dataItem.get(key));
-            if(data != null && data.length > 0 && data.length%1440 == 0) {
+            if(data != null && data.length > 0 && data.length%itemChangedEvent.roi == 0) {
                 keyComboBox.addItem(key);
                 if(key.equals(selectedKey)){
                     keyComboBox.setSelectedItem(key);
+                    selectedKey = key;
                 }
             }
         }
