@@ -10,6 +10,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -292,7 +293,115 @@ public class EventIOBufferTest {
 
     @Test
     public void testReadCount() throws Exception {
+        byte b = 0x7F;
+        outDataStream.writeByte(b);
+        outDataStream.flush();
+        assertEquals(b, buffer.readCount());
 
+        short s = 0x81;
+        writeCount(s);
+        outDataStream.flush();
+        assertEquals(s, buffer.readCount());
+
+        int i = 0x7881;
+        writeCount(i);
+        outDataStream.flush();
+        assertEquals(i, buffer.readCount());
+
+        int li = 0xFF7881;
+        writeCount(li);
+        outDataStream.flush();
+        assertEquals(li, buffer.readCount());
+
+        long vli = 0xFFF7881;
+        writeCount(vli);
+        outDataStream.flush();
+        assertEquals(vli, buffer.readCount());
+
+        long vvli = 0x3FFF7881;
+        writeCount(vvli);
+        outDataStream.flush();
+        assertEquals(vvli, buffer.readCount());
+    }
+
+    private void writeCount(long n) {
+        long[] v = new long[9]; /* Prepared for up to 64 bits */
+        int one = 1;
+        int l;
+        if (n < (one << 7)) {
+            v[0] = (byte) n;
+            l = 1;
+        } else if (n < (one << 14)) {
+            v[0] = 0x80 | ((n >> 8) & 0x3f);
+            v[1] = (n & 0xff);
+            l = 2;
+        } else if (n < (one << 21)) {
+            v[0] = 0xc0 | ((n >> 16) & 0x1f);
+            v[1] = ((n >> 8) & 0xff);
+            v[2] = (n & 0xff);
+            l = 3;
+        } else if (n < (one << 28)) {
+            v[0] = 0xe0 | ((n >> 24) & 0x0f);
+            v[1] = ((n >> 16) & 0xff);
+            v[2] = ((n >> 8) & 0xff);
+            v[3] = (n & 0xff);
+            l = 4;
+        }
+        else if (n < (one << 35)) /* possible for 64-bit integers */ {
+            v[0] = 0xf0 | ((n >> 32) & 0x07);
+            v[1] = ((n >> 24) & 0xff);
+            v[2] = ((n >> 16) & 0xff);
+            v[3] = ((n >> 8) & 0xff);
+            v[4] = (n & 0xff);
+            l = 5;
+        } else if (n < (one << 42)) {
+            v[0] = 0xf8 | ((n >> 40) & 0x03);
+            v[1] = ((n >> 32) & 0xff);
+            v[2] = ((n >> 24) & 0xff);
+            v[3] = ((n >> 16) & 0xff);
+            v[4] = ((n >> 8) & 0xff);
+            v[5] = (n & 0xff);
+            l = 6;
+        } else if (n < (one << 49)) {
+            v[0] = 0xfc | ((n >> 48) & 0x01);
+            v[1] = ((n >> 40) & 0xff);
+            v[2] = ((n >> 32) & 0xff);
+            v[3] = ((n >> 24) & 0xff);
+            v[4] = ((n >> 16) & 0xff);
+            v[5] = ((n >> 8) & 0xff);
+            v[6] = (n & 0xff);
+            l = 7;
+        } else if (n < (one << 56)) {
+            v[0] = 0xfe;
+            v[1] = ((n >> 48) & 0xff);
+            v[2] = ((n >> 40) & 0xff);
+            v[3] = ((n >> 32) & 0xff);
+            v[4] = ((n >> 24) & 0xff);
+            v[5] = ((n >> 16) & 0xff);
+            v[6] = ((n >> 8) & 0xff);
+            v[7] = (n & 0xff);
+            l = 8;
+        } else /* For n < 2^63 strictly but as long as we have no plans for */ {    /* including numbers >= 2^64, it works up to 2^64-1. */
+            v[0] = 0xff;
+            v[1] = ((n >> 56) & 0xff);
+            v[2] = ((n >> 48) & 0xff);
+            v[3] = ((n >> 40) & 0xff);
+            v[4] = ((n >> 32) & 0xff);
+            v[5] = ((n >> 24) & 0xff);
+            v[6] = ((n >> 16) & 0xff);
+            v[7] = ((n >> 8) & 0xff);
+            v[8] = (n & 0xff);
+            l = 9;
+        }
+
+        System.out.println("L = " + l);
+        for (int i = 0; i < l; i++) {
+            try {
+                outDataStream.writeByte((byte)v[i]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Test
