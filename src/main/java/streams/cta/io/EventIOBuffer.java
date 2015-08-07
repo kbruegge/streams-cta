@@ -409,19 +409,19 @@ public class EventIOBuffer {
      */
 
     public String readString(int nmax) throws IOException {
-        int nbytes = readShort();
-        int nread = (nmax - 1 < nbytes) ? nmax - 1 : nbytes; /* minimum of both */
+        int numBytes = readShort();
+        int numRead = (nmax - 1 < numBytes) ? nmax - 1 : numBytes; /* minimum of both */
 
         // Read up to the accepted maximum length
-        char[] result = readVectorOfChars(nread);
+        char[] result = readVectorOfChars(numRead);
 
         // Ignore the rest of the string
-        if (nbytes > nread) {
-            skipBytes(nbytes - nread);
+        if (numBytes > numRead) {
+            skipBytes(numBytes - numRead);
         }
 
         // reduce the read length
-        readLength[itemLevel] -= nbytes - nread;
+        readLength[itemLevel] -= numBytes - numRead;
         return String.valueOf(result);
     }
 
@@ -452,41 +452,42 @@ public class EventIOBuffer {
 //
 //        int[] masks = new int[]{0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe, 0xff};
 //
-//        int length = 1;
+////        int length = 1;
+//        count[0] = readUnsignedByte();
 //        if ((count[0] & masks[0]) == 0) {
-//            calculateCount(count, length);
+//            return calculateCount(count, 1);
 //        }
 //
 //        // TODO: control that this math works the same way as in hessioxxx
-//        long result = 0;
-//        for (int i = 1; i < countLength; i++) {
-//            count[i] = readByte();
+//        for (int i = 1; i < countLength;i++) {
+//            count[i] = readUnsignedByte();
 //            if ((count[0] & masks[i]) == masks[i - 1]) {
-//                result = calculateCount(count, length);
+//                return calculateCount(count, i+1);
 //            }
 //        }
+//        return 0;
 
 
         long[] v = new long[countLength];
 
-        v[0] = readByte();
+        v[0] = readUnsignedByte();
 
         if ((v[0] & 0x80) == 0) {
             return v[0];
         }
-        v[1] = readByte();
+        v[1] = readUnsignedByte();
         if ((v[0] & 0xc0) == 0x80) {
             return ((v[0] & 0x3f) << 8) | v[1];
         }
-        v[2] = readByte();
+        v[2] = readUnsignedByte();
         if ((v[0] & 0xe0) == 0xc0) {
             return ((v[0] & 0x1f) << 16) | (v[1] << 8) | v[2];
         }
-        v[3] = readByte();
+        v[3] = readUnsignedByte();
         if ((v[0] & 0xf0) == 0xe0) {
             return ((v[0] & 0x0f) << 24) | (v[1] << 16) | (v[2] << 8) | v[3];
         }
-        v[4] = readByte();
+        v[4] = readUnsignedByte();
         if ((v[0] & 0xf8) == 0xf0) {
             if ((v[0] & 0x07) != 0x00) {
                 log.warn("Data too large in get_count32 function, clipped.");
@@ -495,20 +496,24 @@ public class EventIOBuffer {
         }
         // With only 32-bit integers available, we may lose data from here on.
         log.warn("Data too large in get_count32 function.");
-        v[5] = readByte();
+
+        v[5] = readUnsignedByte();
         if ((v[0] & 0xfc) == 0xf8) {
-            return 0;
+            return ((v[0] & 0x03) << 40) | (v[1] << 32) | (v[2] << 24) | (v[3] << 16) | (v[4] << 8) | v[5];
         }
-        v[6] = readByte();
+        v[6] = readUnsignedByte();
         if ((v[0] & 0xfe) == 0xfc) {
-            return 0;
+            return ((v[0] & 0x01) << 48) | (v[1] << 40) | (v[2] << 32) | (v[3] << 24) |
+                    (v[4] << 16) | (v[5] << 8) | v[6];
         }
-        v[7] = readByte();
+        v[7] = readUnsignedByte();
         if ((v[0] & 0xff) == 0xfe) {
-            return 0;
+            return (v[1] << 48) | (v[2] << 40) | (v[3] << 32) | (v[4] << 24) |
+                    (v[5] << 16) | (v[6] << 8) | v[7];
         }
-        v[8] = readByte();
-        return 0;
+        v[8] = readUnsignedByte();
+        return (v[1] << 56) | (v[2] << 48) | (v[3] << 40) | (v[4] << 32) |
+                (v[5] << 24) | (v[6] << 16) | (v[7] << 8) | v[8];
 
 //        count[0] = readByte();
 //        if ((count[0] & masks[0]) == 0){
@@ -534,13 +539,13 @@ public class EventIOBuffer {
         long temp = count[length - 1];
         int shift = 0;
 
-        for (int i = length - 2; i >= 1; i--) {
+        for (int i = length - 1; i >= 1; i--) {
             temp |= (count[i] << shift);
             shift += 8;
         }
 
         if (length <= 6 && length > 1) {
-            temp |= ((count[0] & bitmasks[length - 1]) & shift);
+            temp |= ((count[0] & bitmasks[length - 2]) & shift);
         }
 
         return temp;
