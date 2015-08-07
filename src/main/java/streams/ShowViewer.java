@@ -3,7 +3,7 @@
  */
 package streams;
 
-import streams.cta.TelescopeEvent;
+import streams.cta.CTATelescope;
 import streams.hexmap.ui.Viewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +12,7 @@ import stream.ProcessContext;
 import stream.StatefulProcessor;
 import stream.annotations.Parameter;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -72,8 +71,11 @@ public class ShowViewer implements StatefulProcessor {
                             });
 				}
 				viewer.setVisible(true);
-                TelescopeEvent event = (TelescopeEvent) input.get("@event");
-				viewer.setDataItem(input, event);
+//                EventData event = (EventData) input.get("@event");
+                LocalDateTime timeStamp = (LocalDateTime) input.get("@timestamp");
+				CTATelescope telescope = (CTATelescope) input.get("@telescope");
+				short[][] data = (short[][]) input.get("@rawdata");
+				viewer.setDataItem(input, timeStamp, telescope, data);
 			}
 		};
 		t.start();

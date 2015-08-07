@@ -9,7 +9,6 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
-import streams.cta.TelescopeEvent;
 import streams.hexmap.CameraPixel;
 import streams.hexmap.FactCameraPixel;
 import streams.hexmap.ui.Bus;
@@ -84,13 +83,12 @@ public class EventInfoPanel extends JPanel implements EventObserver, PixelSelect
 
         //get the current event
         Data item = itemChangedEvent.item;
-        TelescopeEvent telescopeEvent = itemChangedEvent.telescopeEvent;
 
-        timeField.setText(telescopeEvent.timeStamp.toString());
-        roiField.setText(String.valueOf(telescopeEvent.data[0].length));
+        timeField.setText(itemChangedEvent.timeStamp.toString());
+        roiField.setText(String.valueOf(itemChangedEvent.roi));
         //set the fields if theres data in the event
 
-        eventNumber.setText(String.valueOf(telescopeEvent.eventId));
+        eventNumber.setText(String.valueOf(item.get("@eventId")));
 
         //get photoncharge if its in the map
         Serializable chargeArray = item.get("@photoncharge");

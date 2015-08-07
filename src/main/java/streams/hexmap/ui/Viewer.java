@@ -5,10 +5,10 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
-import streams.cta.TelescopeEvent;
+import streams.cta.CTATelescope;
 import streams.hexmap.ui.components.AveragePlotPanel;
 import streams.hexmap.ui.components.EventInfoPanel;
-import streams.hexmap.ui.components.PlotPanel;
+import streams.hexmap.ui.components.MainPlotPanel;
 import streams.hexmap.ui.components.StreamNavigationPanel;
 import streams.hexmap.ui.components.cameradisplay.CameraDisplayPanel;
 import streams.hexmap.ui.events.ItemChangedEvent;
@@ -21,8 +21,11 @@ import stream.Data;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.time.LocalDateTime;
 
 /**
  * Here the components of the gui are layed out. like the position of the camera map or the chart display in the window.
@@ -45,9 +48,8 @@ public class Viewer extends JFrame {
 
 
     private String defaultKey = "@event";
-    private TelescopeEvent event;
 
-    //    public void setDefaultKey(String key) {
+//    public void setDefaultKey(String key) {
 //        //set a default item to the mainplotpanel
 //        defaultKey = key;
 //        chartPanel.setDefaultEntry(defaultKey, Color.red);
@@ -69,7 +71,7 @@ public class Viewer extends JFrame {
         return viewer;
     }
 
-    //The constructor builds the main layout.
+    //the constructor. build layout here. bitch
 	private Viewer() {
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setTitle("Fact Tools GUI Development");
@@ -107,8 +109,8 @@ public class Viewer extends JFrame {
 
 
     /**
-     * Creates the menu bar and returns it. All menubar setup happens in here
-     * @return the menubar created.
+     * Creates the menu bar and returns it. All menubar setup shoudl happen in here
+     * @return
      */
     private JMenuBar createMenuBar() {
         //---add a menu bar on top
@@ -120,23 +122,32 @@ public class Viewer extends JFrame {
 
         JMenu file = new JMenu("File");
         JMenuItem quit = new JMenuItem("Quit");
-        quit.addActionListener(e -> System.exit(0));
+        quit.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
         file.add(quit);
 
         //----- WINDOWS---
         JMenu windows = new JMenu("Windows");
         JMenuItem camWindowMenuItem = new JMenuItem("New Camera Window");
-        camWindowMenuItem.addActionListener(e -> {
-            CameraWindow mw = new CameraWindow(defaultKey);
-            Bus.eventBus.post(Pair.create(item, defaultKey));
-            mw.showWindow();
+        camWindowMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CameraWindow mw = new CameraWindow(defaultKey);
+                Bus.eventBus.post(Pair.create(item, defaultKey));
+                mw.showWindow();
+            }
         });
-
         JMenuItem plotWindowItem = new JMenuItem("New Plot Window");
-        plotWindowItem.addActionListener(e -> {
-            PlotDisplayWindow plotDisplay = new PlotDisplayWindow();
-            Bus.eventBus.post(new ItemChangedEvent(item, event));
-            plotDisplay.showWindow();
+        plotWindowItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                PlotDisplayWindow plotDisplay = new PlotDisplayWindow();
+                Bus.eventBus.post(Pair.create(item, defaultKey));
+                plotDisplay.showWindow();
+            }
         });
 
         windows.add(plotWindowItem);
@@ -144,13 +155,20 @@ public class Viewer extends JFrame {
 
         //------- HELP--------
         JMenu help = new JMenu("Help");
-
         JMenuItem visitWeb = new JMenuItem("Visit FactTools Website");
-        visitWeb.addActionListener(e -> openUrl("http://sfb876.tu-dortmund.de/FACT/"));
-
+        visitWeb.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openUrl("http://sfb876.tu-dortmund.de/FACT/");
+            }
+        });
         JMenuItem visitStream = new JMenuItem("Visit StreamsFramework Website");
-        visitStream.addActionListener(e -> openUrl("http://www.jwall.org/streams/"));
-
+        visitStream.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openUrl("http://www.jwall.org/streams/");
+            }
+        });
         help.add(visitStream);
         help.add(visitWeb);
 
@@ -165,7 +183,7 @@ public class Viewer extends JFrame {
     /**
      * Open the default web browser of the system with the specified url
      * stolen from http://stackoverflow.com/questions/10967451/open-a-link-in-browser-with-java-button
-     * @param url the url to open in the browser
+     * @param url the url to open
      */
     public void openUrl(String url) {
         try {
@@ -197,11 +215,16 @@ public class Viewer extends JFrame {
      * events from the stream
      * @param item the new item from the stream
      */
-	public void setDataItem(Data item, TelescopeEvent telescopeEvent) {
+	public void setDataItem(Data item, LocalDateTime timeStamp, CTATelescope telescope, short[][] rawData) {
         this.item = item;
-        this.event = telescopeEvent;
-        chartPanel.drawEvent(telescopeEvent);
-        Bus.eventBus.post(new ItemChangedEvent(item, telescopeEvent));
+        double[][] data = new double[rawData.length][rawData[0].length];
+        for (int pixel = 0; pixel < rawData.length; pixel++) {
+            for (int slice = 0; slice < rawData[0].length; slice++) {
+                data[pixel][slice] = rawData[pixel][slice];
+            }
+        }
+        this.chartPanel.drawPlot(data);
+        Bus.eventBus.post(new ItemChangedEvent(item, timeStamp, telescope, rawData ));
 	}
 
 }

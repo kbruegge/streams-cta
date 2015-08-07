@@ -6,7 +6,6 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
-import streams.cta.TelescopeEvent;
 import streams.hexmap.GifSequenceWriter;
 import streams.hexmap.ui.Bus;
 import streams.hexmap.ui.EventObserver;
@@ -45,7 +44,7 @@ public class CameraDisplayPanel extends JPanel implements EventObserver {
 	private final Set<Class<? extends ColorMapping>> colorMapClasses;
 
 	public void setItemToDisplay(String key, Data item) {
-		hexmap.handleEventChange(new ItemChangedEvent(item, (TelescopeEvent) item.get("@event")));
+//		hexmap.handleEventChange(new ItemChangedEvent(item,  item.get("@event")));
 	}
 
 	/**

@@ -1,8 +1,9 @@
 package streams.hexmap.ui.components.selectors;
 
-import streams.cta.TelescopeEvent;
+import streams.hexmap.TelescopeEvent;
 import org.jfree.chart.plot.IntervalMarker;
 import stream.Data;
+import streams.hexmap.ui.events.ItemChangedEvent;
 import streams.hexmap.ui.plotting.IntervalPlotData;
 
 import java.awt.*;
@@ -15,8 +16,9 @@ import java.util.Set;
 public class IntervallMarkerKeySelector extends KeySelector {
 
     @Override
-    public Set<KeySelectorItem> filterItems(Data item, TelescopeEvent telescopeEvent) {
+    public Set<KeySelectorItem> filterItems(ItemChangedEvent itemChangedEvent) {
         Set<KeySelectorItem> newItems = new HashSet<>();
+        Data item = itemChangedEvent.item;
         for (String key : item.keySet()) {
             try {
                 IntervalMarker[] i = (IntervalMarker[]) item.get(key);

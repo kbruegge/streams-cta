@@ -4,7 +4,7 @@
 package streams.hexmap.ui.components;
 
 import com.google.common.eventbus.Subscribe;
-import streams.cta.TelescopeEvent;
+import streams.hexmap.TelescopeEvent;
 import streams.hexmap.ui.Bus;
 import streams.hexmap.ui.PixelSelectionObserver;
 import streams.hexmap.ui.SliceObserver;
@@ -91,7 +91,7 @@ public abstract class PlotPanel extends JPanel implements SliceObserver{
 //        drawPlot(item, telescopeEvent);
 //    }
 
-    public abstract void drawPlot(Set<LinePlotData> linePlots, Set<IntervalPlotData> intervalPlots, TelescopeEvent event);
+    public abstract void drawPlot(Set<LinePlotData> linePlots, Set<IntervalPlotData> intervalPlots);
 //    protected abstract void drawPlot(Data item, TelescopeEvent telescopeEvent);
 
 

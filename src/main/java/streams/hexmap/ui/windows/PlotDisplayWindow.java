@@ -6,7 +6,7 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
-import streams.cta.TelescopeEvent;
+import streams.hexmap.TelescopeEvent;
 import streams.hexmap.ui.Bus;
 import streams.hexmap.ui.EventObserver;
 import streams.hexmap.ui.components.SelectedLinePlotPanel;
@@ -65,14 +65,13 @@ public class PlotDisplayWindow implements EventObserver{
 
     @Subscribe
     public void handleKeySelectionChange(PlotSelectionChangedEvent e){
-        plotPanel.drawPlot(keySelector.getSelectedPlotData(), intervalKeySelector.getSelectedPlotData(), telescopeEvent);
+        plotPanel.drawPlot(keySelector.getSelectedPlotData(), intervalKeySelector.getSelectedPlotData());
     }
 
     @Override
     public void handleEventChange(ItemChangedEvent itemChangedEvent) {
-        this.telescopeEvent = itemChangedEvent.telescopeEvent;
         keySelector.updateSelectionItems(itemChangedEvent);
-        plotPanel.drawPlot(keySelector.getSelectedPlotData(), intervalKeySelector.getSelectedPlotData(), telescopeEvent);
+        plotPanel.drawPlot(keySelector.getSelectedPlotData(), intervalKeySelector.getSelectedPlotData());
     }
 
 

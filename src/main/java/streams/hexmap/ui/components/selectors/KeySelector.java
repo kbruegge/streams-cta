@@ -1,7 +1,7 @@
 package streams.hexmap.ui.components.selectors;
 
 import com.google.common.eventbus.Subscribe;
-import streams.cta.TelescopeEvent;
+import streams.hexmap.TelescopeEvent;
 import streams.hexmap.ui.Bus;
 import streams.hexmap.ui.EventObserver;
 import stream.Data;
@@ -57,7 +57,7 @@ public abstract class  KeySelector<T extends PlotData> extends JPanel{
 
     public void updateSelectionItems(ItemChangedEvent itemChangedEvent){
         //TODO remove old selection items and replace with new ones.
-        Set<KeySelectorItem<T>> newItems = filterItems(itemChangedEvent.item, itemChangedEvent.telescopeEvent);
+        Set<KeySelectorItem<T>> newItems = filterItems(itemChangedEvent);
 
         for(KeySelectorItem item : newItems){
             KeySelectorItem oldItem = selectedItems.get(item.plotData.getName());
@@ -106,7 +106,7 @@ public abstract class  KeySelector<T extends PlotData> extends JPanel{
     }
 
 //    public abstract void selectionUpdate();
-    public abstract Set<KeySelectorItem<T>> filterItems(Data item, TelescopeEvent telescopeEvent);
+    public abstract Set<KeySelectorItem<T>> filterItems(ItemChangedEvent itemChangedEvent);
 
 }
 

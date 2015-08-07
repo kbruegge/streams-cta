@@ -3,7 +3,7 @@ package streams.hexmap.ui.components;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import streams.cta.TelescopeEvent;
+import streams.hexmap.TelescopeEvent;
 import streams.hexmap.ui.plotting.IntervalPlotData;
 import streams.hexmap.ui.plotting.LinePlotData;
 
@@ -22,19 +22,18 @@ public class AveragePlotPanel extends PlotPanel {
     }
 
     @Override
-    public void drawPlot(Set<LinePlotData> linePlots, Set<IntervalPlotData> intervalPlots, TelescopeEvent telescopeEvent) {
+    public void drawPlot(Set<LinePlotData> linePlots, Set<IntervalPlotData> intervalPlots) {
         //        clearPlot();
         //        addSliceMarkerToPlot();
-        drawEvent(telescopeEvent);
+        for (LinePlotData linePLot : linePlots){
+
+            double [][] data = linePLot.getPlotData();
+            drawPlot(data);
+        }
 
     }
 
-    /**
-     * Draws the mean of all voltages in each pixel given by the telescope event
-     * @param telescopeEvent the event to draw.
-     */
-    public void drawEvent(TelescopeEvent telescopeEvent) {
-        short[][] data = telescopeEvent.data;
+    public void drawPlot(double[][] data) {
         XYLineAndShapeRenderer r = new XYLineAndShapeRenderer();
         r.setSeriesPaint(0, Color.RED);
         r.setBaseShapesVisible(hasTicks);
@@ -57,11 +56,11 @@ public class AveragePlotPanel extends PlotPanel {
      * @param data the short[][] containing the data
      * @return an array of length roi containing the slice averages
      */
-    private double[] averageSlicesForEachPixel(short[][] data) {
+    private double[] averageSlicesForEachPixel(double[][] data) {
         double[] average = new double[data[0].length];
         int slice = 0;
-        for (short[] slices : data) {
-            for (short s : slices) {
+        for (double[] slices : data) {
+            for (double s : slices) {
                 average[slice] += s;
                 slice++;
             }

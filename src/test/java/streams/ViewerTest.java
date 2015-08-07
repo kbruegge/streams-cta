@@ -1,17 +1,14 @@
 package streams;
 
-import org.junit.Test;
 import stream.Data;
-import streams.cta.TelescopeEvent;
+import streams.cta.CTATelescope;
 import streams.cta.io.SyntheticEventStream;
 import streams.hexmap.ui.Viewer;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.fail;
 
 /**
  * Created by kaibrugge on 20.03.14.
@@ -36,18 +33,14 @@ public class ViewerTest {
 
                     viewer.getNextButton().setEnabled(true);
                     viewer.getNextButton().addActionListener(
-                            new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent arg0) {
-                                    synchronized (lock) {
-                                        lock.set(!lock.get());
-                                        lock.notifyAll();
-                                    }
+                            arg0 -> {
+                                synchronized (lock) {
+                                    lock.set(!lock.get());
+                                    lock.notifyAll();
                                 }
                             });
                 }
-                TelescopeEvent telescopeEvent = (TelescopeEvent) item.get("@event");
-                viewer.setDataItem(item, telescopeEvent);
+                viewer.setDataItem(item, (LocalDateTime) item.get("@timeStamp"),(CTATelescope) item.get("@telescope"), (short[][])item.get("@rawdata"));
                 viewer.setVisible(true);
             }
         };

@@ -1,7 +1,8 @@
 package streams.hexmap.ui.components.selectors;
 
-import streams.cta.TelescopeEvent;
+import streams.hexmap.TelescopeEvent;
 import streams.hexmap.ui.Bus;
+import streams.hexmap.ui.events.ItemChangedEvent;
 import streams.hexmap.ui.events.PlotSelectionChangedEvent;
 import stream.Data;
 import streams.hexmap.ui.plotting.LinePlotData;
@@ -20,12 +21,14 @@ public class LinePlotSelector extends KeySelector {
 
 
     @Override
-    public Set<KeySelectorItem> filterItems(Data item, TelescopeEvent telescopeEvent) {
+    public Set<KeySelectorItem> filterItems(ItemChangedEvent itemChangedEvent) {
         Set<KeySelectorItem> newItems = new HashSet<>();
+        Data item = itemChangedEvent.item;
+        int numberOfPixel = itemChangedEvent.telescope.type.numberOfPixel;
         for  (String key: item.keySet()){
             try {
                 double[][] data = (double[][]) item.get(key);
-                if(data.length == telescopeEvent.numberOfPixel) {
+                if(data.length == itemChangedEvent.telescope.type.numberOfPixel) {
                     newItems.add(new KeySelectorItem(new LinePlotData(data, Color.GRAY, key), this));
                 }
             } catch (ClassCastException e){
@@ -33,10 +36,10 @@ public class LinePlotSelector extends KeySelector {
             }
         }
 
-        double[][] data = new double[telescopeEvent.numberOfPixel][telescopeEvent.roi];
-        for (int pixel = 0; pixel < telescopeEvent.numberOfPixel; pixel++) {
-            for (int slice = 0; slice < telescopeEvent.roi; slice++) {
-                data[pixel][slice] = telescopeEvent.data[pixel][slice];
+        double[][] data = new double[numberOfPixel][itemChangedEvent.roi];
+        for (int pixel = 0; pixel < numberOfPixel; pixel++) {
+            for (int slice = 0; slice < itemChangedEvent.roi; slice++) {
+                data[pixel][slice] = itemChangedEvent.rawData[pixel][slice];
             }
         }
 

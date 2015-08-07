@@ -1,7 +1,8 @@
 package streams.hexmap.ui.components.selectors;
 
-import streams.cta.TelescopeEvent;
+import streams.hexmap.TelescopeEvent;
 import streams.hexmap.ui.Bus;
+import streams.hexmap.ui.events.ItemChangedEvent;
 import streams.hexmap.ui.events.OverlaySelectionChangedEvent;
 import streams.hexmap.ui.overlays.CameraMapOverlay;
 import stream.Data;
@@ -23,8 +24,9 @@ public class CameraOverlayKeySelector extends KeySelector {
 //    }
 
     @Override
-    public Set<KeySelectorItem> filterItems(Data item, TelescopeEvent telescopeEvent) {
+    public Set<KeySelectorItem> filterItems(ItemChangedEvent itemChangedEvent) {
         Set<KeySelectorItem> newItems = new HashSet<>();
+        Data item = itemChangedEvent.item;
         for  (String key: item.keySet()){
             try {
                 CameraMapOverlay b = (CameraMapOverlay) item.get(key);

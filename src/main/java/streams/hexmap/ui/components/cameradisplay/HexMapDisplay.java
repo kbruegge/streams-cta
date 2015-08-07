@@ -4,7 +4,6 @@
 package streams.hexmap.ui.components.cameradisplay;
 
 import com.google.common.eventbus.Subscribe;
-import streams.cta.TelescopeEvent;
 import streams.hexmap.CameraPixel;
 import streams.hexmap.FactCameraPixel;
 import streams.hexmap.FactHexPixelMapping;
@@ -134,8 +133,10 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
     @Override
 	public void handleEventChange(ItemChangedEvent itemChangedEvent) {
 		log.debug("hexmap got a new item");
-        TelescopeEvent telescopeEvent = itemChangedEvent.telescopeEvent;
-        sliceValues = new double[telescopeEvent.numberOfPixel][telescopeEvent.roi];
+//        EventData eventData = itemChangedEvent.eventData;
+		int numberOfPixel = itemChangedEvent.telescope.type.numberOfPixel;
+        int roi = itemChangedEvent.roi;
+        sliceValues = new double[numberOfPixel][roi];
 
 		this.dataItem = itemChangedEvent.item;
 
@@ -143,9 +144,9 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 
 		minValueInData = Double.MAX_VALUE;
 		maxValueInData = Double.MIN_VALUE;
-		for (int pixel = 0; pixel < telescopeEvent.numberOfPixel; pixel++) {
-			for (int i = 0; i < telescopeEvent.roi; i++) {
-				short value = telescopeEvent.data[pixel][i];
+		for (int pixel = 0; pixel < numberOfPixel; pixel++) {
+			for (int i = 0; i < roi; i++) {
+				short value = itemChangedEvent.rawData[pixel][i];
 				sliceValues[pixel][i] = value;
 				minValueInData = minValueInData >  value ?  value : minValueInData;
 				maxValueInData = maxValueInData <  value ?  value : maxValueInData ;

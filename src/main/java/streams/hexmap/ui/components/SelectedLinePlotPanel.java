@@ -3,7 +3,7 @@ package streams.hexmap.ui.components;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import streams.cta.TelescopeEvent;
+import streams.hexmap.TelescopeEvent;
 import streams.hexmap.CameraPixel;
 import streams.hexmap.ui.PixelSelectionObserver;
 import streams.hexmap.ui.plotting.IntervalPlotData;
@@ -28,7 +28,7 @@ public class SelectedLinePlotPanel extends PlotPanel implements PixelSelectionOb
 
 
     @Override
-    public void drawPlot(Set<LinePlotData> linePlots, Set<IntervalPlotData> intervalPlots, TelescopeEvent currentTelescopeEvent) {
+    public void drawPlot(Set<LinePlotData> linePlots, Set<IntervalPlotData> intervalPlots) {
         this.linePlots = linePlots;
         this.intervalPlots =  intervalPlots;
         clearPlot();
@@ -80,6 +80,6 @@ public class SelectedLinePlotPanel extends PlotPanel implements PixelSelectionOb
     @Override
     public void handlePixelSelectionChange(Set<CameraPixel> selectedPixel) {
         this.selectedPixel = selectedPixel;
-        drawPlot(linePlots, intervalPlots, null);
+        drawPlot(linePlots, intervalPlots);
     }
 }

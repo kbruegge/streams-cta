@@ -88,7 +88,7 @@ public class CameraWindow implements EventObserver {
         keyComboBox.removeAllItems();
         for(String key : dataItem.keySet()){
             double[] data = Utils.toDoubleArray(dataItem.get(key));
-            if(data != null && data.length > 0 && data.length%itemChangedEvent.telescopeEvent.roi == 0) {
+            if(data != null && data.length > 0 && data.length%itemChangedEvent.roi == 0) {
                 keyComboBox.addItem(key);
                 if(key.equals(selectedKey)){
                     keyComboBox.setSelectedItem(key);

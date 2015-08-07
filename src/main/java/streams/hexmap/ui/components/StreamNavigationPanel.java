@@ -8,7 +8,6 @@ import streams.hexmap.ui.Bus;
 import streams.hexmap.ui.EventObserver;
 import streams.hexmap.ui.events.ItemChangedEvent;
 import streams.hexmap.ui.events.SliceChangedEvent;
-import org.apache.commons.math3.util.Pair;
 import stream.Data;
 
 import javax.swing.*;
@@ -37,19 +36,19 @@ public class StreamNavigationPanel extends JPanel implements EventObserver {
     public void handleEventChange(ItemChangedEvent itemChangedEvent) {
         Data item = itemChangedEvent.item;
 
-        slider.setMaximum(itemChangedEvent.telescopeEvent.roi - 1);
+        slider.setMaximum(itemChangedEvent.roi - 1);
 
-        Long eventNum = itemChangedEvent.telescopeEvent.eventId;
-        eventNumber.setText(eventNum.toString());
-
-        Integer trigger = itemChangedEvent.telescopeEvent.triggerType;
-        triggerTypeField.setText(trigger.toString());
+//        Long eventNum = itemChangedEvent.eventData.eventId;
+//        eventNumber.setText(eventNum.toString());
+//
+//        Integer trigger = itemChangedEvent.eventData.triggerType;
+//        triggerTypeField.setText(trigger.toString());
 
         Serializable file = item.get("@source");
         if (file != null){
             fileField.setText(file.toString());
         }
-        slider.setMaximum(itemChangedEvent.telescopeEvent.roi - 1);
+        slider.setMaximum(itemChangedEvent.roi - 1);
     }
 
 	JTextField sliceField = new JTextField(4);
