@@ -140,12 +140,11 @@ public class EventIOStream extends AbstractStream {
                 }
 
             } else {
-                log.info("Next sync marker has not been found: \nstill available datastream :"
-                        + buffer.dataStream.available());
+                log.info("No further items in the file.");
+                return null;
             }
         }
         byteOrder = Constants.LITTLE_ENDIAN;
-        log.info("Event number " + numberEvents + "\tNumber runs: " + numberRuns);
         return item;
     }
 
