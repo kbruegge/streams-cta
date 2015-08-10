@@ -7,6 +7,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 import streams.hexmap.GifSequenceWriter;
+import streams.hexmap.HexPixelMapping;
 import streams.hexmap.ui.Bus;
 import streams.hexmap.ui.EventObserver;
 import streams.hexmap.ui.colormaps.ColorMapping;
@@ -39,34 +40,29 @@ public class CameraDisplayPanel extends JPanel implements EventObserver {
 
 	static Logger log = LoggerFactory.getLogger(CameraDisplayPanel.class);
 
-	final HexMapDisplay hexmap = new HexMapDisplay(1, 600, 530);
+	final HexMapDisplay hexmap;
 	final CameraOverlayKeySelector selector = new CameraOverlayKeySelector();
 	private final Set<Class<? extends ColorMapping>> colorMapClasses;
 
-	public void setItemToDisplay(String key, Data item) {
-//		hexmap.handleEventChange(new ItemChangedEvent(item,  item.get("@event")));
-	}
 
 	/**
 	 * Adds the keys we can display in the plot window to the list on right side
 	 * of the screen.
-	 * 
-	 * @param itemKeyPair
+	 *
+	 * @param itemChangedEvent
 	 *            the current data item we want to display
 	 */
 	@Override
 	@Subscribe
-	public void handleEventChange(ItemChangedEvent itemKeyPair) {
+	public void handleEventChange(ItemChangedEvent itemChangedEvent) {
 //		hexmap.setOverlayItemsToDisplay(selector.getSelectedPlotData());
 		// hexmap.handleEventChange(itemKeyPair);
 	}
 
-//	@Subscribe
-//	public void handleSelectionChange(OverlaySelectionChangedEvent e) {
-//		hexmap.setOverlayItemsToDisplay(selector.getPlotData());
-//	}
 
-	public CameraDisplayPanel() {
+
+	public CameraDisplayPanel(HexPixelMapping hexPixelMapping) {
+        hexmap = new HexMapDisplay(0.7, 600, 530, hexPixelMapping);
 		Bus.eventBus.register(this);
 
 		// get all classes that implement the colormapping interface
@@ -236,4 +232,9 @@ public class CameraDisplayPanel extends JPanel implements EventObserver {
             }
         }
 	}
+
+    //TODO: check if we need this method for the camerawindow
+    public void setItemToDisplay(String key, Data dataItem) {
+
+    }
 }

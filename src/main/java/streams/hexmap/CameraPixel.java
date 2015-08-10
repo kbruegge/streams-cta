@@ -7,15 +7,24 @@ package streams.hexmap;
  */
 public class CameraPixel {
 
-    public int id;
-    public int geometricX;
-    public int geometricY;
-    public double width = 1;
-    public double length = 1;
+    final public int id;
+    final public int offsetCoordinateX;
+    final public int offsetCoordinateY;
+    final public double xPositionInMM;
+    final public double yPositionInMM;
+
+    public CameraPixel(int id, int offsetCoordinateX, int offsetCoordinateY, double xPositionInMM, double yPositionInMM) {
+        this.id = id;
+        this.offsetCoordinateX = offsetCoordinateX;
+        this.offsetCoordinateY = offsetCoordinateY;
+        this.xPositionInMM = xPositionInMM;
+        this.yPositionInMM = yPositionInMM;
+    }
+
 
     @Override
     public String toString(){
-        return "ID: " + this.id ;
+        return "Pixel " + this.id + " at position " + xPositionInMM + ", " + yPositionInMM;
     }
 
 

@@ -53,8 +53,6 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 
     int currentSlice = 0;
 
-	// the dataItem to display
-	private Data dataItem;
 
 	// store the smallest and largest value in the data. We need this to map
 	// values to colors in the display
@@ -67,7 +65,7 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 
 	private ArrayList<CameraMapOverlay> overlays = new ArrayList<>();
 //	private Set<Pair<String, Color>> overlayKeys = new HashSet<>();
-	Set<FactCameraPixel> selectedPixels = new LinkedHashSet<>();
+	Set<CameraPixel> selectedPixels = new LinkedHashSet<>();
 
 	// formater to display doubles nicely
 	DecimalFormat fmt = new DecimalFormat("#.##");
@@ -90,13 +88,13 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 	 * @param scale A scaling factor to change the size of the drawn pixels.
 	 *
 	 */
-	public HexMapDisplay(double scale, int canvasWidth, int canvasHeight,
+	public HexMapDisplay(double scale, int canvasWidth, int canvasHeight, HexPixelMapping mapping,
 						 boolean mouseAction) {
 
 		Bus.eventBus.register(this);
 
-		this.scale = scale;
-		this.pixelMapping = FactHexPixelMapping.getInstance();
+        this.pixelMapping = mapping;
+        this.scale = scale;
 		this.canvasHeight = canvasHeight;
 		this.canvasWidth = canvasWidth;
 
@@ -112,8 +110,8 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 		}
 	}
 
-	public HexMapDisplay(double scale, int canvasWidth, int canvasHeight) {
-		this(scale, canvasWidth, canvasHeight, true);
+	public HexMapDisplay(double scale, int canvasWidth, int canvasHeight, HexPixelMapping mapping) {
+		this(scale, canvasWidth, canvasHeight, mapping,  true);
 	}
 
 	@Override
@@ -138,7 +136,6 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
         int roi = itemChangedEvent.roi;
         sliceValues = new double[numberOfPixel][roi];
 
-		this.dataItem = itemChangedEvent.item;
 
 //		overlays = updateOverlays(overlayKeys, dataItem);
 
@@ -325,12 +322,11 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 
 			for (Tile cell : tiles) {
 				if (cell.contains(p)) {
-					FactCameraPixel selectedPixel = (FactCameraPixel) cell
-							.getCameraPixel();
+					CameraPixel selectedPixel = cell.getCameraPixel();
 
 					// getting the patch by dividing chid by 9 since there are
 					// 1440/9 = 160 patches
-					Integer patch = selectedPixel.chid / 9;
+//					Integer patch = selectedPixel.chid / 9;
 
 					boolean shiftDown = arg0.isShiftDown();
 
@@ -342,24 +338,24 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 						// in case we are in patchselection mode we have to
 						// unselected the patch belongin to
 						// pixel clicked
-						selectedPatches.remove(patch);
-						if (patchSelectionMode) {
-							Iterator<FactCameraPixel> it = selectedPixels
-									.iterator();
-							while (it.hasNext()) {
-								FactCameraPixel pt = it.next();
-								if (pt.chid / 9 == patch) {
-									it.remove();
-								}
-							}
-						}
+//						selectedPatches.remove(patch);
+//						if (patchSelectionMode) {
+//							Iterator<FactCameraPixel> it = selectedPixels
+//									.iterator();
+//							while (it.hasNext()) {
+//								FactCameraPixel pt = it.next();
+//								if (pt.chid / 9 == patch) {
+//									it.remove();
+//								}
+//							}
+//						}
 					} else {
 						if (!shiftDown) {
 							selectedPixels.clear();
-							selectedPatches.clear();
+//							selectedPatches.clear();
 						}
 						selectedPixels.add(selectedPixel);
-						selectedPatches.add(patch);
+//						selectedPatches.add(patch);
 					}
 					break;
 				}

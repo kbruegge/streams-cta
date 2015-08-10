@@ -2,6 +2,7 @@ package streams.hexmap.ui.overlays;
 
 import streams.hexmap.CameraPixel;
 import streams.hexmap.FactHexPixelMapping;
+import streams.hexmap.HexPixelMapping;
 import streams.hexmap.ui.components.cameradisplay.HexMapDisplay;
 import streams.hexmap.ui.components.cameradisplay.Tile;
 
@@ -25,29 +26,6 @@ public class PixelSetOverlay implements CameraMapOverlay, Serializable {
     }
     public void add(CameraPixel p){
         set.add(p);
-    }
-    public void addById(int id){
-        set.add(FactHexPixelMapping.getInstance().getPixelFromId(id));
-    }
-
-    public int[] toIntArray(){
-        int intSet[] = new int[this.set.size()];
-        int i = 0;
-        for (CameraPixel px : this.set){
-            intSet[i] = px.id;
-            i++;
-        }
-        return intSet;
-    }
-
-    public Integer[] toIntegerArray(){
-        Integer intSet[] = new Integer[this.set.size()];
-        int i = 0;
-        for (CameraPixel px : this.set){
-            intSet[i] = px.id;
-            i++;
-        }
-        return intSet;
     }
 
     @Override

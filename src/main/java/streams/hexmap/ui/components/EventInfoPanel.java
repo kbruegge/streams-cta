@@ -65,14 +65,14 @@ public class EventInfoPanel extends JPanel implements EventObserver, PixelSelect
     private void updateSelectionInfo(Set<CameraPixel> selectedPixel) {
         model.clear();
         for (CameraPixel sp : selectedPixel){
-            FactCameraPixel p = (FactCameraPixel) sp;
-            String m = "Chid: " + p.id + "  SoftId: " + p.softid;
-            if(photonChargeArray !=  null){
-                m += "   photonChqarge: " + photonChargeArray[p.id];
+            String m = "";
+            if(sp instanceof  FactCameraPixel) {
+                FactCameraPixel p = (FactCameraPixel) sp;
+                 m = "Chid: " + p.id + "  SoftId: " + p.softid;
             }
-
-//            m +=  " x in MM " +  ((FactCameraPixel) sp).getXPositionInMM();
-//            m += "  y in MM " + ((FactCameraPixel) sp).getYPositionInMM();
+            if(photonChargeArray !=  null){
+                m += " Position: " + sp.xPositionInMM + ", " + sp.yPositionInMM + ".  photonCharge: " + photonChargeArray[sp.id];
+            }
             model.addElement(m);
         }
     }

@@ -24,6 +24,9 @@ public class ShowViewer implements StatefulProcessor {
     Viewer viewer = null;
     AtomicBoolean lock = new AtomicBoolean(true);
 
+//    @Parameter(required = true, description = "Which camera should be drawn/**/")
+//    private String camera = "FACT";
+
 
     @Parameter(required = false, description = "The default plot range in the main viewer")
     private Integer[] range;

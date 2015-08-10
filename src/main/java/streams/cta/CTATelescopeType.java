@@ -5,7 +5,7 @@ package streams.cta;
  * pixel geometry. Created by Kai on 27.07.15.
  */
 public enum CTATelescopeType {
-    LST(0, Geometry.HEXAGONAL, 1800, 2.0),
+    LST(0, Geometry.HEXAGONAL, 1855, 2.0),
     MST(1, Geometry.HEXAGONAL, 1000, 1.80),
     SST(2, Geometry.RECTANGULAR, 400, 2.80),
     SST_ASTRI(3, Geometry.RECTANGULAR, 700, 2.30),;

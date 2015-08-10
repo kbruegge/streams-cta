@@ -5,6 +5,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 import streams.Utils;
+import streams.hexmap.HexPixelMapping;
 import streams.hexmap.ui.Bus;
 import streams.hexmap.ui.EventObserver;
 import streams.hexmap.ui.components.cameradisplay.CameraDisplayPanel;
@@ -32,7 +33,7 @@ public class CameraWindow implements EventObserver {
      * The window takes a key to some entry in the Data item which it will display
      * @param key
      */
-    public CameraWindow(String key){
+    public CameraWindow(String key, HexPixelMapping hexPixelMapping){
         keyComboBox.addItem(key);
         keyComboBox.addActionListener(new ActionListener() {
             @Override
@@ -45,7 +46,7 @@ public class CameraWindow implements EventObserver {
         });
 
 
-        hexMapDisplay = new CameraDisplayPanel();
+        hexMapDisplay = new CameraDisplayPanel(hexPixelMapping);
         hexMapDisplay.setBackground(Color.BLACK);
 
         Bus.eventBus.register(this);

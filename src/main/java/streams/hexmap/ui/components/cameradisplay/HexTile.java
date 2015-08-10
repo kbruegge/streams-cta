@@ -33,8 +33,8 @@ public class HexTile extends Tile {
     //@Override
 	private Point getPosition(){
         if(this.position == null) {
-            int posX = this.pixel.geometricX;
-            int posY = this.pixel.geometricY;
+            int posX = this.pixel.offsetCoordinateX;
+            int posY = this.pixel.offsetCoordinateY;
 
             //intentional precision loss
             int cx = posX * (int)(width*0.75);
@@ -52,7 +52,7 @@ public class HexTile extends Tile {
         if(this.polygon == null) {
             double yOff = 0.0d;
 
-            if (this.pixel.geometricX % 2 == 0) {
+            if (this.pixel.offsetCoordinateX % 2 == 0) {
                 yOff = -0.5 * this.height;
             }
 

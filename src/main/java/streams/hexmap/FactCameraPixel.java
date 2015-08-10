@@ -9,52 +9,27 @@ import java.util.Arrays;
 public class FactCameraPixel extends CameraPixel implements Serializable {
     private static final long serialVersionUID = 7526472295622776147L;
 
-    public int chid;
-    public int board;
-    public int softid;
-    public int crate;
-    public int patch;
-    public int hardid;
-    public int drs_chip;
+    final public int chid;
+    final public int board;
+    final public int softid;
+    final public int crate;
+    final public int patch;
+    final public int hardid;
+    final public int drs_chip;
 
-    public double posX;
-    public double posY;
 
-    /**
-     * This sets the chid of this pixel.
-     * @param chid
-     */
-    public void setId(int chid){
-        this.id = chid;
-    }
-
-    public void setHardid(int hardID) {
-        this.hardid = hardID;
+    public FactCameraPixel(int softid, int hardid, int geometricX, int geometricY, double posX, double posY) {
+        super((hardid % 10) + 9 * (hardid / 10) % 10 + 36 * (hardid / 100) % 10 + 360 * hardid / 1000, geometricX, geometricY, posX, posY);
+        this.softid = softid;
+        this.hardid = hardid;
         this.crate = hardid / 1000;
         this.board = (hardid / 100) % 10;
         this.patch = (hardid / 10) % 10;
         this.chid  = (hardid % 10) + 9 * patch + 36 * board + 360 * crate;
-        this.drs_chip = this.chid / 9;
-        this.id = this.chid;
+        this.drs_chip = chid / 9;
     }
 
-    public void setSoftID(int softID) {
-        this.softid = softID;
-    }
 
-    public double getXPositionInMM(){
-        return posX*9.5;
-    }
-    public double getYPositionInMM(){
-        return posY*9.5;
-    }
-
-    public double getXPositionInPixelUnits(){
-        return posX;
-    }
-    public double getYPositionInPixelUnits(){
-        return posY;
-    }
 
     /**
      * This function returns the data contained in this pixel from the big data array containing the data for all pixels

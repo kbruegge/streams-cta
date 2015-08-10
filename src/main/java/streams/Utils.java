@@ -1,5 +1,6 @@
 package streams;
 
+import streams.hexmap.CameraPixel;
 import streams.hexmap.FactCameraPixel;
 import streams.hexmap.FactHexPixelMapping;
 import org.slf4j.Logger;
@@ -65,45 +66,7 @@ public class Utils {
 		return average;
 	}
 
-	/**
-	 * Finds all unconnected sets of pixel in the showerPixel List and returns a
-	 * list of lists. Each list containing one separate set. Does a BFs search.
-	 * See the wikipedia article on BFS. This version is not as memory efficient
-	 * as it could be.
-	 * 
-	 * @param showerPixel
-	 *            the list to search in
-	 * @return A list of lists.
-	 */
-	public static ArrayList<ArrayList<Integer>> breadthFirstSearch(
-			List<Integer> showerPixel) {
-		ArrayList<ArrayList<Integer>> listOfLists = new ArrayList<>();
-		HashSet<Integer> marked = new HashSet<>();
-		FactHexPixelMapping pixelMap = FactHexPixelMapping.getInstance();
 
-		for (int pix : showerPixel) {
-			if (!marked.contains(pix)) {
-				// start BFS
-				marked.add(pix);
-				ArrayList<Integer> q = new ArrayList<Integer>();
-				q.add(pix);
-				// cannot use the enhanced for loop here.
-				for (int index = 0; index < q.size() && !q.isEmpty(); index++) {
-					// add neighbours to q
-					ArrayList<FactCameraPixel> neighbors = pixelMap.getNeighboursForPixelId(q.get(index));
-					for (FactCameraPixel i : neighbors) {
-						if (showerPixel.contains(i.id)
-								&& !marked.contains(i.id)) {
-							q.add(i.id);
-							marked.add(i.id);
-						}
-					}
-				}
-				listOfLists.add(q);
-			}
-		}
-		return listOfLists;
-	}
 
 	/**
 	 * make an Array of the type int[] into ArrayList<Integer>. We need this

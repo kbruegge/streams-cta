@@ -10,32 +10,14 @@ import stream.io.CsvStream;
 import stream.io.SourceURL;
 
 import java.net.URL;
-import java.util.ArrayList;
 
 /**
- * This class provides a mapping between different Pixel ids and geometric information from the
- * camera layout.
- *
- * This class can get instantiated as a singleton with the getInstance() method.
- *
- * The geometric coordinates stored in the text file to build this map are stored in the "odd -q" vertical layout
- * See http://www.redblobgames.com/grids/hexagons/ for details and pictures.
- *
- * The coordinates are offset by 22 on the x-axis and by 19 on the y-axis
+ * This class provides a mapping between different Pixel ids and geometric information specifically for the FACT camera
  *
  * @author Kai
  * 
  */
 public class FactHexPixelMapping extends HexPixelMapping<FactCameraPixel> {
-
-    //store each pixel by its 'geometric' or axial coordinate.
-    private final FactCameraPixel[][] offsetCoordinates = new FactCameraPixel[45][40];
-    private final FactCameraPixel[] pixelArray = new FactCameraPixel[1440];
-    private final int[] chId2softId = new int[1440];
-    private final int[] software2chId = new int[1440];
-
-    private int xOffset = 22;
-    private int yOffset = 19;
 
 
     static Logger log = LoggerFactory.getLogger(FactHexPixelMapping.class);
@@ -72,78 +54,24 @@ public class FactHexPixelMapping extends HexPixelMapping<FactCameraPixel> {
      *
      * @return a pixel with the info from the item
      */
-    private FactCameraPixel getPixelFromCSVItem(Data item){
-        FactCameraPixel p = new FactCameraPixel();
-        p.setSoftID( (Integer)(item.get("softID"))  );
-        p.setHardid( (Integer)(item.get("hardID"))  );
-        p.geometricX = (Integer)(item.get("geom_i"));
-        p.geometricY = (Integer)(item.get("geom_j"));
-        p.posX = Float.parseFloat(item.get("pos_X").toString());
-        p.posY = Float.parseFloat(item.get("pos_Y").toString());
+    protected FactCameraPixel getPixelFromCSVItem(Data item){
+        int softID = (int)(item.get("softID"));
+        int hardID = (int)(item.get("hardID"));
+        int geometricX = (Integer)(item.get("geom_i"));
+        int geometricY = (Integer)(item.get("geom_j"));
+        //the units in the file are arbitrary
+        //convert them to millimeter by multiplying with the pixel diameter
+        double posX = Double.parseDouble(item.get("pos_X").toString())*9.5;
+        double posY = Double.parseDouble(item.get("pos_Y").toString())*9.5;
 
+        FactCameraPixel p = new FactCameraPixel(softID, hardID, geometricX, geometricY, posX, posY);
         return p;
     }
 
-    /**
-     * This expects a file containing information on 1440 Pixel
-     * @param mapping url to the mapping file
-     */
-    protected void load(URL mapping){
-
-        //use the csv stream to read stuff from the csv file
-        CsvStream stream = null;
-        try {
-            stream = new CsvStream(new SourceURL(mapping), ",");
-            stream.init();
-        } catch (Exception e){
-            log.error(e.toString());
-        }
-
-        for (int i = 0; i < 1440; i++) {
-            Data item = null;
-            try {
-                item = stream.readNext();
-            } catch (Exception e) {
-                log.error(e.toString());
-            }
-            FactCameraPixel p = getPixelFromCSVItem(item);
-
-            software2chId[p.softid] = p.chid;
-            chId2softId[p.chid] = p.softid;
-
-            offsetCoordinates[p.geometricX + xOffset][p.geometricY + yOffset] = p;
-            pixelArray[p.id] = p;
-
-        }
-	}
-
-    @Override
-    public FactCameraPixel getPixelFromOffsetCoordinates(int x, int y){
-        if (x + xOffset > 44 || y + yOffset >= 40){
-            return null;
-        }
-        if (x + xOffset < 0  || y + yOffset <0){
-            return null;
-        }
-        return offsetCoordinates[x +xOffset][y + yOffset];
-    }
 
 
     @Override
     public int getNumberOfPixel() {
         return 1440;
     }
-
-    @Override
-    public FactCameraPixel getPixelFromId(int id) {
-        return pixelArray[id];
-    }
-
-    public int getChidFromSoftID(int softid){
-        return software2chId[softid];
-    }
-    public int getSoftIDFromChid(int chid){
-        return chId2softId[chid];
-    }
-
 }

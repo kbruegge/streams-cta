@@ -1,10 +1,10 @@
 <application>
     
-    <!--<stream id="cta:data" class="streams.cta.io.SyntheticEventStream" -->
-        <!--limit="10000" />-->
+    <stream id="cta:data" class="streams.cta.io.SyntheticEventStream"
+        limit="10000" />
 
-    <stream id="cta:data" class="streams.cta.io.EventIOStream" url="file:/Users/kai/Downloads/electron_20deg_90deg_run7683___cta-trg-test-LST4_desert_samplemode_test-250MHz.simtel"
-            limit="1000" />
+    <!--<stream id="cta:data" class="streams.cta.io.EventIOStream" url="file:/Users/kai/Downloads/electron_20deg_90deg_run7683___cta-trg-test-LST4_desert_samplemode_test-250MHz.simtel"-->
+            <!--limit="1000" />-->
     
     <process input="cta:data">
 		   <streams.ShowViewer />

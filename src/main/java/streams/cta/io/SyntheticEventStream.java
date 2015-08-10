@@ -19,7 +19,7 @@ import streams.cta.CTATelescopeType;
  */
 public class SyntheticEventStream extends AbstractStream {
 
-	int numberOfPixels = 1800;
+	int numberOfPixels = 1855;
 	int numberOfSlices = 30;
 
 	Random random = new Random();
@@ -65,7 +65,7 @@ public class SyntheticEventStream extends AbstractStream {
 
 
 		Data item = DataFactory.create();
-		item.put("@rawdata", data);
+		item.put("@raw_data", data);
 		item.put("@telescope", telescope);
 		item.put("@timestamp", LocalDateTime.now());
 		item.put("@source", this.getClass().getSimpleName());
