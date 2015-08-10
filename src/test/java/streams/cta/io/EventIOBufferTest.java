@@ -322,6 +322,11 @@ public class EventIOBufferTest {
         writeCount(vvli);
         outDataStream.flush();
         assertEquals(vvli, buffer.readCount());
+
+        vvli = 0x5D591281;
+        writeCount(vvli);
+        outDataStream.flush();
+        assertEquals(vvli, buffer.readCount());
     }
 
     private void writeCount(long n) {
@@ -346,8 +351,7 @@ public class EventIOBufferTest {
             v[2] = ((n >> 8) & 0xff);
             v[3] = (n & 0xff);
             l = 4;
-        }
-        else if (n < (one << 35)) /* possible for 64-bit integers */ {
+        } else if (n < (one << 35)) /* possible for 64-bit integers */ {
             v[0] = 0xf0 | ((n >> 32) & 0x07);
             v[1] = ((n >> 24) & 0xff);
             v[2] = ((n >> 16) & 0xff);
@@ -394,7 +398,6 @@ public class EventIOBufferTest {
             l = 9;
         }
 
-        System.out.println("L = " + l);
         for (int i = 0; i < l; i++) {
             try {
                 outDataStream.writeByte((byte)v[i]);
