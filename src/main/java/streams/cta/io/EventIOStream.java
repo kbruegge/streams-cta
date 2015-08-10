@@ -91,10 +91,9 @@ public class EventIOStream extends AbstractStream {
     @Override
     public Data readNext() throws Exception {
 
-        Data item;
+        Data item = null;
         boolean eventFound = false;
         numberRuns = 0;
-        item = DataFactory.create();
         while (!eventFound) {
             numberRuns++;
             EventIOHeader header = new EventIOHeader(buffer);
@@ -108,6 +107,7 @@ public class EventIOStream extends AbstractStream {
 //                    }
 //                } else
                 if (header.type == Constants.TYPE_EVENT) {
+                    item = DataFactory.create();
                     if (eventData.event == null) {
                         eventData.event = new FullEvent();
                     }
@@ -127,7 +127,7 @@ public class EventIOStream extends AbstractStream {
 
                     if (!eventData.runHeader.readRunHeader(buffer)) {
                         log.error("Error happened while reading run header.");
-                        return null;
+                        break;
                     }
 
                     eventData.event = initFullEvent(eventData.runHeader.numberTelescopes);
@@ -141,7 +141,7 @@ public class EventIOStream extends AbstractStream {
 
             } else {
                 log.info("No further items in the file.");
-                return null;
+                break;
             }
         }
         byteOrder = Constants.LITTLE_ENDIAN;
