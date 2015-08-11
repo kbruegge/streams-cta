@@ -434,6 +434,134 @@ public class EventIOBuffer {
     }
 
     /**
+     * Get a signed integer of unspecified length from an I/O buffer where it is encoded in a way
+     * similar to the UTF-8 character encoding. Even though the scheme in principle allows for
+     * arbitrary length data, the current implementation is limited for data of up to 64 bits. On
+     * systems with intmax_t shorter than 64 bits, the result could be clipped unnoticed.
+     */
+    public long readSCount() throws IOException {
+        //TODO implement and think of 16, 32 and 64 variants
+        long value = readCount64();
+        return unsignedToSignedCount(value);
+    }
+
+    public short readSCount16() throws IOException {
+        int value = readCount16();
+        return (short) unsignedToSignedCount(value);
+    }
+
+    public int readSCount32() throws IOException {
+        long value = readCount32();
+        return (int) unsignedToSignedCount(value);
+    }
+
+    /**
+     * Transform unsigned count value to a signed one.
+     */
+    private long unsignedToSignedCount(long value) {
+        //TODO is it the right implementation? do we get the lest significant bit at the right most position?
+        // values of 0,1,2,3,4,... here correspond to signed values of
+        // 0,-1,1,-2,2,... We have to test the least significant bit:
+        if ((value & 1) == 1) {
+            // Negative number
+            return -(value >> 1) - 1;
+        } else {
+            return value >> 1;
+        }
+    }
+
+    private int readCount16() throws IOException {
+        int[] v = new int[9];
+
+        v[0] = readUnsignedByte();
+
+        if ((v[0] & 0x80) == 0) {
+            return v[0];
+        }
+        v[1] = readUnsignedByte();
+        if ((v[0] & 0xc0) == 0x80) {
+            return ((v[0] & 0x3f) << 8) | v[1];
+        }
+        v[2] = readUnsignedByte();
+        if ((v[0] & 0xe0) == 0xc0) {
+            if ((v[0] & 0xf0) != 0xc0) {
+                /* Just one bit too much */
+                log.warn("Data too large in get_count16 function.");
+            }
+            return ((v[0] & 0x0f) << 16) | (v[1] << 8) | v[2];
+        }
+        log.warn("Data too large in get_count16 function.");
+        v[3] = readUnsignedByte();
+        if ((v[0] & 0xf0) == 0xe0) {
+            return 0;
+        }
+        v[4] = readUnsignedByte();
+        if ((v[0] & 0xf8) == 0xf0) {
+            return 0;
+        }
+        v[5] = readUnsignedByte();
+        if ((v[0] & 0xfc) == 0xf8) {
+            return 0;
+        }
+        v[6] = readUnsignedByte();
+        if ((v[0] & 0xfe) == 0xfc) {
+            return 0;
+        }
+        v[7] = readUnsignedByte();
+        if ((v[0] & 0xff) == 0xfe) {
+            return 0;
+        }
+        v[8] = readUnsignedByte();
+        return 0;
+    }
+
+    public long readCount32() throws IOException {
+        long[] v = new long[9];
+
+        v[0] = readUnsignedByte();
+
+        if ((v[0] & 0x80) == 0) {
+            return v[0];
+        }
+        v[1] = readUnsignedByte();
+        if ((v[0] & 0xc0) == 0x80) {
+            return ((v[0] & 0x3f) << 8) | v[1];
+        }
+        v[2] = readUnsignedByte();
+        if ((v[0] & 0xe0) == 0xc0) {
+            return ((v[0] & 0x1f) << 16) | (v[1] << 8) | v[2];
+        }
+        v[3] = readUnsignedByte();
+        if ((v[0] & 0xf0) == 0xe0) {
+            return ((v[0] & 0x0f) << 24) | (v[1] << 16) | (v[2] << 8) | v[3];
+        }
+        v[4] = readUnsignedByte();
+        if ((v[0] & 0xf8) == 0xf0) {
+            if ((v[0] & 0x07) != 0x00) {
+                log.warn("Data too large in get_count32 function, clipped.");
+            }
+            return (v[1] << 24) | (v[2] << 16) | (v[3] << 8) | v[4];
+        }
+        // With only 32-bit integers available, we may lose data from here on.
+        log.warn("Data too large in get_count32 function.");
+
+        v[5] = readUnsignedByte();
+        if ((v[0] & 0xfc) == 0xf8) {
+            return 0;
+        }
+        v[6] = readUnsignedByte();
+        if ((v[0] & 0xfe) == 0xfc) {
+            return 0;
+        }
+        v[7] = readUnsignedByte();
+        if ((v[0] & 0xff) == 0xfe) {
+            return 0;
+        }
+        v[8] = readUnsignedByte();
+        return 0;
+    }
+
+    /**
      * Description from hessioxxx: Get an unsigned integer of unspecified length from an I/O buffer
      * where it is encoded in a way similar to the UTF-8 character encoding. Even though the scheme
      * in principle allows for arbitrary length data, the current implementation is limited for data
@@ -441,7 +569,7 @@ public class EventIOBuffer {
      * clipped unnoticed. It could also be clipped unnoticed in the application calling this
      * function.
      */
-    public long readCount() throws IOException {
+    public long readCount64() throws IOException {
 
         int countLength = 9;
 //        long[] count = new long[countLength];
@@ -482,17 +610,15 @@ public class EventIOBuffer {
         }
         v[4] = readUnsignedByte();
         if ((v[0] & 0xf8) == 0xf0) {
-            if ((v[0] & 0x07) != 0x00) {
-                log.warn("Data too large in get_count32 function, clipped.");
-            }
-            return (v[1] << 24) | (v[2] << 16) | (v[3] << 8) | v[4];
+            return ((v[0] & 0x07) << 32) | (v[1] << 24) | (v[2] << 16) | (v[3] << 8) | v[4];
         }
+
         // With only 32-bit integers available, we may lose data from here on.
-        log.warn("Data too large in get_count32 function.");
 
         v[5] = readUnsignedByte();
         if ((v[0] & 0xfc) == 0xf8) {
-            return ((v[0] & 0x03) << 40) | (v[1] << 32) | (v[2] << 24) | (v[3] << 16) | (v[4] << 8) | v[5];
+            return ((v[0] & 0x03) << 40) | (v[1] << 32) | (v[2] << 24) | (v[3] << 16) |
+                    (v[4] << 8) | v[5];
         }
         v[6] = readUnsignedByte();
         if ((v[0] & 0xfe) == 0xfc) {
@@ -525,53 +651,6 @@ public class EventIOBuffer {
         }
 
         return temp;
-    }
-
-    /**
-     * Get a signed integer of unspecified length from an I/O buffer where it is encoded in a way
-     * similar to the UTF-8 character encoding. Even though the scheme in principle allows for
-     * arbitrary length data, the current implementation is limited for data of up to 64 bits. On
-     * systems with intmax_t shorter than 64 bits, the result could be clipped unnoticed.
-     */
-    public long readSCount() throws IOException {
-        //TODO implement and think of 16, 32 and 64 variants
-        long value = readCount();
-        return unsignedToSignedCount(value);
-    }
-
-    public short readSCount16() throws IOException {
-        int value = readCount16();
-        return (short) unsignedToSignedCount(value);
-    }
-
-    public int readSCount32() throws IOException {
-        long value = readCount32();
-        return (int) unsignedToSignedCount(value);
-    }
-
-    /**
-     * Transform unsigned count value to a signed one.
-     */
-    private long unsignedToSignedCount(long value) {
-        //TODO is it the right implementation? do we get the lest significant bit at the right most position?
-        // values of 0,1,2,3,4,... here correspond to signed values of
-        // 0,-1,1,-2,2,... We have to test the least significant bit:
-        if ((value & 1) == 1) {
-            // Negative number
-            return -(value >> 1) - 1;
-        } else {
-            return value >> 1;
-        }
-    }
-
-    private int readCount16() {
-        //TODO implement readcount16
-        return 0;
-    }
-
-    private long readCount32() throws IOException {
-        //TODO implement readcount32
-        return readCount();
     }
 
     public float readSFloat() throws IOException {

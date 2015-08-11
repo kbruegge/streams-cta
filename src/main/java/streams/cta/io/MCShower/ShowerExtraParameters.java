@@ -98,8 +98,8 @@ public class ShowerExtraParameters {
                 weight = buffer.readFloat();
 
                 // detect number of integer and float parameters dynamically
-                long ni = buffer.readCount();
-                long nf = buffer.readCount();
+                long ni = buffer.readCount64();
+                long nf = buffer.readCount64();
 
                 // fill the iparam list
                 if (ni > 0) {

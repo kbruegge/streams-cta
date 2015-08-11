@@ -296,37 +296,37 @@ public class EventIOBufferTest {
         byte b = 0x7F;
         outDataStream.writeByte(b);
         outDataStream.flush();
-        assertEquals(b, buffer.readCount());
+        assertEquals(b, buffer.readCount64());
 
         short s = 0x81;
         writeCount(s);
         outDataStream.flush();
-        assertEquals(s, buffer.readCount());
+        assertEquals(s, buffer.readCount64());
 
         int i = 0x7881;
         writeCount(i);
         outDataStream.flush();
-        assertEquals(i, buffer.readCount());
+        assertEquals(i, buffer.readCount64());
 
         int li = 0xFF7881;
         writeCount(li);
         outDataStream.flush();
-        assertEquals(li, buffer.readCount());
+        assertEquals(li, buffer.readCount64());
 
         long vli = 0xFFF7881;
         writeCount(vli);
         outDataStream.flush();
-        assertEquals(vli, buffer.readCount());
+        assertEquals(vli, buffer.readCount64());
 
         long vvli = 0x3FFF7881;
         writeCount(vvli);
         outDataStream.flush();
-        assertEquals(vvli, buffer.readCount());
+        assertEquals(vvli, buffer.readCount64());
 
         vvli = 0x5D591281;
         writeCount(vvli);
         outDataStream.flush();
-        assertEquals(vvli, buffer.readCount());
+        assertEquals(vvli, buffer.readCount64());
     }
 
     private void writeCount(long n) {
