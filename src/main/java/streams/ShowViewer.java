@@ -75,6 +75,9 @@ public class ShowViewer implements StatefulProcessor {
                 LocalDateTime timeStamp = (LocalDateTime) input.get("@timestamp");
                 CTATelescope telescope = (CTATelescope) input.get("@telescope");
                 short[][] data = (short[][]) input.get("@raw_data");
+                if(data.length != 1855){
+                    System.out.println("No LST data. Cannot display.");
+                }
                 if (timeStamp != null && telescope != null && data != null) {
                     viewer.setDataItem(input, timeStamp, telescope, data);
                 }

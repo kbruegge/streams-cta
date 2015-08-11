@@ -6,8 +6,8 @@ package streams.cta;
  */
 public enum CTATelescopeType {
     LST(0, Geometry.HEXAGONAL, 1855, 2.0),
-    MST(1, Geometry.HEXAGONAL, 1000, 1.80),
-    SST(2, Geometry.RECTANGULAR, 400, 2.80),
+    MST_GATE(3, Geometry.HEXAGONAL, 11328, 8),
+    SST_CHEC(3, Geometry.HEXAGONAL, 2048, 9.6),
     SST_ASTRI(3, Geometry.RECTANGULAR, 700, 2.30),;
 
 
