@@ -122,13 +122,8 @@ public class TelEvent {
 
     public TelEvent(short telId) {
         this.telId = telId;
-        raw = new AdcData(telId);
+        raw = new AdcData(this.telId);
         pixtm = new PixelTiming(telId);
-        img = new ImgData[2];
-        img[0] = new ImgData(telId);
-        img[1] = new ImgData(telId);
-        triggerPixels = new PixelList();
-        imagePixels = new PixelList();
         cpuTime = new HTime();
         gpsTime = new HTime();
         maxImageSets = 2;
@@ -188,10 +183,6 @@ public class TelEvent {
                     header.getItemEnd();
                     return false;
                 }
-
-                // pixel lists only available since version 1
-                triggerPixels.pixels = 0;
-                imagePixels.pixels = 0;
 
                 int wSum = 0;
                 int wSamples = 0;
@@ -267,6 +258,9 @@ public class TelEvent {
                             readingSuccessful = pixcal.readPixelCalibrated(buffer);
                             break;
                         case Constants.TYPE_TELIMAGE:
+                            img = new ImgData[2];
+                            img[0] = new ImgData(this.telId);
+                            img[1] = new ImgData(this.telId);
                             if (img == null || (what & Constants.IMAGE_FLAG) == 0) {
                                 break;
                             }
@@ -286,8 +280,10 @@ public class TelEvent {
                             long code = id / 1000000;
                             long tid = id % 1000000;
                             if (code == 0 && tid == this.telId) {
+                                triggerPixels = new PixelList();
                                 readingSuccessful = triggerPixels.readPixelList(buffer);
                             } else if (code == 1 && tid == this.telId) {
+                                imagePixels = new PixelList();
                                 readingSuccessful = imagePixels.readPixelList(buffer);
                                 //TODO Bernloehr: Fix for missing number of pixels in image of older data format: */
                                 if (img != null && img[0].known && img[0].pixels == 0) {

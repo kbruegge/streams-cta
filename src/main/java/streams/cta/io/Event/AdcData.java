@@ -28,7 +28,7 @@ public class AdcData {
     /**
      * Must match the expected telescope ID when reading.
      */
-    public long telId;
+    public int telId;
 
     /**
      * The number of pixels in the camera (as in configuration)
@@ -38,7 +38,7 @@ public class AdcData {
     /**
      * The number of different gains per pixel (2 for HESS).
      */
-    long numGains;
+    int numGains;
 
     /**
      * The number of samples (time slices) recorded.
@@ -48,12 +48,12 @@ public class AdcData {
     /**
      * The desired or used zero suppression mode.
      */
-    long zeroSupMode;
+    int zeroSupMode;
 
     /**
      * The desired or used data reduction mode.
      */
-    long dataRedMode;
+    int dataRedMode;
 
     /**
      * The offset to be used in shrinking high-gain data.
@@ -107,7 +107,7 @@ public class AdcData {
     // TODO use LONG or maybe INT but using 'intValue & 0xffffffff' for
     // arithmetic operations? http://stackoverflow.com/questions/16809009/using-char-as-an-unsigned-16-bit-value-in-java
     // http://jessicarbrown.com/resources/unsignedtojava.html
-    long[][] adcSum;
+    int[][] adcSum;
 
     /**
      * Pulses sampled. uint16_t
@@ -138,7 +138,7 @@ public class AdcData {
                 }
 
                 /* Lots of small data was packed into the ID */
-                long flags = header.getIdentification();
+                int flags = header.getIdentification();
 
                 extractDataFromID(buffer, header, flags);
 
@@ -165,7 +165,7 @@ public class AdcData {
 
                 significant = new short[(int) numPixels];
                 adcKnown = new boolean[(int) numGains][(int) numPixels];
-                adcSum = new long[(int) numGains][(int) numPixels];
+                adcSum = new int[(int) numGains][(int) numPixels];
 
                 // Without zero-suppression and data-reduction, every channel is known
                 // but if either is z.s. or d.r. is on, a channel is only known
@@ -191,10 +191,10 @@ public class AdcData {
                 long n;
 
                 // originally uint32_t
-                long[] lgval = new long[16];
+                int[] lgval = new int[16];
 
                 // originally uint32_t
-                long[] hgval = new long[16];
+                int[] hgval;
 
                 // originally uint8_t
                 short[] hgval8 = new short[16];
@@ -462,7 +462,7 @@ public class AdcData {
                             case 1: /* Low low-gain channels were skipped (for two gains) */
                             case 2: /* Width of high-gain channel can be reduced */
                                 listSize = buffer.readShort();
-                                long[][] adcSumL = new long[Constants.H_MAX_GAINS][listSize];
+                                int[][] adcSumL = new int[Constants.H_MAX_GAINS][listSize];
                                 boolean[] withoutLg = new boolean[listSize];
                                 boolean[] reducedWidth = new boolean[listSize];
                                 adcList = new int[listSize];
@@ -545,8 +545,8 @@ public class AdcData {
         return false;
     }
 
-    private long[] readAdcSumDifferential(EventIOBuffer buffer, long number) throws IOException {
-        long[] result = new long[(int) number];
+    private int[] readAdcSumDifferential(EventIOBuffer buffer, long number) throws IOException {
+        int[] result = new int[(int) number];
         int prev = 0;
         int curr;
         for (int ipix = 0; ipix < number; ipix++) {
@@ -564,15 +564,10 @@ public class AdcData {
      * @param number number of shorts to be read
      * @return array of long type
      */
-    private long[] readAdcSumAsUint16(EventIOBuffer buffer, long number) throws IOException {
+    private int[] readAdcSumAsUint16(EventIOBuffer buffer, long number) throws IOException {
 
         // Old format: 16-bit unsigned, good for <= 16 samples of <= 12 bits or such.
-        int[] shortAdcSum = buffer.readVectorOfUnsignedShort((int) number);
-        long[] result = new long[(int) number];
-        for (int i = 0; i < number; i++) {
-            result[i] = shortAdcSum[i];
-        }
-        return result;
+        return buffer.readVectorOfUnsignedShort((int) number);
     }
 
     /**
@@ -582,7 +577,7 @@ public class AdcData {
      * @param header EventIOHeader to get version information
      * @param ident  identification field with some hidden information
      */
-    private void extractDataFromID(EventIOBuffer buffer, EventIOHeader header, long ident)
+    private void extractDataFromID(EventIOBuffer buffer, EventIOHeader header, int ident)
             throws IOException {
         // TODO changed types of telId, numPixels and numGains to LONG. change back and handle it right?
         zeroSupMode = ident & 0x1f;
@@ -616,7 +611,7 @@ public class AdcData {
 
         significant = new short[(int) numPixels];
         adcKnown = new boolean[(int) numGains][(int) numPixels];
-        adcSum = new long[(int) numGains][(int) numPixels];
+        adcSum = new int[(int) numGains][(int) numPixels];
         adcSample = new short[(int) numGains][(int) numPixels][numSamples];
     }
 
@@ -633,7 +628,7 @@ public class AdcData {
 
                 // Lots of small data was packed into the ID
                 // TODO originally flags is uint32_t and the other three are ints
-                long flags = header.getIdentification();
+                int flags = header.getIdentification();
 
                 extractDataFromID(buffer, header, flags);
 
@@ -659,7 +654,7 @@ public class AdcData {
                 // initialize adcSample array
                 adcSample = new short[(int) numGains][(int) numPixels][numSamples];
                 adcKnown = new boolean[(int) numGains][(int) numPixels];
-                adcSum = new long[(int) numGains][(int) numPixels];
+                adcSum = new int[(int) numGains][(int) numPixels];
                 significant = new short[(int) numPixels];
 
                 if (zeroSupMode != 0) {
