@@ -115,7 +115,13 @@ public class EventIOStream extends AbstractStream {
                         //TODO: add more telescope data into the item
                         item.put("@raw_data", eventData.event.teldata[0].raw.adcSample[0]);
                         item.put("@timestamp", eventData.event.central.cpuTime.getAsLocalDateTime());
-                        item.put("@telescope", new CTATelescope(CTATelescopeType.LST, 12, 0, 0, 0, null, null, null));
+                        if(data.length == 1855){
+                        	item.put("@telescope", new CTATelescope(CTATelescopeType.LST, 12, 0, 0, 0, null, null, null));
+                    	} else if(data.length == 2048) {
+	                        item.put("@telescope", new CTATelescope(CTATelescopeType.SST_CHEC, 13, 0, 0, 0, null, null, null));
+    	                } else if(data.length == 11328){
+        	                item.put("@telescope", new CTATelescope(CTATelescopeType.MST_GATE, 13, 0, 0, 0, null, null, null));
+            	        }
                         break;
                     case Constants.TYPE_RUNHEADER:
 

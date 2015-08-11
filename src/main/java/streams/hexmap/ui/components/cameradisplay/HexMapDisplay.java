@@ -217,8 +217,7 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 
 			Graphics2D g2 = (Graphics2D) g;
 
-			// g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-			// RenderingHints.VALUE_ANTIALIAS_ON);
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 			// draw a grid with lines every 25 pixel in a dark grey color
 			g2.setStroke(new BasicStroke(1.0f));
@@ -247,6 +246,12 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 				} else {
 					tile.setBorderColor(Color.BLACK);
 				}
+                if(p.offsetCoordinateX == 0 && p.offsetCoordinateY == 0){
+                    tile.setBorderColor(Color.BLUE);
+                }
+                if(p.offsetCoordinateX == 0 && p.offsetCoordinateY == 1){
+                    tile.setBorderColor(Color.GREEN);
+                }
 				tile.paint(g);
 			}
 

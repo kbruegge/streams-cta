@@ -13,7 +13,7 @@ public abstract class CTARawDataProcessor implements Processor {
 
     @Parameter(description = "The key under which to find the CTA raw data in the data item.", required = false,
             defaultValue = "data")
-    private String eventKey = "data";
+    private String eventKey = "@raw_data";
 
     @Override
     public Data process(Data input) {

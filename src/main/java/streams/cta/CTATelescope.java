@@ -6,13 +6,13 @@ import java.io.Serializable;
  * Created by Kai on 27.07.15.
  */
 public class CTATelescope implements Serializable {
-    public final CTATelescopeType type;
-    public final int telescopeId;
-    public final double x, y, z;
+    public  CTATelescopeType type;
+    public  int telescopeId;
+    public  double x, y, z;
 
-    public final int[] brokenPixel;
-    public final double[] pixelDelays;
-    public final double[] pixelGains;
+    public  int[] brokenPixel;
+    public  double[] pixelDelays;
+    public  double[] pixelGains;
 
     public CTATelescope(CTATelescopeType type, int telescopeId, double x, double y, double z,
                         int[] brokenPixel, double[] pixelDelays, double[] pixelGains) {
@@ -24,5 +24,9 @@ public class CTATelescope implements Serializable {
         this.brokenPixel = brokenPixel;
         this.pixelDelays = pixelDelays;
         this.pixelGains = pixelGains;
+    }
+
+    private CTATelescope() {
+
     }
 }
