@@ -24,11 +24,6 @@ public class CTAHexPixelMapping extends HexPixelMapping {
 
     public final int numberOfPixel = 1855;
 
-    //store each pixel by its 'geometric' or axial coordinate.
-    private final CameraPixel[][] offsetCoordinates = new CameraPixel[45][40];
-
-    private int xOffset = 22;
-    private int yOffset = 19;
 
     private static CTAHexPixelMapping mapping;
 

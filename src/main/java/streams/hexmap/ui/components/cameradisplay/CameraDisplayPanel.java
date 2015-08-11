@@ -101,8 +101,8 @@ public class CameraDisplayPanel extends JPanel implements EventObserver {
 						} catch (InstantiationException e1) {
 							log.error("Caught InstantiationException while trying to add new colormap with name: "
 									+ mapClass.getSimpleName()
-									+ ".  Colormaps must have a constructor with zero "
-									+ "parameters (nullary constructor)");
+									+ ".  Colormaps must have a 0 argument constructor "
+									+ "(nullary constructor)");
 						} catch (IllegalAccessException e1) {
 							log.error("Caught IllegalAccessException while trying to add new colormap with name: "
 									+ mapClass.getSimpleName()

@@ -19,8 +19,10 @@ public class HexTile extends Tile {
     public HexTile(CameraPixel p, double radius){
         this.pixel = p;
         this.radius = radius;
-        this.width =radius * 2;
+        this.width = radius * 2;
         this.height = radius * Math.sqrt(3);
+//        this.height = radius * 2;
+//        this.width = radius * Math.sqrt(3);
         this.position = this.getPosition();
         this.polygon = this.getPolygon();
     }
@@ -36,11 +38,12 @@ public class HexTile extends Tile {
             int posX = this.pixel.offsetCoordinateX;
             int posY = this.pixel.offsetCoordinateY;
 
-            //intentional precision loss
-            int cx = posX * (int)(width*0.75);
-            int cy = posY * (int)height;
+            //Disclaimer: the precision loss is intentional at this point.
+            int cx = posX * (int)(0.75*width);
+            int cy = posY * (int) (height);
 
             this.position = new Point( cx, cy );
+            System.out.println("Pixel at position " + position.toString());
         }
         return this.position;
 	}
@@ -63,8 +66,8 @@ public class HexTile extends Tile {
                 //In this case we want the flat edge on the bottom. Note that the whole thing is later
                 //rotated by 90 degree in the viewer. So in the display the pointy thing will actually be on the
                 //bottom
-                double x = this.radius * 0.8 * Math.cos(alpha);
-                double y = this.radius * 0.8 * Math.sin(alpha);
+                double x = this.radius * 1 * Math.cos(alpha);
+                double y = this.radius * 1 * Math.sin(alpha);
 
                 int px = (int) Math.round(this.position.x + x);
                 int py = (int) Math.round(this.position.y + y + yOff);
