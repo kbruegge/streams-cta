@@ -34,7 +34,7 @@ public class EventIOHeader {
     /**
      * Identity number.
      */
-    long identification;
+    int identification;
 
     /**
      * Extension number
@@ -69,9 +69,6 @@ public class EventIOHeader {
     }
 
     public boolean findAndReadNextHeader(boolean reset) throws IOException {
-        //TODO use the wanted type and control it
-        long wantedType;
-
         if (buffer.itemLevel >= Constants.MAX_IO_ITEM_LEVEL) {
             log.error("Maximum level of sub-items in I/O Buffer exceeded.");
             return false;
@@ -84,9 +81,7 @@ public class EventIOHeader {
                 return false;
             }
         } else if (buffer.itemLevel == 0 && !buffer.syncMarkerFound) {
-            EventIOStream.byteOrder = Constants.LITTLE_ENDIAN;
-            boolean found = findSynchronisationMarker();
-            if (!found) {
+            if (!findSynchronisationMarker()) {
                 log.info("Synchronisation marker could not have been found.");
                 return false;
             }
@@ -96,17 +91,24 @@ public class EventIOHeader {
             buffer.dataStream.mark(Constants.MAX_HEADER_SIZE);
         }
 
-        wantedType = type;
+        //TODO use the wanted type and control it
+        long wantedType = type;
 
         // read typeString and check for extension field
         int typeField = buffer.readLong();
 
         // bits 0 to 15 are used for typeString information
         type = typeField & 0x0000ffff;
-        typeString = typeToString(type);
+
+        if (reset){
+            buffer.dataStream.reset();
+            return true;
+        }
+
+        // typeString = typeToString(type);
 
         // bit 16 is the user bit and is not set
-        userFlag = (typeField & 0x00010000) != 0;
+        // userFlag = (typeField & 0x00010000) != 0;
 
         // extension is there if bit 17 is set
         // means look up if the 2nd bit of the 3rd byte is set
@@ -136,11 +138,11 @@ public class EventIOHeader {
 
         // check whether bit 31 is set
         // as it is a reserved bit it should be set to 0
-        boolean reserved = (lengthField & 0x80000000) == 0;
-        if (!reserved) {
-            log.error("Reserved bit should be set to 0.");
-            return false;
-        }
+//        boolean reserved = (lengthField & 0x80000000) == 0;
+//        if (!reserved) {
+//            log.error("Reserved bit should be set to 0.");
+//            return false;
+//        }
 
         if (buffer.itemLevel == 0) {
             buffer.readLength[buffer.itemLevel] -= 12;
@@ -161,20 +163,18 @@ public class EventIOHeader {
             length = (lengthField & 0x3FFFFFFF);
         }
 
-        if (!reset) {
-            // save the length of the item
-            buffer.itemLength[buffer.itemLevel] = length;
-            buffer.itemType[buffer.itemLevel] = typeString;
+        // save the length of the item
+        buffer.itemLength[buffer.itemLevel] = length;
+        //buffer.itemType[buffer.itemLevel] = typeString;
 
-            if (onlySubObjects) {
-                buffer.subItemLength[buffer.itemLevel] = length;
-            } else {
-                buffer.subItemLength[buffer.itemLevel] = 0;
-            }
-
-            // For global offsets keep also track where header extensions were found.
-            buffer.itemExtension[buffer.itemLevel] = useExtension;
+        if (onlySubObjects) {
+            buffer.subItemLength[buffer.itemLevel] = length;
+        } else {
+            buffer.subItemLength[buffer.itemLevel] = 0;
         }
+
+        // For global offsets keep also track where header extensions were found.
+        buffer.itemExtension[buffer.itemLevel] = useExtension;
 
         if (wantedType > 0 && wantedType != type) {
             // TODO what is if the type is wrong?! skip the item?
@@ -182,11 +182,7 @@ public class EventIOHeader {
                     + type + " was read.");
         }
 
-        if (!reset) {
-            level = buffer.itemLevel++;
-        } else {
-            buffer.dataStream.reset();
-        }
+        level = buffer.itemLevel++;
         return true;
     }
 
@@ -217,6 +213,10 @@ public class EventIOHeader {
         return findAndReadNextHeader(false);
     }
 
+    public boolean findSyncMarkerAndType() throws IOException {
+        return findAndReadNextHeader(true);
+    }
+
     /**
      * Try to find the next synchronisation marker "D41F8A37" or its reverse. In case the reverse
      * marker was found, the upcoming data block and its header should be handled in the proper way
@@ -224,7 +224,7 @@ public class EventIOHeader {
      *
      * @return true, if marker was found; otherwise false.
      */
-    private boolean findSynchronisationMarker() {
+    public boolean findSynchronisationMarker() {
         int firstBit = 0;
         int reverse = 1;
         int state = 0;
@@ -232,9 +232,8 @@ public class EventIOHeader {
         int[] syncMarker = {0xD4, 0x1F, 0x8A, 0x37};
 
         try {
-            byte b;
             while (buffer.dataStream.available() > 0) {
-                b = buffer.dataStream.readByte();
+                byte b = buffer.dataStream.readByte();
 
                 if (firstBit == 0) {
                     if (b == syncMarker[0]) {
@@ -245,6 +244,7 @@ public class EventIOHeader {
                         firstBit = 1;
                         state = 2;
                         reverse = -1;
+                        EventIOStream.byteOrder = Constants.LITTLE_ENDIAN;
                     }
                 } else {
                     if (b == (byte) syncMarker[state]) {
@@ -338,7 +338,7 @@ public class EventIOHeader {
         return length;
     }
 
-    public long getIdentification() {
+    public int getIdentification() {
         return identification;
     }
 

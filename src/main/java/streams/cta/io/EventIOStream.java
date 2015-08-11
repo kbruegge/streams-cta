@@ -90,12 +90,12 @@ public class EventIOStream extends AbstractStream {
     public Data readNext() throws Exception {
 
         Data item = DataFactory.create();
-        boolean eventFound = false;
         int numberRuns = 0;
+        EventIOHeader header = new EventIOHeader(buffer);
+        boolean eventFound = false;
         while (!eventFound) {
             numberRuns++;
-            EventIOHeader header = new EventIOHeader(buffer);
-            if (header.findAndReadNextHeader(true)) {
+            if (header.findSyncMarkerAndType()) {
 //                if (header.type == Constants.TYPE_MCSHOWER) {
 //                    if (eventData.mcShower == null){
 //                        eventData.mcShower = new MCShower();
@@ -104,36 +104,36 @@ public class EventIOStream extends AbstractStream {
 //                        log.error("Error happened while reading MC Shower.");
 //                    }
 //                } else
-                if (header.type == Constants.TYPE_EVENT) {
-                    if (eventData.event == null) {
-                        eventData.event = new FullEvent();
-                    }
-                    if (!eventData.event.readFullEvent(buffer, -1)) {
-                        log.error("Error happened while reading full event data.");
-                    }
-                    numberEvents++;
-                    eventFound = true;
+                switch (header.type){
+                    case Constants.TYPE_EVENT:
+                        if (!eventData.event.readFullEvent(buffer, -1)) {
+                            log.error("Error happened while reading full event data.");
+                        }
+                        numberEvents++;
+                        eventFound = true;
 
-                    //TODO: add more telescope data into the item
-                    item.put("@raw_data", eventData.event.teldata[0].raw.adcSample[0]);
-                    item.put("@timestamp", eventData.event.central.cpuTime.getAsLocalDateTime());
-                    item.put("@telescope", new CTATelescope(CTATelescopeType.LST, 12, 0, 0, 0, null, null, null));
-                } else if (header.type == Constants.TYPE_RUNHEADER) {
+                        //TODO: add more telescope data into the item
+                        item.put("@raw_data", eventData.event.teldata[0].raw.adcSample[0]);
+                        item.put("@timestamp", eventData.event.central.cpuTime.getAsLocalDateTime());
+                        item.put("@telescope", new CTATelescope(CTATelescopeType.LST, 12, 0, 0, 0, null, null, null));
+                        break;
+                    case Constants.TYPE_RUNHEADER:
 
-                    //TODO some summary from previous runs (original code)
+                        //TODO some summary from previous runs (original code)
 
-                    if (!eventData.runHeader.readRunHeader(buffer)) {
-                        log.error("Error happened while reading run header.");
-                        return null;
-                    }
+                        if (!eventData.runHeader.readRunHeader(buffer)) {
+                            log.error("Error happened while reading run header.");
+                            return null;
+                        }
 
-                    eventData.event = initFullEvent(eventData.runHeader.numberTelescopes);
+                        eventData.event = initFullEvent(eventData.runHeader.numberTelescopes);
 
-                    //TODO skip some runs
-                } else {
-                    header.findAndReadNextHeader();
-                    buffer.skipBytes((int) header.length);
-                    header.getItemEnd();
+                        //TODO skip some runs
+                        break;
+                    default:
+                        header.findAndReadNextHeader();
+                        buffer.skipBytes((int) header.length);
+                        header.getItemEnd();
                 }
 
             } else {
