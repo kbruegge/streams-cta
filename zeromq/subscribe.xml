@@ -11,7 +11,7 @@
 
     
     <process input="cta:data" copies="1">
-               <stream.monitor.DataRate every="100"/>
+               <streams.DataRate every="50"/>
     </process>
     
 </application>

@@ -19,15 +19,20 @@ public class CTAEventSubscriber extends AbstractStream {
         super.init();
         context = ZMQ.context(1);
         subscriber = context.socket(ZMQ.SUB);
-        subscriber.connect("tcp://localhost:5556");
-        subscriber.subscribe(new byte[]{1,0,1});
+        //vollmond
+        subscriber.connect("tcp://129.217.160.98:5556");
+        //phido
+        subscriber.connect("tcp://129.217.160.202:5556");
+        subscriber.subscribe(new byte[]{1,0,1,0,1});
     }
 
     @Override
     public Data readNext() throws Exception {
         byte[] data = subscriber.recv(0);
 //        System.out.println("Recieved data with length: " + data.length);
-        return DataFactory.create();
+        Data item = DataFactory.create();
+        item.put("data_bytes", data);
+        return item;
     }
 
     @Override
