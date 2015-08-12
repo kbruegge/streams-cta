@@ -18,7 +18,7 @@ for i, eventio_file in enumerate(os.listdir(path)):
     filepath = os.path.join(path, eventio_file)
     command =   "java -jar " + jarfile +  " " + xml +\
                 " -Dinfile=" + filepath + \
-                " -Doutfile=./data_" + str(i) + ".kryo"
+                " -Doutfile=" + path + "/data_" + str(i) + ".kryo"
 
 
     print(command)

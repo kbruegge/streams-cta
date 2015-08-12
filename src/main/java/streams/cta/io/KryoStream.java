@@ -1,6 +1,7 @@
 package streams.cta.io;
 
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.Input;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import stream.io.SourceURL;
 
 import java.io.FileInputStream;
 import java.io.Serializable;
+import java.nio.BufferUnderflowException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 
@@ -21,6 +23,7 @@ public class KryoStream extends AbstractStream {
 
     static Logger log = LoggerFactory.getLogger(KryoStream.class);
 
+    public KryoStream(){}
 
     public KryoStream(SourceURL url) {
         super(url);
@@ -39,9 +42,19 @@ public class KryoStream extends AbstractStream {
 
     @Override
     public Data readNext() throws Exception {
-        Data item = DataFactory.create(kryo.readObject(input, map.getClass()));
-        itemCounter++;
-        return item;
+        if(itemCounter == limit - 1){
+            itemCounter = 0;
+            count = 0l;
+            return null;
+        }
+        try {
+            Data item = DataFactory.create(kryo.readObject(input, map.getClass()));
+            itemCounter++;
+            return item;
+        } catch (KryoException e){
+            log.error("Underflow Exception. End of file reached?");
+            return null;
+        }
     }
 
     @Override
