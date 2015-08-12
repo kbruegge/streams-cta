@@ -6,7 +6,7 @@
     <!--<stream id="cta:data" class="streams.cta.io.EventIOStream" url="file:/Users/kai/Downloads/electron_20deg_90deg_run7683___cta-trg-test-LST4_desert_samplemode_test-250MHz.simtel"-->
             <!--limit="1000" />-->
 
-    <stream id="cta:data" class="streams.cta.io.EventIOStream" url="file:/Users/kai/home_phido/proton_20deg_0deg_run32286___cta-prod2_desert-1640m-Aar.simtel.gz"
+    <stream id="cta:data" class="streams.cta.io.EventIOStream" url="file:/Users/kai/fact_phido/cta/proton_20deg_0deg_run32286___cta-prod2_desert-1640m-Aar.simtel.gz"
     limit="1000" />
 
 
