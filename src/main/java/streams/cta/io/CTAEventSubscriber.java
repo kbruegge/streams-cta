@@ -1,7 +1,10 @@
 package streams.cta.io;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 import stream.Data;
+import stream.annotations.Parameter;
 import stream.data.DataFactory;
 import stream.io.AbstractStream;
 
@@ -11,8 +14,16 @@ import stream.io.AbstractStream;
  */
 public class CTAEventSubscriber extends AbstractStream {
 
+    static Logger log = LoggerFactory.getLogger(CTAEventSubscriber.class);
     private ZMQ.Context context;
     private ZMQ.Socket subscriber;
+
+
+
+    @Parameter(required = false)
+    String[] addresses = {"tcp://129.217.160.202:5556"};
+
+
 
     @Override
     public void init() throws Exception {
@@ -20,9 +31,12 @@ public class CTAEventSubscriber extends AbstractStream {
         context = ZMQ.context(1);
         subscriber = context.socket(ZMQ.SUB);
         //vollmond
-        subscriber.connect("tcp://129.217.160.98:5556");
+//        subscriber.connect("tcp://129.217.160.98:5556");
         //phido
-        subscriber.connect("tcp://129.217.160.202:5556");
+        for(String address: addresses) {
+            log.info("Connecting to address: " + address);
+            subscriber.connect(address);
+        }
         subscriber.subscribe(new byte[]{1,0,1,0,1});
     }
 
@@ -40,5 +54,9 @@ public class CTAEventSubscriber extends AbstractStream {
         super.close();
         subscriber.close();
         context.term();
+    }
+
+    public void setAddresses(String[] addresses) {
+        this.addresses = addresses;
     }
 }
