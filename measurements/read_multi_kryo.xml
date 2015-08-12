@@ -5,19 +5,24 @@
 
     <!--<stream id="cta:data" class="streams.cta.io.EventIOStream" url="file:/Users/kai/Downloads/electron_20deg_90deg_run7683___cta-trg-test-LST4_desert_samplemode_test-250MHz.simtel"-->
             <!--limit="1000" />-->
-    <!--<property name="infile" value="./data.kryo" />-->
-    <property name="infile" value="/home/kai/fact_phido/cta/data_1.kryo" />
-
-    <stream id="cta:data" class="streams.cta.io.KryoStream" url="file:${infile}"/>
+    <!--<property name="infile" value="/fhgfs/groups/app/fact/cta/" />-->
+    <property name="infile" value="/home/kai/fact_phido/cta/" />
+    <!--<stream id="cta:data" class="streams.cta.io.KryoStream" url="file:${infile}"/>-->
 
     <!--<stream id="cta:data2" class="streams.cta.io.KryoStream" url="file:./data.kryo" limit="50000" />-->
 
+    <property name="num_copies" value="1" />
+
+    <stream id="cta:data_${copy.id}" class="streams.cta.io.RecursiveDirectoryStream"
+            suffix=".kryo" url="file:${infile}" copies="${num_copies}">
+        <stream id="cta:data" class="streams.cta.io.KryoStream"/>
+    </stream>
 
     
-    <process input="cta:data" copies="1">
-        <streams.DataRate every="400"/>
-        <!--<stream.monitor.DataRate every="200"/>-->
+    <process input="cta:data_${copy.id}" copies="${num_copies}">
+        <!--<stream.monitor.DataRate every="400"/>-->
         <streams.cta.extraction.Photons />
+        <streams.DataRate every="400"/>
     </process>
     <!--<process input="cta:data2" copies="1">-->
         <!--<stream.monitor.DataRate every="100"/>-->

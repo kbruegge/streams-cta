@@ -2,29 +2,45 @@ package streams.cta.io;
 
 import org.zeromq.ZMQ;
 
+import java.util.StringTokenizer;
+
 /**
  * Created by kai on 11.08.15.
  */
 public class TestZeroMQClient {
 
-    public static void main(String[] args) {
+    public static void main (String[] args) {
         ZMQ.Context context = ZMQ.context(1);
 
         //  Socket to talk to server
-        System.out.println("Connecting to hello world server…");
+        System.out.println("Collecting updates from weather server");
+        ZMQ.Socket subscriber = context.socket(ZMQ.SUB);
+        subscriber.connect("tcp://localhost:5556");
 
-        ZMQ.Socket requester = context.socket(ZMQ.REQ);
-        requester.connect("tcp://localhost:5555");
+        //  Subscribe to zipcode, default is NYC, 10001
+        String filter = (args.length > 0) ? args[0] : "10001 ";
+        subscriber.subscribe(filter.getBytes());
 
-        for (int requestNbr = 0; requestNbr != 10; requestNbr++) {
-            String request = "Hello";
-            System.out.println("Sending Hello " + requestNbr);
-            requester.send(request.getBytes(), 0);
+        //  Process 100 updates
+        int update_nbr;
+        long total_temp = 0;
+        for (update_nbr = 0; update_nbr < 100; update_nbr++) {
+            //  Use trim to remove the tailing '0' character
+            String string = subscriber.recvStr(0).trim();
 
-            byte[] reply = requester.recv(0);
-            System.out.println("Received " + new String(reply) + " " + requestNbr);
+            StringTokenizer sscanf = new StringTokenizer(string, " ");
+            int zipcode = Integer.valueOf(sscanf.nextToken());
+            int temperature = Integer.valueOf(sscanf.nextToken());
+            int relhumidity = Integer.valueOf(sscanf.nextToken());
+
+            total_temp += temperature;
+            System.out.println("Recieved temp: " +  temperature);
+
         }
-        requester.close();
+        System.out.println("Average temperature for zipcode '"
+                + filter + "' was " + (int) (total_temp / update_nbr));
+
+        subscriber.close();
         context.term();
     }
 }

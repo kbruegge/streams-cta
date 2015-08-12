@@ -39,8 +39,8 @@ public class HexTile extends Tile {
             int posY = this.pixel.offsetCoordinateY;
 
             //Disclaimer: the precision loss is intentional at this point.
-            int cx = posX * (int)(0.75*width);
-            int cy = posY * (int) (height);
+            int cx =  (posX * (int)(0.75*width));
+            int cy = (posY * (int)(height));
 
             this.position = new Point( cx, cy );
             System.out.println("Pixel at position " + position.toString());
