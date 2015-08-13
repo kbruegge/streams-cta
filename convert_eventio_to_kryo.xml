@@ -7,28 +7,22 @@
             <!--limit="1000" />-->
     <!--<property name="infile" value="/fhgfs/groups/app/fact/cta/" />-->
     <property name="infile" value="/Users/kai/fact_phido/cta/" />
+    <property name="outfile" value="./cta_data.kryo" />
     <!--<stream id="cta:data" class="streams.cta.io.KryoStream" url="file:${infile}"/>-->
 
     <!--<stream id="cta:data2" class="streams.cta.io.KryoStream" url="file:./data.kryo" limit="50000" />-->
 
-    <property name="num_copies" value="1" />
 
-    <stream id="cta:data_${copy.id}" class="streams.cta.io.RecursiveDirectoryStream"
-            suffix=".kryo" url="file:${infile}" copies="${num_copies}">
-        <stream id="cta:data" class="streams.cta.io.KryoStream"/>
+    <stream id="cta:data" class="streams.cta.io.RecursiveDirectoryStream"
+            suffix=".simtel.gz" url="file:${infile}" copies="1">
+        <stream id="cta:data" class="streams.cta.io.EventIOStream" url="file:${infile}"/>
     </stream>
 
-    <stream.io.BlockingQueue id="performance" />
-
-    <process input="cta:data_${copy.id}" copies="${num_copies}">
+    <process input="cta:data">
         <!--<stream.monitor.DataRate every="400"/>-->
-        <streams.cta.extraction.Photons />
-        <streams.DataRate every="500" silent="false"/>
-        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+        <streams.DataRate every="200" silent="false"/>
+        <streams.cta.io.KryoWriter url="file:${outfile}" />
     </process>
 
-    <process input="performance">
-        <streams.cta.io.JSONWriter url="file:./performance.json" keys="@datarate" writeblock="true"/>
-    </process>
 
 </application>
