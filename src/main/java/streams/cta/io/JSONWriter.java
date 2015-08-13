@@ -95,10 +95,8 @@ public class JSONWriter implements StatefulProcessor {
 
     @Override
     public void finish() throws Exception {
-        System.out.println("CALLED TEHG FINSDFINSF");
         if(bw != null) {
             if(writeBlock){
-                bw.newLine();
                 bw.write("]");
             }
             bw.flush();
