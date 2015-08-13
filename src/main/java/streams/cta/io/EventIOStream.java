@@ -48,8 +48,12 @@ public class EventIOStream extends AbstractStream {
             required = false,
             description = "This value defines the size of the buffer of the BufferedInputStream",
             defaultValue = "8*1024")
-
     private int bufferSize = 8 * 1024;
+
+    @Parameter(required = false,
+            description = "In case an error occurs while reading eventio just ignore the file and return null",
+            defaultValue = "false")
+    private boolean ignoreErrors = false;
 
     public EventIOStream(SourceURL url) {
         super(url);
@@ -86,6 +90,7 @@ public class EventIOStream extends AbstractStream {
         importEventioRegisteredDatatypes();
 
         numberEvents = 0;
+        log.info("Start reading " + url + " ignore erros: " + ignoreErrors);
     }
 
     @Override
@@ -118,16 +123,28 @@ public class EventIOStream extends AbstractStream {
                     eventFound = true;
 
                     //TODO: add more telescope data into the item
-                    short[][] data = eventData.event.teldata[0].raw.adcSample[0];
-                    item.put("@raw_data", data);
-                    item.put("@timestamp", eventData.event.central.cpuTime.getAsLocalDateTime());
-                    if(data.length == 1855){
-                        item.put("@telescope", new CTATelescope(CTATelescopeType.LST, 12, 0, 0, 0, null, null, null));
-                    } else if(data.length == 2048) {
-                        item.put("@telescope", new CTATelescope(CTATelescopeType.SST_CHEC, 13, 0, 0, 0, null, null, null));
-                    } else if(data.length == 11328){
-                        item.put("@telescope", new CTATelescope(CTATelescopeType.MST_GATE, 13, 0, 0, 0, null, null, null));
+                    try {
+                        short[][] data = eventData.event.teldata[0].raw.adcSample[0];
+                        LocalDateTime localDateTime = eventData.event.central.cpuTime.getAsLocalDateTime();
+                        item.put("@raw_data", data);
+                        item.put("@timestamp", localDateTime);
+                        if(data.length == 1855){
+                            item.put("@telescope", new CTATelescope(CTATelescopeType.LST, 12, 0, 0, 0, null, null, null));
+                        } else if(data.length == 2048) {
+                            item.put("@telescope", new CTATelescope(CTATelescopeType.SST_CHEC, 13, 0, 0, 0, null, null, null));
+                        } else if(data.length == 11328){
+                            item.put("@telescope", new CTATelescope(CTATelescopeType.MST_GATE, 13, 0, 0, 0, null, null, null));
+                        }
+                    } catch (Exception e){
+                        if(ignoreErrors)
+                        {
+                            log.error("Ignoring Exception while reading eventio return null. YOLO!!! ");
+                            return null;
+                        } else {
+                            throw e;
+                        }
                     }
+
                 } else if (header.type == Constants.TYPE_RUNHEADER) {
 
                     //TODO some summary from previous runs (original code)
@@ -218,5 +235,9 @@ public class EventIOStream extends AbstractStream {
 
     public void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
+    }
+
+    public void setIgnoreErrors(boolean ignoreErrors) {
+        this.ignoreErrors = ignoreErrors;
     }
 }

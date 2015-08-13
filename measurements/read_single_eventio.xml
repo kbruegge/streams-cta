@@ -1,0 +1,25 @@
+<application>
+    
+    <!--<stream id="cta:data" class="streams.cta.io.SyntheticEventStream"-->
+        <!--limit="10000" />-->
+
+    <!--<stream id="cta:data" class="streams.cta.io.EventIOStream" url="file:/Users/kai/Downloads/electron_20deg_90deg_run7683___cta-trg-test-LST4_desert_samplemode_test-250MHz.simtel"-->
+            <!--limit="1000" />-->
+    <!--<property name="infile" value="/fhgfs/groups/app/fact/cta/" />-->
+    <property name="infile" value="/Users/kai/fact_phido/cta/data_10.kryo" />
+    <!--<stream id="cta:data" class="streams.cta.io.KryoStream" url="file:${infile}"/>-->
+
+    <!--<stream id="cta:data2" class="streams.cta.io.KryoStream" url="file:./data.kryo" limit="50000" />-->
+
+
+    <stream id="cta:data" class="streams.cta.io.KryoStream" url="file:${infile}"/>
+
+
+    <process input="cta:data">
+        <!--<stream.monitor.DataRate every="400"/>-->
+        <streams.DataRate every="300" silent="false"/>
+        <Skip condition="%{data.@datarate} == null" />
+            <streams.cta.io.JSONWriter url="file:./performance_single.json" keys="@datarate" writeblock="true"/>
+    </process>
+
+</application>
