@@ -22,12 +22,13 @@ public abstract class CTAExtractedDataProcessor implements Processor {
         LocalDateTime timeStamp = (LocalDateTime) input.get("@timestamp");
         CTATelescope telescope = (CTATelescope) input.get("@telescope");
 
-        ExtractedData data = (ExtractedData) input.get(eventKey);
-        if (data != null && timeStamp != null && telescope != null) {
-            return process(input, telescope, timeStamp, data);
+        double[] photons = (double[]) input.get("photons");
+        double[] arrivalTimes = (double[]) input.get("arrivalTimes");
+        if (photons != null && arrivalTimes != null && timeStamp != null && telescope != null) {
+            return process(input, telescope, timeStamp, photons, arrivalTimes);
         }
         return null;
     }
 
-    public abstract Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, ExtractedData eventData);
+    public abstract Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, double[] photons, double[] arrivalTimes);
 }

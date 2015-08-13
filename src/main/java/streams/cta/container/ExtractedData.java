@@ -15,10 +15,10 @@ import java.time.LocalDateTime;
  * @author Kai
  */
 public class ExtractedData implements Serializable {
-    public final double[][] arrivalTime;
-    public final double[][] photons;
+    public final double[] arrivalTime;
+    public final double[] photons;
 
-    public ExtractedData(double[][] arrivalTime, double[][] photons) {
+    public ExtractedData(double[] arrivalTime, double[] photons) {
         this.arrivalTime = arrivalTime;
         this.photons = photons;
     }
