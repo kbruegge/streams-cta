@@ -7,9 +7,9 @@
 
 
     <process input="cta:data">
-        <streams.DataRate every="200" silent="false"/>
+        <streams.DataRate every="500" silent="false"/>
         <Skip condition="%{data.@datarate} == null" />
-            <streams.cta.io.JSONWriter url="file:./performance_single.json" keys="@datarate" writeblock="true"/>
+            <streams.cta.io.JSONWriter url="file:./performance_single_kryo.json" keys="@datarate" writeblock="true"/>
     </process>
 
 </application>
