@@ -15,13 +15,14 @@
 
     <stream id="cta:data" class="streams.cta.io.RecursiveDirectoryStream"
             suffix=".simtel.gz" url="file:${infile}" copies="1">
-        <stream id="cta:data" class="streams.cta.io.EventIOStream" url="file:${infile}"/>
+        <stream id="cta:data" class="streams.cta.io.EventIOStream" url="file:${infile}" ignoreErrors="true"/>
     </stream>
 
     <process input="cta:data">
         <!--<stream.monitor.DataRate every="400"/>-->
         <streams.DataRate every="200" silent="false"/>
-        <streams.cta.io.KryoWriter url="file:${outfile}" />
+        <PrintData/>
+        <!--<streams.cta.io.KryoWriter url="file:${outfile}" />-->
     </process>
 
 
