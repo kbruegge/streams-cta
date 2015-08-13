@@ -25,6 +25,10 @@ public class DataRate implements StatefulProcessor {
     long every = 200;
 
 
+    @Parameter(required = false, description = "Flags whether to print stuff to console during processing or not.")
+    boolean silent = false;
+
+
     SummaryStatistics statistics = new SummaryStatistics();
     private Stopwatch stopwatch;
 
@@ -40,7 +44,7 @@ public class DataRate implements StatefulProcessor {
 
     @Override
     public void finish() throws Exception {
-        log.info("Mean data rate: " + statistics.getMean());
+        log.info("Mean data rate: " + statistics.getMean() + " +- " + statistics.getStandardDeviation()/statistics.getN());
     }
 
     @Override
@@ -51,7 +55,10 @@ public class DataRate implements StatefulProcessor {
         if(itemCounter == every){
             double dataRatePerSecond = 1000 * ((double) itemCounter) / (double)stopwatch.elapsed(TimeUnit.MILLISECONDS);
             statistics.addValue(dataRatePerSecond);
-            log.info("Current Data rate per second: " + dataRatePerSecond );
+            if (!silent) {
+                log.info("Current Data rate per second: " + dataRatePerSecond);
+            }
+            input.put("@datarate", dataRatePerSecond);
             stopwatch.reset();
             stopwatch.start();
             itemCounter = 0;
@@ -65,5 +72,9 @@ public class DataRate implements StatefulProcessor {
 
     public void setEvery(long every) {
         this.every = every;
+    }
+
+    public void setSilent(boolean silent) {
+        this.silent = silent;
     }
 }

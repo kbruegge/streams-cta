@@ -1,10 +1,13 @@
 package streams.cta.io;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 import stream.Data;
 import stream.ProcessContext;
 import stream.StatefulProcessor;
+import stream.annotations.Parameter;
 import streams.cta.CTARawDataProcessor;
 import streams.cta.CTATelescope;
 import java.time.LocalDateTime;
@@ -15,8 +18,15 @@ import java.time.LocalDateTime;
  */
 public class CTAEventPublisher extends CTARawDataProcessor implements StatefulProcessor {
 
+    static Logger log = LoggerFactory.getLogger(CTAEventPublisher.class);
+
     private ZMQ.Socket publisher;
     private ZMQ.Context context;
+
+
+
+    @Parameter(required = false)
+    String[] addresses = {"tcp://*:5556"};
 
     @Override
     public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, short[][] eventData) {
@@ -44,7 +54,10 @@ public class CTAEventPublisher extends CTARawDataProcessor implements StatefulPr
         context = ZMQ.context(1);
 
         publisher = context.socket(ZMQ.PUB);
-        publisher.bind("tcp://*:5556");
+        for(String address: addresses) {
+            publisher.bind(address);
+            log.info("Binding to address: " + address);
+        }
 //        publisher.bind("ipc://cta_data");
     }
 
@@ -58,4 +71,9 @@ public class CTAEventPublisher extends CTARawDataProcessor implements StatefulPr
         publisher.close();
         context.term();
     }
+
+    public void setAddresses(String[] addresses) {
+        this.addresses = addresses;
+    }
+
 }

@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.Random;
 
 import stream.Data;
+import stream.annotations.Parameter;
 import stream.data.DataFactory;
 import stream.io.AbstractStream;
 import streams.cta.CTATelescope;
@@ -23,8 +24,10 @@ public class SyntheticEventStream extends AbstractStream {
 	int numberOfSlices = 30;
 
 	Random random = new Random();
-    byte[] randomBytes;
     short[][] data;
+
+    @Parameter(required = false)
+    int delay = 0;
 
 
     long eventId = 1;
@@ -55,14 +58,19 @@ public class SyntheticEventStream extends AbstractStream {
 
         for (int pixel = 0; pixel < numberOfPixels; pixel++) {
             for (int x = 0; x < numberOfSlices; x++) {
-                data[pixel][x] = (short) f(x);
-                data[pixel][x] += 10*random.nextGaussian();
+//                data[pixel][x] = (short) f(x);
+                data[pixel][x] = 12;
+//                data[pixel][x] += 10*random.nextGaussian();
             }
 //            randomBytes = new byte[numberOfSlices*2];
 //            random.nextBytes(randomBytes);
 //            ByteBuffer.wrap(randomBytes).asShortBuffer().get(data[pixel]);
         }
-
+        try {
+            Thread.sleep(delay);
+        } catch(InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
 
 		Data item = DataFactory.create();
 		item.put("@raw_data", data);
@@ -73,4 +81,8 @@ public class SyntheticEventStream extends AbstractStream {
         eventId++;
 		return item;
 	}
+
+    public void setDelay(int delay) {
+        this.delay = delay;
+    }
 }
