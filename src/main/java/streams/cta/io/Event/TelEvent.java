@@ -189,6 +189,7 @@ public class TelEvent {
                 int wPixtm = 0;
                 int wPixcal = 0;
                 int telImg = 0;
+                short imgNumber = 0;
                 boolean readingSuccessful = true;
                 while (readingSuccessful) {
                     int type = buffer.nextSubitemType();
@@ -259,8 +260,7 @@ public class TelEvent {
                             break;
                         case Constants.TYPE_TELIMAGE:
                             img = new ImgData[2];
-                            img[0] = new ImgData(this.telId);
-                            img[1] = new ImgData(this.telId);
+                            img[imgNumber++] = new ImgData(this.telId);
                             if (img == null || (what & Constants.IMAGE_FLAG) == 0) {
                                 break;
                             }
