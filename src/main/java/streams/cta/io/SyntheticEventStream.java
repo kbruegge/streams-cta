@@ -20,9 +20,7 @@ public class SyntheticEventStream extends AbstractStream {
 
     int numberOfPixels = 1855;
     int numberOfSlices = 30;
-
-    Random random = new Random();
-    byte[] randomBytes;
+    
 	Random random = new Random();
     short[][] data;
 
