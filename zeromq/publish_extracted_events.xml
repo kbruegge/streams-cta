@@ -21,7 +21,7 @@
         <streams.DataRate every="100" />
         <streams.cta.extraction.ArrivalTime/>
         <streams.cta.extraction.Photons/>
-        <streams.cta.io.CTAExtractedEventPublisher addresses="tcp://*:555${copy.id}" />
+        <streams.cta.io.CTAExtractedEventPublisher addresses="tcp://*:5550" />
     </process>
     <!--<process input="cta:data2" copies="1">-->
         <!--<stream.monitor.DataRate every="100"/>-->
