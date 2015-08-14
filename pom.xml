@@ -30,6 +30,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.jwall</groupId>
+            <artifactId>streams-storm</artifactId>
+            <version>0.9.22-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.0</version>
