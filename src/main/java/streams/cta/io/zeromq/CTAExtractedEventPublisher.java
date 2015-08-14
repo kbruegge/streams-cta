@@ -1,4 +1,4 @@
-package streams.cta.io;
+package streams.cta.io.zeromq;
 
 
 import org.slf4j.Logger;
@@ -9,9 +9,7 @@ import stream.ProcessContext;
 import stream.StatefulProcessor;
 import stream.annotations.Parameter;
 import streams.cta.CTAExtractedDataProcessor;
-import streams.cta.CTARawDataProcessor;
 import streams.cta.CTATelescope;
-import streams.cta.container.ExtractedData;
 
 import java.time.LocalDateTime;
 

@@ -1,4 +1,4 @@
-package streams.cta.io.storm;
+package streams.cta.storm;
 
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-package streams.cta.io;
+package streams.cta.io.zeromq;
 
 
 import org.slf4j.Logger;

@@ -7,9 +7,9 @@
     <!--<property name="outfile" value="./data.kryo" />-->
     <property name="num_copies" value="1" />
 
-    <stream id="cta:data_${copy.id}" class="streams.cta.io.CTAEventSubscriber"
+    <stream id="cta:data_${copy.id}" class="streams.cta.io.zeromq.CTAEventSubscriber"
              addresses="tcp://129.217.160.98:5556,tcp://127.0.0.1:5552,tcp://127.0.0.1:5551,tcp://127.0.0.1:5550"/>
-    <!--<stream id="cta:data" class="streams.cta.io.CTAEventSubscriber" addresses="tcp://129.217.160.98:5556"/>-->
+    <!--<stream id="cta:data" class="streams.cta.io.zeromq.CTAEventSubscriber" addresses="tcp://129.217.160.98:5556"/>-->
 
 
     
