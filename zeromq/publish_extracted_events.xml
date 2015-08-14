@@ -8,20 +8,20 @@
     <!--<stream id="cta:data" class="streams.cta.io.KryoStream" url="file:${infile}"/>-->
 
     <!--<stream id="cta:data2" class="streams.cta.io.KryoStream" url="file:./data.kryo" limit="50000" />-->
-    <stream id="cta:data" class="streams.cta.io.KryoStream" url="file:${infile}"/>
-    <property name="num_copies" value="1" />
 
-    <!--<stream id="cta:data_${copy.id}" class="streams.cta.io.RecursiveDirectoryStream"-->
-            <!--suffix=".kryo" url="file:${infile}" copies="${num_copies}">-->
+
+    <stream id="cta:data" class="streams.cta.io.KryoStream" url="file:${infile}"/>
+
+    <!--<stream id="cta:data_${copy.id}" class="streams.cta.io.RecursiveDirectoryStream" suffix=".kryo" url="file:${infile}" copies="${num_copies}">-->
         <!--<stream id="cta:data" class="streams.cta.io.KryoStream"/>-->
     <!--</stream>-->
 
 
-    <process input="cta:data" copies="${num_copies}" >
+    <process input="cta:data" >
         <streams.DataRate every="100" />
         <streams.cta.extraction.ArrivalTime/>
         <streams.cta.extraction.Photons/>
-        <streams.cta.io.CTAExtractedEventPublisher addresses="tcp://*:5556" />
+        <streams.cta.io.CTAExtractedEventPublisher addresses="tcp://*:555${copy.id}" />
     </process>
     <!--<process input="cta:data2" copies="1">-->
         <!--<stream.monitor.DataRate every="100"/>-->

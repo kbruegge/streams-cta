@@ -1,0 +1,27 @@
+<application>
+
+    <property name="infile" value="/home/kai/fact_phido/cta/" />
+
+
+    <property name="num_copies" value="4" />
+
+    <stream id="cta:data_${copy.id}" class="streams.cta.io.RecursiveDirectoryStream"
+            suffix=".kryo" url="file:${infile}" copies="${num_copies}">
+        <stream id="cta:data" class="streams.cta.io.KryoStream"/>
+    </stream>
+
+    <stream.io.BlockingQueue id="performance" />
+
+    <process input="cta:data_${copy.id}" copies="${num_copies}">
+        <streams.DataRate every="100" />
+        <streams.cta.extraction.ArrivalTime/>
+        <streams.cta.extraction.Photons/>
+        <streams.cta.io.CTAExtractedEventPublisher addresses="tcp://*:555${copy.id}" />
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+    <process input="performance">
+        <streams.cta.io.JSONWriter url="file:./performance_publish_multi_extracted_events.json" keys="@datarate" writeblock="true"/>
+    </process>
+
+</application>
