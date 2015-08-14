@@ -1,4 +1,4 @@
-package streams.cta.io;
+package streams.cta.io.storm;
 
 import java.util.Map;
 
@@ -18,7 +18,7 @@ import backtype.storm.utils.Utils;
 /**
  * Created by alexey on 13/08/15.
  */
-public class ExclamationTopology {
+public class TestTopology {
 
     public static class ExclamationBolt extends BaseRichBolt {
         OutputCollector _collector;
