@@ -12,14 +12,17 @@
 
     <property name="num_copies" value="1" />
 
-    <stream id="cta:data_${copy.id}" class="streams.cta.io.RecursiveDirectoryStream"
-            suffix=".kryo" url="file:${infile}" copies="${num_copies}">
-        <stream id="cta:data" class="streams.cta.io.KryoStream"/>
-    </stream>
+    <stream id="cta:data" class="streams.cta.io.SyntheticEventStream"/>
+
+    <!--<stream id="cta:data_${copy.id}" class="streams.cta.io.RecursiveDirectoryStream"-->
+            <!--suffix=".kryo" url="file:${infile}" copies="${num_copies}">-->
+        <!--<stream id="cta:data" class="streams.cta.io.KryoStream"/>-->
+    <!--</stream>-->
 
 
-    <process input="cta:data_${copy.id}" copies="${num_copies}">
+    <process input="cta:data" copies="${num_copies}">
         <streams.cta.io.CTAEventPublisher />
+        <streams.DataRate/>
     </process>
     <!--<process input="cta:data2" copies="1">-->
         <!--<stream.monitor.DataRate every="100"/>-->
