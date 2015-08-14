@@ -50,6 +50,8 @@ public class KryoStream extends AbstractStream {
         try {
             Data item = DataFactory.create(kryo.readObject(input, map.getClass()));
             itemCounter++;
+            //the kryo files contain keys for datarate which have been produced while writing these files.
+            item.remove("@datarate");
             return item;
         } catch (KryoException e){
             log.error("Underflow Exception. End of file reached?");

@@ -61,8 +61,8 @@ public class JSONWriter implements StatefulProcessor {
 
     @Override
     public Data process(Data data) {
-        Data item = DataFactory.create();
 
+        Data item = DataFactory.create();
         String[] evKeys = {"@stream"};
         for(String key : evKeys) {
             if (data.containsKey(key)) {

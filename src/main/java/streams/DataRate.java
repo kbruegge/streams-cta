@@ -58,7 +58,9 @@ public class DataRate implements StatefulProcessor {
             if (!silent) {
                 log.info("Current Data rate per second: " + dataRatePerSecond);
             }
+
             input.put("@datarate", dataRatePerSecond);
+
             stopwatch.reset();
             stopwatch.start();
             itemCounter = 0;
