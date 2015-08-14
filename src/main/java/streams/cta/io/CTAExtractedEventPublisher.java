@@ -8,17 +8,20 @@ import stream.Data;
 import stream.ProcessContext;
 import stream.StatefulProcessor;
 import stream.annotations.Parameter;
+import streams.cta.CTAExtractedDataProcessor;
 import streams.cta.CTARawDataProcessor;
 import streams.cta.CTATelescope;
+import streams.cta.container.ExtractedData;
+
 import java.time.LocalDateTime;
 
 /**
  *
  * Created by kai on 11.08.15.
  */
-public class CTAEventPublisher extends CTARawDataProcessor implements StatefulProcessor {
+public class CTAExtractedEventPublisher extends CTAExtractedDataProcessor implements StatefulProcessor {
 
-    static Logger log = LoggerFactory.getLogger(CTAEventPublisher.class);
+    static Logger log = LoggerFactory.getLogger(CTAExtractedEventPublisher.class);
 
     private ZMQ.Socket publisher;
     private ZMQ.Context context;
@@ -27,27 +30,6 @@ public class CTAEventPublisher extends CTARawDataProcessor implements StatefulPr
 
     @Parameter(required = false)
     String[] addresses = {"tcp://*:5556"};
-
-    @Override
-    public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, short[][] eventData) {
-
-
-        java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocate(telescope.type.numberOfPixel * eventData[0].length * 2);
-        for (short[] arr : eventData) {
-            bb.asShortBuffer().put(arr);
-        }
-
-
-//        System.out.println("Sending data and waiting 1 second");
-        byte[] data = bb.array();
-        data[0] = 1;
-        data[1] = 0;
-        data[2] = 1;
-        data[3] = 0;
-        data[4] = 1;
-        publisher.send(bb.array(),0);
-        return input;
-    }
 
     @Override
     public void init(ProcessContext processContext) throws Exception {
@@ -76,4 +58,23 @@ public class CTAEventPublisher extends CTARawDataProcessor implements StatefulPr
         this.addresses = addresses;
     }
 
+    @Override
+    public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, double[] photons, double[] arrivalTimes) {
+
+        java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocate((photons.length + arrivalTimes.length) * 8);
+
+        bb.asDoubleBuffer().put(photons);
+        bb.asDoubleBuffer().put(arrivalTimes);
+
+
+        //        System.out.println("Sending data and waiting 1 second");
+        byte[] data = bb.array();
+        data[0] = 1;
+        data[1] = 0;
+        data[2] = 1;
+        data[3] = 0;
+        data[4] = 1;
+        publisher.send(bb.array(), 0);
+        return input;
+    }
 }

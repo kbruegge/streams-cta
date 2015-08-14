@@ -46,8 +46,12 @@ public class EventIOStream extends AbstractStream {
             required = false,
             description = "This value defines the size of the buffer of the BufferedInputStream",
             defaultValue = "8*1024")
-
     private int bufferSize = 8 * 1024;
+
+    @Parameter(required = false,
+            description = "In case an error occurs while reading eventio just ignore the file and return null",
+            defaultValue = "false")
+    private boolean ignoreErrors = false;
 
     public EventIOStream(SourceURL url) {
         super(url);
@@ -84,6 +88,7 @@ public class EventIOStream extends AbstractStream {
         importEventioRegisteredDatatypes();
 
         numberEvents = 0;
+        log.info("Start reading " + url + " ignore erros: " + ignoreErrors);
     }
 
     @Override
@@ -222,5 +227,9 @@ public class EventIOStream extends AbstractStream {
 
     public void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
+    }
+
+    public void setIgnoreErrors(boolean ignoreErrors) {
+        this.ignoreErrors = ignoreErrors;
     }
 }

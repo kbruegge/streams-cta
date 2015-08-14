@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.Random;
 
 import stream.Data;
+import stream.annotations.Parameter;
 import stream.data.DataFactory;
 import stream.io.AbstractStream;
 import streams.cta.CTATelescope;
@@ -22,9 +23,12 @@ public class SyntheticEventStream extends AbstractStream {
 
     Random random = new Random();
     byte[] randomBytes;
+	Random random = new Random();
     short[][] data;
 
     int counter;
+    @Parameter(required = false)
+    int delay = 0;
 
 
     long eventId = 1;
@@ -67,15 +71,23 @@ public class SyntheticEventStream extends AbstractStream {
 //            random.nextBytes(randomBytes);
 //            ByteBuffer.wrap(randomBytes).asShortBuffer().get(data[pixel]);
         }
+        try {
+            Thread.sleep(delay);
+        } catch(InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
 
-
-        Data item = DataFactory.create();
-        item.put("@raw_data", data);
-        item.put("@telescope", telescope);
-        item.put("@timestamp", LocalDateTime.now());
-        item.put("@source", this.getClass().getSimpleName());
+		Data item = DataFactory.create();
+		item.put("@raw_data", data);
+		item.put("@telescope", telescope);
+		item.put("@timestamp", LocalDateTime.now());
+		item.put("@source", this.getClass().getSimpleName());
 
         eventId++;
-        return item;
+		return item;
+	}
+
+    public void setDelay(int delay) {
+        this.delay = delay;
     }
 }
