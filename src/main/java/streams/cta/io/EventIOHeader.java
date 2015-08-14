@@ -100,7 +100,7 @@ public class EventIOHeader {
         // bits 0 to 15 are used for typeString information
         type = typeField & 0x0000ffff;
 
-        if (reset){
+        if (reset) {
             buffer.dataStream.reset();
             return true;
         }
@@ -224,7 +224,7 @@ public class EventIOHeader {
      *
      * @return true, if marker was found; otherwise false.
      */
-    public boolean findSynchronisationMarker() {
+    public boolean findSynchronisationMarker() throws IOException {
         int firstBit = 0;
         int reverse = 1;
         int state = 0;
@@ -262,8 +262,8 @@ public class EventIOHeader {
                 }
 
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error("Available buffer in datastream: " + buffer.dataStream.available());
         }
         return false;
     }
