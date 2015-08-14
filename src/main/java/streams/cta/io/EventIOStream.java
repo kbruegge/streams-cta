@@ -108,20 +108,27 @@ public class EventIOStream extends AbstractStream {
                     case Constants.TYPE_EVENT:
                         if (!eventData.event.readFullEvent(buffer, -1)) {
                             log.error("Error happened while reading full event data.");
+                            break;
                         }
-                        numberEvents++;
-                        eventFound = true;
 
                         //TODO: add more telescope data into the item
-                        item.put("@raw_data", eventData.event.teldata[0].raw.adcSample[0]);
-                        item.put("@timestamp", eventData.event.central.cpuTime.getAsLocalDateTime());
-                        if(data.length == 1855){
-                        	item.put("@telescope", new CTATelescope(CTATelescopeType.LST, 12, 0, 0, 0, null, null, null));
-                    	} else if(data.length == 2048) {
-	                        item.put("@telescope", new CTATelescope(CTATelescopeType.SST_CHEC, 13, 0, 0, 0, null, null, null));
-    	                } else if(data.length == 11328){
-        	                item.put("@telescope", new CTATelescope(CTATelescopeType.MST_GATE, 13, 0, 0, 0, null, null, null));
-            	        }
+                        short[][] data;
+                        if (eventData.event.teldata[0] != null){
+                            numberEvents++;
+                            data = eventData.event.teldata[0].raw.adcSample[0];
+                            item.put("@raw_data", data);
+                            item.put("@timestamp", eventData.event.central.cpuTime.getAsLocalDateTime());
+                            if(data.length == 1855){
+                                item.put("@telescope", new CTATelescope(CTATelescopeType.LST, 12, 0, 0, 0, null, null, null));
+                            } else if(data.length == 2048) {
+                                item.put("@telescope", new CTATelescope(CTATelescopeType.SST_CHEC, 13, 0, 0, 0, null, null, null));
+                            } else if(data.length == 11328){
+                                item.put("@telescope", new CTATelescope(CTATelescopeType.MST_GATE, 13, 0, 0, 0, null, null, null));
+                            }
+                            eventFound = true;
+                        }else{
+                            log.error("Telescope event data is missing.");
+                        }
                         break;
                     case Constants.TYPE_RUNHEADER:
 
@@ -144,6 +151,7 @@ public class EventIOStream extends AbstractStream {
 
             } else {
                 log.info("No further items in the file.");
+                log.info(numberEvents + " events has been processed.");
                 return null;
             }
         }
