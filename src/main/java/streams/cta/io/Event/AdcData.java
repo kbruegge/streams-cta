@@ -164,8 +164,8 @@ public class AdcData {
                 }
 
                 significant = new short[(int) numPixels];
-                adcKnown = new boolean[(int) numGains][(int) numPixels];
-                adcSum = new int[(int) numGains][(int) numPixels];
+                adcKnown = new boolean[numGains][(int) numPixels];
+                adcSum = new int[numGains][(int) numPixels];
 
                 // Without zero-suppression and data-reduction, every channel is known
                 // but if either is z.s. or d.r. is on, a channel is only known
@@ -610,9 +610,9 @@ public class AdcData {
         listSize = 0;
 
         significant = new short[(int) numPixels];
-        adcKnown = new boolean[(int) numGains][(int) numPixels];
-        adcSum = new int[(int) numGains][(int) numPixels];
-        adcSample = new short[(int) numGains][(int) numPixels][numSamples];
+        adcKnown = new boolean[numGains][(int) numPixels];
+        adcSum = new int[numGains][(int) numPixels];
+        adcSample = new short[numGains][(int) numPixels][numSamples];
     }
 
     public boolean readTelACSSamples(EventIOBuffer buffer, int what) {
@@ -652,9 +652,9 @@ public class AdcData {
                 }
 
                 // initialize adcSample array
-                adcSample = new short[(int) numGains][(int) numPixels][numSamples];
-                adcKnown = new boolean[(int) numGains][(int) numPixels];
-                adcSum = new int[(int) numGains][(int) numPixels];
+                adcSample = new short[numGains][(int) numPixels][numSamples];
+                adcKnown = new boolean[numGains][(int) numPixels];
+                adcSum = new int[numGains][(int) numPixels];
                 significant = new short[(int) numPixels];
 
                 if (zeroSupMode != 0) {
@@ -719,9 +719,10 @@ public class AdcData {
                         }
                     }
                 } else {
+                    boolean versionGT3 = version < 3;
                     for (int igain = 0; igain < numGains; igain++) {
                         for (int ipix = 0; ipix < numPixels; ipix++) {
-                            if (version < 3) {
+                            if (versionGT3) {
                                 for (int isample = 0; isample < numSamples; isample++) {
                                     //adcSample[igain][ipix] = buffer.readVectorOfUnsignedShort(numSamples);
                                     int value = buffer.readUnsignedShort();
@@ -781,7 +782,7 @@ public class AdcData {
 
             // TODO check if the SHORT cast is ok
             if (thisAmp > Short.MAX_VALUE) {
-                log.error("ADC Sample data contains unsigned short values.");
+                log.error("ADC Sample data contains unsigned short values: " + thisAmp);
             }
             adcSample[ibin] = (short) thisAmp;
             prevAmp = thisAmp;
