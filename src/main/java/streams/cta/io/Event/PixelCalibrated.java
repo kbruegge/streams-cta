@@ -85,7 +85,7 @@ public class PixelCalibrated {
                     return false;
                 }
                 telId = header.getIdentification();
-                int npix = (int) buffer.readCount();
+                int npix = (int) buffer.readCount64();
                 if (npix > H_MAX_PIX) {
                     log.error("Invalid number of pixels in calibrated pixel intensities: " + npix);
                     header.getItemEnd();

@@ -37,8 +37,6 @@ public class EventIOStream extends AbstractStream {
 
     int numberEvents;
 
-    int numberRuns;
-
     public static HashMap<Integer, String> eventioTypes;
 
     public EventIOData eventData;
@@ -96,13 +94,13 @@ public class EventIOStream extends AbstractStream {
     @Override
     public Data readNext() throws Exception {
 
-        Data item = null;
+        Data item = DataFactory.create();
+        int numberRuns = 0;
+        EventIOHeader header = new EventIOHeader(buffer);
         boolean eventFound = false;
-        numberRuns = 0;
         while (!eventFound) {
             numberRuns++;
-            EventIOHeader header = new EventIOHeader(buffer);
-            if (header.findAndReadNextHeader(true)) {
+            if (header.findSyncMarkerAndType()) {
 //                if (header.type == Constants.TYPE_MCSHOWER) {
 //                    if (eventData.mcShower == null){
 //                        eventData.mcShower = new MCShower();
@@ -111,61 +109,55 @@ public class EventIOStream extends AbstractStream {
 //                        log.error("Error happened while reading MC Shower.");
 //                    }
 //                } else
-                if (header.type == Constants.TYPE_EVENT) {
-                    item = DataFactory.create();
-                    if (eventData.event == null) {
-                        eventData.event = new FullEvent();
-                    }
-                    if (!eventData.event.readFullEvent(buffer, -1)) {
-                        log.error("Error happened while reading full event data.");
-                    }
-                    numberEvents++;
-                    eventFound = true;
-
-                    //TODO: add more telescope data into the item
-                    try {
-                        short[][] data = eventData.event.teldata[0].raw.adcSample[0];
-                        LocalDateTime localDateTime = eventData.event.central.cpuTime.getAsLocalDateTime();
-                        item.put("@raw_data", data);
-                        item.put("@timestamp", localDateTime);
-                        if(data.length == 1855){
-                            item.put("@telescope", new CTATelescope(CTATelescopeType.LST, 12, 0, 0, 0, null, null, null));
-                        } else if(data.length == 2048) {
-                            item.put("@telescope", new CTATelescope(CTATelescopeType.SST_CHEC, 13, 0, 0, 0, null, null, null));
-                        } else if(data.length == 11328){
-                            item.put("@telescope", new CTATelescope(CTATelescopeType.MST_GATE, 13, 0, 0, 0, null, null, null));
+                switch (header.type){
+                    case Constants.TYPE_EVENT:
+                        if (!eventData.event.readFullEvent(buffer, -1)) {
+                            log.error("Error happened while reading full event data.");
+                            break;
                         }
-                    } catch (Exception e){
-                        if(ignoreErrors)
-                        {
-                            log.error("Ignoring Exception while reading eventio return null. YOLO!!! ");
-                            return null;
-                        } else {
-                            throw e;
+
+                        //TODO: add more telescope data into the item
+                        short[][] data;
+                        if (eventData.event.teldata[0] != null){
+                            numberEvents++;
+                            data = eventData.event.teldata[0].raw.adcSample[0];
+                            item.put("@raw_data", data);
+                            item.put("@timestamp", eventData.event.central.cpuTime.getAsLocalDateTime());
+                            if(data.length == 1855){
+                                item.put("@telescope", new CTATelescope(CTATelescopeType.LST, 12, 0, 0, 0, null, null, null));
+                            } else if(data.length == 2048) {
+                                item.put("@telescope", new CTATelescope(CTATelescopeType.SST_CHEC, 13, 0, 0, 0, null, null, null));
+                            } else if(data.length == 11328){
+                                item.put("@telescope", new CTATelescope(CTATelescopeType.MST_GATE, 13, 0, 0, 0, null, null, null));
+                            }
+                            eventFound = true;
+                        }else{
+                            log.error("Telescope event data is missing.");
                         }
-                    }
-
-                } else if (header.type == Constants.TYPE_RUNHEADER) {
-
-                    //TODO some summary from previous runs (original code)
-
-                    if (!eventData.runHeader.readRunHeader(buffer)) {
-                        log.error("Error happened while reading run header.");
                         break;
-                    }
+                    case Constants.TYPE_RUNHEADER:
 
-                    eventData.event = initFullEvent(eventData.runHeader.numberTelescopes);
+                        //TODO some summary from previous runs (original code)
 
-                    //TODO skip some runs
-                } else {
-                    header.findAndReadNextHeader();
-                    buffer.skipBytes((int) header.length);
-                    header.getItemEnd();
+                        if (!eventData.runHeader.readRunHeader(buffer)) {
+                            log.error("Error happened while reading run header.");
+                            return null;
+                        }
+
+                        eventData.event = initFullEvent(eventData.runHeader.numberTelescopes);
+
+                        //TODO skip some runs
+                        break;
+                    default:
+                        header.findAndReadNextHeader();
+                        buffer.skipBytes((int) header.length);
+                        header.getItemEnd();
                 }
 
             } else {
                 log.info("No further items in the file.");
-                break;
+                log.info(numberEvents + " events has been processed.");
+                return null;
             }
         }
         byteOrder = Constants.LITTLE_ENDIAN;

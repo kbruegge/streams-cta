@@ -106,78 +106,81 @@ public class CentralEvent {
                     log.error("Unsupported central event version: " + header.getVersion());
                     header.getItemEnd();
                     return false;
-                } else {
-                    globCount = (int) header.getIdentification();
-                    cpuTime.readTime(buffer);
-                    gpsTime.readTime(buffer);
-                    teltrgPattern = buffer.readInt32();
-                    teldataPattern = buffer.readInt32();
+                }
+                globCount = (int) header.getIdentification();
+                cpuTime.readTime(buffer);
+                gpsTime.readTime(buffer);
+                teltrgPattern = buffer.readInt32();
+                teldataPattern = buffer.readInt32();
 
-                    if (header.getVersion() >= 1) {
-                        numTelTriggered = buffer.readShort();
+                if (header.getVersion() >= 1) {
+                    numTelTriggered = buffer.readShort();
 
-                        if (numTelTriggered > Constants.H_MAX_TEL) {
-                            log.error("Invalid number of triggered telescopes " + numTelTriggered
-                                    + " in central trigger block for event " + globCount);
-                            numTelTriggered = 0;
-                            header.getItemEnd();
-                            return false;
-                        }
-
-                        teltrgList = buffer.readVectorOfShorts(numTelTriggered);
-                        teltrgTime = buffer.readVectorOfFloats(numTelTriggered);
-                        numTelData = buffer.readShort();
-
-                        if (numTelData > Constants.H_MAX_TEL) {
-                            log.error("Invalid number of telescopes with data " + numTelData
-                                    + " in central trigger block for event " + globCount);
-                            numTelData = 0;
-                            header.getItemEnd();
-                            return false;
-                        }
-
-                        teldataList = buffer.readVectorOfShorts(numTelData);
-                    } else {
+                    if (numTelTriggered > Constants.H_MAX_TEL) {
+                        log.error("Invalid number of triggered telescopes " + numTelTriggered
+                                + " in central trigger block for event " + globCount);
                         numTelTriggered = 0;
-                        numTelData = 0;
+                        header.getItemEnd();
+                        return false;
                     }
 
-                    // initialize arrays with the needed number of telescopes
-                    initArrays(numTelTriggered);
+                    teltrgList = buffer.readVectorOfShorts(numTelTriggered);
+                    teltrgTime = buffer.readVectorOfFloats(numTelTriggered);
+                    numTelData = buffer.readShort();
 
-                    //TODO wtf? versions greater than 2 are not supported so just check for ==2?
-                    if (header.getVersion() >= 2) {
-                        for (int i = 0; i < numTelTriggered; i++) {
-                            //TODO first check for reading count!!! add different versions for 16, 32, 64
-                            teltrgTypeMask[i] = (int) buffer.readCount();
+                    if (numTelData > Constants.H_MAX_TEL) {
+                        log.error("Invalid number of telescopes with data " + numTelData
+                                + " in central trigger block for event " + globCount);
+                        numTelData = 0;
+                        header.getItemEnd();
+                        return false;
+                    }
+
+                    teldataList = buffer.readVectorOfShorts(numTelData);
+                } else {
+                    numTelTriggered = 0;
+                    numTelData = 0;
+                }
+
+                // initialize arrays with the needed number of telescopes
+                initArrays(numTelTriggered);
+
+                //TODO wtf? versions greater than 2 are not supported so just check for ==2?
+                if (header.getVersion() == 2) {
+                    for (int i = 0; i < numTelTriggered; i++) {
+                        long value = buffer.readCount32();
+                        if (value > Integer.MAX_VALUE) {
+                            log.error("Telescope triggered type mask was higher value " +
+                                    "than Integer.MAX_VALUE.");
                         }
-                        for (int telCount = 0; telCount < numTelTriggered; telCount++) {
-                            int ntt = 0;
+                        teltrgTypeMask[i] = (int) value;
+                    }
+                    for (int telCount = 0; telCount < numTelTriggered; telCount++) {
+                        int ntt = 0;
+                        for (int triggers = 0; triggers < Constants.MAX_TEL_TRIGGERS; triggers++) {
+                            if ((teltrgTypeMask[telCount] & (1 << triggers)) == 1) {
+                                ntt++;
+                                teltrgTimeByType[telCount][triggers] = teltrgTime[telCount];
+                            } else {
+                                teltrgTimeByType[telCount][triggers] = 9999;
+                            }
+                        }
+
+                        if (ntt > 1) {
                             for (int triggers = 0; triggers < Constants.MAX_TEL_TRIGGERS; triggers++) {
                                 if ((teltrgTypeMask[telCount] & (1 << triggers)) == 1) {
-                                    ntt++;
-                                    teltrgTimeByType[telCount][triggers] = teltrgTime[telCount];
-                                } else {
-                                    teltrgTimeByType[telCount][triggers] = 9999;
-                                }
-                            }
-
-                            if (ntt > 1) {
-                                for (int triggers = 0; triggers < Constants.MAX_TEL_TRIGGERS; triggers++) {
-                                    if ((teltrgTypeMask[telCount] & (1 << triggers)) == 1) {
-                                        teltrgTimeByType[telCount][triggers] = buffer.readFloat();
-                                    }
+                                    teltrgTimeByType[telCount][triggers] = buffer.readFloat();
                                 }
                             }
                         }
-                    } else {
-                        for (int telCount = 0; telCount < numTelTriggered; telCount++) {
-                            // older data was always majority trigger
-                            teltrgTypeMask[telCount] = 1;
-                            teltrgTimeByType[telCount][0] = teltrgTime[telCount];
-                            teltrgTimeByType[telCount][1] = 9999;
-                            teltrgTimeByType[telCount][2] = 9999;
-                        }
+                    }
+                } else {
+                    for (int telCount = 0; telCount < numTelTriggered; telCount++) {
+                        // older data was always majority trigger
+                        teltrgTypeMask[telCount] = 1;
+                        teltrgTimeByType[telCount][0] = teltrgTime[telCount];
+                        teltrgTimeByType[telCount][1] = 9999;
+                        teltrgTimeByType[telCount][2] = 9999;
                     }
                 }
             }

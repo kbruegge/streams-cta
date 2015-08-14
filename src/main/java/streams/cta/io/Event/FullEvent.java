@@ -109,6 +109,8 @@ public class FullEvent {
                             log.error("Error reading central event.");
                             break;
                         }
+                        teldata = new TelEvent[central.numTelTriggered];
+                        trackdata = new TrackEvent[H_MAX_TEL];
                     } else if (isTrackEvent(type)) {
                         // read trackevent
                         int telId = (type - TYPE_TRACK_EVENT) % 100 +
@@ -138,7 +140,8 @@ public class FullEvent {
                         teldata[telNumber] = new TelEvent((short) telId);
                         if (!teldata[telNumber].readTelEvent(buffer, what)) {
                             log.error("Error reading telescope event.");
-                            break;
+                            header.getItemEnd();
+                            return false;
                         }
 
                         if ((numTeldata < H_MAX_TEL) && teldata[telNumber].known) {

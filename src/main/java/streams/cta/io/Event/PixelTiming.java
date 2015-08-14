@@ -207,15 +207,16 @@ public class PixelTiming {
                 peakGlobal = buffer.readFloat();
 
                 // initialize arrays
-                timval = new float[numPixels][numTypes];
+                timval = new float[numPixels][];
                 pulseSumLoc = new int[numGains][numPixels];
                 pulseSumGlob = new int[numGains][numPixels];
 
                 // The first timing element is always initialised to indicate unknown.
-                for (int i = 0; i < numPixels; i++) {
-                    timval[i][0] = -1f;
-                }
+//                for (int i = 0; i < numPixels; i++) {
+//                    timval[i][0] = -1f;
+//                }
 
+                boolean versNotNull = v0 != 0;
                 for (int i = 0; i < listSize; i++) {
                     int k1, k2;
                     if (listType == 1) {
@@ -226,18 +227,19 @@ public class PixelTiming {
                         k2 = pixelList[2 * i + 1];
                     }
                     for (int ipix = k1; ipix <= k2; ipix++) {
+                        timval[ipix] = new float[numTypes];
                         for (int j = 0; j < numTypes; j++) {
                             timval[ipix][j] = scale * buffer.readShort();
                         }
                         if (withSum != 0) {
                             for (int igain = 0; igain < numGains; igain++) {
-                                pulseSumLoc[igain][ipix] = (v0 != 0 ?
+                                pulseSumLoc[igain][ipix] = (versNotNull ?
                                         buffer.readShort() : buffer.readSCount32());
                             }
                             if (globOnlySelected != 0) {
                                 for (int igain = 0; igain < numGains; igain++) {
                                     pulseSumGlob[igain][ipix] =
-                                            (v0 != 0 ? buffer.readShort() : buffer.readSCount32());
+                                            (versNotNull ? buffer.readShort() : buffer.readSCount32());
                                 }
                             }
                         }
@@ -248,7 +250,7 @@ public class PixelTiming {
                     for (int igain = 0; igain < numGains; igain++) {
                         for (int j = 0; j < numPixels; j++) {
                             pulseSumGlob[igain][j] =
-                                    (v0 != 0 ? buffer.readShort() : buffer.readSCount32());
+                                    (versNotNull ? buffer.readShort() : buffer.readSCount32());
                         }
                     }
                 }
