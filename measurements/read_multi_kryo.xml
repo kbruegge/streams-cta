@@ -24,7 +24,7 @@
     </process>
 
     <process input="performance">
-        <streams.cta.io.JSONWriter url="file:./performance.json" keys="@datarate" writeblock="true"/>
+        <streams.cta.io.JSONWriter url="file:./performance_multi_kryo.json" keys="@datarate" writeblock="true"/>
     </process>
 
 </application>
