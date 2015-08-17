@@ -1,0 +1,19 @@
+<application>
+    
+
+    <stream id="cta:data_%{copy.id}" class="streams.cta.io.CTAEventSubscriber"
+             addresses="tcp://129.217.160.177:5556"/>
+
+
+    <process input="cta:data_%{copy.id}">
+        <streams.DataRate every="50"/>
+        <streams.cta.extraction.ByteSum />
+        <RemoveKeys keys="data_bytes" />
+        <!--<PrintData/>-->
+        <!--<streams.cta.io.CTAEventPublisher addresses="tcp://*:5555" />-->
+        <!--TODO: extract some stuff. need serialized objects-->
+        <streams.cta.io.JSONWriter url="file:./storm_test.json" keys="data_sum" writeblock="true"/>
+    </process>
+
+    
+</application>

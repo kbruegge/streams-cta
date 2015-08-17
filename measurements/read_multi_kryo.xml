@@ -20,11 +20,13 @@
     <process input="cta:data_${copy.id}" copies="${num_copies}">
         <!--<stream.monitor.DataRate every="400"/>-->
         <streams.DataRate every="500" silent="false"/>
+        <streams.cta.extraction.ArrivalTime/>
+        <streams.cta.extraction.Photons/>
         <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
     </process>
 
     <process input="performance">
-        <streams.cta.io.JSONWriter url="file:./performance_multi_kryo.json" keys="@datarate" writeblock="true"/>
+        <streams.cta.io.JSONWriter url="file:./performance_multi_kryo_cpu_ramdisk_${num_copies}.json" keys="@datarate" writeblock="true"/>
     </process>
 
 </application>
