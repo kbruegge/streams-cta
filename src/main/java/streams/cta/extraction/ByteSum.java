@@ -2,6 +2,7 @@ package streams.cta.extraction;
 
 import stream.Data;
 import stream.ProcessContext;
+import stream.Processor;
 import stream.StatefulProcessor;
 import streams.cta.CTARawDataProcessor;
 import streams.cta.CTATelescope;
@@ -9,45 +10,22 @@ import streams.cta.CTATelescope;
 import java.time.LocalDateTime;
 
 /**
+ * Just a test processor  that sums ob bytes from an array. this will be used as long as we have no protobufs to serialize events from zmq
  * Created by kai on 11.08.15.
  */
-public class ByteSum extends CTARawDataProcessor implements StatefulProcessor {
+public class ByteSum implements Processor {
 
-    double[] photons;
-    long nonLSTCounter = 0;
+     @Override
+    public Data process(Data input) {
+         byte[] data = (byte[]) input.get("data_bytes");
+         long sum = 0;
+         if(data != null){
 
-    @Override
-    public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, short[][] eventData) {
-
-        if(eventData.length != 1855){
-            nonLSTCounter++;
-            return input;
-        }
-
-        photons = new double[telescope.type.numberOfPixel];
-        for (int pixel = 0; pixel < telescope.type.numberOfPixel; pixel++) {
-            double sum = 0;
-            for (int slice = 0; slice < eventData[pixel].length; slice++) {
-                sum += eventData[pixel][slice];
-            }
-            photons[pixel] = sum;
-        }
-        input.put("photons", photons);
-        return input;
-    }
-
-    @Override
-    public void init(ProcessContext processContext) throws Exception {
-
-    }
-
-    @Override
-    public void resetState() throws Exception {
-        nonLSTCounter = 0;
-    }
-
-    @Override
-    public void finish() throws Exception {
-        System.out.println("Non LST telescope events: " + nonLSTCounter);
+             for (byte b : data){
+                 sum += b;
+             }
+             input.put("data_sum", sum);
+         }
+         return input;
     }
 }

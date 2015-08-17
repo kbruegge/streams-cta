@@ -1,26 +1,19 @@
 <application>
     
-    <!--<stream id="cta:data" class="streams.cta.io.SyntheticEventStream"-->
-        <!--limit="10000" />-->
-
-    <!--<property name="infile" value="/Users/kai/fact_phido/cta/gamma_20deg_0deg_run40814___cta-prod2_desert-1640m-Aar.simtel.gz" />-->
-    <!--<property name="outfile" value="./data.kryo" />-->
-    <property name="num_copies" value="1" />
 
     <stream id="cta:data_%{copy.id}" class="streams.cta.io.CTAEventSubscriber"
-             addresses="tcp://129.217.160.177:5556,tcp://129.217.160.98:5551"/>
-    <!--<stream id="cta:data" class="streams.cta.io.CTAEventSubscriber" addresses="tcp://129.217.160.98:5556"/>-->
+             addresses="tcp://129.217.160.177:5556"/>
 
 
-    <stream.io.BlockingQueue id="performance" />
-
-    <process input="cta:data_%{copy.id}" copies="${num_copies}">
+    <process input="cta:data_%{copy.id}">
         <streams.DataRate every="50"/>
-        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+        <streams.cta.extraction.ByteSum />
+        <RemoveKeys keys="data_bytes" />
+        <!--<PrintData/>-->
+        <!--<streams.cta.io.CTAEventPublisher addresses="tcp://*:5555" />-->
+        <!--TODO: extract some stuff. need serialized objects-->
+        <streams.cta.io.JSONWriter url="file:./storm_test.json" keys="data_sum" writeblock="true"/>
     </process>
 
-    <process input="performance">
-        <streams.cta.io.JSONWriter url="file:./performance_subscription.json" keys="@datarate" writeblock="true"/>
-    </process>
     
 </application>
