@@ -1,4 +1,4 @@
-package streams.cta.io.event;
+package streams.cta.io.eventio.event;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,9 +6,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 import streams.cta.Constants;
-import streams.cta.io.EventIOBuffer;
-import streams.cta.io.EventIOHeader;
-import streams.cta.io.HTime;
+import streams.cta.io.eventio.EventIOBuffer;
+import streams.cta.io.eventio.EventIOHeader;
+import streams.cta.io.eventio.HTime;
 
 /**
  * Event raw and image data from one telescope. Created by alexey on 30.06.15.

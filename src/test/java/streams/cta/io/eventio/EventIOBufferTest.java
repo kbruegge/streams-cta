@@ -1,4 +1,4 @@
-package streams.cta.io;
+package streams.cta.io.eventio;
 
 import org.junit.After;
 import org.junit.Before;
@@ -13,6 +13,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+
+import streams.cta.io.eventio.EventIOBuffer;
+import streams.cta.io.eventio.EventIOStream;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;

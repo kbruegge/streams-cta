@@ -1,8 +1,8 @@
-package streams.cta.io;
+package streams.cta.io.eventio;
 
-import streams.cta.io.event.FullEvent;
-import streams.cta.io.mcshower.MCShower;
-import streams.cta.io.runheader.RunHeader;
+import streams.cta.io.eventio.event.FullEvent;
+import streams.cta.io.eventio.mcshower.MCShower;
+import streams.cta.io.eventio.runheader.RunHeader;
 
 /**
  * EventIOData can be compared to AllHessData data type in hessioxxx Created by alexey on 24.06.15.

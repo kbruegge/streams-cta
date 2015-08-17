@@ -1,12 +1,12 @@
-package streams.cta.io.event;
+package streams.cta.io.eventio.event;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import streams.cta.io.EventIOBuffer;
-import streams.cta.io.EventIOHeader;
+import streams.cta.io.eventio.EventIOBuffer;
+import streams.cta.io.eventio.EventIOHeader;
 
 /**
  * Reconstructed shower parameters.

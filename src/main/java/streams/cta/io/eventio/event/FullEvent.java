@@ -1,13 +1,13 @@
-package streams.cta.io.event;
+package streams.cta.io.eventio.event;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import streams.cta.io.EventIOBuffer;
-import streams.cta.io.EventIOHeader;
-import streams.cta.io.HTime;
+import streams.cta.io.eventio.EventIOBuffer;
+import streams.cta.io.eventio.EventIOHeader;
+import streams.cta.io.eventio.HTime;
 
 import static streams.cta.Constants.H_MAX_TEL;
 import static streams.cta.Constants.TYPE_CENTRAL_EVENT;
@@ -60,7 +60,7 @@ public class FullEvent {
     /**
      * Data retrieved by RunHeader. It contains information about the telescopes ID.
      */
-    public short[] triggeredTelescopeIds;
+    //public short[] triggeredTelescopeIds;
 
     public FullEvent() {
         this(H_MAX_TEL);
@@ -74,7 +74,6 @@ public class FullEvent {
         teldata = new TelEvent[numberTelescopes];
         trackdata = new TrackEvent[numberTelescopes];
         teldataList = new int[numberTelescopes];
-        shower = new ShowerParameters();
         central = new CentralEvent();
     }
 
@@ -96,8 +95,6 @@ public class FullEvent {
                 // reset time
                 central.cpuTime = new HTime();
                 central.gpsTime = new HTime();
-
-                shower.known = 0;
 
                 int type = buffer.nextSubitemType();
                 short telNumber = 0;
@@ -151,6 +148,7 @@ public class FullEvent {
                         telNumber++;
                     } else if (type == TYPE_SHOWER) {
                         // read shower
+                        shower = new ShowerParameters();
                         if (!shower.readShower(buffer)) {
                             log.error("Error reading shower event.");
                             header.getItemEnd();

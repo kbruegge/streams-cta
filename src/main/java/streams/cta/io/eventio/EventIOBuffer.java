@@ -1,4 +1,4 @@
-package streams.cta.io;
+package streams.cta.io.eventio;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

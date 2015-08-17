@@ -1,8 +1,8 @@
-package streams.cta.io.mcshower;
+package streams.cta.io.eventio.mcshower;
 
 import java.io.IOException;
 
-import streams.cta.io.EventIOBuffer;
+import streams.cta.io.eventio.EventIOBuffer;
 
 /**
  * Type of profile (also determines units below).

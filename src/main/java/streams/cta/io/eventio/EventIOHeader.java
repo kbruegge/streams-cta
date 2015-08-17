@@ -1,4 +1,4 @@
-package streams.cta.io;
+package streams.cta.io.eventio;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 import streams.cta.Constants;
-import streams.cta.io.event.FullEvent;
+import streams.cta.io.eventio.event.FullEvent;
 
 /**
  * Header of EventIO file This class should read the header in front of the data block in EventIO

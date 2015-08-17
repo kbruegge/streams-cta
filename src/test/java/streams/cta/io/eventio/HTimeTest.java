@@ -1,4 +1,4 @@
-package streams.cta.io;
+package streams.cta.io.eventio;
 
 import org.junit.Test;
 
@@ -10,6 +10,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+
+import streams.cta.io.eventio.EventIOBuffer;
+import streams.cta.io.eventio.EventIOStream;
+import streams.cta.io.eventio.HTime;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;

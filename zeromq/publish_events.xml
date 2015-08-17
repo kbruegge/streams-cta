@@ -2,7 +2,7 @@
     
     <stream id="cta:data" class="streams.cta.io.SyntheticEventStream" delay="0" />
 
-    <!--<stream id="cta:data" class="streams.cta.io.EventIOStream" url="file:/Users/kai/Downloads/electron_20deg_90deg_run7683___cta-trg-test-LST4_desert_samplemode_test-250MHz.simtel"-->
+    <!--<stream id="cta:data" class="streams.cta.io.eventio.EventIOStream" url="file:/Users/kai/Downloads/electron_20deg_90deg_run7683___cta-trg-test-LST4_desert_samplemode_test-250MHz.simtel"-->
             <!--limit="1000" />-->
     <!--<property name="infile" value="/Users/kai/fact_phido/cta/" />-->
     <!--<stream id="cta:data" class="streams.cta.io.KryoStream" url="file:${infile}"/>-->

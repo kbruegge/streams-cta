@@ -1,4 +1,4 @@
-package streams.cta.io;
+package streams.cta.io.eventio;
 
 import java.io.IOException;
 import java.time.LocalDateTime;

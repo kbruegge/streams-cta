@@ -1,4 +1,4 @@
-package streams.cta.io;
+package streams.cta.io.eventio;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +11,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.HashMap;
 
 import stream.Data;
@@ -23,8 +21,7 @@ import stream.io.SourceURL;
 import streams.cta.CTATelescope;
 import streams.cta.CTATelescopeType;
 import streams.cta.Constants;
-import streams.cta.io.event.FullEvent;
-import streams.cta.io.mcshower.MCShower;
+import streams.cta.io.eventio.event.FullEvent;
 
 /**
  * Created by alexey on 02.06.15.
@@ -177,7 +174,7 @@ public class EventIOStream extends AbstractStream {
 
         event.numTel = numberTelescopes;
         //TODO numberTelescopes > H_MAX_TEL!?
-        event.triggeredTelescopeIds = eventData.runHeader.telId;
+        //event.triggeredTelescopeIds = eventData.runHeader.telId;
 //        for (int itel = 0; itel < numberTelescopes; itel++) {
 //            short telId = eventData.runHeader.telId[itel];
 

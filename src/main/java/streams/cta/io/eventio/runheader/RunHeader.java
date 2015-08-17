@@ -1,12 +1,12 @@
-package streams.cta.io.runheader;
+package streams.cta.io.eventio.runheader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import streams.cta.io.EventIOBuffer;
-import streams.cta.io.EventIOHeader;
+import streams.cta.io.eventio.EventIOBuffer;
+import streams.cta.io.eventio.EventIOHeader;
 
 /**
  * Run header common to measured and simulated data.

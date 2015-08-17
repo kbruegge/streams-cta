@@ -1,4 +1,4 @@
-package streams.cta.io.mcshower;
+package streams.cta.io.eventio.mcshower;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 import streams.cta.Constants;
-import streams.cta.io.EventIOBuffer;
-import streams.cta.io.EventIOHeader;
+import streams.cta.io.eventio.EventIOBuffer;
+import streams.cta.io.eventio.EventIOHeader;
 
 /**
  * Implementation of reading an MC Shower block from EventIO stream. For comparison consider
