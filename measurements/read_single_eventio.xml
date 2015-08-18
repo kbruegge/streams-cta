@@ -4,7 +4,7 @@
     <property name="infile" value="/Users/kai/fact_phido/cta/gamma_20deg_0deg_run35629___cta-prod2_desert-1640m-Aar.simtel.gz" />
 
 
-    <stream id="cta:data" class="streams.cta.io.EventIOStream" url="file:${infile}" ignoreErrors="true"/>
+    <stream id="cta:data" class="streams.cta.io.eventio.EventIOStream" url="file:${infile}" ignoreErrors="true"/>
 
 
     <process input="cta:data">

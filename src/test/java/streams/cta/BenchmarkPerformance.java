@@ -8,7 +8,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import stream.Data;
 import stream.io.SourceURL;
-import streams.cta.io.EventIOStream;
+import streams.cta.io.eventio.EventIOStream;
 
 /**
  * Created by kai on 02.06.15.

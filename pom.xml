@@ -1,10 +1,15 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>de.sfb876</groupId>
-	<artifactId>streams-cta</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>de.sfb876</groupId>
+    <artifactId>streams-cta</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
 
+    <properties>
+        <storm.scope>compile</storm.scope>
+        <streams.cta.version>0.9.22-SNAPSHOT</streams.cta.version>
+    </properties>
 
     <repositories>
         <repository>
@@ -15,24 +20,24 @@
     </repositories>
 
 
-	<dependencies>
+    <dependencies>
 
         <dependency>
             <groupId>org.jwall</groupId>
             <artifactId>streams-core</artifactId>
-            <version>0.9.22-SNAPSHOT</version>
+            <version>${streams.cta.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.jwall</groupId>
             <artifactId>streams-runtime</artifactId>
-            <version>0.9.22-SNAPSHOT</version>
+            <version>${streams.cta.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.jwall</groupId>
             <artifactId>streams-storm</artifactId>
-            <version>0.9.22-SNAPSHOT</version>
+            <version>${streams.cta.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.storm</groupId>
@@ -92,12 +97,13 @@
             <artifactId>jfreechart</artifactId>
             <version>1.0.19</version>
         </dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.10</version>
-			<scope>test</scope>
-		</dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
@@ -105,6 +111,7 @@
             <version>1.9.3</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-generator-annprocess</artifactId>
@@ -123,26 +130,26 @@
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-core</artifactId>
             <version>0.9.5</version>
-            <scope>compile</scope>
+            <scope>${storm.scope}</scope>
         </dependency>
 
-	</dependencies>
+    </dependencies>
 
 
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.0.2</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.0.2</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.1</version>
+                <version>2.4.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -152,17 +159,20 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <finalName>cta-tools-${project.version}</finalName>
+                    <finalName>cta-tools-${project.version}-storm-${storm.scope}}</finalName>
                     <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                             <manifestEntries>
-                                <Implementation-Vendor>Physik E5b, Informatik Lehrstuhl 8, TU Dortmund</Implementation-Vendor>
+                                <Implementation-Vendor>
+                                    Physik E5b, Informatik Lehrstuhl 8, TU Dortmund
+                                </Implementation-Vendor>
                                 <Implementation-Title>CTA Tools</Implementation-Title>
                                 <Implementation-Version>${project.version}</Implementation-Version>
-                                <Implementation-Revision>${project.version}</Implementation-Revision>
+                                <Implementation-Revision>${project.version}
+                                </Implementation-Revision>
                                 <Specification-Title>cta-tools</Specification-Title>
                                 <Specification-Version>1.0</Specification-Version>
-                                <main-class>stream.run</main-class>
+                                <main-class>storm.deploy</main-class>
                             </manifestEntries>
                         </transformer>
                     </transformers>
@@ -178,6 +188,153 @@
                     </filters>
                 </configuration>
             </plugin>
-		</plugins>
-	</build>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>
+                standalone
+            </id>
+            <activation>
+                <property>
+                    <name>standalone</name>
+                    <value>true</value>
+                </property>
+            </activation>
+
+            <properties>
+                <storm.scope>compile</storm.scope>
+            </properties>
+
+            <build>
+                <finalName>streams-storm-${project.version}-storm-compiled</finalName>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <version>2.4.1</version>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>log4j:log4j</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Implementation-Vendor>Christian Bockermann
+                                        </Implementation-Vendor>
+                                        <Implementation-Title>streams-storm</Implementation-Title>
+                                        <Implementation-URL>http://www.jwall.org/streams/
+                                        </Implementation-URL>
+                                        <Implementation-Version>${project.version}
+                                        </Implementation-Version>
+                                        <Implementation-Revision>${project.version}
+                                        </Implementation-Revision>
+                                        <Specification-Title>streams-storm</Specification-Title>
+                                        <Specification-Version>1.0</Specification-Version>
+                                        <main-class>storm.deploy</main-class>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>
+                deploy
+            </id>
+            <activation>
+                <property>
+                    <name>standalone</name>
+                    <value>true</value>
+                </property>
+            </activation>
+
+            <properties>
+                <storm.scope>provided</storm.scope>
+            </properties>
+
+            <build>
+                <finalName>streams-storm-${project.version}-storm-provided</finalName>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <version>2.4.1</version>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>log4j:log4j</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Implementation-Vendor>Christian Bockermann
+                                        </Implementation-Vendor>
+                                        <Implementation-Title>streams-storm</Implementation-Title>
+                                        <Implementation-URL>http://www.jwall.org/streams/
+                                        </Implementation-URL>
+                                        <Implementation-Version>${project.version}
+                                        </Implementation-Version>
+                                        <Implementation-Revision>${project.version}
+                                        </Implementation-Revision>
+                                        <Specification-Title>streams-storm</Specification-Title>
+                                        <Specification-Version>1.0</Specification-Version>
+                                        <main-class>storm.run</main-class>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
