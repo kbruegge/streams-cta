@@ -1,0 +1,122 @@
+<application>
+    
+    <!--<stream id="cta:data" class="streams.cta.io.SyntheticEventStream"-->
+        <!--limit="10000" />-->
+
+    <!--<stream id="cta:data" class="streams.cta.io.EventIOStream" url="file:/Users/kai/Downloads/electron_20deg_90deg_run7683___cta-trg-test-LST4_desert_samplemode_test-250MHz.simtel"-->
+            <!--limit="1000" />-->
+    <!--<property name="infile" value="/fhgfs/groups/app/fact/cta/" />-->
+
+    <property name="infile" value="/Users/kai/fact_phido/cta/cta_mc_data_copy_1.kryo" />
+
+    <property name="num_copies" value="1" />
+    <stream.io.BlockingQueue id="performance" />
+
+
+    <stream id="cta:data_1" class="streams.cta.io.KryoStream" url="file:${infile}"/>
+    <process input="cta:data_1">
+        <!--<stream.monitor.DataRate every="400"/>-->
+        <streams.DataRate every="500" silent="false"/>
+        <streams.cta.extraction.ArrivalTime/>
+        <streams.cta.extraction.Photons/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+
+    <stream id="cta:data_2" class="streams.cta.io.KryoStream" url="file:${infile}"/>
+    <process input="cta:data_2">
+        <!--<stream.monitor.DataRate every="400"/>-->
+        <streams.DataRate every="500" silent="false"/>
+        <streams.cta.extraction.ArrivalTime/>
+        <streams.cta.extraction.Photons/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+    <stream id="cta:data_3" class="streams.cta.io.KryoStream" url="file:${infile}"/>
+    <process input="cta:data_3">
+        <!--<stream.monitor.DataRate every="400"/>-->
+        <streams.DataRate every="500" silent="false"/>
+        <streams.cta.extraction.ArrivalTime/>
+        <streams.cta.extraction.Photons/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+    <stream id="cta:data_4" class="streams.cta.io.KryoStream" url="file:${infile}"/>
+    <process input="cta:data_4">
+        <!--<stream.monitor.DataRate every="400"/>-->
+        <streams.DataRate every="500" silent="false"/>
+        <streams.cta.extraction.ArrivalTime/>
+        <streams.cta.extraction.Photons/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+    <stream id="cta:data_5" class="streams.cta.io.KryoStream" url="file:${infile}"/>
+    <process input="cta:data_5">
+        <!--<stream.monitor.DataRate every="400"/>-->
+        <streams.DataRate every="500" silent="false"/>
+        <streams.cta.extraction.ArrivalTime/>
+        <streams.cta.extraction.Photons/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+    <stream id="cta:data_6" class="streams.cta.io.KryoStream" url="file:${infile}"/>
+    <process input="cta:data_6">
+        <!--<stream.monitor.DataRate every="400"/>-->
+        <streams.DataRate every="500" silent="false"/>
+        <streams.cta.extraction.ArrivalTime/>
+        <streams.cta.extraction.Photons/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+    <stream id="cta:data_7" class="streams.cta.io.KryoStream" url="file:${infile}"/>
+    <process input="cta:data_7">
+        <!--<stream.monitor.DataRate every="400"/>-->
+        <streams.DataRate every="500" silent="false"/>
+        <streams.cta.extraction.ArrivalTime/>
+        <streams.cta.extraction.Photons/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+    <stream id="cta:data_8" class="streams.cta.io.KryoStream" url="file:${infile}"/>
+    <process input="cta:data_8">
+        <!--<stream.monitor.DataRate every="400"/>-->
+        <streams.DataRate every="500" silent="false"/>
+        <streams.cta.extraction.ArrivalTime/>
+        <streams.cta.extraction.Photons/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+    <stream id="cta:data_9" class="streams.cta.io.KryoStream" url="file:${infile}"/>
+    <process input="cta:data_9">
+        <!--<stream.monitor.DataRate every="400"/>-->
+        <streams.DataRate every="500" silent="false"/>
+        <streams.cta.extraction.ArrivalTime/>
+        <streams.cta.extraction.Photons/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+    <stream id="cta:data_10" class="streams.cta.io.KryoStream" url="file:${infile}"/>
+    <process input="cta:data_10">
+        <!--<stream.monitor.DataRate every="400"/>-->
+        <streams.DataRate every="500" silent="false"/>
+        <streams.cta.extraction.ArrivalTime/>
+        <streams.cta.extraction.Photons/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+    <stream id="cta:data_11" class="streams.cta.io.KryoStream" url="file:${infile}"/>
+    <process input="cta:data_11">
+        <!--<stream.monitor.DataRate every="400"/>-->
+        <streams.DataRate every="500" silent="false"/>
+        <streams.cta.extraction.ArrivalTime/>
+        <streams.cta.extraction.Photons/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+
+    <process input="performance">
+        <streams.DataRate output="@total_rate" every="500" silent="false"/>
+        <streams.cta.io.JSONWriter url="file:./performance_single_kryo_cpu_ramdisk_11.json" keys="@datarate" writeblock="true"/>
+    </process>
+
+</application>
