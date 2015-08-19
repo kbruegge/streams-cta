@@ -1,0 +1,117 @@
+<application>
+    
+    <!--<stream id="cta:data" class="streams.cta.io.SyntheticEventStream"-->
+        <!--limit="10000" />-->
+
+    <!--<property name="infile" value="/Users/kai/fact_phido/cta/gamma_20deg_0deg_run40814___cta-prod2_desert-1640m-Aar.simtel.gz" />-->
+    <!--<property name="outfile" value="./data.kryo" />-->
+
+
+    <stream id="cta:data_1" class="streams.cta.io.protobuf.ProtoRawEventStream"
+             addresses="tcp://10.146.42.4:5556,tcp://10.146.42.4:5557"/>
+
+    <stream id="cta:data_2" class="streams.cta.io.protobuf.ProtoRawEventStream"
+            addresses="tcp://10.146.42.4:5557,tcp://10.146.42.4:5558"/>
+
+    <stream id="cta:data_3" class="streams.cta.io.protobuf.ProtoRawEventStream"
+            addresses="tcp://10.146.42.4:5558,tcp://10.146.42.4:5559"/>
+
+    <stream id="cta:data_4" class="streams.cta.io.protobuf.ProtoRawEventStream"
+            addresses="tcp://10.146.42.4:5559,tcp://10.146.42.4:5560"/>
+
+    <stream id="cta:data_5" class="streams.cta.io.protobuf.ProtoRawEventStream"
+            addresses="tcp://10.146.42.4:5560,tcp://10.146.42.4:5561"/>
+
+    <stream id="cta:data_6" class="streams.cta.io.protobuf.ProtoRawEventStream"
+            addresses="tcp://10.146.42.4:5561,tcp://10.146.42.4:5562"/>
+
+    <stream id="cta:data_7" class="streams.cta.io.protobuf.ProtoRawEventStream"
+            addresses="tcp://10.146.42.4:5562,tcp://10.146.42.4:5563"/>
+
+    <stream id="cta:data_8" class="streams.cta.io.protobuf.ProtoRawEventStream"
+            addresses="tcp://10.146.42.4:5563,tcp://10.146.42.4:5564"/>
+
+    <stream id="cta:data_9" class="streams.cta.io.protobuf.ProtoRawEventStream"
+            addresses="tcp://10.146.42.4:5564,tcp://10.146.42.4:5565"/>
+
+    <stream id="cta:data_10" class="streams.cta.io.protobuf.ProtoRawEventStream"
+            addresses="tcp://10.146.42.4:5565,tcp://10.146.42.4:5566"/>
+
+    <stream id="cta:data_11" class="streams.cta.io.protobuf.ProtoRawEventStream"
+            addresses="tcp://10.146.42.4:5566"/>
+
+    <!--<stream id="cta:data_10" class="streams.cta.io.protobuf.ProtoRawEventStream"-->
+            <!--addresses="tcp://10.146.42.4:5565"/>-->
+
+    <!--<stream id="cta:data_11" class="streams.cta.io.protobuf.ProtoRawEventStream"-->
+            <!--addresses="tcp://10.146.42.4:5566"/>-->
+    <!--<stream id="cta:data" class="streams.cta.io.CTAEventSubscriber" addresses="tcp://129.217.160.98:5556"/>-->
+
+
+    <stream.io.BlockingQueue id="performance" />
+
+    <process input="cta:data_1">
+           <streams.DataRate every="1000"/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+    <process input="cta:data_2">
+           <streams.DataRate every="1000"/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+    <process input="cta:data_3">
+           <streams.DataRate every="1000"/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+    <process input="cta:data_4">
+           <streams.DataRate every="1000"/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+    <process input="cta:data_5">
+           <streams.DataRate every="1000"/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+    <process input="cta:data_6">
+           <streams.DataRate every="1000"/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+    <process input="cta:data_7">
+           <streams.DataRate every="1000"/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+
+    <process input="cta:data_8">
+           <streams.DataRate every="1000"/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+
+    <process input="cta:data_9">
+           <streams.DataRate every="1000"/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+    <process input="cta:data_10">
+           <streams.DataRate every="1000"/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+    <process input="cta:data_11">
+           <streams.DataRate every="1000"/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
+
+
+
+
+    <process input="performance">
+        <!--<PrintData/>-->
+        <streams.cta.io.JSONWriter url="file:./performance_subscription_11_threads.json" keys="@datarate" writeblock="true"/>
+    </process>
+    
+</application>
