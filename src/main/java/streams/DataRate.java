@@ -28,6 +28,10 @@ public class DataRate implements StatefulProcessor {
     @Parameter(required = false, description = "Flags whether to print stuff to console during processing or not.")
     boolean silent = false;
 
+    @Parameter(required = false, description = "the key under which youll find the datarate in the item after calculating it.")
+    String output = "@datarate";
+
+
 
     SummaryStatistics statistics = new SummaryStatistics();
     private Stopwatch stopwatch;
@@ -56,10 +60,10 @@ public class DataRate implements StatefulProcessor {
             double dataRatePerSecond = 1000 * ((double) itemCounter) / (double)stopwatch.elapsed(TimeUnit.MILLISECONDS);
             statistics.addValue(dataRatePerSecond);
             if (!silent) {
-                log.info("Current Data rate per second: " + dataRatePerSecond);
+                log.info("Current Data rate " + output + "  per second: " + dataRatePerSecond);
             }
 
-            input.put("@datarate", dataRatePerSecond);
+            input.put(output, dataRatePerSecond);
 
             stopwatch.reset();
             stopwatch.start();
@@ -78,5 +82,9 @@ public class DataRate implements StatefulProcessor {
 
     public void setSilent(boolean silent) {
         this.silent = silent;
+    }
+
+    public void setOutput(String output) {
+        this.output = output;
     }
 }
