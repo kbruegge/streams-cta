@@ -54,7 +54,8 @@ public class KryoStream extends AbstractStream {
             item.remove("@datarate");
             return item;
         } catch (KryoException e){
-            log.error("Underflow Exception. End of file reached?");
+            log.error("Kryo Exception. End of file reached?");
+            e.printStackTrace();
             return null;
         }
     }
