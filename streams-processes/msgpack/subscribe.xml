@@ -8,7 +8,7 @@
 
 
     <stream id="cta:data_1" class="streams.cta.io.msgpack.MsgPackRawEventStream"
-             addresses="tcp://129.217.160.98:5556"/>
+             addresses="tcp://127.0.0.1:5556"/>
 
     <!--<stream id="cta:data_10" class="streams.cta.io.protobuf.ProtoRawEventStream"-->
             <!--addresses="tcp://10.146.42.4:5565"/>-->
@@ -21,7 +21,7 @@
     <!--<stream.io.BlockingQueue id="performance" />-->
 
     <process input="cta:data_1">
-        <streams.DataRate every="100"/>
+        <streams.DataRate every="10"/>
         <streams.cta.extraction.ArrivalTime/>
         <streams.cta.extraction.Photons/>
         <!--<Enqueue queues="performance" condition="%{data.@datarate} != null"/>-->

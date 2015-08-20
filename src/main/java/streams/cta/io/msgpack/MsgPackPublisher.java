@@ -1,12 +1,15 @@
 package streams.cta.io.msgpack;
 
 import org.msgpack.MessagePack;
+import org.msgpack.packer.MessagePackPacker;
+import org.msgpack.packer.Packer;
 import org.msgpack.template.ShortArrayTemplate;
 import org.msgpack.template.TemplateRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
@@ -41,34 +44,47 @@ public class MsgPackPublisher extends CTARawDataProcessor implements StatefulPro
         int roi = eventData[0].length;
         int numPixel = telescope.type.numberOfPixel;
 
-
-        RawCTAEvent rawEvent = new RawCTAEvent();
-        rawEvent.numPixel = numPixel;
-        rawEvent.telescopeId = telescope.telescopeId;
-        rawEvent.roi = roi;
-        rawEvent.messageType = "TR";
-
         short[] samples = new short[numPixel * roi];
         for (int pix = 0; pix < eventData.length; pix++) {
             for (int slice = 0; slice < roi; slice++) {
                 samples[pix * roi + slice] = eventData[pix][slice];
             }
         }
-        rawEvent.samples = samples;
 
         MessagePack msgpack = new MessagePack();
+
+        //
+        // Serialization
+        //
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Packer packer = msgpack.createPacker(out);
+
         // Serialize
         try {
-            byte[] bytes = msgpack.write(rawEvent);
-            publisher.send(bytes);
+            packer.write(numPixel);
+            packer.write(telescope.telescopeId);
+            packer.write(roi);
+            packer.write("TR");
+            packer.write(samples);
+            packer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Writing with packer went wrong.");
         }
+
+        byte[] arr = out.toByteArray();
+        publisher.send(arr);
         return input;
     }
 
     @Override
     public void init(ProcessContext processContext) throws Exception {
+        context = ZMQ.context(1);
+        publisher = context.socket(ZMQ.PUB);
+        for (String address : addresses) {
+            publisher.bind(address);
+            log.info("Binding to address: " + address);
+        }
+
         TemplateRegistry t = new TemplateRegistry(null);
         t.register(short[].class, ShortArrayTemplate.getInstance());
     }
@@ -88,5 +104,9 @@ public class MsgPackPublisher extends CTARawDataProcessor implements StatefulPro
         if (context != null) {
             context.term();
         }
+    }
+
+    public void setAddresses(String[] addresses) {
+        this.addresses = addresses;
     }
 }

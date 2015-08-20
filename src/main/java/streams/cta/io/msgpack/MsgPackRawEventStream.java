@@ -1,9 +1,12 @@
 package streams.cta.io.msgpack;
 
 import org.msgpack.MessagePack;
+import org.msgpack.unpacker.Unpacker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
+
+import java.io.ByteArrayInputStream;
 
 import stream.Data;
 import stream.annotations.Parameter;
@@ -33,19 +36,33 @@ public class MsgPackRawEventStream extends AbstractStream {
             log.info("Connecting to address: " + address);
             subscriber.connect(address);
         }
-        subscriber.subscribe(messageType);
+        subscriber.subscribe(new byte[]{-51});
     }
 
     @Override
     public Data readNext() throws Exception {
-        byte[] data = subscriber.recv(0);
-        MessagePack msgpack = new MessagePack();
+        byte[] data = subscriber.recv();
+        MessagePack messagePack = new MessagePack();
 
         // Deserialize
-        RawCTAEvent rawEvent = msgpack.read(data, RawCTAEvent.class);
+        //RawCTAEvent rawEvent = messagePack.read(data, RawCTAEvent.class);
+
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        Unpacker unpacker = messagePack.createUnpacker(in);
+
+        int numPixel = unpacker.readInt();
+        int telescopeId = unpacker.readInt();
+        int roi = unpacker.readInt();
+        String type = unpacker.read(String.class);
+        short[] samplesArr = unpacker.read(short[].class);
+
+        short[][] samples = new short[numPixel][roi];
+        for (int pix = 0; pix < numPixel; pix++) {
+            System.arraycopy(samplesArr, pix * roi, samples[pix], 0, roi);
+        }
 
         Data item = DataFactory.create();
-        item.put("@raw_data", rawEvent.samples);
+        item.put("@raw_data", samples);
         return item;
     }
 
