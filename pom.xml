@@ -9,6 +9,7 @@
     <properties>
         <storm.scope>compile</storm.scope>
         <streams.cta.version>0.9.22-SNAPSHOT</streams.cta.version>
+        <streams.jar>cta-tools-${project.version}</streams.jar>
     </properties>
 
     <repositories>
@@ -165,7 +166,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <finalName>cta-tools-${project.version}</finalName>
+                    <finalName>${streams.jar}</finalName>
                     <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                             <manifestEntries>
@@ -211,6 +212,7 @@
 
             <properties>
                 <storm.scope>compile</storm.scope>
+                <streams.jar>cta-tools-${project.version}-storm-compiled</streams.jar>
             </properties>
 
             <build>
@@ -281,6 +283,7 @@
 
             <properties>
                 <storm.scope>provided</storm.scope>
+                <streams.jar>cta-tools-${project.version}-storm-provided</streams.jar>
             </properties>
 
             <build>
