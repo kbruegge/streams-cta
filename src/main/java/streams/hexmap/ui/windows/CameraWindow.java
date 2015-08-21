@@ -40,7 +40,7 @@ public class CameraWindow implements EventObserver {
             public void actionPerformed(ActionEvent e) {
                 String key = (String) ((JComboBox)e.getSource()).getSelectedItem();
                 if(key != null) {
-                    hexMapDisplay.setItemToDisplay(key, dataItem);
+//                    hexMapDisplay.setItemToDisplay(key, dataItem);
                 }
             }
         });

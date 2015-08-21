@@ -54,7 +54,7 @@ public abstract class  KeySelector<T extends PlotData> extends JPanel{
         this.keyScrollPane.setPreferredSize(preferredSize);
     }
 
-
+//    @Subscribe
     public void updateSelectionItems(ItemChangedEvent itemChangedEvent){
         //TODO remove old selection items and replace with new ones.
         Set<KeySelectorItem<T>> newItems = filterItems(itemChangedEvent);
@@ -62,15 +62,16 @@ public abstract class  KeySelector<T extends PlotData> extends JPanel{
         for(KeySelectorItem item : newItems){
             KeySelectorItem oldItem = selectedItems.get(item.plotData.getName());
             if(oldItem != null){
-                    item.setSelected(true);
-                    item.setColor(oldItem.getColor());
-                    selectedItems.replace(item.plotData.getName(), item);
-                }
+                item.setSelected(true);
+                item.setColor(oldItem.getColor());
+                selectedItems.replace(item.plotData.getName(), item);
+            }
         }
 
         items.clear();
         items.addAll(newItems);
 
+        selectedItems.entrySet().retainAll(items);
 
         keySelectionContentPanel.removeAll();
         for(KeySelectorItem k : items){

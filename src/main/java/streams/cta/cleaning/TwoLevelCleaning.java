@@ -9,7 +9,6 @@ import streams.hexmap.CameraPixel;
 import streams.hexmap.ui.overlays.PixelSetOverlay;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 
 /**
@@ -26,7 +25,7 @@ public class TwoLevelCleaning extends CTAExtractedDataProcessor {
 
     @Override
     public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, double[] photons, double[] arrivalTimes) {
-
+        showerPixel = new HashSet<>();
         for (int i = 0; i < photons.length; i++) {
             if (photons[i] > levels[0]){
                 showerPixel.add(pixelMap.getPixelFromId(i));
@@ -39,7 +38,6 @@ public class TwoLevelCleaning extends CTAExtractedDataProcessor {
 
         input.put("shower", showerPixel);
         input.put("@showerOverlay",new PixelSetOverlay(showerPixel));
-
         return input;
     }
 

@@ -17,6 +17,8 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stream.Data;
+import streams.hexmap.ui.events.PlotSelectionChangedEvent;
+import streams.hexmap.ui.plotting.OverlayPlotData;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.FileImageOutputStream;
@@ -36,7 +38,7 @@ import java.util.Set;
  * 
  * Created by kaibrugge on 02.06.14.
  */
-public class CameraDisplayPanel extends JPanel implements EventObserver {
+public class CameraDisplayPanel extends JPanel {
 
 	static Logger log = LoggerFactory.getLogger(CameraDisplayPanel.class);
 
@@ -45,20 +47,21 @@ public class CameraDisplayPanel extends JPanel implements EventObserver {
 	private final Set<Class<? extends ColorMapping>> colorMapClasses;
 
 
-	/**
-	 * Adds the keys we can display in the plot window to the list on right side
-	 * of the screen.
-	 *
-	 * @param itemChangedEvent
-	 *            the current data item we want to display
-	 */
-	@Override
 	@Subscribe
-	public void handleEventChange(ItemChangedEvent itemChangedEvent) {
-//		hexmap.setOverlayItemsToDisplay(selector.getSelectedPlotData());
-		// hexmap.handleEventChange(itemKeyPair);
+	public void handleKeySelectionChange(PlotSelectionChangedEvent e){
+        hexmap.updateOverlays(selector.getSelectedPlotData());
 	}
 
+    @Subscribe
+    public void handleEventChange(ItemChangedEvent itemChangedEvent) {
+        selector.updateSelectionItems(itemChangedEvent);
+        log.debug("hexmap got a new item");
+//        EventData eventData = itemChangedEvent.eventData;
+        int numberOfPixel = itemChangedEvent.telescope.type.numberOfPixel;
+        int roi = itemChangedEvent.roi;
+        hexmap.updateOverlays(selector.getSelectedPlotData());
+        hexmap.updateImage(numberOfPixel, roi, itemChangedEvent.rawData);
+    }
 
 
 	public CameraDisplayPanel(HexPixelMapping hexPixelMapping) {
@@ -75,43 +78,40 @@ public class CameraDisplayPanel extends JPanel implements EventObserver {
 		// --------action listeners for menus and buttons----------
 
 		// actionlistener for context menu.
-		ActionListener contextMenuListener = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (e.getActionCommand().equalsIgnoreCase("Patch selection")) {
-					AbstractButton b = (AbstractButton) e.getSource();
-					hexmap.setPatchSelectionMode(b.isSelected());
-				}
-				// export to .png
-				if (e.getActionCommand().equalsIgnoreCase("Export to .png")) {
-					exportPNG();
-					return;
-				}
+		ActionListener contextMenuListener = e -> {
+            if (e.getActionCommand().equalsIgnoreCase("Patch selection")) {
+                AbstractButton b = (AbstractButton) e.getSource();
+                hexmap.setPatchSelectionMode(b.isSelected());
+            }
+            // export to .png
+            if (e.getActionCommand().equalsIgnoreCase("Export to .png")) {
+                exportPNG();
+                return;
+            }
 
-				if (e.getActionCommand().equalsIgnoreCase("Export to .gif")) {
-					exportGIF();
-					return;
-				}
+            if (e.getActionCommand().equalsIgnoreCase("Export to .gif")) {
+                exportGIF();
+                return;
+            }
 
-				// select the colormap
-				for (Class<? extends ColorMapping> mapClass : colorMapClasses) {
-					if (e.getActionCommand().equals(mapClass.getSimpleName())) {
-						try {
-							hexmap.setColorMap(mapClass.newInstance());
-						} catch (InstantiationException e1) {
-							log.error("Caught InstantiationException while trying to add new colormap with name: "
-									+ mapClass.getSimpleName()
-									+ ".  Colormaps must have a 0 argument constructor "
-									+ "(nullary constructor)");
-						} catch (IllegalAccessException e1) {
-							log.error("Caught IllegalAccessException while trying to add new colormap with name: "
-									+ mapClass.getSimpleName()
-									+ ".  Constructor Private?");
-						}
-					}
-				}
-			}
-		};
+            // select the colormap
+            for (Class<? extends ColorMapping> mapClass : colorMapClasses) {
+                if (e.getActionCommand().equals(mapClass.getSimpleName())) {
+                    try {
+                        hexmap.setColorMap(mapClass.newInstance());
+                    } catch (InstantiationException e1) {
+                        log.error("Caught InstantiationException while trying to add new colormap with name: "
+                                + mapClass.getSimpleName()
+                                + ".  Colormaps must have a 0 argument constructor "
+                                + "(nullary constructor)");
+                    } catch (IllegalAccessException e1) {
+                        log.error("Caught IllegalAccessException while trying to add new colormap with name: "
+                                + mapClass.getSimpleName()
+                                + ".  Constructor Private?");
+                    }
+                }
+            }
+        };
 
 		// Build a context menu for color mapping and add it to the hexmap
 		JPopupMenu popupMenu = new JPopupMenu("Color Mapping");
@@ -233,8 +233,4 @@ public class CameraDisplayPanel extends JPanel implements EventObserver {
         }
 	}
 
-    //TODO: check if we need this method for the camerawindow
-    public void setItemToDisplay(String key, Data dataItem) {
-
-    }
 }
