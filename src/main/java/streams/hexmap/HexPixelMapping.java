@@ -51,7 +51,10 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
 
 
     public T getPixelFromOffsetCoordinates(int x, int y){
-        if (x >= offsetCoordinates.length || y >= offsetCoordinates[0].length){
+        if (x + cameraMaxOffsetX >= offsetCoordinates.length || y + cameraMaxOffsetY >= offsetCoordinates[0].length){
+            return null;
+        }
+        if (x + cameraMaxOffsetX < 0 || y + cameraMaxOffsetY < 0){
             return null;
         }
         return offsetCoordinates[x + cameraMaxOffsetX][y + cameraMaxOffsetY];

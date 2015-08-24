@@ -50,8 +50,7 @@ public abstract class PlotPanel extends JPanel implements SliceObserver{
 
         Bus.eventBus.register(this);
 
-        plot = new XYPlot(null, new NumberAxis("Slice"), new NumberAxis(),
-                null);
+        plot = new XYPlot(null, new NumberAxis("Slice"), new NumberAxis(), null);
 
         //enable panning
         plot.setDomainPannable(true);

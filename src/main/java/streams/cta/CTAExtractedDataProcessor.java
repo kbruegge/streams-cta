@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import stream.Data;
 import stream.Processor;
 import stream.annotations.Parameter;
-import streams.cta.container.ExtractedData;
 
 /**
  * Created by kai on 27.07.15.

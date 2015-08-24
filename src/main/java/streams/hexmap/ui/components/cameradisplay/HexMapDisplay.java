@@ -20,6 +20,7 @@ import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stream.Data;
+import streams.hexmap.ui.plotting.OverlayPlotData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,7 +37,7 @@ import java.util.*;
  * with one edge on the bottom. Also has a colorbar next to it.
  * 
  */
-public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserver, MouseListener, EventObserver {
+public class HexMapDisplay extends JPanel implements PixelMapDisplay, SliceObserver, MouseListener {
 
 	static Logger log = LoggerFactory.getLogger(HexMapDisplay.class);
 
@@ -63,7 +64,7 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 	private ColorMapping colormap = new GrayScaleColorMapping();
 
 
-	private ArrayList<CameraMapOverlay> overlays = new ArrayList<>();
+	private ArrayList<OverlayPlotData> overlays = new ArrayList<>();
 //	private Set<Pair<String, Color>> overlayKeys = new HashSet<>();
 	Set<CameraPixel> selectedPixels = new LinkedHashSet<>();
 
@@ -111,7 +112,7 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 	}
 
 	public HexMapDisplay(double scale, int canvasWidth, int canvasHeight, HexPixelMapping mapping) {
-		this(scale, canvasWidth, canvasHeight, mapping,  true);
+		this(scale, canvasWidth, canvasHeight, mapping, true);
 	}
 
 	@Override
@@ -127,66 +128,39 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 		this.repaint();
 	}
 
-	@Subscribe
-    @Override
-	public void handleEventChange(ItemChangedEvent itemChangedEvent) {
-		log.debug("hexmap got a new item");
-//        EventData eventData = itemChangedEvent.eventData;
-		int numberOfPixel = itemChangedEvent.telescope.type.numberOfPixel;
-        int roi = itemChangedEvent.roi;
-        sliceValues = new double[numberOfPixel][roi];
+	public void updateOverlays(Set<OverlayPlotData> overlaySet) {
 
-
-//		overlays = updateOverlays(overlayKeys, dataItem);
-
-		minValueInData = Double.MAX_VALUE;
-		maxValueInData = Double.MIN_VALUE;
-		for (int pixel = 0; pixel < numberOfPixel; pixel++) {
-			for (int i = 0; i < roi; i++) {
-				short value = itemChangedEvent.rawData[pixel][i];
-				sliceValues[pixel][i] = value;
-				minValueInData = minValueInData >  value ?  value : minValueInData;
-				maxValueInData = maxValueInData <  value ?  value : maxValueInData ;
-			}
-		}
-		this.repaint();
-	}
-
-
-	/**
-	 * We call this method whenever a new Overlay is supposed to be drawn.
-	 * When the user checks a checkbox for example below the cameradisplay for example. Or chooses
-	 * a new color.
-	 *
-	 * @param items
-	 * @param dataItem
-	 * @return
-	 */
-	private ArrayList<CameraMapOverlay> updateOverlays(Set<Pair<String, Color>> items, Data dataItem) {
-
-		ArrayList<CameraMapOverlay> overlays = new ArrayList<>();
-		for (Pair<String, Color> s : items) {
-			CameraMapOverlay overlay = (CameraMapOverlay) dataItem.get(s
-					.getKey());
-			if (overlay != null) {
-				overlay.setColor(s.getValue());
-				overlays.add(overlay);
-			}
-		}
+		ArrayList<OverlayPlotData> overlays = new ArrayList<>(overlaySet);
 
         //TODO Remove baaks dirty hack in here. Meh
-		class CustomComparator implements Comparator<CameraMapOverlay> {
-		    public int compare(CameraMapOverlay object1, CameraMapOverlay object2) {            	
-		        return object1.getDrawRank() - object2.getDrawRank();
+		class CustomComparator implements Comparator<OverlayPlotData> {
+		    public int compare(OverlayPlotData object1, OverlayPlotData object2) {
+		        return object1.getOverlay().getDrawRank() - object2.getOverlay().getDrawRank();
 		    }
 		}
 		// Sortierung in der richtigen Reihenfolge
 		// um ueberdeckungen zu vermeiden 
 		// von niedrig nach hoch
 		Collections.sort(overlays, new CustomComparator());
-		
-		return overlays;
+		this.overlays = overlays;
+        this.repaint();
 	}
+
+    public void updateImage(int numberOfPixel, int roi, short[][] eventData){
+        sliceValues = new double[numberOfPixel][roi];
+
+        minValueInData = Double.MAX_VALUE;
+        maxValueInData = Double.MIN_VALUE;
+        for (int pixel = 0; pixel < numberOfPixel; pixel++) {
+            for (int i = 0; i < roi; i++) {
+                short value = eventData[pixel][i];
+                sliceValues[pixel][i] = value;
+                minValueInData = minValueInData >  value ?  value : minValueInData;
+                maxValueInData = maxValueInData <  value ?  value : maxValueInData ;
+            }
+        }
+        this.repaint();
+    }
 
 
 	@Override
@@ -256,8 +230,8 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay,SliceObserv
 			}
 
 			// draw all overlays
-			for (CameraMapOverlay o : overlays) {
-				o.paint(g2, this);
+			for (OverlayPlotData o : overlays) {
+				o.getOverlay().paint(g2, this);
 			}
 			// g2.setStroke(new BasicStroke(1.0f));
 			// g2.setColor(Color.WHITE);
