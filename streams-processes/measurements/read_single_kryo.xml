@@ -6,7 +6,7 @@
     <stream id="cta:data" class="streams.cta.io.KryoStream" url="file:/Users/kai/fact_phido/cta/cta_mc_data.kryo"/>
 
 
-    <process input="cta:data" copies="1">
+    <process input="cta:data">
         <streams.DataRate every="500"/>
         <Skip condition="%{data.@datarate} == null" />
             <streams.cta.io.JSONWriter url="file:./performance_single_kryo.json" keys="@datarate" writeblock="true"/>

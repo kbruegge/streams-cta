@@ -45,6 +45,7 @@ public class ProtoEventPublisher extends CTARawDataProcessor implements Stateful
         rawEvent.roi = roi;
         rawEvent.messageType = "TR";
 
+
         int[] samples = new int[numPixel*roi];
         for (int pix = 0; pix < eventData.length; pix++) {
             for (int slice = 0; slice < roi; slice++) {
@@ -60,6 +61,8 @@ public class ProtoEventPublisher extends CTARawDataProcessor implements Stateful
     public void init(ProcessContext processContext) throws Exception {
         context = ZMQ.context(1);
         publisher = context.socket(ZMQ.PUB);
+//        publisher.setSndHWM(10000);
+//        publisher.setLinger(3000);
         for(String address: addresses) {
             publisher.bind(address);
             log.info("Binding to address: " + address);
@@ -73,13 +76,11 @@ public class ProtoEventPublisher extends CTARawDataProcessor implements Stateful
 
     @Override
     public void finish() throws Exception {
-        System.out.println("Sleeping for 4 seconds");
-        Thread.sleep(4000);
-        if(publisher != null) {
-            publisher.close();
-        }
         if(context != null) {
             context.term();
+        }
+        if(publisher != null) {
+            publisher.close();
         }
 
     }

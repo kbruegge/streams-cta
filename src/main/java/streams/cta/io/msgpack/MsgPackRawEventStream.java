@@ -7,11 +7,14 @@ import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
 import java.io.ByteArrayInputStream;
+import java.time.LocalDateTime;
 
 import stream.Data;
 import stream.annotations.Parameter;
 import stream.data.DataFactory;
 import stream.io.AbstractStream;
+import streams.cta.CTATelescope;
+import streams.cta.CTATelescopeType;
 
 /**
  * Created by alexey on 20/08/15.
@@ -26,6 +29,10 @@ public class MsgPackRawEventStream extends AbstractStream {
 
     @Parameter(required = false)
     String[] addresses = {"tcp://129.217.160.202:5556"};
+
+
+    CTATelescope telescope = new CTATelescope(CTATelescopeType.LST, 1, 0, 0, 0, null, null, null);
+
 
     @Override
     public void init() throws Exception {
@@ -53,17 +60,16 @@ public class MsgPackRawEventStream extends AbstractStream {
         int sampleSize = unpacker.unpackArrayHeader();
         short[][] samples = new short[numPixel][roi];
         boolean stop = false;
-        for (int pix = 0; pix < numPixel && !stop; pix++) {
-            for (int slice = 0; slice < roi && !stop; slice++) {
-                if (unpacker.hasNext()) {
-                    samples[pix][slice] = unpacker.unpackShort();
-                } else {
-                    stop = true;
-                }
+        for (int pix = 0; pix < numPixel ; pix++) {
+            for (int slice = 0; slice < roi; slice++) {
+                samples[pix][slice] = unpacker.unpackShort();
             }
         }
 
+        unpacker.close();
         Data item = DataFactory.create();
+        item.put("@telescope", telescope);
+        item.put("@timestamp", LocalDateTime.now());
         item.put("@raw_data", samples);
         return item;
     }

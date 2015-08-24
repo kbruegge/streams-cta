@@ -28,7 +28,6 @@ public class MsgPackObjPublisher extends CTARawDataProcessor implements Stateful
 
     private ZMQ.Socket publisher;
     private ZMQ.Context context;
-    private MessagePack msgpack = new MessagePack();
     private ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
 
     @Parameter(required = false)

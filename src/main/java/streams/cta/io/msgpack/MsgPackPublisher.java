@@ -2,10 +2,13 @@ package streams.cta.io.msgpack;
 
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageUnpacker;
+import org.msgpack.unpacker.Unpacker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -41,12 +44,7 @@ public class MsgPackPublisher extends CTARawDataProcessor implements StatefulPro
         int roi = eventData[0].length;
         int numPixel = telescope.type.numberOfPixel;
 
-        short[] samples = new short[numPixel * roi];
-        for (int pix = 0; pix < eventData.length; pix++) {
-            for (int slice = 0; slice < roi; slice++) {
-                samples[pix * roi + slice] = eventData[pix][slice];
-            }
-        }
+
 
         MessagePack msgpack = new MessagePack();
 
@@ -62,14 +60,16 @@ public class MsgPackPublisher extends CTARawDataProcessor implements StatefulPro
             packer.packInt(telescope.telescopeId);
             packer.packInt(roi);
             packer.packString("TR");
-            packer.packArrayHeader(samples.length);
-            for (short sample : samples) {
-                packer.packShort(sample);
+            packer.packArrayHeader(roi*numPixel);
+            for (int pix = 0; pix < eventData.length; pix++) {
+                for (int slice = 0; slice < roi; slice++) {
+                    packer.packShort( eventData[pix][slice]);
+                }
             }
+            packer.close();
         } catch (IOException e) {
             log.error("Writing with packer went wrong.");
         }
-
         publisher.send(out.toByteArray());
         return input;
     }
