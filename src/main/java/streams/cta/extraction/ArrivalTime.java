@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
  */
 public class ArrivalTime extends CTARawDataProcessor implements StatefulProcessor {
 
-    double[] arrivalTimes;
     long nonLSTCounter = 0;
 
     @Override
@@ -24,7 +23,7 @@ public class ArrivalTime extends CTARawDataProcessor implements StatefulProcesso
             return input;
         }
 
-        arrivalTimes = new double[telescope.type.numberOfPixel];
+        double[] arrivalTimes = new double[telescope.type.numberOfPixel];
         for (int pixel = 0; pixel < telescope.type.numberOfPixel; pixel++) {
             short max  = 0;
             double arrivalTime  = 0;
