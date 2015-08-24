@@ -126,7 +126,6 @@
             <version>3.0.3</version>
         </dependency>
 
-
         <dependency>
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-core</artifactId>
@@ -139,6 +138,25 @@
             <artifactId>protobuf-javanano</artifactId>
             <version>3.0.0-alpha-3.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.msgpack</groupId>
+            <artifactId>msgpack-core</artifactId>
+            <version>0.7.0-p9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.msgpack</groupId>
+            <artifactId>msgpack</artifactId>
+            <version>0.6.12</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.msgpack</groupId>
+            <artifactId>jackson-dataformat-msgpack</artifactId>
+            <version>0.7.0-p9</version>
+        </dependency>
+
 
     </dependencies>
 

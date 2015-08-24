@@ -1,0 +1,30 @@
+<application>
+    
+    <!--<stream id="cta:data" class="streams.cta.io.SyntheticEventStream" delay="0" />-->
+
+    <!--<stream id="cta:data" class="streams.cta.io.eventio.EventIOStream" url="file:/Users/kai/Downloads/electron_20deg_90deg_run7683___cta-trg-test-LST4_desert_samplemode_test-250MHz.simtel"-->
+            <!--limit="1000" />-->
+    <property name="infile" value="cta_data.kryo" />
+    <stream id="cta:data" class="streams.cta.io.KryoStream" url="file:${infile}"/>
+
+    <!--<stream id="cta:data2" class="streams.cta.io.KryoStream" url="file:./data.kryo" limit="50000" />-->
+
+    <property name="num_copies" value="1" />
+
+    <!--<stream id="cta:data_${copy.id}" class="streams.cta.io.RecursiveDirectoryStream"-->
+            <!--suffix=".kryo" url="file:${infile}" copies="${num_copies}">-->
+        <!--<stream id="cta:data" class="streams.cta.io.KryoStream"/>-->
+    <!--</stream>-->
+
+    <!--<stream id="cta:data_${copy.id}" class="streams.cta.io.RecursiveDirectoryStream"-->
+            <!--suffix=".kryo" url="file:${infile}" copies="${num_copies}">-->
+        <!--<stream id="cta:data" class="streams.cta.io.KryoStream"/>-->
+    <!--</stream>-->
+
+    <process input="cta:data" copies="${num_copies}" >
+        <streams.DataRate every="10" />
+        <!--<Delay time="25ms" />-->
+        <streams.cta.io.msgpack.MsgPackPublisher addresses="tcp://*:5556" />
+    </process>
+
+</application>

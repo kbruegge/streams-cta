@@ -43,20 +43,12 @@ public class ProtoRawEventStream extends AbstractStream {
         try {
             RawCTAEvent.RawEvent rawEvent = RawCTAEvent.RawEvent.parseFrom(data);
 
-//            ByteBuffer byteBuffer = ByteBuffer.allocate(rawEvent.samples.length * 4);
-//            byteBuffer.asIntBuffer().put(rawEvent.samples);
             short[][] samples = new short[rawEvent.numPixel][rawEvent.roi];
-
-
             for (int pix = 0; pix < rawEvent.numPixel; pix++) {
                 for (int slice = 0; slice < rawEvent.roi; slice++) {
                     samples[pix][slice] = (short) rawEvent.samples[(pix * rawEvent.roi + slice)];
                 }
-//                byteBuffer.asShortBuffer().get(samples[pix],0, rawEvent.roi);
-//                System.arraycopy(rawEvent.samples, pix*rawEvent.roi,samples[pix],0, rawEvent.roi);
             }
-
-
 
             Data item = DataFactory.create();
             item.put("@raw_data", samples);
