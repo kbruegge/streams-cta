@@ -1,12 +1,13 @@
 package streams.cta.io.msgpack;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.msgpack.core.MessagePack;
-import org.msgpack.core.MessagePacker;
+import org.msgpack.jackson.dataformat.MessagePackFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
@@ -21,12 +22,14 @@ import streams.cta.CTATelescopeType;
 /**
  * Created by alexey on 20/08/15.
  */
-public class MsgPackPublisher extends CTARawDataProcessor implements StatefulProcessor {
+public class MsgPackObjPublisher extends CTARawDataProcessor implements StatefulProcessor {
 
-    static Logger log = LoggerFactory.getLogger(MsgPackPublisher.class);
+    static Logger log = LoggerFactory.getLogger(MsgPackObjPublisher.class);
 
     private ZMQ.Socket publisher;
     private ZMQ.Context context;
+    private MessagePack msgpack = new MessagePack();
+    private ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
 
     @Parameter(required = false)
     String[] addresses = {"tcp://*:5556"};
@@ -41,36 +44,26 @@ public class MsgPackPublisher extends CTARawDataProcessor implements StatefulPro
         int roi = eventData[0].length;
         int numPixel = telescope.type.numberOfPixel;
 
+        RawCTAEvent rawEvent = new RawCTAEvent();
+        rawEvent.numPixel = numPixel;
+        rawEvent.telescopeId = telescope.telescopeId;
+        rawEvent.roi = roi;
+        rawEvent.messageType = "TR";
+
         short[] samples = new short[numPixel * roi];
         for (int pix = 0; pix < eventData.length; pix++) {
-            for (int slice = 0; slice < roi; slice++) {
-                samples[pix * roi + slice] = eventData[pix][slice];
-            }
+            System.arraycopy(eventData[pix], 0, samples, pix * roi, roi);
         }
 
-        MessagePack msgpack = new MessagePack();
+        rawEvent.samples = samples;
 
-        //
-        // Serialization
-        //
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        MessagePacker packer = msgpack.newPacker(out);
-
-        // Serialize
         try {
-            packer.packInt(numPixel);
-            packer.packInt(telescope.telescopeId);
-            packer.packInt(roi);
-            packer.packString("TR");
-            packer.packArrayHeader(samples.length);
-            for (short sample : samples) {
-                packer.packShort(sample);
-            }
+            byte[] data = objectMapper.writeValueAsBytes(rawEvent);
+            publisher.send(data);
         } catch (IOException e) {
-            log.error("Writing with packer went wrong.");
+            e.printStackTrace();
         }
 
-        publisher.send(out.toByteArray());
         return input;
     }
 

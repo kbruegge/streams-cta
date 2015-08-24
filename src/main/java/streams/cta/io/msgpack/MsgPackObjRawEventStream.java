@@ -1,12 +1,12 @@
 package streams.cta.io.msgpack;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.msgpack.core.MessagePack;
-import org.msgpack.core.MessageUnpacker;
+import org.msgpack.jackson.dataformat.MessagePackFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
-
-import java.io.ByteArrayInputStream;
 
 import stream.Data;
 import stream.annotations.Parameter;
@@ -16,13 +16,15 @@ import stream.io.AbstractStream;
 /**
  * Created by alexey on 20/08/15.
  */
-public class MsgPackRawEventStream extends AbstractStream {
+public class MsgPackObjRawEventStream extends AbstractStream {
 
-    static Logger log = LoggerFactory.getLogger(MsgPackRawEventStream.class);
+    static Logger log = LoggerFactory.getLogger(MsgPackObjRawEventStream.class);
     private ZMQ.Context context;
     private ZMQ.Socket subscriber;
-    private ByteArrayInputStream in;
-    private MessageUnpacker unpacker;
+
+    private MessagePack messagePack = new MessagePack();
+    private RawCTAEvent rawEvent;
+    private ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
 
     @Parameter(required = false)
     String[] addresses = {"tcp://129.217.160.202:5556"};
@@ -36,31 +38,19 @@ public class MsgPackRawEventStream extends AbstractStream {
             log.info("Connecting to address: " + address);
             subscriber.connect(address);
         }
-        subscriber.subscribe(new byte[]{-51});
+        subscriber.subscribe(new byte[]{-123});
     }
 
     @Override
     public Data readNext() throws Exception {
+        byte[] data = subscriber.recv();
+
         // Deserialize
-        in = new ByteArrayInputStream(subscriber.recv());
-        unpacker = MessagePack.newDefaultUnpacker(in);
+        rawEvent = objectMapper.readValue(data, RawCTAEvent.class);
 
-        int numPixel = unpacker.unpackInt();
-        int telescopeId = unpacker.unpackInt();
-        int roi = unpacker.unpackInt();
-        String type = unpacker.unpackString();
-
-        int sampleSize = unpacker.unpackArrayHeader();
-        short[][] samples = new short[numPixel][roi];
-        boolean stop = false;
-        for (int pix = 0; pix < numPixel && !stop; pix++) {
-            for (int slice = 0; slice < roi && !stop; slice++) {
-                if (unpacker.hasNext()) {
-                    samples[pix][slice] = unpacker.unpackShort();
-                } else {
-                    stop = true;
-                }
-            }
+        short[][] samples = new short[rawEvent.numPixel][rawEvent.roi];
+        for (int pix = 0; pix < rawEvent.numPixel; pix++) {
+            System.arraycopy(rawEvent.samples, pix * rawEvent.roi, samples[pix], 0, rawEvent.roi);
         }
 
         Data item = DataFactory.create();
