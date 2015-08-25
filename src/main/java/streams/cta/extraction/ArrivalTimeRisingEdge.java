@@ -32,18 +32,19 @@ public class ArrivalTimeRisingEdge extends CTARawDataProcessor implements Statef
         double[] arrivalTimes = new double[telescope.type.numberOfPixel];
         for (int pixel = 0; pixel < telescope.type.numberOfPixel; pixel++) {
             double arrivalTime  = 0;
-            double maxSlope     = 0;
+            double maxSlope     = 0.;
 
             for (int slice = maxPos[pixel] - searchWindowSize;
-                 slice+2 <= eventData[pixel].length && slice < maxPos[pixel]; slice++) {
+                 slice+2 < eventData[pixel].length && slice < maxPos[pixel]; slice++) {
 
                 if(slice-2 < 0){
                     continue;
                 }
 
-                double current_slope = eventData[pixel][slice + 2] - eventData[pixel][slice - 2];
+                double current_slope = eventData[pixel][slice+2] - eventData[pixel][slice-2];
 
                 if(current_slope > maxSlope){
+                    maxSlope = current_slope;
                     arrivalTime = slice;
                 }
             }
