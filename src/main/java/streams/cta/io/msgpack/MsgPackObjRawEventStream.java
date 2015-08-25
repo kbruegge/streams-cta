@@ -12,6 +12,10 @@ import stream.Data;
 import stream.annotations.Parameter;
 import stream.data.DataFactory;
 import stream.io.AbstractStream;
+import streams.cta.CTATelescope;
+import streams.cta.CTATelescopeType;
+
+import java.time.LocalDateTime;
 
 /**
  * Created by alexey on 20/08/15.
@@ -22,9 +26,11 @@ public class MsgPackObjRawEventStream extends AbstractStream {
     private ZMQ.Context context;
     private ZMQ.Socket subscriber;
 
-    private MessagePack messagePack = new MessagePack();
     private RawCTAEvent rawEvent;
     private ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+
+    CTATelescope telescope = new CTATelescope(CTATelescopeType.LST, 1, 0, 0, 0, null, null, null);
+
 
     @Parameter(required = false)
     String[] addresses = {"tcp://129.217.160.202:5556"};
@@ -54,6 +60,8 @@ public class MsgPackObjRawEventStream extends AbstractStream {
         }
 
         Data item = DataFactory.create();
+        item.put("@telescope", telescope);
+        item.put("@timestamp", LocalDateTime.now());
         item.put("@raw_data", samples);
         return item;
     }

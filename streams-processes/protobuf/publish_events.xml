@@ -6,16 +6,6 @@
             <!--limit="1000" />-->
     <property name="infile" value="/Users/kai/fact_phido/cta/cta_mc_data_copy_1.kryo" />
     <stream id="cta:data" class="streams.cta.io.KryoStream" url="file:${infile}"/>
-    <stream id="cta:data_2" class="streams.cta.io.KryoStream" url="file:${infile}"/>
-    <stream id="cta:data_3" class="streams.cta.io.KryoStream" url="file:${infile}"/>
-    <stream id="cta:data_4" class="streams.cta.io.KryoStream" url="file:${infile}"/>
-    <stream id="cta:data_5" class="streams.cta.io.KryoStream" url="file:${infile}"/>
-    <stream id="cta:data_6" class="streams.cta.io.KryoStream" url="file:${infile}"/>
-    <stream id="cta:data_7" class="streams.cta.io.KryoStream" url="file:${infile}"/>
-    <stream id="cta:data_8" class="streams.cta.io.KryoStream" url="file:${infile}"/>
-    <stream id="cta:data_9" class="streams.cta.io.KryoStream" url="file:${infile}"/>
-    <stream id="cta:data_10" class="streams.cta.io.KryoStream" url="file:${infile}"/>
-    <stream id="cta:data_11" class="streams.cta.io.KryoStream" url="file:${infile}"/>
 
 
     <!--<stream id="cta:data2" class="streams.cta.io.KryoStream" url="file:./data.kryo" limit="50000" />-->
@@ -33,67 +23,11 @@
     <!--</stream>-->
 
     <process input="cta:data" copies="${num_copies}" >
-        <streams.DataRate every="1000" />
-        <!--<Delay time="25ms" />-->
-        <streams.cta.io.protobuf.ProtoEventPublisher addresses="tcp://*:5556" />
-    </process>
-    <process input="cta:data_2" copies="${num_copies}" >
-        <streams.DataRate every="1000" />
-        <!--<Delay time="25ms" />-->
-        <streams.cta.io.protobuf.ProtoEventPublisher addresses="tcp://*:5557" />
-    </process>
-    <process input="cta:data_3" copies="${num_copies}" >
-        <streams.DataRate every="1000" />
+        <streams.DataRate every="100" />
         <!--<Delay time="25ms" />-->
         <streams.cta.io.protobuf.ProtoEventPublisher addresses="tcp://*:5558" />
     </process>
-    <process input="cta:data_4" copies="${num_copies}" >
-        <streams.DataRate every="1000" />
-        <!--<Delay time="25ms" />-->
-        <streams.cta.io.protobuf.ProtoEventPublisher addresses="tcp://*:5559" />
-    </process>
 
-    <process input="cta:data_5" copies="${num_copies}" >
-        <streams.DataRate every="1000" />
-        <!--<Delay time="25ms" />-->
-        <streams.cta.io.protobuf.ProtoEventPublisher addresses="tcp://*:5560" />
-    </process>
-
-    <process input="cta:data_6" copies="${num_copies}" >
-        <streams.DataRate every="1000" />
-        <!--<Delay time="25ms" />-->
-        <streams.cta.io.protobuf.ProtoEventPublisher addresses="tcp://*:5561" />
-    </process>
-
-    <process input="cta:data_7" copies="${num_copies}" >
-        <streams.DataRate every="1000" />
-        <!--<Delay time="25ms" />-->
-        <streams.cta.io.protobuf.ProtoEventPublisher addresses="tcp://*:5562" />
-    </process>
-
-    <process input="cta:data_8" copies="${num_copies}" >
-        <streams.DataRate every="1000" />
-        <!--<Delay time="25ms" />-->
-        <streams.cta.io.protobuf.ProtoEventPublisher addresses="tcp://*:5563" />
-    </process>
-
-    <process input="cta:data_9" copies="${num_copies}" >
-        <streams.DataRate every="1000" />
-        <!--<Delay time="25ms" />-->
-        <streams.cta.io.protobuf.ProtoEventPublisher addresses="tcp://*:5564" />
-    </process>
-
-    <process input="cta:data_10" copies="${num_copies}" >
-        <streams.DataRate every="1000" />
-        <!--<Delay time="25ms" />-->
-        <streams.cta.io.protobuf.ProtoEventPublisher addresses="tcp://*:5565" />
-    </process>
-
-    <process input="cta:data_11" copies="${num_copies}" >
-        <streams.DataRate every="1000" />
-        <!--<Delay time="25ms" />-->
-        <streams.cta.io.protobuf.ProtoEventPublisher addresses="tcp://*:5566" />
-    </process>
 
 
 </application>

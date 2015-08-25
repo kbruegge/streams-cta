@@ -7,15 +7,15 @@
     <!--<property name="outfile" value="./data.kryo" />-->
     <property name="num_copies" value="1" />
 
-    <stream id="cta:data_%{copy.id}" class="streams.cta.io.CTAEventSubscriber"
-             addresses="tcp://129.217.160.177:5556,tcp://129.217.160.177:5555"/>
+    <stream id="cta:data_%{copy.id}" class="streams.cta.io.zeromq.CTAEventSubscriber"
+             addresses="tcp://127.0.0.1:5556"/>
     <!--<stream id="cta:data" class="streams.cta.io.CTAEventSubscriber" addresses="tcp://129.217.160.98:5556"/>-->
 
 
     <stream.io.BlockingQueue id="performance" />
 
     <process input="cta:data_%{copy.id}" copies="${num_copies}">
-        <streams.DataRate every="50"/>
+        <streams.DataRate every="500"/>
         <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
     </process>
 

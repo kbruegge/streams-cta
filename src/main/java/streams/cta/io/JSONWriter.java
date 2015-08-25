@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDateTime;
 
 /**
  * Writes a file containing a hopefully valid JSON String on each line.
@@ -63,6 +64,8 @@ public class JSONWriter implements StatefulProcessor {
     public Data process(Data data) {
 
         Data item = DataFactory.create();
+        item.put("time", LocalDateTime.now().toString());
+
         String[] evKeys = {"@stream"};
         for(String key : evKeys) {
             if (data.containsKey(key)) {
@@ -81,6 +84,7 @@ public class JSONWriter implements StatefulProcessor {
             }
             bw.newLine();
             bw.flush();
+            System.out.println("flushing");
         } catch (IOException ioex) {
             ioex.printStackTrace();
         }
