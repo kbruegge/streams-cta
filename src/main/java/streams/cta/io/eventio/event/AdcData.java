@@ -5,13 +5,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import streams.cta.Constants;
+import streams.cta.io.eventio.EventIOConstants;
 import streams.cta.io.eventio.EventIOBuffer;
 import streams.cta.io.eventio.EventIOHeader;
 
-import static streams.cta.Constants.HI_GAIN;
-import static streams.cta.Constants.H_MAX_GAINS;
-import static streams.cta.Constants.LO_GAIN;
+import static streams.cta.io.eventio.EventIOConstants.HI_GAIN;
+import static streams.cta.io.eventio.EventIOConstants.H_MAX_GAINS;
+import static streams.cta.io.eventio.EventIOConstants.LO_GAIN;
 
 /**
  * ADC data (either sampled or sum mode) Created by alexey on 30.06.15.
@@ -145,8 +145,8 @@ public class AdcData {
                 // We have sums and not samples.
                 numSamples = 0;
 
-                //TODO remove constant magic numbers with Constants
-                if (numPixels > Constants.H_MAX_PIX || numGains > Constants.H_MAX_GAINS ||
+                //TODO remove constant magic numbers with EventIOConstants
+                if (numPixels > EventIOConstants.H_MAX_PIX || numGains > EventIOConstants.H_MAX_GAINS ||
                         ((numPixels >= 32768) && (zeroSupMode > 1)) || zeroSupMode > 2 ||
                         dataRedMode > 2) {
                     log.warn("Invalid raw data block is skipped.");
@@ -241,7 +241,7 @@ public class AdcData {
                                                 lgval = readAdcSumAsUint16(buffer, mlg);
                                             }
                                             // TODO check if the pointer logic is right
-                                            // get_adcsum_as_uint16(&raw->adc_sum[Constants.HI_GAIN][k], n, iobuf)
+                                            // get_adcsum_as_uint16(&raw->adc_sum[EventIOConstants.HI_GAIN][k], n, iobuf)
                                             adcSum[HI_GAIN] = readAdcSumAsUint16(buffer, n);
                                             ;
                                         } else {
@@ -462,7 +462,7 @@ public class AdcData {
                             case 1: /* Low low-gain channels were skipped (for two gains) */
                             case 2: /* Width of high-gain channel can be reduced */
                                 listSize = buffer.readShort();
-                                int[][] adcSumL = new int[Constants.H_MAX_GAINS][listSize];
+                                int[][] adcSumL = new int[EventIOConstants.H_MAX_GAINS][listSize];
                                 boolean[] withoutLg = new boolean[listSize];
                                 boolean[] reducedWidth = new boolean[listSize];
                                 adcList = new int[listSize];
@@ -643,8 +643,8 @@ public class AdcData {
 
                 numSamples = buffer.readShort();
 
-                if (numPixels > Constants.H_MAX_PIX || numGains > H_MAX_GAINS
-                        || numSamples > Constants.H_MAX_SLICES) {
+                if (numPixels > EventIOConstants.H_MAX_PIX || numGains > H_MAX_GAINS
+                        || numSamples > EventIOConstants.H_MAX_SLICES) {
                     log.warn("Invalid raw data block is skipped.");
                     header.getItemEnd();
                     numPixels = 0;
@@ -666,7 +666,7 @@ public class AdcData {
 
                     int listSize = buffer.readSCount32();
 
-                    if (listSize > Constants.H_MAX_PIX) {
+                    if (listSize > EventIOConstants.H_MAX_PIX) {
                         log.warn("Pixel list too large in zero-suppressed sample-mode data.");
                         header.getItemEnd();
                         return false;
@@ -700,7 +700,7 @@ public class AdcData {
                                 // Should the sampled data also be summed up here? There might
                                 // be sum data preceding this sample mode data!
                                 if (!adcKnown[igain][ipix]) {
-                                    if ((what & Constants.RAWSUM_FLAG) != 0) {
+                                    if ((what & EventIOConstants.RAWSUM_FLAG) != 0) {
                                         // Sum up all samples
                                         int sum = 0;
                                         for (int isamp = 0; isamp < numSamples; isamp++) {
@@ -741,7 +741,7 @@ public class AdcData {
                             // samples after sum data is normally used.In realistic data,
                             // there will be no sum known at this point.
                             if (!adcKnown[igain][ipix]) {
-                                if ((what & Constants.RAWSUM_FLAG) != 0) {
+                                if ((what & EventIOConstants.RAWSUM_FLAG) != 0) {
                                     // Sum up all samples
                                     int sum = 0;
                                     for (int isamp = 0; isamp < numSamples; isamp++)

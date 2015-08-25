@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import streams.cta.Constants;
+import streams.cta.io.eventio.EventIOConstants;
 import streams.cta.io.eventio.EventIOBuffer;
 import streams.cta.io.eventio.EventIOHeader;
 import streams.cta.io.eventio.HTime;
@@ -93,7 +93,7 @@ public class CentralEvent {
         teltrgList = new short[numberTriggeredTelescopes];
         teltrgTime = new float[numberTriggeredTelescopes];
         teltrgTypeMask = new int[numberTriggeredTelescopes];
-        teltrgTimeByType = new float[numberTriggeredTelescopes][Constants.MAX_TEL_TRIGGERS];
+        teltrgTimeByType = new float[numberTriggeredTelescopes][EventIOConstants.MAX_TEL_TRIGGERS];
         teldataList = new short[numberTriggeredTelescopes];
     }
 
@@ -116,7 +116,7 @@ public class CentralEvent {
                 if (header.getVersion() >= 1) {
                     numTelTriggered = buffer.readShort();
 
-                    if (numTelTriggered > Constants.H_MAX_TEL) {
+                    if (numTelTriggered > EventIOConstants.H_MAX_TEL) {
                         log.error("Invalid number of triggered telescopes " + numTelTriggered
                                 + " in central trigger block for event " + globCount);
                         numTelTriggered = 0;
@@ -128,7 +128,7 @@ public class CentralEvent {
                     teltrgTime = buffer.readVectorOfFloats(numTelTriggered);
                     numTelData = buffer.readShort();
 
-                    if (numTelData > Constants.H_MAX_TEL) {
+                    if (numTelData > EventIOConstants.H_MAX_TEL) {
                         log.error("Invalid number of telescopes with data " + numTelData
                                 + " in central trigger block for event " + globCount);
                         numTelData = 0;
@@ -157,7 +157,7 @@ public class CentralEvent {
                     }
                     for (int telCount = 0; telCount < numTelTriggered; telCount++) {
                         int ntt = 0;
-                        for (int triggers = 0; triggers < Constants.MAX_TEL_TRIGGERS; triggers++) {
+                        for (int triggers = 0; triggers < EventIOConstants.MAX_TEL_TRIGGERS; triggers++) {
                             if ((teltrgTypeMask[telCount] & (1 << triggers)) == 1) {
                                 ntt++;
                                 teltrgTimeByType[telCount][triggers] = teltrgTime[telCount];
@@ -167,7 +167,7 @@ public class CentralEvent {
                         }
 
                         if (ntt > 1) {
-                            for (int triggers = 0; triggers < Constants.MAX_TEL_TRIGGERS; triggers++) {
+                            for (int triggers = 0; triggers < EventIOConstants.MAX_TEL_TRIGGERS; triggers++) {
                                 if ((teltrgTypeMask[telCount] & (1 << triggers)) == 1) {
                                     teltrgTimeByType[telCount][triggers] = buffer.readFloat();
                                 }

@@ -9,11 +9,11 @@ import streams.cta.io.eventio.EventIOBuffer;
 import streams.cta.io.eventio.EventIOHeader;
 import streams.cta.io.eventio.HTime;
 
-import static streams.cta.Constants.H_MAX_TEL;
-import static streams.cta.Constants.TYPE_CENTRAL_EVENT;
-import static streams.cta.Constants.TYPE_SHOWER;
-import static streams.cta.Constants.TYPE_TEL_EVENT;
-import static streams.cta.Constants.TYPE_TRACK_EVENT;
+import static streams.cta.io.eventio.EventIOConstants.H_MAX_TEL;
+import static streams.cta.io.eventio.EventIOConstants.TYPE_CENTRAL_EVENT;
+import static streams.cta.io.eventio.EventIOConstants.TYPE_SHOWER;
+import static streams.cta.io.eventio.EventIOConstants.TYPE_TEL_EVENT;
+import static streams.cta.io.eventio.EventIOConstants.TYPE_TRACK_EVENT;
 
 /**
  * All data for one event Created by alexey on 30.06.15.

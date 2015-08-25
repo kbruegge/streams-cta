@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import streams.cta.Constants;
+import streams.cta.io.eventio.EventIOConstants;
 import streams.cta.io.eventio.EventIOBuffer;
 import streams.cta.io.eventio.EventIOHeader;
 import streams.cta.io.eventio.HTime;
@@ -150,8 +150,8 @@ public class TelEvent {
             if (header.findAndReadNextHeader()) {
 
                 // check for wrong telescope id and unsupported version
-                int telId = (header.getType() - Constants.TYPE_TEL_EVENT) % 100 +
-                        100 * ((header.getType() - Constants.TYPE_TEL_EVENT) / 1000);
+                int telId = (header.getType() - EventIOConstants.TYPE_TEL_EVENT) % 100 +
+                        100 * ((header.getType() - EventIOConstants.TYPE_TEL_EVENT) / 1000);
                 if (telId < 0 || telId != this.telId) {
                     log.warn("Not a telescope event block or one for the wrong telescope.");
                     header.getItemEnd();
@@ -194,9 +194,9 @@ public class TelEvent {
                 while (readingSuccessful) {
                     int type = buffer.nextSubitemType();
                     switch (type) {
-                        case Constants.TYPE_TELADCSUM:
-                            if ((what & (Constants.RAWDATA_FLAG
-                                    | Constants.RAWSUM_FLAG)) == 0 || raw == null) {
+                        case EventIOConstants.TYPE_TELADCSUM:
+                            if ((what & (EventIOConstants.RAWDATA_FLAG
+                                    | EventIOConstants.RAWSUM_FLAG)) == 0 || raw == null) {
                                 if (wSum++ < 1) {
                                     log.warn("Telescope raw data ADC sums not selected to be read.");
                                 }
@@ -210,8 +210,8 @@ public class TelEvent {
                             }
                             raw.telId = this.telId;
                             break;
-                        case Constants.TYPE_TELADCSAMP:
-                            if ((what & Constants.RAWDATA_FLAG) == 0 || raw == null) {
+                        case EventIOConstants.TYPE_TELADCSAMP:
+                            if ((what & EventIOConstants.RAWDATA_FLAG) == 0 || raw == null) {
                                 if (wSamples++ < 1) {
                                     log.warn("Telescope raw data ADC samples " +
                                             "not selected to be read.");
@@ -238,8 +238,8 @@ public class TelEvent {
                             //TODO for ids beyound 31 bits maybe missing?! (Bernloehr)
                             raw.telId = this.telId;
                             break;
-                        case Constants.TYPE_PIXELTIMING:
-                            if (pixtm == null || (what & Constants.TIME_FLAG) == 0) {
+                        case EventIOConstants.TYPE_PIXELTIMING:
+                            if (pixtm == null || (what & EventIOConstants.TIME_FLAG) == 0) {
                                 if (wPixtm++ < 1) {
                                     log.warn("Telescope pixel timing data not selected to be read.");
                                 }
@@ -248,7 +248,7 @@ public class TelEvent {
                             }
                             readingSuccessful = pixtm.readPixTime(buffer);
                             break;
-                        case Constants.TYPE_PIXELCALIB:
+                        case EventIOConstants.TYPE_PIXELCALIB:
                             if (pixcal == null) {
                                 if (wPixcal++ < 1) {
                                     log.warn("Telescope calibrated pixel intensities found, " +
@@ -258,10 +258,10 @@ public class TelEvent {
                             }
                             readingSuccessful = pixcal.readPixelCalibrated(buffer);
                             break;
-                        case Constants.TYPE_TELIMAGE:
+                        case EventIOConstants.TYPE_TELIMAGE:
                             img = new ImgData[2];
                             img[imgNumber++] = new ImgData(this.telId);
-                            if (img == null || (what & Constants.IMAGE_FLAG) == 0) {
+                            if (img == null || (what & EventIOConstants.IMAGE_FLAG) == 0) {
                                 break;
                             }
                             if (telImg >= maxImageSets) {
@@ -275,7 +275,7 @@ public class TelEvent {
                             }
                             numImageSets = telImg;
                             break;
-                        case Constants.TYPE_PIXELLIST:
+                        case EventIOConstants.TYPE_PIXELLIST:
                             long id = buffer.nextSubitemIdent();
                             long code = id / 1000000;
                             long tid = id % 1000000;

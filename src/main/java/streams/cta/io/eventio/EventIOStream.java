@@ -20,7 +20,6 @@ import stream.io.AbstractStream;
 import stream.io.SourceURL;
 import streams.cta.CTATelescope;
 import streams.cta.CTATelescopeType;
-import streams.cta.Constants;
 import streams.cta.io.eventio.event.FullEvent;
 
 /**
@@ -98,7 +97,7 @@ public class EventIOStream extends AbstractStream {
         while (!eventFound) {
             numberRuns++;
             if (header.findSyncMarkerAndType()) {
-//                if (header.type == Constants.TYPE_MCSHOWER) {
+//                if (header.type == EventIOConstants.TYPE_MCSHOWER) {
 //                    if (eventData.mcShower == null){
 //                        eventData.mcShower = new MCShower();
 //                    }
@@ -107,7 +106,7 @@ public class EventIOStream extends AbstractStream {
 //                    }
 //                } else
                 switch (header.type){
-                    case Constants.TYPE_EVENT:
+                    case EventIOConstants.TYPE_EVENT:
                         if (!eventData.event.readFullEvent(buffer, -1)) {
                             log.error("Error happened while reading full event data.");
                             break;
@@ -132,7 +131,7 @@ public class EventIOStream extends AbstractStream {
                             log.error("Telescope event data is missing.");
                         }
                         break;
-                    case Constants.TYPE_RUNHEADER:
+                    case EventIOConstants.TYPE_RUNHEADER:
 
                         //TODO some summary from previous runs (original code)
 
@@ -157,7 +156,7 @@ public class EventIOStream extends AbstractStream {
                 return null;
             }
         }
-        byteOrder = Constants.LITTLE_ENDIAN;
+        byteOrder = EventIOConstants.LITTLE_ENDIAN;
         return item;
     }
 

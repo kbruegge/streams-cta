@@ -11,13 +11,9 @@ import java.io.FileOutputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-import streams.cta.io.eventio.EventIOBuffer;
-import streams.cta.io.eventio.EventIOStream;
-import streams.cta.io.eventio.HTime;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
-import static streams.cta.Constants.BIG_ENDIAN;
+import static streams.cta.io.eventio.EventIOConstants.BIG_ENDIAN;
 
 /**
  * Created by alexey on 07/08/15.

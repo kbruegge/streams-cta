@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import streams.cta.Constants;
+import streams.cta.io.eventio.EventIOConstants;
 import streams.cta.io.eventio.EventIOBuffer;
 import streams.cta.io.eventio.EventIOHeader;
 
@@ -113,8 +113,8 @@ public class MCShower {
 
                 numProfiles = buffer.readInt16();
 
-                int minProfiles = numProfiles < Constants.H_MAX_PROFILE ?
-                        numProfiles : Constants.H_MAX_PROFILE;
+                int minProfiles = numProfiles < EventIOConstants.H_MAX_PROFILE ?
+                        numProfiles : EventIOConstants.H_MAX_PROFILE;
                 profiles = new ShowerProfile[minProfiles];
 
                 // fill the ShowerProfiles

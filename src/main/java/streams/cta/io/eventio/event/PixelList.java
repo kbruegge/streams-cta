@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import streams.cta.Constants;
+import streams.cta.io.eventio.EventIOConstants;
 import streams.cta.io.eventio.EventIOBuffer;
 import streams.cta.io.eventio.EventIOHeader;
 
@@ -49,9 +49,9 @@ public class PixelList {
                 code = header.getIdentification() / 1000000;
 
                 pixels = header.getVersion() < 1 ? buffer.readShort() : buffer.readSCount32();
-                if (pixels > Constants.H_MAX_PIX) {
+                if (pixels > EventIOConstants.H_MAX_PIX) {
                     log.error("Got a pixel list with " + pixels
-                            + " pixels but can only handle lists up to " + Constants.H_MAX_PIX);
+                            + " pixels but can only handle lists up to " + EventIOConstants.H_MAX_PIX);
                     pixels = 0;
                     header.getItemEnd();
                     return false;
