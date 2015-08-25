@@ -44,11 +44,9 @@ public class MaxAmplitude extends CTARawDataProcessor implements StatefulProcess
             }
             maxVal[pixel]   = max;
             maxPos[pixel]   = arrivalTime;
-            corrAmpl[pixel] = calibrateAmplitude(max);
         }
-        input.put("arrivalTimes", maxPos);
+        input.put("maxPos", maxPos);
         input.put("maxVal", maxVal);
-        input.put("photons", corrAmpl);
         return input;
     }
 
@@ -65,11 +63,5 @@ public class MaxAmplitude extends CTARawDataProcessor implements StatefulProcess
     @Override
     public void finish() throws Exception {
         System.out.println("Non LST telescope events: " + nonLSTCounter);
-    }
-
-    public double calibrateAmplitude(double amplitude){
-//        This is a totaly artificial calibration of the amplitude
-//        the numbers are magic number computed by regression of event amplitudes in streams and hessio
-        return 5.4236 * amplitude + 201.38;
     }
 }
