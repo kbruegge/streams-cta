@@ -59,11 +59,10 @@ public class CapnProtoObjPublisher extends CTARawDataProcessor implements Statef
 
         ByteBuffer[] messages = message.getSegmentsForOutput();
 
-        int i = 0;
-        for (; i < messages.length - 1; i++) {
-            publisher.sendByteBuffer(messages[i], ZMQ.SNDMORE);
+        for (int i = 0; i < messages.length; i++) {
+            publisher.sendByteBuffer(messages[i],
+                    (i==messages.length-1) ? ZMQ.DONTWAIT : ZMQ.SNDMORE);
         }
-        publisher.sendByteBuffer(messages[i], ZMQ.DONTWAIT);
         return input;
     }
 
