@@ -29,10 +29,9 @@ public class Utils {
 		double[][] pixels = new double[numPixel][roi];
 
 		for (int pix = 0; pix < numPixel; pix++) {
+			int pixStart = pix * roi;
 			for (int slice = 0; slice < roi; slice++) {
-				int pixId = pix * roi + slice;
-				double value = data[pixId];
-				pixels[pix][slice] = value;
+				pixels[pix][slice] = data[pixStart + slice];
 			}
 		}
 		return pixels;
