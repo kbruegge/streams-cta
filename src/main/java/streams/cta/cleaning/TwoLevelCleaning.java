@@ -25,7 +25,7 @@ public class TwoLevelCleaning extends CTAExtractedDataProcessor {
 
     @Override
     public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, double[] photons, double[] arrivalTimes) {
-        showerPixel = new HashSet<>();
+        showerPixel.clear();
         for (int i = 0; i < photons.length; i++) {
             if (photons[i] > levels[0]){
                 showerPixel.add(pixelMap.getPixelFromId(i));

@@ -20,8 +20,8 @@ public class SyntheticEventStream extends AbstractStream {
 
     int numberOfPixels = 1855;
     int numberOfSlices = 30;
-    
-	Random random = new Random();
+
+    Random random = new Random();
     short[][] data;
 
     int counter;
@@ -52,12 +52,6 @@ public class SyntheticEventStream extends AbstractStream {
      */
     @Override
     public Data readNext() throws Exception {
-        if (counter++>3000){
-            System.out.println("sleep");
-            Thread.sleep(20000);
-            counter = 0;
-        }
-
         data = new short[numberOfPixels][numberOfSlices];
 
         for (int pixel = 0; pixel < numberOfPixels; pixel++) {
@@ -65,25 +59,22 @@ public class SyntheticEventStream extends AbstractStream {
                 //data[pixel][x] = (short) f(x);
                 data[pixel][x] += random.nextGaussian();
             }
-//            randomBytes = new byte[numberOfSlices*2];
-//            random.nextBytes(randomBytes);
-//            ByteBuffer.wrap(randomBytes).asShortBuffer().get(data[pixel]);
         }
         try {
             Thread.sleep(delay);
-        } catch(InterruptedException ex) {
+        } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
 
-		Data item = DataFactory.create();
-		item.put("@raw_data", data);
-		item.put("@telescope", telescope);
-		item.put("@timestamp", LocalDateTime.now());
-		item.put("@source", this.getClass().getSimpleName());
+        Data item = DataFactory.create();
+        item.put("@raw_data", data);
+        item.put("@telescope", telescope);
+        item.put("@timestamp", LocalDateTime.now());
+        item.put("@source", this.getClass().getSimpleName());
 
         eventId++;
-		return item;
-	}
+        return item;
+    }
 
     public void setDelay(int delay) {
         this.delay = delay;
