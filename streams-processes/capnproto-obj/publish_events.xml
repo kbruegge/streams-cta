@@ -9,22 +9,13 @@
 
     <!--<stream id="cta:data2" class="streams.cta.io.KryoStream" url="file:./data.kryo" limit="50000" />-->
 
-    <property name="num_copies" value="1" />
 
-    <!--<stream id="cta:data_${copy.id}" class="streams.cta.io.RecursiveDirectoryStream"-->
-            <!--suffix=".kryo" url="file:${infile}" copies="${num_copies}">-->
-        <!--<stream id="cta:data" class="streams.cta.io.KryoStream"/>-->
-    <!--</stream>-->
-
-    <!--<stream id="cta:data_${copy.id}" class="streams.cta.io.RecursiveDirectoryStream"-->
-            <!--suffix=".kryo" url="file:${infile}" copies="${num_copies}">-->
-        <!--<stream id="cta:data" class="streams.cta.io.KryoStream"/>-->
-    <!--</stream>-->
-
-    <process input="cta:data" copies="${num_copies}" >
+    <process input="cta:data" >
         <streams.DataRate every="500" />
         <!--<Delay time="25ms" />-->
         <streams.cta.io.capnproto.CapnProtoObjPublisher addresses="tcp://*:5556" />
+        <Skip condition="%{data.@datarate} == null" />
+            <streams.cta.io.JSONWriter url="file:./performance_publish_capn.json" keys="@datarate" writeblock="true"/>
     </process>
 
 </application>
