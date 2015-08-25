@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 
 /**
  * Writes a file containing a hopefully valid JSON String on each line.
- * Heres a simple Pyhton script to read it:
+ * Heres a simple Python script to read it:
 
  import json
 
@@ -47,7 +47,6 @@ public class JSONWriter implements StatefulProcessor {
     private boolean writeBlock;
 
     private Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
-    private StringBuffer b = new StringBuffer();
     private BufferedWriter bw;
 
 
@@ -77,18 +76,15 @@ public class JSONWriter implements StatefulProcessor {
             item.put(key, data.get(key));
         }
         try {
-            b.append(gson.toJson(item));
-            bw.write(b.toString());
+            bw.write(gson.toJson(item));
             if(writeBlock){
                 bw.write(",");
             }
             bw.newLine();
             bw.flush();
-            System.out.println("flushing");
         } catch (IOException ioex) {
             ioex.printStackTrace();
         }
-        b.delete(0, b.length());
         return data;
     }
 

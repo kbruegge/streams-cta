@@ -9,12 +9,15 @@ import org.zeromq.ZMQ;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import stream.Data;
 import stream.annotations.Parameter;
 import stream.data.DataFactory;
 import stream.io.AbstractStream;
+import streams.cta.CTATelescope;
+import streams.cta.CTATelescopeType;
 
 /**
  * Created by alexey on 20/08/15.
@@ -24,6 +27,9 @@ public class CapnProtoObjRawEventStream extends AbstractStream {
     static Logger log = LoggerFactory.getLogger(CapnProtoObjRawEventStream.class);
     private ZMQ.Context context;
     private ZMQ.Socket subscriber;
+
+    CTATelescope telescope = new CTATelescope(CTATelescopeType.LST, 1, 0, 0, 0, null, null, null);
+
 
     @Parameter(required = false)
     String[] addresses = {"tcp://129.217.160.202:5556"};
@@ -81,6 +87,8 @@ public class CapnProtoObjRawEventStream extends AbstractStream {
         }
 
         Data item = DataFactory.create();
+        item.put("@telescope", telescope);
+        item.put("@timestamp", LocalDateTime.now());
         item.put("@raw_data", samples);
         return item;
     }
