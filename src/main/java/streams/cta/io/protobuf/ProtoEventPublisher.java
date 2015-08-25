@@ -76,11 +76,11 @@ public class ProtoEventPublisher extends CTARawDataProcessor implements Stateful
 
     @Override
     public void finish() throws Exception {
-        if(context != null) {
-            context.term();
-        }
         if(publisher != null) {
             publisher.close();
+        }
+        if(context != null) {
+            context.term();
         }
 
     }
