@@ -23,7 +23,7 @@ public class PhotonsSignalAmplitude extends CTARawDataProcessor implements State
             return input;
         }
 
-        int[] maxVals = (int[]) input.get("maxVal");
+        double[] maxVals = (double[]) input.get("maxVal");
         double[] photons = new double[telescope.type.numberOfPixel];
 
         for (int pixel = 0; pixel < telescope.type.numberOfPixel; pixel++) {
