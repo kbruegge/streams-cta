@@ -6,14 +6,15 @@
     <!--<stream id="cta:data" class="streams.cta.io.eventio.EventIOStream" url="file:/Users/kai/Downloads/electron_20deg_90deg_run7683___cta-trg-test-LST4_desert_samplemode_test-250MHz.simtel"-->
             <!--limit="1000" />-->
 
-    <stream id="cta:data" class="streams.cta.io.eventio.EventIOStream" url="file:/local/data/jbuss/gamma_20deg_0deg_run35610___cta-prod2_desert-1640m-Aar.simtel.gz"
+    <stream id="cta:data" class="streams.cta.io.eventio.EventIOStream" url="file:/local/data/jbuss/proton_20deg_0deg_run32286___cta-prod2_desert-1640m-Aar.simtel.gz"
     />
 
 
     
     <process input="cta:data">
-        <streams.cta.extraction.ArrivalTime/>
-        <streams.cta.extraction.Photons />
+        <streams.cta.extraction.MaxAmplitude />
+        <!--<streams.cta.extraction.ArrivalTime/>-->
+        <!--<streams.cta.extraction.Photons />-->
         <streams.cta.cleaning.TwoLevelCleaning />
         <streams.cta.features.Size/>
         <streams.ShowViewer />
