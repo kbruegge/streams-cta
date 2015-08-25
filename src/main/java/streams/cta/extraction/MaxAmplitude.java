@@ -1,5 +1,6 @@
 package streams.cta.extraction;
 
+import org.jfree.chart.plot.IntervalMarker;
 import stream.Data;
 import stream.ProcessContext;
 import stream.StatefulProcessor;
@@ -19,22 +20,19 @@ public class MaxAmplitude extends CTARawDataProcessor implements StatefulProcess
     @Override
     public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, short[][] eventData) {
 
-        double[] maxPos;
-        double[] maxVal;
-        double[] corrAmpl;
-
         if(eventData.length != 1855){
             nonLSTCounter++;
             return input;
         }
 
-        maxPos      = new double[telescope.type.numberOfPixel];
-        maxVal      = new double[telescope.type.numberOfPixel];
-        corrAmpl    = new double[telescope.type.numberOfPixel];
+        IntervalMarker[] m = new IntervalMarker[telescope.type.numberOfPixel];
+
+        int[] maxPos    = new int[telescope.type.numberOfPixel];
+        double[]maxVal  = new double[telescope.type.numberOfPixel];
 
         for (int pixel = 0; pixel < telescope.type.numberOfPixel; pixel++) {
             short max  = 0;
-            double arrivalTime  = 0;
+            int arrivalTime  = 0;
             for (int slice = 0; slice < eventData[pixel].length; slice++) {
                 short value = eventData[pixel][slice];
                 if(value > max){
@@ -42,10 +40,12 @@ public class MaxAmplitude extends CTARawDataProcessor implements StatefulProcess
                     max = value;
                 }
             }
+            m[pixel] = new IntervalMarker(arrivalTime,arrivalTime + 1);
             maxVal[pixel]   = max;
             maxPos[pixel]   = arrivalTime;
         }
         input.put("maxPos", maxPos);
+        input.put("maxPosMarker", m);
         input.put("maxVal", maxVal);
         return input;
     }
