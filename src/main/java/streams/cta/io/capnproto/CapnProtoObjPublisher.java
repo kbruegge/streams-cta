@@ -2,11 +2,12 @@ package streams.cta.io.capnproto;
 
 import org.capnproto.MessageBuilder;
 import org.capnproto.PrimitiveList;
+import org.capnproto.Serialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
-import java.nio.ByteBuffer;
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 import stream.Data;
@@ -57,11 +58,12 @@ public class CapnProtoObjPublisher extends CTARawDataProcessor implements Statef
             }
         }
 
-        ByteBuffer[] messages = message.getSegmentsForOutput();
-
-        for (int i = 0; i < messages.length; i++) {
-            publisher.sendByteBuffer(messages[i],
-                    (i==messages.length-1) ? ZMQ.DONTWAIT : ZMQ.SNDMORE);
+        try {
+            DynamicArrayOutputStream daos = new DynamicArrayOutputStream(120000);
+            Serialize.write(daos, message);
+            publisher.send(daos.getWriteBuffer().array(), 0);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return input;
     }

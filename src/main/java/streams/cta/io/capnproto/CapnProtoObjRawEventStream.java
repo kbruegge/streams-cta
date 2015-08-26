@@ -1,14 +1,20 @@
 package streams.cta.io.capnproto;
 
+import org.capnproto.ArrayInputStream;
 import org.capnproto.MessageReader;
 import org.capnproto.PrimitiveList;
 import org.capnproto.ReaderOptions;
+import org.capnproto.Serialize;
+import org.capnproto.SerializePacked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.Channels;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -49,25 +55,8 @@ public class CapnProtoObjRawEventStream extends AbstractStream {
     @Override
     public Data readNext() throws Exception {
 
-        ByteBuffer buf = ByteBuffer.allocateDirect(8192);
-        subscriber.recvByteBuffer(buf, 0);
-
-        buf.order(ByteOrder.LITTLE_ENDIAN);
-        ArrayList<ByteBuffer> list = new ArrayList<>();
-        buf.flip();
-        list.add(buf);
-        while (subscriber.hasReceiveMore()) {
-            buf = ByteBuffer.allocate(130000);
-            buf.order(ByteOrder.LITTLE_ENDIAN);
-            subscriber.recvByteBuffer(buf, 0);
-            buf.flip();
-            list.add(buf);
-        }
-
-        MessageReader message =
-                new MessageReader(
-                        list.toArray(new ByteBuffer[list.size()]),
-                        ReaderOptions.DEFAULT_READER_OPTIONS);
+        byte[] bytes = subscriber.recv();
+        MessageReader message = Serialize.read(ByteBuffer.wrap(bytes));
 
         RawCTAEvent.Event.Reader rawEvent = message.getRoot(RawCTAEvent.Event.factory);
         int numPixel = rawEvent.getNumPixel();
