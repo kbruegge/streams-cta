@@ -10,6 +10,7 @@
         <storm.scope>compile</storm.scope>
         <streams.cta.version>0.9.22-SNAPSHOT</streams.cta.version>
         <streams.jar>cta-tools-${project.version}</streams.jar>
+        <artifactid-streams-storm>streams-storm</artifactid-streams-storm>
     </properties>
 
     <repositories>
@@ -44,8 +45,8 @@
 
         <dependency>
             <groupId>org.jwall</groupId>
-            <artifactId>streams-storm</artifactId>
             <version>${streams.cta.version}</version>
+            <artifactId>${artifactid-streams-storm}</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.storm</groupId>
@@ -229,6 +230,19 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>streams-storm-local</id>
+            <activation>
+                <property>
+                    <name>standalone</name>
+                    <value>true</value>
+                </property>
+            </activation>
+
+            <properties>
+                <artifactid-streams-storm>streams-storm-local</artifactid-streams-storm>
+            </properties>
+        </profile>
         <profile>
             <id>
                 standalone
