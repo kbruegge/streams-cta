@@ -69,7 +69,7 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
 
     /**
      * Add all pixel with a weight > corePixelThreshold to the showerpixel list.
-     * @param showerPixel
+     * @param showerPixel 'HashSet containing the so far identified shower pixels'
      * @param photons
      * @param corePixelThreshold
      * @return
@@ -86,7 +86,7 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
 
     /**
      * add all neighboring pixels of the core pixels, with a weight > neighborPixelThreshold to the showerpixellist
-     * @param showerPixel
+     * @param showerPixel 'HashSet containing the so far identified shower pixels'
      * @param photons
      * @return
      */
@@ -109,7 +109,7 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
 
     /**
      * Remove all clusters of pixels with less than minNumberOfPixel pixels in the cluster
-     * @param showerPixel
+     * @param showerPixel 'HashSet containing the so far identified shower pixels'
      * @param minNumberOfPixel
      * @return
      */
@@ -140,7 +140,7 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
     /**
      * Remove pixels with less than minNumberOfNeighborPixel neighboring shower pixel,
      * which arrival time differs more than the timeThreshold from the current pixel
-     * @param showerPixel
+     * @param showerPixel 'HashSet containing the so far identified shower pixels'
      * @param arrivalTimes
      * @param timeThreshold
      * @param minNumberOfNeighborPixel
