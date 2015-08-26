@@ -23,14 +23,14 @@
 
     <process input="cta:data_1">
         <streams.DataRate every="500"/>
-        <streams.cta.extraction.ArrivalTime/>
-        <streams.cta.extraction.Photons/>
+        <!--<streams.cta.extraction.ArrivalTime/>-->
+        <!--<streams.cta.extraction.Photons/>-->
         <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
     </process>
 
     <process input="performance">
         <!--<PrintData/>-->
-        <streams.cta.io.JSONWriter url="file:./performance_subscription_proto.json" keys="@datarate" writeblock="true"/>
+        <streams.cta.io.JSONWriter url="file:./performance_subscription_proto_ne.json" keys="@datarate" writeblock="true"/>
     </process>
     
 </application>
