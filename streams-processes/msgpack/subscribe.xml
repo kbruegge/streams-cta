@@ -29,7 +29,7 @@
 
     <process input="performance">
         <!--<PrintData/>-->
-        <streams.cta.io.JSONWriter url="file:./performance_subscription_msgpack_ne.json" keys="@datarate" writeblock="true"/>
+        <streams.cta.io.JSONWriter url="file:./performance_subscription_msgpack.json" keys="@datarate" writeblock="true"/>
     </process>
 
 
