@@ -1,9 +1,9 @@
-package streams.cta;
+package streams.cta.io.eventio;
 
 /**
  * Created by alexey on 17.06.15.
  */
-public class Constants {
+public class EventIOConstants {
 
     /**
      * The max. number of MC shower profiles.

@@ -10,12 +10,12 @@ import streams.cta.CTATelescope;
 import java.time.LocalDateTime;
 
 /**
- * Created by jebuss on 20.08.15.
- * Find the maximum amplitude in a pixel and extract its amplitude value and the postition of the maximum as timeslice
+ * Created by jbuss on 25.08.15.
  */
-public class MaxAmplitude extends CTARawDataProcessor implements StatefulProcessor {
+public class ArrivalTimeRisingEdge extends CTARawDataProcessor implements StatefulProcessor {
 
     long nonLSTCounter = 0;
+    int searchWindowSize = 20;
 
     @Override
     public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, short[][] eventData) {
@@ -27,31 +27,36 @@ public class MaxAmplitude extends CTARawDataProcessor implements StatefulProcess
 
         IntervalMarker[] m = new IntervalMarker[telescope.type.numberOfPixel];
 
-        int[] maxPos    = new int[telescope.type.numberOfPixel];
-        double[]maxVal  = new double[telescope.type.numberOfPixel];
+        int[] maxPos = (int[]) input.get("maxPos");
 
+        double[] arrivalTimes = new double[telescope.type.numberOfPixel];
         for (int pixel = 0; pixel < telescope.type.numberOfPixel; pixel++) {
-            short max  = 0;
-            int arrivalTime  = 0;
-            for (int slice = 0; slice < eventData[pixel].length; slice++) {
-                short value = eventData[pixel][slice];
-                if(value > max){
+            double arrivalTime  = 0;
+            double maxSlope     = 0.;
+
+            for (int slice = maxPos[pixel] - searchWindowSize;
+                 slice+2 < eventData[pixel].length && slice < maxPos[pixel]; slice++) {
+
+                if(slice-2 < 0){
+                    continue;
+                }
+
+                double current_slope = eventData[pixel][slice+2] - eventData[pixel][slice-2];
+
+                if(current_slope > maxSlope){
+                    maxSlope = current_slope;
                     arrivalTime = slice;
-                    max = value;
                 }
             }
+            arrivalTimes[pixel] = arrivalTime;
             m[pixel] = new IntervalMarker(arrivalTime,arrivalTime + 1);
-            maxVal[pixel]   = max;
-            maxPos[pixel]   = arrivalTime;
         }
-        input.put("maxPos", maxPos);
-        input.put("maxPosMarker", m);
-        input.put("maxVal", maxVal);
+        input.put("arrivalTimes", arrivalTimes);
         return input;
     }
 
     @Override
-    public void init(ProcessContext processContext) throws Exception {
+    public void init(ProcessContext context) throws Exception {
 
     }
 

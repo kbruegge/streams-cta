@@ -14,15 +14,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import streams.cta.io.eventio.EventIOBuffer;
-import streams.cta.io.eventio.EventIOStream;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
-import static streams.cta.Constants.LITTLE_ENDIAN;
-import static streams.cta.Constants.BIG_ENDIAN;
+import static streams.cta.io.eventio.EventIOConstants.LITTLE_ENDIAN;
+import static streams.cta.io.eventio.EventIOConstants.BIG_ENDIAN;
 
 /**
  * Created by alexey on 04/08/15.

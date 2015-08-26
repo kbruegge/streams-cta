@@ -58,6 +58,7 @@ public class CapnProtoObjPublisher extends CTARawDataProcessor implements Statef
         }
 
         ByteBuffer[] messages = message.getSegmentsForOutput();
+
         long bytes = 0;
         int i = 0;
         for (; i < messages.length - 1; i++) {
@@ -68,6 +69,7 @@ public class CapnProtoObjPublisher extends CTARawDataProcessor implements Statef
 
         bytes += messages[i].array().length;
         input.put("@packetSize", bytes);
+
         return input;
     }
 

@@ -68,7 +68,7 @@ public class Viewer extends JFrame {
     //the constructor. build layout here. bitch
 	private Viewer() {
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		setTitle("Fact Tools GUI Development");
+		setTitle("CTA Tools GUI Development");
 
 
         //------- add a chart window
@@ -90,10 +90,10 @@ public class Viewer extends JFrame {
 
         PanelBuilder builder = new PanelBuilder(layout);
         CellConstraints cc = new CellConstraints();
-        builder.add(chartPanel, cc.xywh(2, 1, 1, 1));
+        builder.add(chartPanel,     cc.xywh(2, 1, 1, 1));
         builder.add(eventInfoPanel, cc.xywh(2, 2, 1, 1));
-        builder.add(mapDisplay, cc.xywh(1, 1, 1, 2));
-        builder.add(navigation, cc.xywh(1,3, 2,1));
+        builder.add(mapDisplay,     cc.xywh(1, 1, 1, 2));
+        builder.add(navigation,     cc.xywh(1, 3, 2, 1));
 
         setContentPane(builder.getPanel());
 

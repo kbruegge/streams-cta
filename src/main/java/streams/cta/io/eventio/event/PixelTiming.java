@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import streams.cta.Constants;
+import streams.cta.io.eventio.EventIOConstants;
 import streams.cta.io.eventio.EventIOBuffer;
 import streams.cta.io.eventio.EventIOHeader;
 
@@ -156,7 +156,7 @@ public class PixelTiming {
                 } else {
                     listSize = buffer.readSCount32();
                 }
-                if (listSize < 0 || listSize > Constants.H_MAX_PIX) {
+                if (listSize < 0 || listSize > EventIOConstants.H_MAX_PIX) {
                     log.error("Invalid size of pixel list in pixel timing data: " + listSize);
                     header.getItemEnd();
                     return false;
@@ -190,7 +190,7 @@ public class PixelTiming {
                     withSum = 1;
                 }
                 numTypes = buffer.readShort();
-                if (numTypes < 0 || numTypes > Constants.H_MAX_PIX_TIMES) {
+                if (numTypes < 0 || numTypes > EventIOConstants.H_MAX_PIX_TIMES) {
                     log.error("Invalid number of types in pixel timing data: " + numTypes);
                     header.getItemEnd();
                     return false;

@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import streams.cta.Constants;
 import streams.cta.io.eventio.event.FullEvent;
 
 /**
@@ -69,7 +68,7 @@ public class EventIOHeader {
     }
 
     public boolean findAndReadNextHeader(boolean reset) throws IOException {
-        if (buffer.itemLevel >= Constants.MAX_IO_ITEM_LEVEL) {
+        if (buffer.itemLevel >= EventIOConstants.MAX_IO_ITEM_LEVEL) {
             log.error("Maximum level of sub-items in I/O Buffer exceeded.");
             return false;
         }
@@ -88,7 +87,7 @@ public class EventIOHeader {
         }
 
         if (reset) {
-            buffer.dataStream.mark(Constants.MAX_HEADER_SIZE);
+            buffer.dataStream.mark(EventIOConstants.MAX_HEADER_SIZE);
         }
 
         //TODO use the wanted type and control it
@@ -197,9 +196,9 @@ public class EventIOHeader {
 
         if (typeString == null) {
             if (FullEvent.isTelEvent(type)) {
-                typeString = EventIOStream.eventioTypes.get(Constants.TYPE_TEL_EVENT);
+                typeString = EventIOStream.eventioTypes.get(EventIOConstants.TYPE_TEL_EVENT);
             } else if (FullEvent.isTrackEvent(this.type)) {
-                typeString = EventIOStream.eventioTypes.get(Constants.TYPE_TRACK_EVENT);
+                typeString = EventIOStream.eventioTypes.get(EventIOConstants.TYPE_TRACK_EVENT);
             }
         }
         return typeString;
@@ -239,12 +238,12 @@ public class EventIOHeader {
                     if (b == syncMarker[0]) {
                         firstBit = 1;
                         state = 1;
-                        EventIOStream.byteOrder = Constants.BIG_ENDIAN;
+                        EventIOStream.byteOrder = EventIOConstants.BIG_ENDIAN;
                     } else if (b == syncMarker[3]) {
                         firstBit = 1;
                         state = 2;
                         reverse = -1;
-                        EventIOStream.byteOrder = Constants.LITTLE_ENDIAN;
+                        EventIOStream.byteOrder = EventIOConstants.LITTLE_ENDIAN;
                     }
                 } else {
                     if (b == (byte) syncMarker[state]) {
@@ -286,7 +285,7 @@ public class EventIOHeader {
 
 
         // decrease the level if the level is inside the allowed range
-        if (level >= 0 && level <= Constants.MAX_IO_ITEM_LEVEL) {
+        if (level >= 0 && level <= EventIOConstants.MAX_IO_ITEM_LEVEL) {
             // mark that for the next item we need to search for sync marker
             if (level == 0 & buffer.itemLevel == 1) {
                 buffer.syncMarkerFound = false;

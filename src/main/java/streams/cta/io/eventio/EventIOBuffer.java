@@ -8,10 +8,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import static streams.cta.Constants.H_MAX_TEL;
-import static streams.cta.Constants.LITTLE_ENDIAN;
-import static streams.cta.Constants.MAX_HEADER_SIZE;
-import static streams.cta.Constants.MAX_IO_ITEM_LEVEL;
+import static streams.cta.io.eventio.EventIOConstants.H_MAX_TEL;
+import static streams.cta.io.eventio.EventIOConstants.LITTLE_ENDIAN;
+import static streams.cta.io.eventio.EventIOConstants.MAX_HEADER_SIZE;
+import static streams.cta.io.eventio.EventIOConstants.MAX_IO_ITEM_LEVEL;
 
 /**
  * Created by alexey on 17.06.15.

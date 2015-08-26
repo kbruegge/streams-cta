@@ -8,7 +8,7 @@ import java.io.IOException;
 import streams.cta.io.eventio.EventIOBuffer;
 import streams.cta.io.eventio.EventIOHeader;
 
-import static streams.cta.Constants.H_MAX_PIX;
+import static streams.cta.io.eventio.EventIOConstants.H_MAX_PIX;
 
 /**
  * Created by alexey on 30.06.15.
