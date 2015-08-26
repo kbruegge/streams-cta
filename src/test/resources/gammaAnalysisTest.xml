@@ -12,9 +12,10 @@
 
     
     <process input="cta:data">
+        <!--<streams.cta.datacorrection.BaselineShift />-->
         <streams.cta.extraction.MaxAmplitude />
-        <!--<streams.cta.extraction.ArrivalTime/>-->
-        <!--<streams.cta.extraction.Photons />-->
+        <streams.cta.extraction.ArrivalTimeRisingEdge/>
+        <streams.cta.extraction.PhotonsSignalAmplitude />
         <streams.cta.cleaning.TwoLevelCleaning />
         <streams.cta.features.Size/>
         <streams.ShowViewer />
