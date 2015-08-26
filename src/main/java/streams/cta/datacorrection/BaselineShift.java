@@ -1,17 +1,17 @@
 package streams.cta.datacorrection;
 
+import java.time.LocalDateTime;
+
 import stream.Data;
 import stream.ProcessContext;
 import stream.StatefulProcessor;
 import streams.cta.CTARawDataProcessor;
 import streams.cta.CTATelescope;
 
-import java.time.LocalDateTime;
-
 /**
  * Created by jbuss on 25.08.15.
  */
-public class BaselineShift extends CTARawDataProcessor implements StatefulProcessor{
+public class BaselineShift extends CTARawDataProcessor implements StatefulProcessor {
 
     int bslCorrectionFactor = 100;
 

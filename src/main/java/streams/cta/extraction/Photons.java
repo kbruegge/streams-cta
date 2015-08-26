@@ -1,12 +1,12 @@
 package streams.cta.extraction;
 
+import java.time.LocalDateTime;
+
 import stream.Data;
 import stream.ProcessContext;
 import stream.StatefulProcessor;
 import streams.cta.CTARawDataProcessor;
 import streams.cta.CTATelescope;
-
-import java.time.LocalDateTime;
 
 /**
  * Created by kai on 11.08.15.
@@ -19,7 +19,7 @@ public class Photons extends CTARawDataProcessor implements StatefulProcessor {
     @Override
     public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, short[][] eventData) {
 
-        if(eventData.length != 1855){
+        if (eventData.length != 1855) {
             nonLSTCounter++;
             return input;
         }

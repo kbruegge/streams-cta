@@ -1,12 +1,12 @@
 package streams.cta.extraction;
 
+import java.time.LocalDateTime;
+
 import stream.Data;
 import stream.ProcessContext;
 import stream.StatefulProcessor;
 import streams.cta.CTARawDataProcessor;
 import streams.cta.CTATelescope;
-
-import java.time.LocalDateTime;
 
 /**
  * Created by kai on 11.08.15.
@@ -18,18 +18,18 @@ public class ArrivalTime extends CTARawDataProcessor implements StatefulProcesso
     @Override
     public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, short[][] eventData) {
 
-        if(eventData.length != 1855){
+        if (eventData.length != 1855) {
             nonLSTCounter++;
             return input;
         }
 
         double[] arrivalTimes = new double[telescope.type.numberOfPixel];
         for (int pixel = 0; pixel < telescope.type.numberOfPixel; pixel++) {
-            short max  = 0;
-            double arrivalTime  = 0;
+            short max = 0;
+            double arrivalTime = 0;
             for (int slice = 0; slice < eventData[pixel].length; slice++) {
                 short value = eventData[pixel][slice];
-                if(value > max){
+                if (value > max) {
                     arrivalTime = slice;
                     max = value;
                 }
