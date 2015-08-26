@@ -52,7 +52,11 @@ public class ProtoEventPublisher extends CTARawDataProcessor implements Stateful
             }
         }
         rawEvent.samples = samples;
-        publisher.send(RawCTAEvent.RawEvent.toByteArray(rawEvent), 0);
+
+        byte[] bytes =  RawCTAEvent.RawEvent.toByteArray(rawEvent);
+        input.put("@packetSize", bytes.length);
+        publisher.send(bytes,0);
+
         return input;
     }
 
@@ -77,10 +81,11 @@ public class ProtoEventPublisher extends CTARawDataProcessor implements Stateful
         System.out.println("Sleeping for 4 seconds");
         Thread.sleep(4000);
 
-        if (publisher != null) {
+
+        if(publisher != null) {
             publisher.close();
         }
-        if (context != null) {
+        if(context != null) {
             context.term();
         }
 

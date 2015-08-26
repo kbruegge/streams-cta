@@ -22,8 +22,8 @@
 
     <process input="cta:data_1">
         <streams.DataRate every="500"/>
-        <streams.cta.extraction.ArrivalTime/>
-        <streams.cta.extraction.Photons/>
+        <!--<streams.cta.extraction.ArrivalTime/>-->
+        <!--<streams.cta.extraction.Photons/>-->
         <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
     </process>
 

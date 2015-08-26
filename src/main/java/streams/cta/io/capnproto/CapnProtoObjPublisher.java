@@ -61,10 +61,13 @@ public class CapnProtoObjPublisher extends CTARawDataProcessor implements Statef
         try {
             DynamicArrayOutputStream daos = new DynamicArrayOutputStream(120000);
             Serialize.write(daos, message);
-            publisher.send(daos.getWriteBuffer().array(), 0);
+            byte[] bytes = daos.getWriteBuffer().array();
+            publisher.send(bytes, 0);
+            input.put("@packetSize", bytes.length);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return input;
     }
 
