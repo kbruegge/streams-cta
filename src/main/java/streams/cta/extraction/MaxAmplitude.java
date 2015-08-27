@@ -1,17 +1,18 @@
 package streams.cta.extraction;
 
 import org.jfree.chart.plot.IntervalMarker;
+
+import java.time.LocalDateTime;
+
 import stream.Data;
 import stream.ProcessContext;
 import stream.StatefulProcessor;
 import streams.cta.CTARawDataProcessor;
 import streams.cta.CTATelescope;
 
-import java.time.LocalDateTime;
-
 /**
- * Created by jebuss on 20.08.15.
- * Find the maximum amplitude in a pixel and extract its amplitude value and the postition of the maximum as timeslice
+ * Created by jebuss on 20.08.15. Find the maximum amplitude in a pixel and extract its amplitude
+ * value and the postition of the maximum as timeslice
  */
 public class MaxAmplitude extends CTARawDataProcessor implements StatefulProcessor {
 
@@ -20,29 +21,29 @@ public class MaxAmplitude extends CTARawDataProcessor implements StatefulProcess
     @Override
     public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, short[][] eventData) {
 
-        if(eventData.length != 1855){
+        if (eventData.length != 1855) {
             nonLSTCounter++;
             return input;
         }
 
         IntervalMarker[] m = new IntervalMarker[telescope.type.numberOfPixel];
 
-        int[] maxPos    = new int[telescope.type.numberOfPixel];
-        double[]maxVal  = new double[telescope.type.numberOfPixel];
+        int[] maxPos = new int[telescope.type.numberOfPixel];
+        double[] maxVal = new double[telescope.type.numberOfPixel];
 
         for (int pixel = 0; pixel < telescope.type.numberOfPixel; pixel++) {
-            short max  = 0;
-            int arrivalTime  = 0;
+            short max = 0;
+            int arrivalTime = 0;
             for (int slice = 0; slice < eventData[pixel].length; slice++) {
                 short value = eventData[pixel][slice];
-                if(value > max){
+                if (value > max) {
                     arrivalTime = slice;
                     max = value;
                 }
             }
-            m[pixel] = new IntervalMarker(arrivalTime,arrivalTime + 1);
-            maxVal[pixel]   = max;
-            maxPos[pixel]   = arrivalTime;
+            m[pixel] = new IntervalMarker(arrivalTime, arrivalTime + 1);
+            maxVal[pixel] = max;
+            maxPos[pixel] = arrivalTime;
         }
         input.put("maxPos", maxPos);
         input.put("maxPosMarker", m);

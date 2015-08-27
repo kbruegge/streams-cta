@@ -70,7 +70,10 @@ public class MsgPackPublisher extends CTARawDataProcessor implements StatefulPro
         } catch (IOException e) {
             log.error("Writing with packer went wrong.");
         }
-        publisher.send(out.toByteArray());
+
+        byte[] bytes = out.toByteArray();
+        input.put("@packetSize", bytes.length);
+        publisher.send(bytes);
         return input;
     }
 

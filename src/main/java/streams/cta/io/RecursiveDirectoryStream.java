@@ -33,6 +33,10 @@ public class RecursiveDirectoryStream extends AbstractMultiStream {
             "(excluding the possible suffix)")
     private SourceURL listUrl = null;
 
+
+    @Parameter(required = false, description = "How many times should one file be added to the file stack. A number" +
+            "larger than 1 means that the files will be read more than once", defaultValue = "1")
+    private int  multiply = 1;
     //counts how many files have been processed
     private int filesCounter = 0;
 
@@ -64,11 +68,15 @@ public class RecursiveDirectoryStream extends AbstractMultiStream {
 
         log.info("Loading files.");
         ArrayList<File> fileList = walkFiles(f, suffix, 0);
-        for (File file: fileList){
-            if(fileNamesFromWhiteList.isEmpty() || fileNamesFromWhiteList.contains(file.getName())){
-                files.add(file);
+
+        for (int i = 0; i < multiply; i++) {
+            for (File file : fileList) {
+                if (fileNamesFromWhiteList.isEmpty() || fileNamesFromWhiteList.contains(file.getName())) {
+                    files.add(file);
+                }
             }
         }
+
         log.info("Loaded " + files.size() + " files for streaming.");
         //super.init();
     }
@@ -173,4 +181,7 @@ public class RecursiveDirectoryStream extends AbstractMultiStream {
         this.listUrl = listUrl;
     }
 
+    public void setMultiply(int multiply) {
+        this.multiply = multiply;
+    }
 }

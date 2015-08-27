@@ -11,7 +11,7 @@
         <!--<Delay time="25ms" />-->
         <streams.cta.io.protobuf.ProtoEventPublisher addresses="tcp://*:5558" />
         <Skip condition="%{data.@datarate} == null" />
-            <streams.cta.io.JSONWriter url="file:./performance_publish_protobuf.json" keys="@datarate" writeblock="true"/>
+            <streams.cta.io.JSONWriter url="file:./performance_publish_protobuf.json" keys="@datarate,@packetSize" writeblock="true"/>
     </process>
 
 

@@ -10,7 +10,7 @@
 
 
     <process input="cta:data" >
-        <streams.DataRate every="500" />
+        <streams.DataRate every="10" />
         <!--<Delay time="25ms" />-->
         <streams.cta.io.msgpack.MsgPackObjPublisher addresses="tcp://*:5556" />
     </process>

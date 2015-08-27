@@ -1,13 +1,14 @@
 package streams.cta.extraction;
 
 import org.jfree.chart.plot.IntervalMarker;
+
+import java.time.LocalDateTime;
+
 import stream.Data;
 import stream.ProcessContext;
 import stream.StatefulProcessor;
 import streams.cta.CTARawDataProcessor;
 import streams.cta.CTATelescope;
-
-import java.time.LocalDateTime;
 
 /**
  * Created by jbuss on 25.08.15.
@@ -20,7 +21,7 @@ public class ArrivalTimeRisingEdge extends CTARawDataProcessor implements Statef
     @Override
     public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, short[][] eventData) {
 
-        if(eventData.length != 1855){
+        if (eventData.length != 1855) {
             nonLSTCounter++;
             return input;
         }
@@ -31,25 +32,25 @@ public class ArrivalTimeRisingEdge extends CTARawDataProcessor implements Statef
 
         double[] arrivalTimes = new double[telescope.type.numberOfPixel];
         for (int pixel = 0; pixel < telescope.type.numberOfPixel; pixel++) {
-            double arrivalTime  = 0;
-            double maxSlope     = 0.;
+            double arrivalTime = 0;
+            double maxSlope = 0.;
 
             for (int slice = maxPos[pixel] - searchWindowSize;
-                 slice+2 < eventData[pixel].length && slice < maxPos[pixel]; slice++) {
+                 slice + 2 < eventData[pixel].length && slice < maxPos[pixel]; slice++) {
 
-                if(slice-2 < 0){
+                if (slice - 2 < 0) {
                     continue;
                 }
 
-                double current_slope = eventData[pixel][slice+2] - eventData[pixel][slice-2];
+                double current_slope = eventData[pixel][slice + 2] - eventData[pixel][slice - 2];
 
-                if(current_slope > maxSlope){
+                if (current_slope > maxSlope) {
                     maxSlope = current_slope;
                     arrivalTime = slice;
                 }
             }
             arrivalTimes[pixel] = arrivalTime;
-            m[pixel] = new IntervalMarker(arrivalTime,arrivalTime + 1);
+            m[pixel] = new IntervalMarker(arrivalTime, arrivalTime + 1);
         }
         input.put("arrivalTimes", arrivalTimes);
         return input;
