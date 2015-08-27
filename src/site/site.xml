@@ -1,0 +1,63 @@
+<project name="streams">
+  <bannerLeft>
+    <name>streams</name>
+<!--    <src>http://www-ai.cs.uni-dortmund.de/ci/Medienpool/Seitenbilder/logo_tu.png</src>  -->
+    <href>/</href>
+  </bannerLeft>
+  
+  <bannerRight>
+    <name></name>
+<!--    <src>http://www-ai.cs.uni-dortmund.de/header-bg-topLeft.png</src> -->
+    <href></href>
+  </bannerRight>
+    
+  <publishDate position="right" />
+
+  
+  <body>
+  
+    <links>
+    </links>
+
+    
+    <menu name="streams-cta">
+      <item name="Home" href="index.html" collapse="true" />
+    </menu>
+    <menu name="Documentation">
+      <item name="Overview" href="doc/index.html" collapse="true">
+      	<item name="Quickstart" href="quickstart.html" />
+        <!--
+	      <item name="Basic Concepts" href="doc/concepts.html" collapse="true">
+	         <item name="Container" href="doc/concepts.html#container" />
+	         <item name="Stream" href="doc/concepts.html#streams" />
+	         <item name="Process" href="doc/concepts.html#process" />
+	         <item name="Service" href="doc/concepts.html#service" />
+	       </item>
+       -->
+      </item>
+      <item name="Publications" href="publications.html" />
+      <!--
+      <item name="Online Learning" href="doc/learning/index.html" collapse="true">
+      	<item name="Generating Streams" href="doc/learning/synthetic.html" />
+      	<item name="Counting" href="doc/learning/counter.html" />
+      	<item name="Integrating MOA" href="doc/learning/moa.html" />
+      </item>
+    -->
+    </menu>
+
+    <!--
+    <menu name="Development">
+      <item name="Maven integration" href="/dev/maven.html"/>
+      <item name="Custom Processors" href="dev/index.html" collapse="true">
+      	<item name="Implementing Processors" href="dev/processor.html" />
+      	<item name="Processor Scripts" href="dev/scripting.html" />
+      </item>
+    </menu>
+    -->
+
+    <menu ref="reports"/>
+
+  </body>
+  
+  <poweredBy></poweredBy>
+</project>
