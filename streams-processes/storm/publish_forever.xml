@@ -12,7 +12,7 @@
 
 
     <process input="cta:data_${copy.id}" copies="${num_copies}" >
-        <streams.DataRate every="500" />
+        <streams.DataRate every="100" />
         <Delay time="5ms" />
         <streams.cta.io.protobuf.ProtoEventPublisher addresses="tcp://*:5558" />
         <!--<Skip condition="%{data.@datarate} == null" />-->

@@ -1,0 +1,161 @@
+body,p,li {
+   font-family: "Arial",Verdana,Arial,Helvetica;
+   font-size: 16px;
+   line-height: 150%;
+   color: #666;
+}
+
+body {
+//   background-color: #d0d0d0;
+   background-image: url('../images/header_bg.jpg' );
+   background-image: url('../images/star-background.jpg' );
+   background-position: center;
+   background-repeat: repeat-y;
+}
+
+.body {
+   background-color: white;
+   margin: auto;
+}
+
+.contentBox {
+   padding-top: 14px;
+}
+
+#banner {
+   background-image: none;
+   margin-top: 40px;
+   height: 80px;
+}
+
+#banner img {
+    padding: 15px;
+}
+
+#header {
+   display: none;
+}
+
+#navcolumn li {
+   font-size: 15px;
+}
+
+#bodyColumn {
+   margin-left: 260px;
+//   padding-top: 10px;
+}
+
+table th {
+    background-color: #e0e0e0;
+    font-weight: bold;
+    color: #a0a0a0;
+}
+
+table {
+    border: solid 1px #a0a0a0;
+    font-size: 14px;
+}
+
+td {
+    text-align: center;
+}
+
+
+h1,h2,h3,h4,h5 {
+   font-family: "Arial",Verdana,Arial,Helvetica;
+   color: #444;
+}
+
+h1 {
+   font-size: 24px;
+   margin-left: 6px;
+   padding-top: 20px;
+}
+
+h2 {
+   font-size: 18px;
+   margin-top: 25px;
+   border: none;
+   margin-left: 6px;
+}
+
+h3 {
+   font-size: 16px;
+   margin-left: 6px;
+   margin-top: 25px;
+}
+
+p {
+    margin-left: 6px;
+}
+
+.sidebar {
+   width: 220px;
+}
+
+#banner {
+   height: 80px;
+}
+
+li.expanded {
+	list-style-type: circle;
+	margin-left: 8px;
+	padding-left:0px;
+}
+
+li:hover {
+//	list-style-type: circle;
+}
+
+li.expanded strong, li.none strong {
+	font-weight: normal;
+}
+
+.sidebarItemBody a {
+	color: #888;
+}
+
+.figure {
+
+   margin: auto;
+   text-align: center;
+   width: 80%;
+}
+
+.figure p {
+   margin: auto;
+}
+
+#banner {
+  background-image: none;
+  border-bottom: 1px solid #fff;
+  height: 60px;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+#header {
+  background-image: url('../images/header_bg.jpg');
+  height: 80px;
+}
+
+#bannerRight {
+    float: right;
+}
+
+#logoLeft {
+    margin: 20px;
+}
+
+#logoRight {
+    margin: 10px;
+    margin-right: 20px;
+}
+
+#logoLeft, #logoRight {
+//    visibility: hidden;
+}
+
+.clear hr {
+    visibility: hidden;
+}

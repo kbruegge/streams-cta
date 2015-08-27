@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
  */
 public class DynamicArrayOutputStream implements BufferedOutputStream {
 
-    private static final int ADD_BUFFER = 8192;
+    private static final int ADD_BUFFER = 8192 / 2;
     static Logger log = LoggerFactory.getLogger(DynamicArrayOutputStream.class);
 
     ByteBuffer buffer;
@@ -43,7 +43,7 @@ public class DynamicArrayOutputStream implements BufferedOutputStream {
         int bufRemaining = this.buffer.remaining();
         int srcRemaining = src.remaining();
         if (bufRemaining < srcRemaining) {
-            int biggerSize = bufferSize + (srcRemaining > ADD_BUFFER ? srcRemaining : ADD_BUFFER);
+            int biggerSize = bufferSize + (srcRemaining > ADD_BUFFER ? srcRemaining + ADD_BUFFER : ADD_BUFFER);
             ByteBuffer biggerBuffer = ByteBuffer.allocate(biggerSize);
             biggerBuffer.put(this.buffer.array());
             this.buffer = biggerBuffer;

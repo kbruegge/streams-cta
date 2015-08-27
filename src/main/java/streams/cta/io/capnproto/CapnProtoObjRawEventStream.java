@@ -1,23 +1,15 @@
 package streams.cta.io.capnproto;
 
-import org.capnproto.ArrayInputStream;
 import org.capnproto.BufferedInputStreamWrapper;
 import org.capnproto.MessageReader;
 import org.capnproto.PrimitiveList;
-import org.capnproto.ReaderOptions;
-import org.capnproto.Serialize;
 import org.capnproto.SerializePacked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.channels.Channels;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 
 import stream.Data;
 import stream.annotations.Parameter;
