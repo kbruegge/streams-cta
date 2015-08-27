@@ -8,6 +8,7 @@ import org.zeromq.ZMQ;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 import java.time.LocalDateTime;
 
 import stream.Data;
@@ -62,6 +63,7 @@ public class CapnProtoObjPublisher extends CTARawDataProcessor implements Statef
 //            ArrayOutputStream daos = new ArrayOutputStream(ByteBuffer.allocate(70000));
             DynamicArrayOutputStream daos = new DynamicArrayOutputStream(70000);
 
+//            SerializePacked.writeToUnbuffered(, message);
             SerializePacked.write(daos, message);
 //            ByteBuffer buf = daos.getWriteBuffer();
 //            buf.flip();
