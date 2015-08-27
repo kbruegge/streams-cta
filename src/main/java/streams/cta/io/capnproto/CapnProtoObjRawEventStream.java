@@ -57,8 +57,11 @@ public class CapnProtoObjRawEventStream extends AbstractStream {
     public Data readNext() throws Exception {
 
         byte[] bytes = subscriber.recv();
-        MessageReader message = SerializePacked.readFromUnbuffered(
-                new DynamicArrayInputStream(ByteBuffer.wrap(bytes)));
+//        MessageReader message = SerializePacked.read(
+//                new DynamicArrayInputStream(ByteBuffer.wrap(bytes)));
+//
+//
+        MessageReader message = SerializePacked.read(new ArrayInputStream(ByteBuffer.wrap(bytes)));
 
         RawCTAEvent.Event.Reader rawEvent = message.getRoot(RawCTAEvent.Event.factory);
         int numPixel = rawEvent.getNumPixel();

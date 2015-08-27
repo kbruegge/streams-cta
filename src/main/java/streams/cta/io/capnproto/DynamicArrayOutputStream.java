@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
  */
 public class DynamicArrayOutputStream implements BufferedOutputStream {
 
-    private static final int ADD_BUFFER = 8192;
+    private static final int ADD_BUFFER = 8192/2;
     static Logger log = LoggerFactory.getLogger(DynamicArrayOutputStream.class);
 
     ByteBuffer buffer;
