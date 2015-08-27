@@ -1,6 +1,7 @@
 package streams.cta.io.capnproto;
 
 import org.apache.storm.netty.buffer.ChannelBuffer;
+import org.capnproto.BufferedOutputStreamWrapper;
 import org.capnproto.MessageBuilder;
 import org.capnproto.PrimitiveList;
 import org.capnproto.Serialize;
@@ -62,14 +63,17 @@ public class CapnProtoObjPublisher extends CTARawDataProcessor implements Statef
         }
 
         try {
-            DynamicArrayOutputStream daos = new DynamicArrayOutputStream(50000);
-            SerializePacked.write(daos, message);
-            ByteBuffer buf = daos.getWriteBuffer();
-            buf.flip();
-            byte[] bytes = new byte[buf.limit()];
-            buf.get(bytes);
-            publisher.send(bytes, 0);
-            input.put("@packetSize", bytes.length);
+            DynamicArrayOutputStream daos = new DynamicArrayOutputStream(70000);
+
+            // buffered version
+            SerializePacked.write(new BufferedOutputStreamWrapper(daos), message);
+
+            // unbuffered version
+            //SerializePacked.writeToUnbuffered(daos, message);
+
+            //byte[] bytes = daos.getWriteBuffer().array();
+            //input.put("@packetSize", bytes.length);
+            publisher.send(daos.getWriteBuffer().array(), 0);
         } catch (IOException e) {
             e.printStackTrace();
         }

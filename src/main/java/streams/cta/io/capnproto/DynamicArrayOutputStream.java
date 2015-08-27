@@ -44,10 +44,6 @@ public class DynamicArrayOutputStream implements BufferedOutputStream {
         int srcRemaining = src.remaining();
         if (bufRemaining < srcRemaining) {
             int biggerSize = bufferSize + (srcRemaining > ADD_BUFFER ? srcRemaining : ADD_BUFFER);
-                    //? srcRemaining : (srcRemaining > bufferSize / 2
-                    //? srcRemaining : (srcRemaining / bufferSize) * 2 * bufferSize));
-            //log.error("Backing buffer was not large enough: increasing from {} to {}",
-            //        bufferSize, biggerSize);
             ByteBuffer biggerBuffer = ByteBuffer.allocate(biggerSize);
             biggerBuffer.put(this.buffer.array());
             this.buffer = biggerBuffer;
