@@ -1,13 +1,16 @@
 package streams.cta.io.capnproto;
 
+import org.apache.storm.netty.buffer.ChannelBuffer;
 import org.capnproto.MessageBuilder;
 import org.capnproto.PrimitiveList;
 import org.capnproto.Serialize;
+import org.capnproto.SerializePacked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 
 import stream.Data;
@@ -59,9 +62,12 @@ public class CapnProtoObjPublisher extends CTARawDataProcessor implements Statef
         }
 
         try {
-            DynamicArrayOutputStream daos = new DynamicArrayOutputStream(120000);
-            Serialize.write(daos, message);
-            byte[] bytes = daos.getWriteBuffer().array();
+            DynamicArrayOutputStream daos = new DynamicArrayOutputStream(50000);
+            SerializePacked.write(daos, message);
+            ByteBuffer buf = daos.getWriteBuffer();
+            buf.flip();
+            byte[] bytes = new byte[buf.limit()];
+            buf.get(bytes);
             publisher.send(bytes, 0);
             input.put("@packetSize", bytes.length);
         } catch (IOException e) {
