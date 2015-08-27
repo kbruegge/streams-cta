@@ -30,7 +30,7 @@ import java.util.HashSet;
 public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
 
     @Parameter(required = false)
-    double[] levels = {300., 110., 6., 1};
+    double[] levels = {300., 120., 5., 1};
 
     HashSet<CameraPixel> showerPixel = new HashSet<>();
 
@@ -41,11 +41,15 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
         showerPixel.clear();
 
         showerPixel = addCorePixel(showerPixel,photons,levels[0]);
-        showerPixel = removeSmallCluster(showerPixel, 2);
+        if(showerPixel.size() == 0 ){ return input; }
+
+//        showerPixel = removeSmallCluster(showerPixel, 1);
+//        if(showerPixel.size() == 0 ){ return input; }
+
         showerPixel = addNeighboringPixels(showerPixel, photons, levels[1]);
         showerPixel = applyTimeNeighborCleaning(showerPixel,arrivalTimes, levels[2], 1);
-        showerPixel = removeSmallCluster(showerPixel, (int) levels[3]);
-        showerPixel = applyTimeNeighborCleaning(showerPixel,arrivalTimes, levels[2], 1);
+//        showerPixel = removeSmallCluster(showerPixel, (int) levels[3]);
+//        showerPixel = applyTimeNeighborCleaning(showerPixel,arrivalTimes, levels[2], 1);
 
 
         for (int i = 0; i < photons.length; i++) {
@@ -129,7 +133,6 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
             }
         }
 
-        showerPixel.clear();
         for(Integer pix : newList){
             showerPixel.remove(pixelMap.getPixelFromId(pix));
         }
@@ -154,6 +157,7 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
             ArrayList<CameraPixel> currentNeighbors = pixelMap.getNeighboursForPixel(pixel);
             int counter = 0;
             double time = arrivalTimes[pixel.id];
+
             for (CameraPixel nPix:currentNeighbors){
                 if( Math.abs(arrivalTimes[nPix.id]-time) < timeThreshold){
                     counter++;
