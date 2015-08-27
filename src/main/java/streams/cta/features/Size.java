@@ -24,7 +24,7 @@ public class Size extends CTACleanedDataProcessor {
             size += photons[pix.id];
         }
 
-        input.put("size", size);
+        input.put("@size", size);
         return input;
     }
 }

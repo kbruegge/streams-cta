@@ -29,7 +29,8 @@ public class PhotonsSignalAmplitude extends CTARawDataProcessor implements State
         for (int pixel = 0; pixel < telescope.type.numberOfPixel; pixel++) {
 //            This is a totaly artificial calibration of the amplitude
 //            the numbers are magic number computed by regression of event amplitudes in streams and hessio
-            photons[pixel] = 5.4236 * maxVals[pixel] + 201.38;
+//            photons[pixel] = 5.4236 * maxVals[pixel] + 201.38;
+            photons[pixel] = maxVals[pixel];
         }
 
         input.put("photons", photons);
