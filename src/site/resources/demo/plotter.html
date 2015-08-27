@@ -1,0 +1,32 @@
+<html>
+<head>
+<style>
+pre { padding:10px; background-color: #e0e0e0; border: solid 1px #a0a0a0; margin: 10px; }
+</style>
+</head>
+<body>
+<h1>Demo - using the stream-plotter</h1>
+<p>
+Adding the <code>stream-plotter</code> package to plot the data.
+</p>
+<pre>
+   &lt;container>
+      &lt;libs>
+          org.jwall:stream-plotter:0.9.5-SNAPSHOT
+      &lt;/libs>
+
+      &lt;stream id="example" class="stream.io.CsvStream"
+                 url="http://www.jwall.org/streams/demo.csv" />
+
+      &lt;process input="example">
+
+         &lt;stream.flow.Delay time="100ms"/>
+
+         &lt;stream.plotter.Plotter keys="x1,x2,x3" />
+
+         &lt;PrintData />
+      &lt;/process>
+   &lt;/container>
+</pre>
+</body>
+</html>
