@@ -23,14 +23,13 @@ public class WidthLengthDelta extends CTACleanedDataProcessor{
     public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, double[] photons,
                         double[] arrivalTimes, HashSet<CameraPixel> showerPixel) {
 
-        CTAHexPixelMapping pixelMap = CTAHexPixelMapping.getInstance();
 
-        if( !input.containsKey("@size") && !input.containsKey("@cog")){
+        if( !input.containsKey("size") && !input.containsKey("cog")){
             return input;
         }
 
-        double  size = (double) input.get("@size");
-        double[] cog = (double []) input.get("@cog");
+        double  size = (double) input.get("size");
+        double[] cog = (double []) input.get("cog");
 
         // Calculate the weighted Empirical variance along the x and y axis.
         RealMatrix covarianceMatrix = calculateCovarianceMatrix(showerPixel, photons, cog);
@@ -47,9 +46,9 @@ public class WidthLengthDelta extends CTACleanedDataProcessor{
         double width  = Math.sqrt(varianceTrans);
         double delta  = calculateDelta(eig);
 
-        input.put("@length", length);
-        input.put("@width", width);
-        input.put("@delta", delta);
+        input.put("length", length);
+        input.put("width", width);
+        input.put("delta", delta);
 
         return input;
     }

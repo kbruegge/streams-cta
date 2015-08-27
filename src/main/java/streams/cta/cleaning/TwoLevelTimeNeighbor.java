@@ -30,7 +30,7 @@ import java.util.HashSet;
 public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
 
     @Parameter(required = false)
-    double[] levels = {300., 120., 5., 1};
+    double[] levels = {220, 120., 5., 1};
 
     HashSet<CameraPixel> showerPixel = new HashSet<>();
 
@@ -47,16 +47,16 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
 //        if(showerPixel.size() == 0 ){ return input; }
 
         showerPixel = addNeighboringPixels(showerPixel, photons, levels[1]);
-        showerPixel = applyTimeNeighborCleaning(showerPixel,arrivalTimes, levels[2], 1);
+//        showerPixel = applyTimeNeighborCleaning(showerPixel,arrivalTimes, levels[2], 1);
 //        showerPixel = removeSmallCluster(showerPixel, (int) levels[3]);
 //        showerPixel = applyTimeNeighborCleaning(showerPixel,arrivalTimes, levels[2], 1);
 
 
-        for (int i = 0; i < photons.length; i++) {
-            if (photons[i] > levels[0]){
-                showerPixel.add(pixelMap.getPixelFromId(i));
-            }
-        }
+//        for (int i = 0; i < photons.length; i++) {
+//            if (photons[i] > levels[0]){
+//                showerPixel.add(pixelMap.getPixelFromId(i));
+//            }
+//        }
 
         if(showerPixel.size() < 5 ){
             return input;
@@ -100,45 +100,43 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
         for (CameraPixel pix : showerPixel){
             ArrayList<CameraPixel> currentNeighbors = pixelMap.getNeighboursForPixel(pix);
 
-            for (CameraPixel nPix : currentNeighbors){
-                if(photons[nPix.id] > neighborPixelThreshold && !newList.contains(nPix.id) && !showerPixel.contains(nPix.id)){
-                    newList.add(pixelMap.getPixelFromId(nPix.id));
-                }
-            }
+            currentNeighbors.stream().filter(nPix -> photons[nPix.id] > neighborPixelThreshold && !newList.contains(nPix.id) && !showerPixel.contains(nPix.id)).forEach(nPix -> {
+                newList.add(pixelMap.getPixelFromId(nPix.id));
+            });
         }
         showerPixel.addAll(newList);
         return showerPixel;
     }
 
 
-    /**
-     * Remove all clusters of pixels with less than minNumberOfPixel pixels in the cluster
-     * @param showerPixel 'HashSet containing the so far identified shower pixels'
-     * @param minNumberOfPixel
-     * @return
-     */
-    public HashSet<CameraPixel> removeSmallCluster(HashSet<CameraPixel> showerPixel, int minNumberOfPixel)
-    {
-
-        ArrayList<Integer> list = new ArrayList<>();
-        for(CameraPixel pix : showerPixel){
-            list.add(pix.id);
-        }
-
-        ArrayList<ArrayList<Integer>> listOfLists = pixelMap.breadthFirstSearch(list);
-        ArrayList<Integer> newList = new ArrayList<>();
-        for (ArrayList<Integer> l: listOfLists){
-            if(l.size() >= minNumberOfPixel){
-                newList.addAll(l);
-            }
-        }
-
-        for(Integer pix : newList){
-            showerPixel.remove(pixelMap.getPixelFromId(pix));
-        }
-
-        return showerPixel;
-    }
+//    /**
+//     * Remove all clusters of pixels with less than minNumberOfPixel pixels in the cluster
+//     * @param showerPixel 'HashSet containing the so far identified shower pixels'
+//     * @param minNumberOfPixel
+//     * @return
+//     */
+//    public HashSet<CameraPixel> removeSmallCluster(HashSet<CameraPixel> showerPixel, int minNumberOfPixel)
+//    {
+//
+//        ArrayList<Integer> list = new ArrayList<>();
+//        for(CameraPixel pix : showerPixel){
+//            list.add(pix.id);
+//        }
+//
+//        ArrayList<ArrayList<Integer>> listOfLists = pixelMap.breadthFirstSearch(list);
+//        ArrayList<Integer> newList = new ArrayList<>();
+//        for (ArrayList<Integer> l: listOfLists){
+//            if(l.size() >= minNumberOfPixel){
+//                newList.addAll(l);
+//            }
+//        }
+//
+//        for(Integer pix : newList){
+//            showerPixel.remove(pixelMap.getPixelFromId(pix));
+//        }
+//
+//        return showerPixel;
+//    }
 
     /**
      * Remove pixels with less than minNumberOfNeighborPixel neighboring shower pixel,
@@ -149,27 +147,27 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
      * @param minNumberOfNeighborPixel
      * @return
      */
-    public HashSet<CameraPixel> applyTimeNeighborCleaning(HashSet<CameraPixel> showerPixel,double[] arrivalTimes, double timeThreshold, int minNumberOfNeighborPixel) {
-
-
-        HashSet<CameraPixel> newList= new HashSet<CameraPixel>();
-        for(CameraPixel pixel: showerPixel){
-            ArrayList<CameraPixel> currentNeighbors = pixelMap.getNeighboursForPixel(pixel);
-            int counter = 0;
-            double time = arrivalTimes[pixel.id];
-
-            for (CameraPixel nPix:currentNeighbors){
-                if( Math.abs(arrivalTimes[nPix.id]-time) < timeThreshold){
-                    counter++;
-                }
-            }
-            if (counter >= minNumberOfNeighborPixel)
-            {
-                newList.add(pixel);
-            }
-        }
-        return newList;
-    }
+//    public HashSet<CameraPixel> applyTimeNeighborCleaning(HashSet<CameraPixel> showerPixel,double[] arrivalTimes, double timeThreshold, int minNumberOfNeighborPixel) {
+//
+//
+//        HashSet<CameraPixel> newList= new HashSet<CameraPixel>();
+//        for(CameraPixel pixel: showerPixel){
+//            ArrayList<CameraPixel> currentNeighbors = pixelMap.getNeighboursForPixel(pixel);
+//            int counter = 0;
+//            double time = arrivalTimes[pixel.id];
+//
+//            for (CameraPixel nPix:currentNeighbors){
+//                if( Math.abs(arrivalTimes[nPix.id]-time) < timeThreshold){
+//                    counter++;
+//                }
+//            }
+//            if (counter >= minNumberOfNeighborPixel)
+//            {
+//                newList.add(pixel);
+//            }
+//        }
+//        return newList;
+//    }
 
 
 }

@@ -17,9 +17,8 @@ public class COG extends CTACleanedDataProcessor{
     @Override
     public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, double[] photons, double[] arrivalTimes, HashSet<CameraPixel> showerPixel) {
 
-        CTAHexPixelMapping pixelMap = CTAHexPixelMapping.getInstance();
 
-        double size = (double) input.get("@size");
+        double size = (double) input.get("size");
 
         double[] cog = { 0, 0 };
         // find weighted center of the shower pixels.
@@ -30,7 +29,7 @@ public class COG extends CTACleanedDataProcessor{
         cog[0] /= size;
         cog[1] /= size;
 
-        input.put("@cog", cog);
+        input.put("cog", cog);
 
         return input;
     }

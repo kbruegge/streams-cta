@@ -36,7 +36,8 @@ public class KryoStream extends AbstractStream {
     @Override
     public void init() throws Exception {
         super.init();
-        input = new Input(new FileInputStream(url.getFile()));
+
+        input = new Input(url.openStream());
         kryo.register(LocalDateTime.class, new LocalDateTimeSerializer());
     }
 

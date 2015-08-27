@@ -11,15 +11,14 @@ import streams.cta.CTATelescope;
 /**
  * Created by jbuss on 25.08.15.
  */
-public class PhotonsSignalAmplitude extends CTARawDataProcessor implements StatefulProcessor {
+public class PhotonsSignalAmplitude extends CTARawDataProcessor{
 
-    long nonLSTCounter = 0;
+
 
     @Override
     public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, short[][] eventData) {
 
         if (eventData.length != 1855) {
-            nonLSTCounter++;
             return input;
         }
 
@@ -35,20 +34,5 @@ public class PhotonsSignalAmplitude extends CTARawDataProcessor implements State
 
         input.put("photons", photons);
         return input;
-    }
-
-    @Override
-    public void init(ProcessContext context) throws Exception {
-
-    }
-
-    @Override
-    public void resetState() throws Exception {
-        nonLSTCounter = 0;
-    }
-
-    @Override
-    public void finish() throws Exception {
-        System.out.println("Non LST telescope events: " + nonLSTCounter);
     }
 }

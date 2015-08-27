@@ -9,7 +9,7 @@ import streams.cta.CTATelescope;
 import streams.hexmap.CameraPixel;
 
 /**
- * Created by jebuss on 24.08.15.
+ * Created by jebuss, kbruegge on 24.08.15.
  */
 public class Size extends CTACleanedDataProcessor {
 
@@ -17,14 +17,9 @@ public class Size extends CTACleanedDataProcessor {
     public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, double[] photons,
                         double[] arrivalTimes, HashSet<CameraPixel> showerPixel) {
 
-        double size = 0;
+        double  size  = showerPixel.stream().mapToDouble(pix -> photons[pix.id]).sum();
 
-
-        for (CameraPixel pix : showerPixel) {
-            size += photons[pix.id];
-        }
-
-        input.put("@size", size);
+        input.put("size", size);
         return input;
     }
 }

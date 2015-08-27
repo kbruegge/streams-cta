@@ -49,6 +49,9 @@ public class JSONWriter implements StatefulProcessor {
     private Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
     private BufferedWriter bw;
 
+    //flags whether the first line has been written
+    private boolean firstLine = true;
+
 
     @Override
     public void init(ProcessContext processContext) throws Exception {
@@ -76,12 +79,14 @@ public class JSONWriter implements StatefulProcessor {
             item.put(key, data.get(key));
         }
         try {
-            bw.write(gson.toJson(item));
-            if(writeBlock){
+            if(writeBlock && !firstLine){
                 bw.write(",");
             }
+            bw.write(gson.toJson(item));
+
             bw.newLine();
             bw.flush();
+            firstLine = false;
         } catch (IOException ioex) {
             ioex.printStackTrace();
         }
