@@ -18,6 +18,8 @@
         <streams.cta.extraction.PhotonsSignalAmplitude />
         <streams.cta.cleaning.TwoLevelTimeNeighbor />
         <streams.cta.features.Size/>
+        <streams.cta.features.COG/>
+        <streams.cta.features.WidthLengthDelta/>
         <streams.ShowViewer />
         <PrintData/>
     </process>
