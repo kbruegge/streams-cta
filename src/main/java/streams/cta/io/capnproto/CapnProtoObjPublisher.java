@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 
 import stream.Data;
@@ -63,10 +64,10 @@ public class CapnProtoObjPublisher extends CTARawDataProcessor implements Statef
             DynamicArrayOutputStream daos = new DynamicArrayOutputStream(70000);
 
             // buffered version
-            SerializePacked.write(new BufferedOutputStreamWrapper(daos), message);
+            //SerializePacked.write(new BufferedOutputStreamWrapper(daos), message);
 
-            // unbuffered version
-            //SerializePacked.writeToUnbuffered(daos, message);
+            // unbuffered version (it will be packed into BufferedOutputStreamWrappter afterwards)
+            SerializePacked.writeToUnbuffered(daos, message);
 
             //byte[] bytes = daos.getWriteBuffer().array();
             //input.put("@packetSize", bytes.length);

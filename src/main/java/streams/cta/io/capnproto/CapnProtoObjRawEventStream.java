@@ -1,6 +1,5 @@
 package streams.cta.io.capnproto;
 
-import org.capnproto.BufferedInputStreamWrapper;
 import org.capnproto.MessageReader;
 import org.capnproto.PrimitiveList;
 import org.capnproto.SerializePacked;
@@ -51,12 +50,12 @@ public class CapnProtoObjRawEventStream extends AbstractStream {
         byte[] bytes = subscriber.recv();
 
         // buffered version
-        MessageReader message = SerializePacked.read(
-                new BufferedInputStreamWrapper(new DynamicArrayInputStream(ByteBuffer.wrap(bytes))));
+        //MessageReader message = SerializePacked.read(
+        //        new BufferedInputStreamWrapper(new DynamicArrayInputStream(ByteBuffer.wrap(bytes))));
 
         // unbuffered version
-        //MessageReader message = SerializePacked.readFromUnbuffered(
-        //        new DynamicArrayInputStream(ByteBuffer.wrap(bytes)));
+        MessageReader message = SerializePacked.readFromUnbuffered(
+                new DynamicArrayInputStream(ByteBuffer.wrap(bytes)));
 
         RawCTAEvent.Event.Reader rawEvent = message.getRoot(RawCTAEvent.Event.factory);
         int numPixel = rawEvent.getNumPixel();
