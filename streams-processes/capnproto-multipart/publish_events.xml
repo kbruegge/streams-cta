@@ -1,0 +1,21 @@
+<application>
+    
+    <!--<stream id="cta:data" class="streams.cta.io.SyntheticEventStream" delay="0" />-->
+
+    <!--<stream id="cta:data" class="streams.cta.io.eventio.EventIOStream" url="file:/Users/kai/Downloads/electron_20deg_90deg_run7683___cta-trg-test-LST4_desert_samplemode_test-250MHz.simtel"-->
+            <!--limit="1000" />-->
+    <property name="infile" value="cta_data.kryo" />
+    <stream id="cta:data" class="streams.cta.io.KryoStream" url="file:${infile}"/>
+
+    <!--<stream id="cta:data2" class="streams.cta.io.KryoStream" url="file:./data.kryo" limit="50000" />-->
+
+
+    <process input="cta:data" >
+        <streams.DataRate every="500" />
+        <!--<Delay time="25ms" />-->
+        <streams.cta.io.capnproto.CapnProtoMultipartPublisher addresses="tcp://*:5556" />
+        <Skip condition="%{data.@datarate} == null" />
+            <streams.cta.io.JSONWriter url="file:./performance_publish_capn.json" keys="@datarate,@packetSize" writeblock="true"/>
+    </process>
+
+</application>

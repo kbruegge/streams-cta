@@ -1,14 +1,11 @@
 package streams.cta.io.capnproto;
 
-import org.capnproto.BufferedOutputStreamWrapper;
 import org.capnproto.MessageBuilder;
 import org.capnproto.PrimitiveList;
-import org.capnproto.SerializePacked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 
@@ -23,9 +20,9 @@ import streams.cta.CTATelescopeType;
 /**
  * Created by alexey on 20/08/15.
  */
-public class CapnProtoObjPublisher extends CTARawDataProcessor implements StatefulProcessor {
+public class CapnProtoMultipartPublisher extends CTARawDataProcessor implements StatefulProcessor {
 
-    static Logger log = LoggerFactory.getLogger(CapnProtoObjPublisher.class);
+    static Logger log = LoggerFactory.getLogger(CapnProtoMultipartPublisher.class);
 
     private ZMQ.Socket publisher;
     private ZMQ.Context context;
@@ -60,22 +57,14 @@ public class CapnProtoObjPublisher extends CTARawDataProcessor implements Statef
             }
         }
 
-        try {
-            DynamicArrayOutputStream daos = new DynamicArrayOutputStream(70000);
+        ByteBuffer[] messages = message.getSegmentsForOutput();
 
-            // buffered version
-            //SerializePacked.write(new BufferedOutputStreamWrapper(daos), message);
-
-            // unbuffered version (it will be packed into BufferedOutputStreamWrappter afterwards)
-            SerializePacked.writeToUnbuffered(daos, message);
-
-            //byte[] bytes = daos.getWriteBuffer().array();
-            //input.put("@packetSize", bytes.length);
-            publisher.send(daos.getWriteBuffer().array(), 0);
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (int i = 0; i < messages.length; i++) {
+            publisher.sendByteBuffer(messages[i],
+                    (i == messages.length - 1) ? ZMQ.DONTWAIT : ZMQ.SNDMORE);
         }
-
+        //byte[] bytes = daos.getWriteBuffer().array();
+        //input.put("@packetSize", bytes.length);
         return input;
     }
 

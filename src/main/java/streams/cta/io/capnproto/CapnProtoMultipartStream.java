@@ -2,13 +2,15 @@ package streams.cta.io.capnproto;
 
 import org.capnproto.MessageReader;
 import org.capnproto.PrimitiveList;
-import org.capnproto.SerializePacked;
+import org.capnproto.ReaderOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 import stream.Data;
 import stream.annotations.Parameter;
@@ -20,9 +22,9 @@ import streams.cta.CTATelescopeType;
 /**
  * Created by alexey on 20/08/15.
  */
-public class CapnProtoObjRawEventStream extends AbstractStream {
+public class CapnProtoMultipartStream extends AbstractStream {
 
-    static Logger log = LoggerFactory.getLogger(CapnProtoObjRawEventStream.class);
+    static Logger log = LoggerFactory.getLogger(CapnProtoMultipartStream.class);
     private ZMQ.Context context;
     private ZMQ.Socket subscriber;
 
@@ -47,15 +49,25 @@ public class CapnProtoObjRawEventStream extends AbstractStream {
     @Override
     public Data readNext() throws Exception {
 
-        byte[] bytes = subscriber.recv();
+        ByteBuffer buf = ByteBuffer.allocate(130000);
+        subscriber.recvByteBuffer(buf, 0);
 
-        // buffered version
-        //MessageReader message = SerializePacked.read(
-        //        new BufferedInputStreamWrapper(new DynamicArrayInputStream(ByteBuffer.wrap(bytes))));
+        buf.order(ByteOrder.LITTLE_ENDIAN);
+        ArrayList<ByteBuffer> list = new ArrayList<>();
+        buf.flip();
+        list.add(buf);
+        while (subscriber.hasReceiveMore()) {
+            buf = ByteBuffer.allocate(130000);
+            buf.order(ByteOrder.LITTLE_ENDIAN);
+            subscriber.recvByteBuffer(buf, 0);
+            buf.flip();
+            list.add(buf);
+        }
 
-        // unbuffered version
-        MessageReader message = SerializePacked.readFromUnbuffered(
-                new DynamicArrayInputStream(ByteBuffer.wrap(bytes)));
+        MessageReader message =
+                new MessageReader(
+                        list.toArray(new ByteBuffer[list.size()]),
+                        ReaderOptions.DEFAULT_READER_OPTIONS);
 
         RawCTAEvent.Event.Reader rawEvent = message.getRoot(RawCTAEvent.Event.factory);
         int numPixel = rawEvent.getNumPixel();
