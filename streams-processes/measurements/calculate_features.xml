@@ -9,9 +9,9 @@
     <!--<stream id="cta:data" class="streams.cta.io.eventio.EventIOStream" url="file:/home/jbuss/testdata/cta_mc/proton_20deg_0deg_run32286___cta-prod2_desert-1640m-Aar.simtel.gz"-->
     <!--/>-->
 
-    <property name="infile" value="file:/Users/kai/fact_phido/cta/cta_mc_data.kryo" />
+    <!--<property name="infile" value="file:/Users/kai/fact_phido/cta/cta_mc_data.kryo" />-->
     <property name="outfile" value="file:./features.json" />
-    <!--<property name="infile" value="http://sfb876.tu-dortmund.de/data_0.kryo?self=$eipoqcpkhs&amp;part=data" />-->
+    <property name="infile" value="http://sfb876.tu-dortmund.de/data_0.kryo?self=$eipoqcpkhs&amp;part=data" />
 
     <stream id="cta:data" class="streams.cta.io.KryoStream" url="${infile}"/>
 
@@ -20,6 +20,7 @@
     
     <process input="cta:data">
 
+        <streams.DataRate every="100" />
         <streams.cta.datacorrection.BaselineShift />
         <streams.cta.extraction.MaxAmplitude />
         <streams.cta.extraction.ArrivalTimeRisingEdge/>
@@ -28,9 +29,8 @@
         <streams.cta.features.Size/>
         <streams.cta.features.COG/>
         <streams.cta.features.WidthLengthDelta/>
-        <streams.DataRate every="100" />
         <streams.cta.io.JSONWriter keys="cog,width,length,size" url="${outfile}" writeblock="true"/>
-        <!--<streams.ShowViewer />-->
+        <streams.ShowViewer />
         <!--<PrintData/>-->
     </process>
     
