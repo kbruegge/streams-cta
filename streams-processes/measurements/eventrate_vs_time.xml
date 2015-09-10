@@ -27,9 +27,12 @@
         <streams.cta.features.Size/>
         <streams.cta.features.COG/>
         <streams.cta.features.WidthLengthDelta/>
-        <Skip condition="%{data.@datarate} == null"/>
-            <streams.cta.io.JSONWriter url="file:./performance_multi_kryo_cpu_ramdisk_${num_copies}.json" keys="@datarate,@freememory,@maxmemory,@totalmemory" writeblock="true"/>
+        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
+    </process>
 
+    <process input="performance">
+        <!--<PrintData/>-->
+        <streams.cta.io.JSONWriter url="file:./eventrate_vs_time_${num_copies}_threads.json" keys="@datarate,@freememory,@maxmemory,@totalmemory" writeblock="true"/>
     </process>
 
 </application>
