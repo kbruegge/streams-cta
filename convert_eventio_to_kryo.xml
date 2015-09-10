@@ -11,19 +11,28 @@
     <!--<stream id="cta:data" class="streams.cta.io.KryoStream" url="file:${infile}"/>-->
 
     <!--<stream id="cta:data2" class="streams.cta.io.KryoStream" url="file:./data.kryo" limit="50000" />-->
+    <property name="num_copies" value="1" />
 
 
-    <stream id="cta:data" class="streams.cta.io.RecursiveDirectoryStream"
-            suffix=".simtel.gz" url="file:${infile}" copies="1">
+    <queue class="stream.io.BlockingQueue" id="out" />
+
+    <stream id="cta:data_${copy.id}" class="streams.cta.io.RecursiveDirectoryStream"
+            suffix=".simtel.gz" url="file:${infile}" copies="${num_copies}">
         <stream id="cta:data" class="streams.cta.io.eventio.EventIOStream" url="file:${infile}" ignoreErrors="true"/>
     </stream>
 
-    <process input="cta:data">
+    <process input="cta:data_${copy.id}" copies="${num_copies}">
         <!--<stream.monitor.DataRate every="400"/>-->
-        <streams.DataRate every="200" silent="false"/>
-        <PrintData/>
+        <!--<streams.DataRate every="200" silent="false"/>-->
         <!--<streams.cta.io.KryoWriter url="file:${outfile}" />-->
+        <Enqueue queues="out" />
     </process>
 
 
+    <process input="out">
+        <!--<stream.monitor.DataRate every="400"/>-->
+        <!--<PrintData/>-->
+        <streams.cta.io.KryoWriter url="file:${outfile}" />
+        <streams.DataRate every="200" silent="false"/>
+    </process>
 </application>
