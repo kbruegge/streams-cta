@@ -13,6 +13,8 @@ import stream.io.AbstractStream;
 /**
  * ZeroMQ client in REP/REQ pattern that connects to a publisher and send requests for new items to
  * be sent. After an item is processed the next request is sent.
+ *
+ * @author alexey
  */
 public class CTAEventREQ extends AbstractStream {
 
