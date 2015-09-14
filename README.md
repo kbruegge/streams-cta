@@ -19,7 +19,7 @@ In order to build and deploy cta-streams package to a local storm installation w
 
 Thus, we need two lines of code to produce those packages:
 
-```c
+```bash
 # package for deployment
 mvn -P deploy package
 
@@ -29,7 +29,7 @@ mvn -P standalone package
 
 The result of such a bash script are two files:
 
-```c
+```bash
 # does not contain storm, will be deployed
 cta-tools-0.0.1-SNAPSHOT-storm-provided.jar 
 
