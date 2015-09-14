@@ -53,7 +53,25 @@ As a shortcut there is a script ``packageScriptForDeploy.sh`` in the top level o
 * ``run``: don't package (use existing packages) and just deploy those packages with a provided xml file
 * With no parameter given this script just packages everything and doesn't deploy anything.
 
+# Start storm locally
 
+To run storm you need Java 6 and Python 2.6.6. 
+
+* Download [storm](https://storm.apache.org/downloads.html)
+* Download [zookeeper](http://zookeeper.apache.org/releases.html)
+* Start zookeeper (``bin/zkServer.sh start``), [more details](http://zookeeper.apache.org/doc/r3.3.3/zookeeperStarted.html#sc_InstallingSingleMode)
+* From the unzipped storm archive run: 
+  * ``bin/storm nimbus`` to start nimbus (master node)
+  * ``bin/storm ui`` to start the graphical interface (``localhost:8080``)
+  * ``bin/storm supervisor`` to start a supervisor with 4 worker nodes (threads)
+
+For more tuning possibilities you will find ``conf/storm.yaml`` with properties.
+
+**IMPORTANT**: The above setting only works for one supervisor on the local machine. 
+You can not start two supervisors this way.
+The easieast solution is to copy the whole storm folder and start a supervisor with differnt ports by changing those properties in ``conf/storm.yaml``.
+
+**MORE DETAILS** can be found on the [documentation pages of Apache Storm](https://storm.apache.org/documentation/Setting-up-a-Storm-cluster.html).
 # Code Style #
 
 For this project we intend to use [Java Code Style](https://google-styleguide.googlecode.com/svn/trunk/javaguide.html) suggested by google.
