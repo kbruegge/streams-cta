@@ -13,6 +13,7 @@
         <streams.cta.version>0.9.22-SNAPSHOT</streams.cta.version>
         <streams.jar>cta-tools-${project.version}</streams.jar>
         <artifactid-streams-storm>streams-storm</artifactid-streams-storm>
+        <storm.mainclass>storm.deploy</storm.mainclass>
     </properties>
 
     <repositories>
@@ -420,7 +421,7 @@
                                         </Implementation-Revision>
                                         <Specification-Title>streams-storm</Specification-Title>
                                         <Specification-Version>1.0</Specification-Version>
-                                        <main-class>storm.deploy</main-class>
+                                        <main-class>${storm.mainclass}</main-class>
                                     </manifestEntries>
                                 </transformer>
                             </transformers>
