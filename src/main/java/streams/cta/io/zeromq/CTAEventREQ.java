@@ -11,26 +11,25 @@ import stream.io.AbstractStream;
 
 
 /**
- * ZeroMQ subscriber in PUB/SUB pattern that waits for events from a publisher to which it
- * subscribes.
+ * ZeroMQ client in REP/REQ pattern that connects to a publisher and send requests for new items to
+ * be sent. After an item is processed the next request is sent.
  *
- * @author kai
+ * @author alexey
  */
-public class CTAEventSubscriber extends AbstractStream {
+public class CTAEventREQ extends AbstractStream {
 
-    static Logger log = LoggerFactory.getLogger(CTAEventSubscriber.class);
+    static Logger log = LoggerFactory.getLogger(CTAEventREQ.class);
     private ZMQ.Context context;
     private ZMQ.Socket subscriber;
 
     @Parameter(required = false)
     String[] addresses = {"tcp://129.217.160.202:5556"};
 
-
     @Override
     public void init() throws Exception {
         super.init();
         context = ZMQ.context(1);
-        subscriber = context.socket(ZMQ.SUB);
+        subscriber = context.socket(ZMQ.REQ);
         //vollmond
 //        subscriber.connect("tcp://129.217.160.98:5556");
         //phido
@@ -38,13 +37,16 @@ public class CTAEventSubscriber extends AbstractStream {
             log.info("Connecting to address: " + address);
             subscriber.connect(address);
         }
-        subscriber.subscribe(new byte[]{1, 0, 1, 0, 1});
     }
 
     @Override
     public Data readNext() throws Exception {
+        // send request to the publisher
+        subscriber.send("Hello".getBytes(), 0);
+
+        // wait for responce from publisher
         byte[] data = subscriber.recv(0);
-//        System.out.println("Recieved data with length: " + data.length);
+
         Data item = DataFactory.create();
         item.put("data_bytes", data);
         return item;

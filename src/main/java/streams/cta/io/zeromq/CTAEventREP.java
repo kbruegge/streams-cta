@@ -16,14 +16,14 @@ import streams.cta.CTARawDataProcessor;
 import streams.cta.CTATelescope;
 
 /**
- * ZeroMQ publisher in PUB/SUB pattern that continiously sends messages. Every subscriber will then
- * recieve those messages if it subscribed to that publisher.
+ * ZeroMQ server in REP/REQ pattern that listens for requests from a client and sends data if there
+ * is an incoming request.
  *
- * @author kai
+ * @author alexey
  */
-public class CTAEventPublisher extends CTARawDataProcessor implements StatefulProcessor {
+public class CTAEventREP extends CTARawDataProcessor implements StatefulProcessor {
 
-    static Logger log = LoggerFactory.getLogger(CTAEventPublisher.class);
+    static Logger log = LoggerFactory.getLogger(CTAEventREP.class);
 
     private ZMQ.Socket publisher;
     private ZMQ.Context context;
@@ -35,16 +35,19 @@ public class CTAEventPublisher extends CTARawDataProcessor implements StatefulPr
     public void init(ProcessContext processContext) throws Exception {
         context = ZMQ.context(1);
 
-        publisher = context.socket(ZMQ.PUB);
+        //  Socket to talk to clients
+        publisher = context.socket(ZMQ.REP);
         for (String address : addresses) {
             publisher.bind(address);
             log.info("Binding to address: " + address);
         }
-        //        publisher.bind("ipc://cta_data");
     }
 
     @Override
     public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, short[][] eventData) {
+
+        // Wait for request from the client
+        publisher.recv(0);
 
         ByteBuffer bb = ByteBuffer.allocate(telescope.type.numberOfPixel * eventData[0].length * 2);
         for (short[] arr : eventData) {
@@ -57,6 +60,8 @@ public class CTAEventPublisher extends CTARawDataProcessor implements StatefulPr
         data[2] = 1;
         data[3] = 0;
         data[4] = 1;
+
+        // Send reply back to client
         publisher.send(bb.array(), 0);
         return input;
     }
