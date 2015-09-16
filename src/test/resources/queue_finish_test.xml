@@ -1,6 +1,6 @@
 <container id="example">
 
-    <stream id="data" class="stream.generator.RandomStream" limit="4"/>
+    <stream id="data" class="stream.generator.RandomStream" limit="12"/>
 
     <process input="data" id="extraction">
         <streams.DataRate every="2" silence="true"/>
