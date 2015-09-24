@@ -350,7 +350,7 @@
             </plugin>
         -->
         </plugins>
-    </reporting>    
+    </reporting>
 
     <profiles>
         <profile>

@@ -18,6 +18,8 @@ import streams.cta.CTATelescope;
 /**
  * ZeroMQ server in REP/REQ pattern that listens for requests from a client and sends data if there
  * is an incoming request.
+ *
+ * @author alexey
  */
 public class CTAEventREP extends CTARawDataProcessor implements StatefulProcessor {
 

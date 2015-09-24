@@ -3,6 +3,7 @@ package streams.cta.io.zeromq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
+
 import stream.Data;
 import stream.annotations.Parameter;
 import stream.data.DataFactory;
@@ -10,7 +11,10 @@ import stream.io.AbstractStream;
 
 
 /**
- * Created by kai on 11.08.15.
+ * ZeroMQ subscriber in PUB/SUB pattern that waits for events from a publisher to which it
+ * subscribes.
+ *
+ * @author kai
  */
 public class CTAEventSubscriber extends AbstractStream {
 
@@ -18,11 +22,8 @@ public class CTAEventSubscriber extends AbstractStream {
     private ZMQ.Context context;
     private ZMQ.Socket subscriber;
 
-
-
     @Parameter(required = false)
     String[] addresses = {"tcp://129.217.160.202:5556"};
-
 
 
     @Override
@@ -33,11 +34,11 @@ public class CTAEventSubscriber extends AbstractStream {
         //vollmond
 //        subscriber.connect("tcp://129.217.160.98:5556");
         //phido
-        for(String address: addresses) {
+        for (String address : addresses) {
             log.info("Connecting to address: " + address);
             subscriber.connect(address);
         }
-        subscriber.subscribe(new byte[]{1,0,1,0,1});
+        subscriber.subscribe(new byte[]{1, 0, 1, 0, 1});
     }
 
     @Override

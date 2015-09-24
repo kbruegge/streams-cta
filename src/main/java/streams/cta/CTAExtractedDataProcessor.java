@@ -7,12 +7,17 @@ import stream.Processor;
 import stream.annotations.Parameter;
 
 /**
- * Created by kai on 27.07.15.
+ * Abstract processor class that implements extracting basic information from a telescope event and
+ * calls process method with those extracted values. New processors can implement new processors
+ * based on this one using a process method with already extracted values.
+ *
+ * @author kai
  */
 public abstract class CTAExtractedDataProcessor implements Processor {
 
 
-    @Parameter(description = "The key under which to find the extracted data in the data item.", required = false,
+    @Parameter(description = "The key under which to find the extracted data in the data item.",
+            required = false,
             defaultValue = "extractedData")
     private String eventKey = "extractedData";
 
@@ -29,5 +34,6 @@ public abstract class CTAExtractedDataProcessor implements Processor {
         return null;
     }
 
-    public abstract Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, double[] photons, double[] arrivalTimes);
+    public abstract Data process(Data input, CTATelescope telescope,
+                                 LocalDateTime timeStamp, double[] photons, double[] arrivalTimes);
 }
