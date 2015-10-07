@@ -45,7 +45,6 @@ public class CTAEventSubscriber extends AbstractStream {
     @Override
     public Data readNext() throws Exception {
         byte[] data = subscriber.recv(0);
-//        System.out.println("Recieved data with length: " + data.length);
         Data item = DataFactory.create();
         item.put("data_bytes", data);
         return item;
