@@ -3,21 +3,25 @@ package streams.cta.io;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.Input;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+
 import stream.Data;
 import stream.data.DataFactory;
 import stream.io.AbstractStream;
 import stream.io.SourceURL;
 
-import java.io.FileInputStream;
-import java.io.Serializable;
-import java.nio.BufferUnderflowException;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-
 /**
- * Created by kai on 10.08.15.
+ * KryoStream creates a stream out of an <a href="https://github.com/EsotericSoftware/kryo">Kryo</a>
+ * serialized file.
+ *
+ * @author kai
+ * @see <a href="https://github.com/EsotericSoftware/kryo"/>
  */
 public class KryoStream extends AbstractStream {
 
@@ -33,6 +37,7 @@ public class KryoStream extends AbstractStream {
     Input input;
     Kryo kryo = new Kryo();
     HashMap<String, Serializable> map = new HashMap<>();
+
     @Override
     public void init() throws Exception {
         super.init();
@@ -43,7 +48,7 @@ public class KryoStream extends AbstractStream {
 
     @Override
     public Data readNext() throws Exception {
-        if(itemCounter == limit - 1){
+        if (itemCounter == limit - 1) {
             itemCounter = 0;
             count = 0l;
             return null;
@@ -54,7 +59,7 @@ public class KryoStream extends AbstractStream {
             //the kryo files contain keys for datarate which have been produced while writing these files.
             item.remove("@datarate");
             return item;
-        } catch (KryoException e){
+        } catch (KryoException e) {
             log.error("Kryo Exception. End of file reached?");
             e.printStackTrace();
             return null;
