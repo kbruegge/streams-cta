@@ -22,7 +22,8 @@ public class CTAEventSubscriber extends AbstractStream {
     private ZMQ.Context context;
     private ZMQ.Socket subscriber;
 
-    @Parameter(required = false)
+    @Parameter(required = false, description = "Use this parameter to define the " +
+            "address of the publisher node.")
     String[] addresses = {"tcp://129.217.160.202:5556"};
 
 
