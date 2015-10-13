@@ -26,7 +26,7 @@
         </menu>
 
         <menu name="Documentation">
-            <item name="The streams Framework" href="doc/index.html" collapse="true">
+            <item name="The streams Framework" href="doc/index.html" collapse="false">
                 <item name="Quickstart" href="quickstart.html" />
                 <!--
                   <item name="Basic Concepts" href="doc/concepts.html" collapse="true">
