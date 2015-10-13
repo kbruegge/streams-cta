@@ -17,24 +17,26 @@ import streams.cta.CTATelescopeType;
  * @author chris, kai
  */
 public class SyntheticEventStream extends AbstractStream {
-
-    int numberOfPixels = 1855;
-    int numberOfSlices = 30;
-
-    Random random = new Random();
-    short[][] data;
-
-    int counter;
+    
     @Parameter(required = false)
     int delay = 0;
 
+    int numberOfPixels;
+    int numberOfSlices;
+
+    Random random;
+    short[][] data;
 
     long eventId = 1;
     int telescopeId = 0;
-    int[] brokenPixel = new int[]{2, 12, 333};
-    double[] gains = new double[numberOfPixels];
-    CTATelescope telescope = new CTATelescope(CTATelescopeType.LST, telescopeId, 0, 0, 0, brokenPixel, gains, gains);
+    int[] brokenPixel;
+    double[] gains;
+    CTATelescope telescope;
 
+    /**
+     * Helper function to produce a random value.
+     */
+    //TODO is not used anymore.
     public double f(int x) {
         return 100 * Math.exp(-0.04 * Math.pow((x - (10 + 4 * (random.nextDouble() - 0.5))), 2));
     }
@@ -45,6 +47,13 @@ public class SyntheticEventStream extends AbstractStream {
     @Override
     public void init() throws Exception {
         super.init();
+        random = new Random();
+        numberOfPixels = 1855;
+        numberOfSlices = 30;
+        brokenPixel = new int[]{2, 12, 333};
+        gains = new double[numberOfPixels];
+        telescope = new CTATelescope(
+                CTATelescopeType.LST, telescopeId, 0, 0, 0, brokenPixel, gains, gains);
     }
 
     /**

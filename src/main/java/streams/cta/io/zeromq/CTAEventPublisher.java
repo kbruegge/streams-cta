@@ -28,7 +28,8 @@ public class CTAEventPublisher extends CTARawDataProcessor implements StatefulPr
     private ZMQ.Socket publisher;
     private ZMQ.Context context;
 
-    @Parameter(required = false)
+    @Parameter(required = false, description = "Use this parameter to define the ports and IPs " +
+            "for the output to be written to.")
     String[] addresses = {"tcp://*:5556"};
 
     @Override
@@ -44,7 +45,8 @@ public class CTAEventPublisher extends CTARawDataProcessor implements StatefulPr
     }
 
     @Override
-    public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, short[][] eventData) {
+    public Data process(Data input, CTATelescope telescope,
+                        LocalDateTime timeStamp, short[][] eventData) {
 
         ByteBuffer bb = ByteBuffer.allocate(telescope.type.numberOfPixel * eventData[0].length * 2);
         for (short[] arr : eventData) {

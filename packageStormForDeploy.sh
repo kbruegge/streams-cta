@@ -19,7 +19,7 @@ function USAGE {
     exit 1
 }
 
-while getopts ":pnm: :rb" optname
+while getopts ":p:n:m: :rb" optname
   do
     case "$optname" in
       "p") process_path=$OPTARG;;

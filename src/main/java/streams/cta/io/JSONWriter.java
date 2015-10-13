@@ -2,11 +2,6 @@ package streams.cta.io;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import stream.Data;
-import stream.ProcessContext;
-import stream.StatefulProcessor;
-import stream.annotations.Parameter;
-import stream.data.DataFactory;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -15,24 +10,27 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
 
+import stream.Data;
+import stream.ProcessContext;
+import stream.StatefulProcessor;
+import stream.annotations.Parameter;
+import stream.data.DataFactory;
+
 /**
- * Writes a file containing a hopefully valid JSON String on each line.
- * Heres a simple Python script to read it:
-
- import json
-
- def main():
-    with open('test.json', 'r') as file:
-        for line in file:
-            event = json.loads(line)
-            print(event['NROI'])
-
- if __name__ == "__main__":
-    main()
+ * Writes a file containing a hopefully valid JSON String on each line. Heres a simple Python script
+ * to read it:
+ *
+ * import json
+ *
+ * def main(): with open('test.json', 'r') as file: for line in file: event = json.loads(line)
+ * print(event['NROI'])
+ *
+ * if __name__ == "__main__": main()
  *
  *
  * Keep in mind that some events might have keys missing.
- * Created by bruegge on 7/30/14.
+ *
+ * @author kai bruegge
  */
 public class JSONWriter implements StatefulProcessor {
 
@@ -46,17 +44,21 @@ public class JSONWriter implements StatefulProcessor {
     @Parameter(required = false)
     private boolean writeBlock;
 
-    private Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
+    private Gson gson;
     private BufferedWriter bw;
 
     //flags whether the first line has been written
     private boolean firstLine = true;
 
 
+    /**
+     * Initialize Gson and Buffered Writer.
+     */
     @Override
     public void init(ProcessContext processContext) throws Exception {
-        bw= new BufferedWriter(new FileWriter(new File(url.getFile())));
-        if(writeBlock){
+        gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
+        bw = new BufferedWriter(new FileWriter(new File(url.getFile())));
+        if (writeBlock) {
             bw.write("[");
             bw.newLine();
         }
@@ -69,17 +71,19 @@ public class JSONWriter implements StatefulProcessor {
         item.put("time", LocalDateTime.now().toString());
 
         String[] evKeys = {"@stream"};
-        for(String key : evKeys) {
+        for (String key : evKeys) {
             if (data.containsKey(key)) {
                 item.put(key, data.get(key));
             }
         }
 
-        for (String key: keys){
+        // add objects by specified keys to data item
+        for (String key : keys) {
             item.put(key, data.get(key));
         }
+
         try {
-            if(writeBlock && !firstLine){
+            if (writeBlock && !firstLine) {
                 bw.write(",");
             }
             bw.write(gson.toJson(item));
@@ -94,14 +98,14 @@ public class JSONWriter implements StatefulProcessor {
     }
 
 
-
     @Override
-    public void resetState() throws Exception {}
+    public void resetState() throws Exception {
+    }
 
     @Override
     public void finish() throws Exception {
-        if(bw != null) {
-            if(writeBlock){
+        if (bw != null) {
+            if (writeBlock) {
                 bw.write("]");
             }
             bw.flush();
@@ -113,6 +117,7 @@ public class JSONWriter implements StatefulProcessor {
     public String[] getKeys() {
         return keys;
     }
+
     public void setKeys(String[] keys) {
         this.keys = keys;
     }
