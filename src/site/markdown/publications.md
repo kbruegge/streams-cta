@@ -1,7 +1,7 @@
 Publications
 ============
 
-The FACT tools have been used in a number of publications, related to the FACT telescope
+The streams framework and its extensions have been used in a number of publications, related to the FACT telescope
 data analysis and/or the underlying *streams* framework. The collection of publications is 
 listed below:
 

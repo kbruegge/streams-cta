@@ -1,6 +1,9 @@
 Quickstart
 ==========
 
+This is a very short guide describing how to design a very simple stream. More detailed information can be found 
+[https://sfb876.de/streams/](https://sfb876.de/streams/)
+
 Designing a simple stream process does not require more than writing
 some XML declaration and executing that XML with the stream-runner as
 shown in the following figure:
@@ -23,16 +26,13 @@ output:
         </process>
      </container>
 
-The *stream-runner* required to execute this stream is a simple executable
-Java archive available for download:  [stream-runner.jar](stream-runner.jar).
-
 
 Running the Stream Process
 --------------------------
 
 The simple process defined above can be run by
 
-     # java -jar stream-runner.jar first-process.xml
+     # java -jar /path/to/stream.jar first-process.xml
 
 The process will simply read the stream in CSV-format and execute the
 processor `PrintData` for each item obtained from the stream.

@@ -23,3 +23,9 @@ their performance and scalability.
 The `streams-cta` project is a community effort of the TU Dortmund department of
 physics and the computer science group of the TU Dortmund, jointly working in the
 DFG funded collaborative research center on resource constraint analysis [(SFB-876)](http://sfb876.tu-dortmund.de).
+
+<div style="margin:auto; border: none; text-align: center;">
+   <img style="margin:auto; height: 200px;" src="images/array.jpg" />
+   <p>Figure 2: A rendering of the planned telescope array.</p>
+</div>
+
