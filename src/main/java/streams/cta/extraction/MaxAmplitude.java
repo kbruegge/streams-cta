@@ -26,7 +26,7 @@ public class MaxAmplitude extends CTARawDataProcessor implements StatefulProcess
             return input;
         }
 
-        IntervalMarker[] m = new IntervalMarker[telescope.type.numberOfPixel];
+//        IntervalMarker[] m = new IntervalMarker[telescope.type.numberOfPixel];
 
         int[] maxPos = new int[telescope.type.numberOfPixel];
         double[] maxVal = new double[telescope.type.numberOfPixel];
@@ -41,13 +41,15 @@ public class MaxAmplitude extends CTARawDataProcessor implements StatefulProcess
                     max = value;
                 }
             }
-            m[pixel] = new IntervalMarker(arrivalTime, arrivalTime + 1);
+//            m[pixel] = new IntervalMarker(arrivalTime, arrivalTime + 1);
             maxVal[pixel] = max;
             maxPos[pixel] = arrivalTime;
         }
         input.put("maxPos", maxPos);
-        input.put("maxPosMarker", m);
+        input.put("arrivalTimes", maxPos);
+//        input.put("maxPosMarker", m);
         input.put("maxVal", maxVal);
+        input.put("photons", maxVal);
         return input;
     }
 
