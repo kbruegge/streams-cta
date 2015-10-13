@@ -1,37 +1,21 @@
 <application>
-    
-    <!--<stream id="cta:data" class="streams.cta.io.SyntheticEventStream"-->
-        <!--limit="10000" />-->
 
-    <!--<stream id="cta:data" class="streams.cta.io.eventio.EventIOStream" url="file:/Users/kai/Downloads/electron_20deg_90deg_run7683___cta-trg-test-LST4_desert_samplemode_test-250MHz.simtel"-->
-            <!--limit="1000" />-->
+    <property name="infile" value="/Users/kai/kryo/cta_protons.kryo" />
 
-    <!--<stream id="cta:data" class="streams.cta.io.eventio.EventIOStream" url="file:/home/jbuss/testdata/cta_mc/proton_20deg_0deg_run32286___cta-prod2_desert-1640m-Aar.simtel.gz"-->
-    <!--/>-->
-
-    <!--<property name="infile" value="file:/Users/kai/fact_phido/cta/cta_mc_data.kryo" />-->
-    <property name="outfile" value="file:./features.json" />
-    <property name="infile" value="http://sfb876.tu-dortmund.de/data_0.kryo?self=$eipoqcpkhs&amp;part=data" />
-
-    <stream id="cta:data" class="streams.cta.io.KryoStream" url="${infile}"/>
+    <stream id="cta:data" class="streams.cta.io.KryoStream" url="file:${infile}"/>
 
 
-
-    
     <process input="cta:data">
-
-        <streams.DataRate every="100" />
+        <streams.DataRate every="100" logmemory="true" silent="true"/>
         <streams.cta.datacorrection.BaselineShift />
-        <streams.cta.extraction.MaxAmplitude />
-        <streams.cta.extraction.ArrivalTimeRisingEdge/>
-        <streams.cta.extraction.PhotonsSignalAmplitude />
-        <streams.cta.cleaning.TwoLevelTimeNeighbor />
+        <streams.cta.extraction.Photons />
+        <streams.cta.extraction.ArrivalTime />
+        <streams.cta.cleaning.TwoLevelTimeNeighbor levels="400,320,120,100" />
         <streams.cta.features.Size/>
         <streams.cta.features.COG/>
         <streams.cta.features.WidthLengthDelta/>
-        <streams.cta.io.JSONWriter keys="cog,width,length,size" url="${outfile}" writeblock="true"/>
-        <streams.ShowViewer />
-        <!--<PrintData/>-->
+        <streams.ShowViewer/>
     </process>
-    
+
+
 </application>

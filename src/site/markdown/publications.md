@@ -12,7 +12,10 @@ listed below:
     C. Bockermann et al., published at the *European Conference on Machine Learning*, ECML/PKDD 2015. <br/>
     [BibTex](pubs/Bockermann_etal_2015.bib)
 
-
+  - [*FACT-Tools: Streamed Real-Time Data Analysis *](http://pos.sissa.it/cgi-bin/reader/conf.cgi?confid=236), <br/>
+    K.A. Brügge et al., published at the *International Cosmic Ray Conference*, ICRC 2015. <br/>
+    
+    
 #### 2012
 
    - [*The Streams Framework*](http://www-ai.cs.uni-dortmund.de/PublicPublicationFiles/bockermann_blom_2012c.pdf), <br/>

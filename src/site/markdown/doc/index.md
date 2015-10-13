@@ -21,25 +21,3 @@ is a thin API layer that attaches to a runtime provided as a separate module or
 can embedded into existing code.
 
 
-Process Design with JavaBeans
------------------------------
-
-The `streams` library promotes simple software design patterns such as JavaBean
-conventions and dependency injection to allow for a quick setup of streaming
-processes using simple XML files.
-
-As shown in Figure 2, the idea of the `streams` library is to provide a simple
-runtime environment that lets users define streaming processes in XML files,
-with a close relation to the implementing Java classes.
-
-<div style="margin:auto; border: none; text-align: center;">
-   <img style="margin:auto; height: 200px;" src="process-design.png" />
-   <p style="margin-left:20px; margin-right:20px;">Figure 2: XML process definitions mapped to a runtime environment, using 
-   stream-api components and other libraries.</p>
-</div>
-
-Based on the conventions and patterns used, components of the
-`streams` library are simple Java classes.  Following the basic design
-patterns of the `streams` library allows for quickly adding custom
-classes to the streaming processes without much trouble.
-

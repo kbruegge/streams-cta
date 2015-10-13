@@ -1,19 +1,20 @@
 <application>
-    
 
-    <property name="infile" value="/Users/kai/fact_phido/cta/cta_mc_data_copy_1.kryo" />
-    <stream id="cta:data" class="streams.cta.io.KryoStream" url="file:${infile}"/>
+    <property name="inFolder" value="/Users/kai/kryo/" />
 
+    <property name="multiply" value="1" />
+    <property name="port" value="5550" />
 
+    <stream id="cta:data" class="streams.cta.io.RecursiveDirectoryStream"
+            suffix=".kryo" url="file:${inFolder}" multiply="${multiply}" >
+        <stream id="cta:data_in" class="streams.cta.io.KryoStream"/>
+    </stream>
 
-    <process input="cta:data"  >
-        <streams.DataRate every="500" />
-        <!--<Delay time="25ms" />-->
-        <streams.cta.io.protobuf.ProtoEventPublisher addresses="tcp://*:5558" />
+    <process input="cta:data">
+        <streams.DataRate every="2000" />
+        <streams.cta.io.protobuf.ProtoEventPublisher addresses="tcp://*:${port}" />
         <Skip condition="%{data.@datarate} == null" />
-            <streams.cta.io.JSONWriter url="file:./performance_publish_protobuf.json" keys="@datarate,@packetSize" writeblock="true"/>
+            <streams.cta.io.JSONWriter url="file:./performance_publish_protobuf.json" keys="@datarate" writeblock="true"/>
     </process>
-
-
 
 </application>
