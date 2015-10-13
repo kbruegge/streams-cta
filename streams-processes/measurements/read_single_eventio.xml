@@ -9,7 +9,7 @@
 
     <process input="cta:data">
         <!--<stream.monitor.DataRate every="400"/>-->
-        <streams.DataRate every="200" silent="false"/>
+        <streams.DataRate every="100" silent="false"/>
         <Skip condition="%{data.@datarate} == null" />
             <streams.cta.io.JSONWriter url="file:./performance_single_eventio.json" keys="@datarate" writeblock="true"/>
     </process>
