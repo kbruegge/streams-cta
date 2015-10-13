@@ -1,9 +1,13 @@
 package streams.cta.io.protobuf;
 
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
+
+import java.time.LocalDateTime;
+
 import stream.Data;
 import stream.annotations.Parameter;
 import stream.data.DataFactory;
@@ -11,17 +15,22 @@ import stream.io.AbstractStream;
 import streams.cta.CTATelescope;
 import streams.cta.CTATelescopeType;
 
-import java.time.LocalDateTime;
-
 /**
- * Created by kai on 18.08.15.
+ * ProtoRawEventStream uses ZeroMQ with a PUB / SUB pattern to subscribe for telescope events
+ * serialized with protocol buffer format.
+ *
+ * @author kai
  */
 public class ProtoRawEventStream extends AbstractStream {
     static Logger log = LoggerFactory.getLogger(ProtoRawEventStream.class);
     private ZMQ.Context context;
     private ZMQ.Socket subscriber;
 
-    byte [] messageType = { 10, 2, 84, 82 };
+    /**
+     * Message type is a filter for subscribed messages. Any message with other message type will be
+     * skipped.
+     */
+    byte[] messageType = {10, 2, 84, 82};
 
 
     @Parameter(required = false)
@@ -29,13 +38,12 @@ public class ProtoRawEventStream extends AbstractStream {
 
     CTATelescope telescope = new CTATelescope(CTATelescopeType.LST, 1, 0, 0, 0, null, null, null);
 
-
     @Override
     public void init() throws Exception {
         super.init();
         context = ZMQ.context(1);
         subscriber = context.socket(ZMQ.SUB);
-        for(String address: addresses) {
+        for (String address : addresses) {
             log.info("Connecting to address: " + address);
             subscriber.connect(address);
         }
@@ -44,6 +52,8 @@ public class ProtoRawEventStream extends AbstractStream {
 
     @Override
     public Data readNext() throws Exception {
+
+        // wait for a message with a right type
         byte[] data = subscriber.recv(0);
         try {
             RawCTAEvent.RawEvent rawEvent = RawCTAEvent.RawEvent.parseFrom(data);
@@ -62,7 +72,7 @@ public class ProtoRawEventStream extends AbstractStream {
             item.put("@raw_data", samples);
             return item;
 
-        } catch (InvalidProtocolBufferNanoException e){
+        } catch (InvalidProtocolBufferNanoException e) {
             log.error("Could not parse the protobuf");
             return null;
         }
