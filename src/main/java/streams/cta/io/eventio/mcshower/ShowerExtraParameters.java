@@ -9,7 +9,9 @@ import streams.cta.io.eventio.EventIOBuffer;
 import streams.cta.io.eventio.EventIOHeader;
 
 /**
- * Created by alexey on 30.06.15.
+ * Read extra shower parameters.
+ *
+ * @author alexey
  */
 public class ShowerExtraParameters {
 

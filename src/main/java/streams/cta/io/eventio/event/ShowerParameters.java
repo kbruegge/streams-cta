@@ -18,11 +18,31 @@ public class ShowerParameters {
     static Logger log = LoggerFactory.getLogger(ShowerParameters.class);
 
     public int known;
-    public int numTrg;      ///< Number of telescopes contributing to central trigger.
-    int numRead;     ///< Number of telescopes read out.
-    int numImg;      ///< Number of images used for shower parameters.
-    int imgPattern;  ///< Bit pattern of which telescopes were used (for small no. of telescopes only).
-    short[] imgList; ///< With more than 16 or 32 telescopes, we can only use the list.
+
+    /**
+     * Number of telescopes contributing to central trigger.
+     */
+    public int numTrg;
+
+    /**
+     * Number of telescopes read out.
+     */
+    int numRead;
+
+    /**
+     * Number of images used for shower parameters.
+     */
+    int numImg;
+
+    /**
+     * Bit pattern of which telescopes were used (for small no. of telescopes only).
+     */
+    int imgPattern;
+
+    /**
+     * With more than 16 or 32 telescopes, we can only use the list.
+     */
+    short[] imgList;
 
     /**
      * Bit pattern of what results are available: Bits 0 + 1: direction + errors Bits 2 + 3: core
@@ -35,22 +55,90 @@ public class ShowerParameters {
      * Azimuth angle [radians from N->E]
      */
     float azimuthAngle;
-    float altitude;       ///< Altitude [radians]
-    float errDirX;  ///< Error estimate in nominal plane X direction (|| Alt) [rad]
-    float errDirY;  ///< Error estimate in nominal plane Y direction (|| Az) [rad]
-    float errDir3;  ///< ?
-    float corePosX;        ///< X core position [m]
-    float corePosY;        ///< Y core position [m]
-    float errCoreX; ///< Error estimate in X coordinate [m]
-    float errCoreY; ///< Error estimate in Y coordinate [m]
-    float errCore3; ///< ?
-    float meanScaledLength;      ///< Mean scaled image length [gammas ~1 (HEGRA-style) or ~0 (HESS-style)].
+
+    /**
+     * Altitude [radians]
+     */
+    float altitude;
+
+    /**
+     * Error estimate in nominal plane X direction (|| Alt) [rad]
+     */
+    float errDirX;
+
+    /**
+     * Error estimate in nominal plane Y direction (|| Az) [rad]
+     */
+    float errDirY;
+
+    /**
+     *
+     */
+    float errDir3;
+
+    /**
+     * X core position [m]
+     */
+    float corePosX;
+
+    /**
+     * Y core position [m]
+     */
+    float corePosY;
+
+    /**
+     * Error estimate in X coordinate [m]
+     */
+    float errCoreX;
+
+    /**
+     * Error estimate in Y coordinate [m]
+     */
+    float errCoreY;
+
+    /**
+     *
+     */
+    float errCore3;
+
+    /**
+     * Mean scaled image length [gammas ~1 (HEGRA-style) or ~0 (HESS-style)].
+     */
+    float meanScaledLength;
+
+    /**
+     *
+     */
     float errMeanScaledLength;
-    float meanScaledWidth;      ///< Mean scaled image width [gammas ~1 (HEGRA-style) or ~0 (HESS-style)].
+
+    /**
+     * Mean scaled image width [gammas ~1 (HEGRA-style) or ~0 (HESS-style)].
+     */
+    float meanScaledWidth;
+
+    /**
+     *
+     */
     float errMeanScaledWidth;
-    float energy;    ///< Primary energy [TeV], assuming a gamma.
+
+    /**
+     * Primary energy [TeV], assuming a gamma.
+     */
+    float energy;
+
+    /**
+     *
+     */
     float errEnergy;
-    float xmax;      ///< Atmospheric depth of shower maximum [g/cm^2].
+
+    /**
+     * Atmospheric depth of shower maximum [g/cm^2].
+     */
+    float xmax;
+
+    /**
+     *
+     */
     float errXmax;
 
     public boolean readShower(EventIOBuffer buffer) {

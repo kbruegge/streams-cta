@@ -5,8 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import streams.cta.io.eventio.EventIOConstants;
 import streams.cta.io.eventio.EventIOBuffer;
+import streams.cta.io.eventio.EventIOConstants;
 import streams.cta.io.eventio.EventIOHeader;
 import streams.cta.io.eventio.HTime;
 
@@ -89,7 +89,12 @@ public class CentralEvent {
         numTelData = 0;
     }
 
-    private void initArrays(int numberTriggeredTelescopes){
+    /**
+     * Initialize the arrays with the number of really triggered telescopes
+     *
+     * @param numberTriggeredTelescopes number of triggered telescopes
+     */
+    private void initArrays(int numberTriggeredTelescopes) {
         teltrgList = new short[numberTriggeredTelescopes];
         teltrgTime = new float[numberTriggeredTelescopes];
         teltrgTypeMask = new int[numberTriggeredTelescopes];
@@ -97,6 +102,12 @@ public class CentralEvent {
         teldataList = new short[numberTriggeredTelescopes];
     }
 
+    /**
+     * Read central telescope event.
+     *
+     * @param buffer buffer using input stream to read event
+     * @return true if no errors occurs, false otherwise
+     */
     public boolean readCentralEvent(EventIOBuffer buffer) {
 
         EventIOHeader header = new EventIOHeader(buffer);
@@ -107,7 +118,7 @@ public class CentralEvent {
                     header.getItemEnd();
                     return false;
                 }
-                globCount = (int) header.getIdentification();
+                globCount = header.getIdentification();
                 cpuTime.readTime(buffer);
                 gpsTime.readTime(buffer);
                 teltrgPattern = buffer.readInt32();

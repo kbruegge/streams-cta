@@ -14,7 +14,9 @@ import static streams.cta.io.eventio.EventIOConstants.H_MAX_GAINS;
 import static streams.cta.io.eventio.EventIOConstants.LO_GAIN;
 
 /**
- * ADC data (either sampled or sum mode) Created by alexey on 30.06.15.
+ * ADC data (either sampled or sum mode)
+ *
+ * @author alexey
  */
 public class AdcData {
 
@@ -146,7 +148,8 @@ public class AdcData {
                 numSamples = 0;
 
                 //TODO remove constant magic numbers with EventIOConstants
-                if (numPixels > EventIOConstants.H_MAX_PIX || numGains > EventIOConstants.H_MAX_GAINS ||
+                if (numPixels > EventIOConstants.H_MAX_PIX ||
+                        numGains > EventIOConstants.H_MAX_GAINS ||
                         ((numPixels >= 32768) && (zeroSupMode > 1)) || zeroSupMode > 2 ||
                         dataRedMode > 2) {
                     log.warn("Invalid raw data block is skipped.");
@@ -199,10 +202,10 @@ public class AdcData {
                 // originally uint8_t
                 short[] hgval8 = new short[16];
 
-                switch ((int) zeroSupMode) {
+                switch (zeroSupMode) {
                     case 0:
                         // no zero suppression
-                        switch ((int) dataRedMode) {
+                        switch (dataRedMode) {
                             case 0:
                                 // No data reduction
                                 // Note: in this mode ADC sums are stored in the internal order,
@@ -676,7 +679,7 @@ public class AdcData {
 
                     for (int ilist = 0; ilist < listSize; ilist++) {
                         int ipix1 = buffer.readSCount32();
-                        int ipix2 = 0;
+                        int ipix2;
                         if (ipix1 < 0) {
                             // Single pixel
                             // TODO does it makes sense?
