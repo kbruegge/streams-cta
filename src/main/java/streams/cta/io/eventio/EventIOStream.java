@@ -100,28 +100,27 @@ public class EventIOStream extends AbstractStream {
         importEventioRegisteredDatatypes();
 
         numberEvents = 0;
-        log.info("Start reading " + url + " ignore erros: " + ignoreErrors);
+        log.info("Start reading " + url + " ignore errors: " + ignoreErrors);
     }
 
     @Override
     public Data readNext() throws Exception {
 
         Data item = DataFactory.create();
-        int numberRuns = 0;
         EventIOHeader header = new EventIOHeader(buffer);
         boolean eventFound = false;
         while (!eventFound) {
-            numberRuns++;
             if (header.findSyncMarkerAndType()) {
-//                if (header.type == EventIOConstants.TYPE_MCSHOWER) {
-//                    if (eventData.mcShower == null){
-//                        eventData.mcShower = new MCShower();
-//                    }
-//                    if (!eventData.mcShower.readMCShower(buffer)) {
-//                        log.error("Error happened while reading MC Shower.");
-//                    }
-//                } else
-                switch (header.type){
+                switch (header.type) {
+                    case EventIOConstants.TYPE_MCSHOWER:
+                        if (eventData.mcShower == null) {
+                            eventData.mcShower = new MCShower();
+                        }
+                        if (!eventData.mcShower.readMCShower(buffer)) {
+                            log.error("Error happened while reading MC Shower.");
+                            return null;
+                        }
+                        break;
                     case EventIOConstants.TYPE_EVENT:
                         if (!eventData.event.readFullEvent(buffer, -1)) {
                             log.error("Error happened while reading full event data.");
