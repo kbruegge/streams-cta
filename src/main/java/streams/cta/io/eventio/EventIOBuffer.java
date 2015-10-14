@@ -14,7 +14,10 @@ import static streams.cta.io.eventio.EventIOConstants.MAX_HEADER_SIZE;
 import static streams.cta.io.eventio.EventIOConstants.MAX_IO_ITEM_LEVEL;
 
 /**
- * Created by alexey on 17.06.15.
+ * Reading EventIO files from a given DataInputStream. The file type itself was defined by
+ * K.Bernlöhr.
+ *
+ * @author alexey
  */
 public class EventIOBuffer {
 
@@ -77,6 +80,11 @@ public class EventIOBuffer {
 
     DataInputStream dataStream;
 
+    /**
+     * Initialize arrays and set data input stream.
+     *
+     * @param dataStream input stream from an EventIO file
+     */
     public EventIOBuffer(DataInputStream dataStream) {
         itemLength = new long[MAX_IO_ITEM_LEVEL];
         subItemLength = new long[MAX_IO_ITEM_LEVEL];
@@ -86,6 +94,11 @@ public class EventIOBuffer {
         readLength = new int[MAX_IO_ITEM_LEVEL];
     }
 
+    /**
+     * Skip defined number of bytes.
+     *
+     * @param length number of bytes to skip
+     */
     public void skipBytes(int length) {
         try {
             dataStream.skipBytes(length);
@@ -331,6 +344,11 @@ public class EventIOBuffer {
         return readInt32();
     }
 
+    /**
+     * Read a 16-bit integer
+     *
+     * @return short value
+     */
     public short readInt16() throws IOException {
         byte[] b = new byte[2];
         dataStream.read(b);
@@ -344,6 +362,11 @@ public class EventIOBuffer {
         }
     }
 
+    /**
+     * Read a 32-bit integer
+     *
+     * @return integer value
+     */
     public int readInt32() throws IOException {
         byte[] b = new byte[4];
         dataStream.read(b);
@@ -358,7 +381,7 @@ public class EventIOBuffer {
     }
 
     /**
-     * Read an unsigned int from an I/O buffer.
+     * Read an unsigned 32-bit int from an I/O buffer.
      *
      * @return unsigned int as long
      */
@@ -382,6 +405,11 @@ public class EventIOBuffer {
         }
     }
 
+    /**
+     * Read 64-bit integer from an I/O buffer.
+     *
+     * @return long value
+     */
     public long readInt64() throws IOException {
         byte[] b = new byte[8];
         dataStream.read(b);
@@ -632,24 +660,30 @@ public class EventIOBuffer {
                 (v[5] << 24) | (v[6] << 16) | (v[7] << 8) | v[8];
     }
 
-    private long calculateCount(long[] count, int length) {
-        int[] bitmasks = new int[]{0x3f, 0x1f, 0x0f, 0x07, 0x03, 0x01};
+    //TODO: this code was written for a shorter version of readCount() method. delete if not used.
+//    private long calculateCount(long[] count, int length) {
+//        int[] bitmasks = new int[]{0x3f, 0x1f, 0x0f, 0x07, 0x03, 0x01};
+//
+//        long temp = count[length - 1];
+//        int shift = 8;
+//
+//        for (int i = length - 2; i >= 1; i--) {
+//            temp |= (count[i] << shift);
+//            shift += 8;
+//        }
+//
+//        if (length <= 6 && length > 1) {
+//            temp |= ((count[0] & bitmasks[length - 2]) << shift);
+//        }
+//
+//        return temp;
+//    }
 
-        long temp = count[length - 1];
-        int shift = 8;
-
-        for (int i = length - 2; i >= 1; i--) {
-            temp |= (count[i] << shift);
-            shift += 8;
-        }
-
-        if (length <= 6 && length > 1) {
-            temp |= ((count[0] & bitmasks[length - 2]) << shift);
-        }
-
-        return temp;
-    }
-
+    /**
+     * Read signed float from I/O buffer.
+     *
+     * @return float value
+     */
     public float readSFloat() throws IOException {
         int shortFloat = readUnsignedShort();
 
@@ -769,6 +803,12 @@ public class EventIOBuffer {
         return result;
     }
 
+    /**
+     * Read a vector of floats from an I/O buffer.
+     *
+     * @param number number of elements to load
+     * @return array of float elements
+     */
     public float[] readVectorOfFloats(int number) throws IOException {
         float[] result = new float[number];
         for (int i = 0; i < number; i++) {
@@ -777,10 +817,16 @@ public class EventIOBuffer {
         return result;
     }
 
-    public double[] readVectorOfDoubles(int vectorSize)
+    /**
+     * Read a vector of doubles from an I/O buffer.
+     *
+     * @param number number of elements to load
+     * @return array of double elements
+     */
+    public double[] readVectorOfDoubles(int number)
             throws IOException {
-        double[] vector = new double[vectorSize];
-        for (int i = 0; i < vectorSize; i++) {
+        double[] vector = new double[number];
+        for (int i = 0; i < number; i++) {
             vector[i] = readDouble();
         }
         return vector;

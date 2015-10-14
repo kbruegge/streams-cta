@@ -8,8 +8,10 @@ import java.io.IOException;
 import streams.cta.io.eventio.event.FullEvent;
 
 /**
- * Header of EventIO file This class should read the header in front of the data block in EventIO
+ * Header of EventIO file. This class should read the header in front of the data block in EventIO
  * and determine some essential information as typeString, length and identification.
+ *
+ * @author alexey
  */
 public class EventIOHeader {
 
@@ -67,6 +69,13 @@ public class EventIOHeader {
         typeString = "";
     }
 
+    /**
+     * Find and read next header. If called in the top level, first the method looks up the
+     * synchronisation marker. In case reset parameter is set, input stream is reset back after
+     * reading the header's type information.
+     *
+     * @param reset true, if the input stream should be reset after reading the next header's type
+     */
     public boolean findAndReadNextHeader(boolean reset) throws IOException {
         if (buffer.itemLevel >= EventIOConstants.MAX_IO_ITEM_LEVEL) {
             log.error("Maximum level of sub-items in I/O Buffer exceeded.");
@@ -207,11 +216,18 @@ public class EventIOHeader {
     /**
      * Searches the stream for the sync marker and reads EventIO defined header consisting of 3 - 4
      * fields of 4 bytes each
+     *
+     * @return true if no errors occurred, otherwise false
      */
     public boolean findAndReadNextHeader() throws IOException {
         return findAndReadNextHeader(false);
     }
 
+    /**
+     * Simply search the next header and reset the stream to the point where this header starts.
+     *
+     * @return true if no errors occurred, otherwise false
+     */
     public boolean findSyncMarkerAndType() throws IOException {
         return findAndReadNextHeader(true);
     }
@@ -262,7 +278,7 @@ public class EventIOHeader {
 
             }
         } catch (Exception e) {
-            log.error("Available buffer in datastream: " + buffer.dataStream.available());
+            log.error("Available buffer in data stream: " + buffer.dataStream.available());
         }
         return false;
     }
@@ -270,6 +286,8 @@ public class EventIOHeader {
     /**
      * Find the end of the current item. Update the level if you're leaving one level and skip the
      * bytes left til the data length.
+     *
+     * @return true if no errors occurred, otherwise false
      */
     public boolean getItemEnd() {
         // check for some level errors

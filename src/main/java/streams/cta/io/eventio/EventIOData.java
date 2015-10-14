@@ -5,7 +5,9 @@ import streams.cta.io.eventio.mcshower.MCShower;
 import streams.cta.io.eventio.runheader.RunHeader;
 
 /**
- * EventIOData can be compared to AllHessData data type in hessioxxx Created by alexey on 24.06.15.
+ * EventIOData can be compared to AllHessData data type in hessioxxx
+ *
+ * @author alexey
  */
 public class EventIOData {
     MCShower mcShower;

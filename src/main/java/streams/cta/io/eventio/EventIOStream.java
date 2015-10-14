@@ -21,21 +21,37 @@ import stream.io.SourceURL;
 import streams.cta.CTATelescope;
 import streams.cta.CTATelescopeType;
 import streams.cta.io.eventio.event.FullEvent;
+import streams.cta.io.eventio.mcshower.MCShower;
 
 /**
- * Created by alexey on 02.06.15.
+ * Stream an EventIO file using EventIOBuffer to read that file.
+ *
+ * @author alexey
  */
 public class EventIOStream extends AbstractStream {
 
     static Logger log = LoggerFactory.getLogger(EventIOStream.class);
 
+    /**
+     * Remember the byte order (LittleEndian or BigEndian)
+     */
     static int byteOrder = 0;
 
+    /**
+     * Count number of seen events in EventIO file
+     */
     int numberEvents;
 
     public static HashMap<Integer, String> eventioTypes;
 
+    /**
+     * Store all parsed data from EventIO file
+     */
     public EventIOData eventData;
+
+    /**
+     * Read EventIO file using this buffer
+     */
     public EventIOBuffer buffer;
 
     @Parameter(
