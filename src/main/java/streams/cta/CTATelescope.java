@@ -28,6 +28,10 @@ public class CTATelescope implements Serializable {
         this.pixelGains = pixelGains;
     }
 
+    public CTATelescope(CTATelescopeType type, int telescopeId){
+        this(type, telescopeId, 0, 0, 0, null, null, null);
+    }
+
     private CTATelescope() {
 
     }

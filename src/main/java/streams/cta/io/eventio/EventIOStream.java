@@ -129,20 +129,23 @@ public class EventIOStream extends AbstractStream {
 
                         //TODO: add more telescope data into the item
                         short[][] data;
-                        if (eventData.event.teldata[0] != null){
+                        if (eventData.event.teldata[0] != null) {
                             numberEvents++;
                             data = eventData.event.teldata[0].raw.adcSample[0];
                             item.put("@raw_data", data);
                             item.put("@timestamp", eventData.event.central.cpuTime.getAsLocalDateTime());
-                            if(data.length == 1855){
-                                item.put("@telescope", new CTATelescope(CTATelescopeType.LST, 12, 0, 0, 0, null, null, null));
-                            } else if(data.length == 2048) {
-                                item.put("@telescope", new CTATelescope(CTATelescopeType.SST_CHEC, 13, 0, 0, 0, null, null, null));
-                            } else if(data.length == 11328){
-                                item.put("@telescope", new CTATelescope(CTATelescopeType.MST_GATE, 13, 0, 0, 0, null, null, null));
+                            if (data.length == CTATelescopeType.LST.numberOfPixel) {
+                                item.put("@telescope",
+                                        new CTATelescope(CTATelescopeType.LST, 12));
+                            } else if (data.length == CTATelescopeType.SST_CHEC.numberOfPixel) {
+                                item.put("@telescope",
+                                        new CTATelescope(CTATelescopeType.SST_CHEC, 13));
+                            } else if (data.length == CTATelescopeType.MST_GATE.numberOfPixel) {
+                                item.put("@telescope",
+                                        new CTATelescope(CTATelescopeType.MST_GATE, 13));
                             }
                             eventFound = true;
-                        }else{
+                        } else {
                             log.error("Telescope event data is missing.");
                         }
                         break;
