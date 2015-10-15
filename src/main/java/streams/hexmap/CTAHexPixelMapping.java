@@ -61,8 +61,9 @@ public class CTAHexPixelMapping extends HexPixelMapping {
         int id = (int)(item.get("id"));
         int geometricX = (Integer)(item.get("geom_x"));
         int geometricY = (Integer)(item.get("geom_y"));
-        double posX = Double.parseDouble(item.get("position_x").toString());
-        double posY = Double.parseDouble(item.get("position_y").toString());
+        //convert from meter to millimeter
+        double posX = Double.parseDouble(item.get("position_x").toString())*1000;
+        double posY = Double.parseDouble(item.get("position_y").toString())*1000 * (-1);
 
         return new CameraPixel(id, geometricX, geometricY, posX, posY);
     }

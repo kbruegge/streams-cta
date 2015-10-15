@@ -65,7 +65,7 @@ public class CameraDisplayPanel extends JPanel {
 
 
 	public CameraDisplayPanel(HexPixelMapping hexPixelMapping) {
-        hexmap = new HexMapDisplay(0.7, 600, 530, hexPixelMapping);
+        hexmap = new HexMapDisplay(0.21, 600, 530, hexPixelMapping);
 		Bus.eventBus.register(this);
 
 		// get all classes that implement the colormapping interface
@@ -79,10 +79,10 @@ public class CameraDisplayPanel extends JPanel {
 
 		// actionlistener for context menu.
 		ActionListener contextMenuListener = e -> {
-            if (e.getActionCommand().equalsIgnoreCase("Patch selection")) {
-                AbstractButton b = (AbstractButton) e.getSource();
-                hexmap.setPatchSelectionMode(b.isSelected());
-            }
+//            if (e.getActionCommand().equalsIgnoreCase("Patch selection")) {
+//                AbstractButton b = (AbstractButton) e.getSource();
+//                hexmap.setPatchSelectionMode(b.isSelected());
+//            }
             // export to .png
             if (e.getActionCommand().equalsIgnoreCase("Export to .png")) {
                 exportPNG();
