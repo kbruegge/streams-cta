@@ -3,7 +3,6 @@ package streams.hexmap.ui.components;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import streams.hexmap.TelescopeEvent;
 import streams.hexmap.ui.plotting.IntervalPlotData;
 import streams.hexmap.ui.plotting.LinePlotData;
 

@@ -1,9 +1,6 @@
 package streams.hexmap.ui.components.selectors;
 
-import streams.hexmap.TelescopeEvent;
-import streams.hexmap.ui.Bus;
 import streams.hexmap.ui.events.ItemChangedEvent;
-import streams.hexmap.ui.events.OverlaySelectionChangedEvent;
 import streams.hexmap.ui.overlays.CameraMapOverlay;
 import stream.Data;
 import streams.hexmap.ui.plotting.OverlayPlotData;

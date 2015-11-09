@@ -1,6 +1,5 @@
 package streams.hexmap.ui.components.selectors;
 
-import streams.hexmap.TelescopeEvent;
 import org.jfree.chart.plot.IntervalMarker;
 import stream.Data;
 import streams.hexmap.ui.events.ItemChangedEvent;

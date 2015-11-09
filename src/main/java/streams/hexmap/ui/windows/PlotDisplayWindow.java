@@ -6,7 +6,6 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
-import streams.hexmap.TelescopeEvent;
 import streams.hexmap.ui.Bus;
 import streams.hexmap.ui.EventObserver;
 import streams.hexmap.ui.components.SelectedLinePlotPanel;
@@ -22,7 +21,6 @@ public class PlotDisplayWindow implements EventObserver{
 	private final SelectedLinePlotPanel plotPanel = new SelectedLinePlotPanel(750, 480);
     private final LinePlotSelector keySelector = new LinePlotSelector();
     private final IntervallMarkerKeySelector intervalKeySelector = new IntervallMarkerKeySelector();
-    private TelescopeEvent telescopeEvent;
 
     public PlotDisplayWindow() {
         Bus.eventBus.register(this);
