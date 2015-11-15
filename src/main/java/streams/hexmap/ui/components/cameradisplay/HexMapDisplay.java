@@ -42,7 +42,7 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay, SliceObser
 	static Logger log = LoggerFactory.getLogger(HexMapDisplay.class);
 
 	//camera specific informations
-	private final double PIXEL_RADIUS = 7;
+	private final double PIXEL_RADIUS = 25; //millimeter flat to flat
     final private HexPixelMapping pixelMapping;
 
     HexTile tiles[];
@@ -71,7 +71,7 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay, SliceObser
 	// formater to display doubles nicely
 	DecimalFormat fmt = new DecimalFormat("#.##");
 
-	private boolean patchSelectionMode;
+//	private boolean patchSelectionMode;
 
 	private boolean drawScaleNumbers = true;
 
@@ -79,7 +79,7 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay, SliceObser
 
 	private int offsetX = 0;
 	private int offsetY = 0;
-
+//
     private final double scale;
 
 	/**
@@ -101,7 +101,7 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay, SliceObser
 
 		tiles = new HexTile[pixelMapping.getNumberOfPixel()];
 		for (int i = 0; i < tiles.length; i++) {
-			HexTile t = new HexTile(pixelMapping.getPixelFromId(i), PIXEL_RADIUS*this.scale);
+			HexTile t = new HexTile(pixelMapping.getPixelFromId(i), PIXEL_RADIUS, this.scale);
 			tiles[i] = t;
 		}
 
@@ -194,8 +194,8 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay, SliceObser
 			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 			// draw a grid with lines every 25 pixel in a dark grey color
-			g2.setStroke(new BasicStroke(1.0f));
-			g2.setColor(Color.DARK_GRAY);
+//			g2.setStroke(new BasicStroke(1.0f));
+//			g2.setColor(Color.DARK_GRAY);
 //			drawGrid(g2, 25);
 
 
@@ -203,7 +203,7 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay, SliceObser
 			// translate to center of canvas
 			g2.translate(xOffset, yOffset);
 			// rotate 90 degrees counter clockwise
-			g2.rotate(-Math.PI / 2);
+//			g2.rotate(-Math.PI / 2);
 			// and draw tiles
 			for (Tile tile : tiles) {
 				CameraPixel p = tile.getCameraPixel();
@@ -211,21 +211,15 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay, SliceObser
 				if (currentSlice >= sliceValues[tile.getCameraPixel().id].length) {
 					slice = sliceValues[tile.getCameraPixel().id].length - 1;
 				}
-				double value = sliceValues[tile.getCameraPixel().id][slice];
 
-				tile.setFillColor(this.colormap.getColorFromValue(value,
-						minValueInData, maxValueInData));
+				double value = sliceValues[tile.getCameraPixel().id][slice];
+				tile.setFillColor(this.colormap.getColorFromValue(value, minValueInData, maxValueInData));
+
 				if (selectedPixels.contains(p)) {
 					tile.setBorderColor(Color.RED);
 				} else {
 					tile.setBorderColor(Color.BLACK);
 				}
-                if(p.offsetCoordinateX == 0 && p.offsetCoordinateY == 0){
-                    tile.setBorderColor(Color.BLUE);
-                }
-                if(p.offsetCoordinateX == 0 && p.offsetCoordinateY == 1){
-                    tile.setBorderColor(Color.GREEN);
-                }
 				tile.paint(g);
 			}
 
@@ -236,13 +230,14 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay, SliceObser
 			// g2.setStroke(new BasicStroke(1.0f));
 			// g2.setColor(Color.WHITE);
 			// // undo the rotation
-			g2.rotate(Math.PI / 2);
+//			g2.rotate(Math.PI / 2);
 			// to draw the grid translate back
 			g2.translate(-xOffset, -yOffset);
 
 			// draw cross across screen to indicate center of component
-            g2.setColor(Color.red);
+            g2.setColor(Color.WHITE);
             g2.drawString("Work In Progress", 50, 50);
+            g2.setStroke(new BasicStroke(1.5f));
             Line2D line = new Line2D.Double(0,0, getWidth(),getHeight());
             g2.draw(line);
             line = new Line2D.Double(getWidth(),0,0,getHeight());
@@ -291,13 +286,13 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay, SliceObser
 			// the coordinates of the mouse pointer.
 			Point p = arg0.getPoint();
 			p.translate(-getWidth() / 2, -getHeight() / 2);
-			AffineTransform rotateInstance = AffineTransform
-					.getRotateInstance(Math.PI / 2);
-			rotateInstance.transform(p, p);
+//			AffineTransform rotateInstance = AffineTransform
+//					.getRotateInstance(Math.PI / 2);
+//			rotateInstance.transform(p, p);
 
 			// In case we want to select wholes patches at a time we save the id
 			// of all selected patches in here
-			Set<Integer> selectedPatches = new HashSet<>();
+//			Set<Integer> selectedPatches = new HashSet<>();
 
 			for (Tile cell : tiles) {
 				if (cell.contains(p)) {
@@ -341,16 +336,16 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay, SliceObser
 			}
 			// in patch selectionmode add all the pixels with the right patchid
 			// to the selectionset
-			if (patchSelectionMode) {
-				for (Tile cell : tiles) {
-					FactCameraPixel pixel = (FactCameraPixel) cell
-							.getCameraPixel();
-					Integer patch = pixel.chid / 9;
-					if (selectedPatches.contains(patch)) {
-						selectedPixels.add(pixel);
-					}
-				}
-			}
+//			if (patchSelectionMode) {
+//				for (Tile cell : tiles) {
+//					FactCameraPixel pixel = (FactCameraPixel) cell
+//							.getCameraPixel();
+//					Integer patch = pixel.chid / 9;
+//					if (selectedPatches.contains(patch)) {
+//						selectedPixels.add(pixel);
+//					}
+//				}
+//			}
 		}
 		this.repaint();
 		Bus.eventBus.post(selectedPixels);
@@ -425,7 +420,7 @@ public class HexMapDisplay extends JPanel implements PixelMapDisplay, SliceObser
 		return PIXEL_RADIUS;
 	}
 
-	public void setPatchSelectionMode(boolean patchSelectionMode) {
-		this.patchSelectionMode = patchSelectionMode;
-	}
+//	public void setPatchSelectionMode(boolean patchSelectionMode) {
+//		this.patchSelectionMode = patchSelectionMode;
+//	}
 }

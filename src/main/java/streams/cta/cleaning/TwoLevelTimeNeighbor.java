@@ -30,7 +30,7 @@ import java.util.HashSet;
 public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
 
     @Parameter(required = false)
-    double[] levels = {220, 120., 5., 1};
+    Double[] levels = {220., 120., 5., 1.};
 
     HashSet<CameraPixel> showerPixel = new HashSet<>();
 
@@ -67,7 +67,7 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
         return input;
     }
 
-    public void setLevels(double[] levels) {
+    public void setLevels(Double[] levels) {
         this.levels = levels;
     }
 

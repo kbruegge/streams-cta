@@ -41,8 +41,8 @@ public class Viewer extends JFrame {
     //------some components for the viewer
     final CameraDisplayPanel mapDisplay = new CameraDisplayPanel(CTAHexPixelMapping.getInstance());
     final StreamNavigationPanel navigation = new StreamNavigationPanel();
-    final AveragePlotPanel chartPanel = new AveragePlotPanel(550, 350);
-    final EventInfoPanel eventInfoPanel = new EventInfoPanel(600, 320);
+    final AveragePlotPanel chartPanel = new AveragePlotPanel(590, 350);
+    final EventInfoPanel eventInfoPanel = new EventInfoPanel(590, 320);
 
 
     private String defaultKey = "@event";
@@ -69,6 +69,8 @@ public class Viewer extends JFrame {
 	private Viewer() {
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setTitle("CTA Tools GUI Development");
+        setSize(1200,670);
+        setResizable(false);
 
 
         //------- add a chart window
@@ -80,8 +82,8 @@ public class Viewer extends JFrame {
 
         // set layout of the main window
         FormLayout layout = new FormLayout(new ColumnSpec[] {
-                                    ColumnSpec.decode("fill:605px"),
-                                    ColumnSpec.decode("fill:605px"), },
+                                    ColumnSpec.decode("fill:595px"),
+                                    ColumnSpec.decode("fill:595px"), },
                                 new RowSpec[] {
                                     RowSpec.decode("fill:pref"),
                                     RowSpec.decode("fill:pref"),
