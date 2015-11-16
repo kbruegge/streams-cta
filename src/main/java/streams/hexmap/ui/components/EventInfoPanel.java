@@ -38,11 +38,11 @@ public class EventInfoPanel extends JPanel implements EventObserver, PixelSelect
 	private static final long serialVersionUID = -4439223773970111981L;
     JLabel eventNumber = new JLabel("EventNumber: ");
     JTextField roiField = new JTextField(disabledString);
-    JTextField timeField = new JTextField(disabledString);
-    JTextField runIDField = new JTextField(disabledString);
-    JTextField chargeField = new JTextField(disabledString);
-    JTextField chargeFieldStd = new JTextField(disabledString);
-    JTextField sizeField = new JTextField(disabledString);
+    JTextField timeField = new JTextField(disabledString,10);
+    JTextField runIDField = new JTextField(disabledString,10);
+    JTextField chargeField = new JTextField(disabledString,10);
+    JTextField chargeFieldStd = new JTextField(disabledString,10);
+    JTextField sizeField = new JTextField(disabledString, 10);
 
     JTextField widthField = new JTextField(disabledString);
     JTextField lengthField = new JTextField(disabledString);
@@ -74,7 +74,7 @@ public class EventInfoPanel extends JPanel implements EventObserver, PixelSelect
             m += " Position: " + sp.offsetCoordinateX + ", " + sp.offsetCoordinateY;
 
             if(photonChargeArray !=  null){
-                m += "photonCharge: " + photonChargeArray[sp.id];
+                m += String.format("  photons: %.2f", photonChargeArray[sp.id]);
             }
             model.addElement(m);
         }
@@ -94,7 +94,7 @@ public class EventInfoPanel extends JPanel implements EventObserver, PixelSelect
         eventNumber.setText(String.valueOf(item.get("@eventId")));
 
         //get photoncharge if its in the map
-        Serializable chargeArray = item.get("@photoncharge");
+        Serializable chargeArray = item.get("photons");
         if (chargeArray != null){
             try{
                 photonChargeArray = ((double[]) chargeArray);
@@ -102,10 +102,10 @@ public class EventInfoPanel extends JPanel implements EventObserver, PixelSelect
                 for(double v : photonChargeArray){
                     eventStatistics.addValue(v);
                 }
-                chargeField.setText("" + eventStatistics.getMean());
+                chargeField.setText(String.format("%.2f", eventStatistics.getMean() ));
                 chargeField.setEnabled(true);
 
-                chargeFieldStd.setText("" + eventStatistics.getStandardDeviation());
+                chargeFieldStd.setText(String.format("%.2f", eventStatistics.getStandardDeviation()));
                 chargeFieldStd.setEnabled(true);
             } catch (ClassCastException e){
                 //pass
@@ -113,10 +113,10 @@ public class EventInfoPanel extends JPanel implements EventObserver, PixelSelect
         }
 
         //get size if its in the map
-        if (item.get("@size") != null){
+        if (item.get("size") != null){
             try{
-                Double size = (Double) item.get("@size");
-                sizeField.setText("" + size);
+                Double size = (Double) item.get("size");
+                sizeField.setText(String.format("%.2f",size));
                 sizeField.setEnabled(true);
             } catch (ClassCastException e){
                 //pass
@@ -127,14 +127,14 @@ public class EventInfoPanel extends JPanel implements EventObserver, PixelSelect
         }
 
         //get width and length if they are in the map
-        if (item.get("@width") != null && item.get("@length") != null){
+        if (item.get("width") != null && item.get("length") != null){
             try{
-                Double width = (Double) item.get("@width");
-                Double length = (Double) item.get("@length");
-                widthField.setText("" + width );
+                Double width = (Double) item.get("width");
+                widthField.setText(String.format("%.2f",width));
                 widthField.setEnabled(true);
 
-                lengthField.setText("" + length );
+                Double length = (Double) item.get("length");
+                lengthField.setText(String.format("%.2f",length));
                 lengthField.setEnabled(true);
             } catch (ClassCastException e){
                 //pass
@@ -178,10 +178,10 @@ public class EventInfoPanel extends JPanel implements EventObserver, PixelSelect
         lengthField.setEnabled(false);
         // set layout of the main window
         FormLayout layout = new FormLayout(new ColumnSpec[] {
-                ColumnSpec.decode("left:100px:grow"),
+                ColumnSpec.decode("left:70px:grow"),
                 ColumnSpec.decode("pref"),
 
-                ColumnSpec.decode("fill:100px:grow"),
+                ColumnSpec.decode("fill:70px:grow"),
                 ColumnSpec.decode("pref"),
 
                 ColumnSpec.decode("right:pref:grow"),

@@ -2,7 +2,6 @@ package streams.hexmap.ui.events;
 
 import stream.Data;
 import streams.cta.CTATelescope;
-import streams.hexmap.TelescopeEvent;
 
 import java.time.LocalDateTime;
 

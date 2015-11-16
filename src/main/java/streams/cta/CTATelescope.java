@@ -3,16 +3,18 @@ package streams.cta;
 import java.io.Serializable;
 
 /**
- * Created by Kai on 27.07.15.
+ * Serializable telescope definition.
+ *
+ * @author kai
  */
 public class CTATelescope implements Serializable {
-    public  CTATelescopeType type;
-    public  int telescopeId;
-    public  double x, y, z;
+    public CTATelescopeType type;
+    public int telescopeId;
+    public double x, y, z;
 
-    public  int[] brokenPixel;
-    public  double[] pixelDelays;
-    public  double[] pixelGains;
+    public int[] brokenPixel;
+    public double[] pixelDelays;
+    public double[] pixelGains;
 
     public CTATelescope(CTATelescopeType type, int telescopeId, double x, double y, double z,
                         int[] brokenPixel, double[] pixelDelays, double[] pixelGains) {
@@ -24,6 +26,10 @@ public class CTATelescope implements Serializable {
         this.brokenPixel = brokenPixel;
         this.pixelDelays = pixelDelays;
         this.pixelGains = pixelGains;
+    }
+
+    public CTATelescope(CTATelescopeType type, int telescopeId){
+        this(type, telescopeId, 0, 0, 0, null, null, null);
     }
 
     private CTATelescope() {

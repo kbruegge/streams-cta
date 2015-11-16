@@ -2,7 +2,9 @@ package streams.cta;
 
 /**
  * Description of different Telescope types in the cta array. We assume each camera has only one
- * pixel geometry. Created by Kai on 27.07.15.
+ * pixel geometry.
+ *
+ * @author kai
  */
 public enum CTATelescopeType {
     LST(0, Geometry.HEXAGONAL, 1855, 2.0),

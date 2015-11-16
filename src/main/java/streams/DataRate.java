@@ -14,7 +14,10 @@ import stream.StatefulProcessor;
 import stream.annotations.Parameter;
 
 /**
- * Created by kai on 11.08.15.
+ * DataRate counts number of items processed per second. Additionally it can log memory (free,
+ * total, max).
+ *
+ * @author kai
  */
 public class DataRate implements StatefulProcessor {
     Logger log = LoggerFactory.getLogger(DataRate.class);
@@ -26,7 +29,8 @@ public class DataRate implements StatefulProcessor {
     Runtime runtime;
 
 
-    @Parameter(required = false, description = "How many data items are collected for each measurement of the data rate")
+    @Parameter(required = false, description = "How many data items are collected for each " +
+            "measurement of the data rate")
     long every = 200;
 
     @Parameter(required = false,
@@ -36,7 +40,8 @@ public class DataRate implements StatefulProcessor {
     @Parameter(required = false, description = "Flags whether to log memory usage to data item")
     boolean logmemory = false;
 
-    @Parameter(required = false, description = "the key under which youll find the datarate in the item after calculating it.")
+    @Parameter(required = false, description = "the key under which you'll find the datarate " +
+            "in the item after calculating it.")
     String output = "@datarate";
 
     SummaryStatistics statistics = new SummaryStatistics();
@@ -68,9 +73,10 @@ public class DataRate implements StatefulProcessor {
                     ((double) itemCounter) / (double) stopwatch.elapsed(TimeUnit.MILLISECONDS);
             statistics.addValue(dataRatePerSecond);
             if (!silent) {
-                log.info("Current Data rate " + output + "  per second: " + dataRatePerSecond + "  free memory " + runtime.freeMemory());
+                log.info("Current Data rate " + output + "  per second: "
+                        + dataRatePerSecond + "  free memory " + runtime.freeMemory());
             }
-            if(logmemory) {
+            if (logmemory) {
                 input.put("@freememory", runtime.freeMemory());
                 input.put("@totalmemory", runtime.totalMemory());
                 input.put("@maxmemory", runtime.maxMemory());

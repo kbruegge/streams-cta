@@ -1,11 +1,6 @@
 package streams.cta.io;
 
 import com.google.gson.Gson;
-import stream.Data;
-import stream.annotations.Parameter;
-import stream.io.AbstractStream;
-import stream.io.SourceURL;
-import stream.io.multi.AbstractMultiStream;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,28 +11,40 @@ import java.util.HashSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import stream.Data;
+import stream.annotations.Parameter;
+import stream.io.AbstractStream;
+import stream.io.SourceURL;
+import stream.io.multi.AbstractMultiStream;
+
 /**
+ * Recursively walks over all directories below a given directory up to some maximum depth. Files to
+ * be used for the stream can be filtered by a given suffix.
  *
- * Created by mackaiver on 9/21/14.
+ * @author kai
  */
 public class RecursiveDirectoryStream extends AbstractMultiStream {
 
     static BlockingQueue<File> files = new LinkedBlockingQueue<>();
 
-    @Parameter(required = false, description = "Maximum depth of folders to traverse", defaultValue = "6")
-    private int  maxDepth = 6;
+    @Parameter(required = false, description = "Maximum depth of folders to traverse",
+            defaultValue = "6")
+    private int maxDepth = 6;
+
     @Parameter(required = true, description = "The suffix to filter files by. .gz for example.")
     private String suffix;
 
-    @Parameter(required = false, description = "A file containing a json array of strings with the allowed filenames. "+
-            "(excluding the possible suffix)")
+    @Parameter(required = false, description = "A file containing a json array of strings " +
+            "with the allowed filenames. (excluding the possible suffix)")
     private SourceURL listUrl = null;
 
 
-    @Parameter(required = false, description = "How many times should one file be added to the file stack. A number" +
-            "larger than 1 means that the files will be read more than once", defaultValue = "1")
-    private int  multiply = 1;
-    //counts how many files have been processed
+    @Parameter(required = false, description = "How many times should one file be added to the " +
+            "file stack. A number larger than 1 means that the files will be read more than once",
+            defaultValue = "1")
+    private int multiply = 1;
+
+    // count number of processed files
     private int filesCounter = 0;
 
     private AbstractStream stream;
@@ -48,22 +55,22 @@ public class RecursiveDirectoryStream extends AbstractMultiStream {
 
     @Override
     public void init() throws Exception {
-        if(!files.isEmpty()){
-            log.debug("files allready loaded");
-            //file allready loaded
+        if (!files.isEmpty()) {
+            log.debug("files already loaded");
             return;
         }
         SourceURL url = getUrl();
         File f = new File(url.getFile());
-        if (!f.isDirectory()){
+        if (!f.isDirectory()) {
             throw new IllegalArgumentException("Provided url does not point to a directory");
         }
 
         HashSet<String> fileNamesFromWhiteList = new HashSet<>();
-        if(listUrl !=  null){
+        if (listUrl != null) {
             File list = new File(listUrl.getFile());
             Gson g = new Gson();
-            fileNamesFromWhiteList = g.fromJson(new BufferedReader(new FileReader(list)), new HashSet<String>().getClass());
+            fileNamesFromWhiteList = g.fromJson(
+                    new BufferedReader(new FileReader(list)), new HashSet<String>().getClass());
         }
 
         log.info("Loading files.");
@@ -71,64 +78,67 @@ public class RecursiveDirectoryStream extends AbstractMultiStream {
 
         for (int i = 0; i < multiply; i++) {
             for (File file : fileList) {
-                if (fileNamesFromWhiteList.isEmpty() || fileNamesFromWhiteList.contains(file.getName())) {
+                if (fileNamesFromWhiteList.isEmpty() ||
+                        fileNamesFromWhiteList.contains(file.getName())) {
                     files.add(file);
                 }
             }
         }
 
         log.info("Loaded " + files.size() + " files for streaming.");
-        //super.init();
     }
 
     /**
-     * Recursivly walks over all direcotries below dir. Up to the maximum depth of depth; Returns only files which names
-     * end with the given suffix.
-     * @param dir
-     * @param suffix
-     * @param depth
-     * @return
+     * Recursively walks over all directories below dir up to the maximum depth of depth. Returns
+     * only files which names end with the given suffix.
      */
-    private ArrayList<File> walkFiles(File dir, final String suffix, int depth){
-        if(depth > maxDepth){
+    private ArrayList<File> walkFiles(File dir, final String suffix, int depth) {
+        if (depth > maxDepth) {
             return new ArrayList<>();
         }
-        //get all files ending with the right suffix in this directory and add them to the queue
+
+        // list of files
+        ArrayList<File> fileList = new ArrayList<>();
+
+        // get all files ending with the right suffix in this directory
         String[] fileNames = dir.list(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 File f = new File(dir, name);
-                if (f.isHidden() || f.isDirectory()){
+                if (f.isHidden() || f.isDirectory()) {
                     return false;
                 }
-                if (name.endsWith(suffix)) {
-                    return true;
-                }
-                return false;
+                return name.endsWith(suffix);
 
             }
         });
-        ArrayList<File> l = new ArrayList<>();
-        for(String fName : fileNames){
-            l.add(new File(dir, fName));
+
+        // add them to the queue
+        for (String fName : fileNames) {
+            fileList.add(new File(dir, fName));
         }
-        //now get all subdirs and do it again
+
+        // get all subdirectories
         String[] directoryNames = dir.list(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 File f = new File(dir, name);
-                if (!f.isHidden() && f.isDirectory()){
+                if (!f.isHidden() && f.isDirectory()) {
                     return true;
                 }
                 return false;
             }
         });
+
+        // increase depth level
         depth++;
-        for (String dirName  : directoryNames){
+
+        // call method recursively for all folders in the current folder
+        for (String dirName : directoryNames) {
             File subDir = new File(dir, dirName);
-            l.addAll(walkFiles(subDir, suffix, depth));
+            fileList.addAll(walkFiles(subDir, suffix, depth));
         }
-        return l;
+        return fileList;
     }
 
     @Override
@@ -167,8 +177,9 @@ public class RecursiveDirectoryStream extends AbstractMultiStream {
     @Override
     public void close() throws Exception {
         super.close();
-        log.info("In total " + filesCounter +  " files were processed.");
+        log.info("In total " + filesCounter + " files were processed.");
     }
+
     public void setMaxDepth(int maxDepth) {
         this.maxDepth = maxDepth;
     }

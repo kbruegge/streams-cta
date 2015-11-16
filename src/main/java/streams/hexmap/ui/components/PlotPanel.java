@@ -4,9 +4,7 @@
 package streams.hexmap.ui.components;
 
 import com.google.common.eventbus.Subscribe;
-import streams.hexmap.TelescopeEvent;
 import streams.hexmap.ui.Bus;
-import streams.hexmap.ui.PixelSelectionObserver;
 import streams.hexmap.ui.SliceObserver;
 import streams.hexmap.ui.events.SliceChangedEvent;
 import org.jfree.chart.ChartPanel;

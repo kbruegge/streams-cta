@@ -7,11 +7,16 @@ import stream.Processor;
 import stream.annotations.Parameter;
 
 /**
- * Created by kai on 02.06.15.
+ * Abstract processor class that extracts event data, telescope and timestamp information from a
+ * telescope event and calls process method with those extracted values. New processors can
+ * implement new processors based on this one using a process method with already extracted values.
+ *
+ * @author kai
  */
 public abstract class CTARawDataProcessor implements Processor {
 
-    @Parameter(description = "The key under which to find the CTA raw data in the data item.", required = false,
+    @Parameter(description = "The key under which to find the CTA raw data in the data item.",
+            required = false,
             defaultValue = "data")
     private String eventKey = "@raw_data";
 

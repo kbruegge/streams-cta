@@ -1,12 +1,8 @@
 package streams.hexmap.ui.components.selectors;
 
-import streams.hexmap.TelescopeEvent;
-import streams.hexmap.ui.Bus;
 import streams.hexmap.ui.events.ItemChangedEvent;
-import streams.hexmap.ui.events.PlotSelectionChangedEvent;
 import stream.Data;
 import streams.hexmap.ui.plotting.LinePlotData;
-import streams.hexmap.ui.plotting.PlotData;
 
 import java.awt.*;
 import java.util.HashSet;

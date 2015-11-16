@@ -1,0 +1,24 @@
+<container id="example">
+
+    <stream id="data" class="stream.generator.RandomStream" limit="12"/>
+
+    <process input="data" id="extraction">
+        <streams.DataRate every="2" silence="true"/>
+        <Enqueue queues="queue1" condition="%{data.@datarate} != null"/>
+        <Enqueue queues="queue2" condition="%{data.@datarate} == null"/>
+    </process>
+
+    <queue id="queue1"/>
+    <queue id="queue2"/>
+
+    <process input="queue1" id="performancebolt1">
+        <streams.cta.io.JSONWriter url="file:./storm_datarate1.json" keys="@datarate" writeblock="true"/>
+        <PrintData/>
+    </process>
+
+    <process input="queue2" id="performancebolt2">
+        <streams.cta.io.JSONWriter url="file:./storm_datarate2.json" keys="@datarate" writeblock="true"/>
+        <PrintData/>
+    </process>
+
+</container>

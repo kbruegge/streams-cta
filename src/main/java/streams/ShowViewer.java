@@ -5,15 +5,16 @@ package streams;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import stream.Data;
 import stream.ProcessContext;
 import stream.StatefulProcessor;
 import stream.annotations.Parameter;
 import streams.cta.CTATelescope;
 import streams.hexmap.ui.Viewer;
-
-import java.time.LocalDateTime;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author chris, kai
@@ -75,7 +76,7 @@ public class ShowViewer implements StatefulProcessor {
                 LocalDateTime timeStamp = (LocalDateTime) input.get("@timestamp");
                 CTATelescope telescope = (CTATelescope) input.get("@telescope");
                 short[][] data = (short[][]) input.get("@raw_data");
-                if(data.length != 1855){
+                if (data.length != 1855) {
                     System.out.println("No LST data. Cannot display.");
                 }
                 if (timeStamp != null && telescope != null && data != null) {

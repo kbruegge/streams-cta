@@ -22,7 +22,8 @@ public class CTAEventSubscriber extends AbstractStream {
     private ZMQ.Context context;
     private ZMQ.Socket subscriber;
 
-    @Parameter(required = false)
+    @Parameter(required = false, description = "Use this parameter to define the " +
+            "address of the publisher node.")
     String[] addresses = {"tcp://129.217.160.202:5556"};
 
 
@@ -44,7 +45,6 @@ public class CTAEventSubscriber extends AbstractStream {
     @Override
     public Data readNext() throws Exception {
         byte[] data = subscriber.recv(0);
-//        System.out.println("Recieved data with length: " + data.length);
         Data item = DataFactory.create();
         item.put("data_bytes", data);
         return item;

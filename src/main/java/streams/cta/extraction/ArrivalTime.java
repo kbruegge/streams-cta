@@ -27,7 +27,7 @@ public class ArrivalTime extends CTARawDataProcessor implements StatefulProcesso
         for (int pixel = 0; pixel < telescope.type.numberOfPixel; pixel++) {
             short max = 0;
             double arrivalTime = 0;
-            for (int slice = 0; slice < eventData[pixel].length; slice++) {
+            for (int slice = 5; slice < 15; slice++) {
                 short value = eventData[pixel][slice];
                 if (value > max) {
                     arrivalTime = slice;

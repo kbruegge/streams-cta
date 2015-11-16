@@ -1,21 +1,24 @@
 <application>
-    
-    <!--<stream id="cta:data" class="streams.cta.io.SyntheticEventStream" delay="0" />-->
 
-    <!--<stream id="cta:data" class="streams.cta.io.eventio.EventIOStream" url="file:/Users/kai/Downloads/electron_20deg_90deg_run7683___cta-trg-test-LST4_desert_samplemode_test-250MHz.simtel"-->
-            <!--limit="1000" />-->
-    <!--<property name="infile" value="cta_data.kryo" />-->
-    <property name="infile" value="/Users/kai/fact_phido/cta/cta_mc_data_copy_1.kryo" />
-    <stream id="cta:data" class="streams.cta.io.KryoStream" url="file:${infile}"/>
+    <property name="inFolder" value="/Users/kai/kryo/" />
+
+    <property name="multiply" value="1" />
+    <property name="port" value="5550" />
 
 
+    <stream id="cta:data" class="streams.cta.io.RecursiveDirectoryStream"
+            suffix=".kryo" url="file:${inFolder}" multiply="${multiply}" >
+        <stream id="cta:data_in" class="streams.cta.io.KryoStream"/>
+    </stream>
 
-    <process input="cta:data"  >
-        <streams.DataRate every="500" />
-        <!--<Delay time="25ms" />-->
-        <streams.cta.io.msgpack.MsgPackPublisher addresses="tcp://*:5556" />
+    <process input="cta:data">
+        <streams.DataRate every="2000" />
+        <streams.cta.io.msgpack.MsgPackPublisher addresses="tcp://*:${port}"/>
         <Skip condition="%{data.@datarate} == null" />
-            <streams.cta.io.JSONWriter url="file:./performance_publish_msgpack.json" keys="@datarate,@packetSize" writeblock="true"/>
+            <streams.cta.io.JSONWriter url="file:./performance_publish_msgpack.json" keys="@datarate" writeblock="true"/>
     </process>
 
 </application>
+
+
+

@@ -27,7 +27,7 @@ public class Photons extends CTARawDataProcessor implements StatefulProcessor {
         photons = new double[telescope.type.numberOfPixel];
         for (int pixel = 0; pixel < telescope.type.numberOfPixel; pixel++) {
             double sum = 0;
-            for (int slice = 0; slice < eventData[pixel].length; slice++) {
+            for (int slice = 5; slice < 15; slice++) {
                 sum += eventData[pixel][slice];
             }
             photons[pixel] = sum;

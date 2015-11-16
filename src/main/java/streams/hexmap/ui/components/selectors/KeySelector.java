@@ -1,10 +1,6 @@
 package streams.hexmap.ui.components.selectors;
 
-import com.google.common.eventbus.Subscribe;
-import streams.hexmap.TelescopeEvent;
 import streams.hexmap.ui.Bus;
-import streams.hexmap.ui.EventObserver;
-import stream.Data;
 import streams.hexmap.ui.events.ItemChangedEvent;
 import streams.hexmap.ui.events.PlotSelectionChangedEvent;
 import streams.hexmap.ui.plotting.PlotData;
@@ -15,7 +11,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * A KeySelector is a JPanel which lays out KeySelectorItems. It keeps track of which KeySelectorItems are selected

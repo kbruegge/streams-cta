@@ -42,8 +42,8 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
     private T[][] offsetCoordinates;
     private int cameraMaxOffsetX;
     private int cameraMaxOffsetY;
-    private int cameraMinOffsetX;
-    private int cameraMinOffsetY;
+//    private int cameraMinOffsetX;
+//    private int cameraMinOffsetY;
 
     public abstract int getNumberOfPixel();
 
@@ -102,9 +102,9 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
         }
 
         cameraMaxOffsetX = Arrays.stream(pixelArray).map(e -> Math.abs(e.offsetCoordinateX)).max(Integer::compare).get();
-        cameraMinOffsetX = Arrays.stream(pixelArray).map(e -> Math.abs(e.offsetCoordinateX)).min(Integer::compare).get();
+//        cameraMinOffsetX = Arrays.stream(pixelArray).map(e -> Math.abs(e.offsetCoordinateX)).min(Integer::compare).get();
         cameraMaxOffsetY = Arrays.stream(pixelArray).map(e -> Math.abs(e.offsetCoordinateY)).max( Integer::compare).get();
-        cameraMinOffsetY = Arrays.stream(pixelArray).map(e -> Math.abs(e.offsetCoordinateY)).min( Integer::compare).get();
+//        cameraMinOffsetY = Arrays.stream(pixelArray).map(e -> Math.abs(e.offsetCoordinateY)).min( Integer::compare).get();
         offsetCoordinates = (T[][]) new CameraPixel[cameraMaxOffsetX*2 + 1][cameraMaxOffsetY*2 + 1];
         for (T pixel : pixelArray){
             offsetCoordinates[pixel.offsetCoordinateX + cameraMaxOffsetX][pixel.offsetCoordinateY + cameraMaxOffsetY] = pixel;

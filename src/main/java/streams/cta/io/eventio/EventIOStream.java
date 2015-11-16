@@ -21,21 +21,37 @@ import stream.io.SourceURL;
 import streams.cta.CTATelescope;
 import streams.cta.CTATelescopeType;
 import streams.cta.io.eventio.event.FullEvent;
+import streams.cta.io.eventio.mcshower.MCShower;
 
 /**
- * Created by alexey on 02.06.15.
+ * Stream an EventIO file using EventIOBuffer to read that file.
+ *
+ * @author alexey
  */
 public class EventIOStream extends AbstractStream {
 
     static Logger log = LoggerFactory.getLogger(EventIOStream.class);
 
+    /**
+     * Remember the byte order (LittleEndian or BigEndian)
+     */
     static int byteOrder = 0;
 
+    /**
+     * Count number of seen events in EventIO file
+     */
     int numberEvents;
 
     public static HashMap<Integer, String> eventioTypes;
 
+    /**
+     * Store all parsed data from EventIO file
+     */
     public EventIOData eventData;
+
+    /**
+     * Read EventIO file using this buffer
+     */
     public EventIOBuffer buffer;
 
     @Parameter(
@@ -84,28 +100,27 @@ public class EventIOStream extends AbstractStream {
         importEventioRegisteredDatatypes();
 
         numberEvents = 0;
-        log.info("Start reading " + url + " ignore erros: " + ignoreErrors);
+        log.info("Start reading " + url + " ignore errors: " + ignoreErrors);
     }
 
     @Override
     public Data readNext() throws Exception {
 
         Data item = DataFactory.create();
-        int numberRuns = 0;
         EventIOHeader header = new EventIOHeader(buffer);
         boolean eventFound = false;
         while (!eventFound) {
-            numberRuns++;
             if (header.findSyncMarkerAndType()) {
-//                if (header.type == EventIOConstants.TYPE_MCSHOWER) {
-//                    if (eventData.mcShower == null){
-//                        eventData.mcShower = new MCShower();
-//                    }
-//                    if (!eventData.mcShower.readMCShower(buffer)) {
-//                        log.error("Error happened while reading MC Shower.");
-//                    }
-//                } else
-                switch (header.type){
+                switch (header.type) {
+                    case EventIOConstants.TYPE_MCSHOWER:
+                        if (eventData.mcShower == null) {
+                            eventData.mcShower = new MCShower();
+                        }
+                        if (!eventData.mcShower.readMCShower(buffer)) {
+                            log.error("Error happened while reading MC Shower.");
+                            return null;
+                        }
+                        break;
                     case EventIOConstants.TYPE_EVENT:
                         if (!eventData.event.readFullEvent(buffer, -1)) {
                             log.error("Error happened while reading full event data.");
@@ -114,20 +129,23 @@ public class EventIOStream extends AbstractStream {
 
                         //TODO: add more telescope data into the item
                         short[][] data;
-                        if (eventData.event.teldata[0] != null){
+                        if (eventData.event.teldata[0] != null) {
                             numberEvents++;
                             data = eventData.event.teldata[0].raw.adcSample[0];
                             item.put("@raw_data", data);
                             item.put("@timestamp", eventData.event.central.cpuTime.getAsLocalDateTime());
-                            if(data.length == 1855){
-                                item.put("@telescope", new CTATelescope(CTATelescopeType.LST, 12, 0, 0, 0, null, null, null));
-                            } else if(data.length == 2048) {
-                                item.put("@telescope", new CTATelescope(CTATelescopeType.SST_CHEC, 13, 0, 0, 0, null, null, null));
-                            } else if(data.length == 11328){
-                                item.put("@telescope", new CTATelescope(CTATelescopeType.MST_GATE, 13, 0, 0, 0, null, null, null));
+                            if (data.length == CTATelescopeType.LST.numberOfPixel) {
+                                item.put("@telescope",
+                                        new CTATelescope(CTATelescopeType.LST, 12));
+                            } else if (data.length == CTATelescopeType.SST_CHEC.numberOfPixel) {
+                                item.put("@telescope",
+                                        new CTATelescope(CTATelescopeType.SST_CHEC, 13));
+                            } else if (data.length == CTATelescopeType.MST_GATE.numberOfPixel) {
+                                item.put("@telescope",
+                                        new CTATelescope(CTATelescopeType.MST_GATE, 13));
                             }
                             eventFound = true;
-                        }else{
+                        } else {
                             log.error("Telescope event data is missing.");
                         }
                         break;

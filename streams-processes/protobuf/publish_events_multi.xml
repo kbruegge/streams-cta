@@ -1,0 +1,18 @@
+<application>
+
+    <property name="inFolder" value="/Users/kai/kryo/" />
+
+    <property name="num_copies" value="1" />
+    <property name="multiply" value="1" />
+
+    <stream id="cta:data_${copy.id}" class="streams.cta.io.RecursiveDirectoryStream"
+            suffix=".kryo" url="file:${inFolder}" copies="${num_copies}" multiply="${multiply}" >
+        <stream id="cta:data" class="streams.cta.io.KryoStream"/>
+    </stream>
+
+    <process input="cta:data_${copy.id}" copies="${num_copies}">
+        <streams.DataRate every="10000" />
+        <streams.cta.io.protobuf.ProtoEventPublisher addresses="tcp://*:555${copy.id}" />
+    </process>
+
+</application>

@@ -350,10 +350,13 @@
             </plugin>
         -->
         </plugins>
-    </reporting>    
+    </reporting>
 
     <profiles>
         <profile>
+            <!--
+            Import streams-storm from a local repository.
+            -->
             <id>streams-storm-local</id>
             <activation>
                 <property>
@@ -367,6 +370,11 @@
             </properties>
         </profile>
         <profile>
+            <!--
+            This profile can be used to produce JAR file that can be used to run locally and
+            transform streams XML configuration into a valid storm topology.
+            It contains 'storm' itself to run StormSubmitter.
+            -->
             <id>
                 standalone
             </id>
@@ -438,6 +446,10 @@
             </build>
         </profile>
         <profile>
+            <!--
+            This profile can be used to produce JAR file that can be deployed to storm cluster.
+            It doesn't contain 'storm' itself.
+            -->
             <id>
                 deploy
             </id>

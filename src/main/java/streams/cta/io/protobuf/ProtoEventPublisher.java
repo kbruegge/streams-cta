@@ -16,7 +16,10 @@ import streams.cta.CTATelescope;
 import streams.cta.CTATelescopeType;
 
 /**
- * Created by kai on 11.08.15.
+ * ProtoEventPublisher uses ZeroMQ with a PUB / SUB pattern to publish telescope events serialized
+ * with protocol buffer format.
+ *
+ * @author kai
  */
 public class ProtoEventPublisher extends CTARawDataProcessor implements StatefulProcessor {
 
@@ -27,6 +30,16 @@ public class ProtoEventPublisher extends CTARawDataProcessor implements Stateful
 
     @Parameter(required = false)
     String[] addresses = {"tcp://*:5556"};
+
+    @Override
+    public void init(ProcessContext processContext) throws Exception {
+        context = ZMQ.context(1);
+        publisher = context.socket(ZMQ.PUB);
+        for (String address : addresses) {
+            publisher.bind(address);
+            log.info("Binding to address: " + address);
+        }
+    }
 
     @Override
     public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, short[][] eventData) {
@@ -53,21 +66,11 @@ public class ProtoEventPublisher extends CTARawDataProcessor implements Stateful
         }
         rawEvent.samples = samples;
 
-        byte[] bytes =  RawCTAEvent.RawEvent.toByteArray(rawEvent);
+        byte[] bytes = RawCTAEvent.RawEvent.toByteArray(rawEvent);
         input.put("@packetSize", bytes.length);
-        publisher.send(bytes,0);
+        publisher.send(bytes, 0);
 
         return input;
-    }
-
-    @Override
-    public void init(ProcessContext processContext) throws Exception {
-        context = ZMQ.context(1);
-        publisher = context.socket(ZMQ.PUB);
-        for (String address : addresses) {
-            publisher.bind(address);
-            log.info("Binding to address: " + address);
-        }
     }
 
     @Override
@@ -78,14 +81,14 @@ public class ProtoEventPublisher extends CTARawDataProcessor implements Stateful
     @Override
     public void finish() throws Exception {
 
-        System.out.println("Sleeping for 4 seconds");
-        Thread.sleep(4000);
+        System.out.println("Sleeping for 0.2 seconds");
+        Thread.sleep(200);
 
 
-        if(publisher != null) {
+        if (publisher != null) {
             publisher.close();
         }
-        if(context != null) {
+        if (context != null) {
             context.term();
         }
 
