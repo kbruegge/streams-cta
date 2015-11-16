@@ -21,13 +21,6 @@
             <name>sonatype Snapshot Repository</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
-        <repository>
-            <id>sonatype-capnproto</id>
-            <name>capn proto</name>
-            <url>
-                https://oss.sonatype.org/content/repositories/snapshots/org/capnproto/runtime/0.1.0-SNAPSHOT/
-            </url>
-        </repository>
     </repositories>
 
     <distributionManagement>
@@ -208,31 +201,6 @@
             <artifactId>protobuf-javanano</artifactId>
             <version>3.0.0-alpha-3.1</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.msgpack</groupId>
-            <artifactId>msgpack-core</artifactId>
-            <version>0.7.0-p9</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.msgpack</groupId>
-            <artifactId>msgpack</artifactId>
-            <version>0.6.12</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.msgpack</groupId>
-            <artifactId>jackson-dataformat-msgpack</artifactId>
-            <version>0.7.0-p9</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.capnproto</groupId>
-            <artifactId>runtime</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
-        </dependency>
-
     </dependencies>
 
 
