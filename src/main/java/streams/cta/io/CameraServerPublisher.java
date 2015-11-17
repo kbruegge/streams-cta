@@ -83,6 +83,8 @@ public class CameraServerPublisher extends CTARawDataProcessor implements Statef
         cameraEvent.head = header;
         cameraEvent.hiGain = pixelsChannel;
 
+        //in theory the CameraEvent can carry many payloads. In practice however. There is just one payload
+        //per package
         byte[] payload = L0.CameraEvent.toByteArray(cameraEvent);
         byte[][] payloadWrap = new byte[1][];
         payloadWrap[0] = payload;

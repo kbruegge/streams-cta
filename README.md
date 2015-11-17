@@ -9,7 +9,7 @@ More details can be found in **[Wiki](https://bitbucket.org/cbockermann/streams-
 
 ## Data Model
 
-To use the ProtoBuf data models from DAQ we use the alpha version of the javanano output of protocolbuffers version 3
+To use the ProtoBuf data models from DAQ we use the alpha version of the javanano output of protocolbuffers version 3.
 To get the javanano output download the current protobuf implementation from [github](https://github.com/google/protobuf/tree/master/javanano).
 Install and compile al of that stuff. Then call it with with folowing options:
 
@@ -19,9 +19,21 @@ Install and compile al of that stuff. Then call it with with folowing options:
             ../streams-cta/src/main/java/streams/cta/io/datamodel/L0.proto
             ../streams-cta/src/main/java/streams/cta/io/datamodel/CoreMessages.proto
 
-Be aware that the package names in the .proto files have been changed from `DataModel` to
-`package streams.cta.io.datamodel;`
 
+Be aware that the package names in the .proto files have been changed from `DataModel` to `package streams.cta.io.datamodel;`
+
+
+
+
+### Usage
+
+You can read in .kryo files or eventio if you dare and then simply use the  `CameraServerPublisher`to push them to zeromq.
+
+        <streams.cta.io.CameraServerPublisher addresses="tcp://*:${port}" />
+
+To read data either from Etienne DummyCameraServer or from another stream use
+
+        <stream id="cta:data" class="streams.cta.io.CameraServerStream" addresses="tcp://127.0.0.1:4849"/>
 
 
 ## EventIO files
