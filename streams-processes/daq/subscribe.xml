@@ -1,0 +1,12 @@
+<application>
+
+    <stream id="cta:data" class="streams.cta.io.CameraServerStream" addresses="tcp://127.0.0.1:4849"/>
+
+    <process input="cta:data">
+        <streams.DataRate every="1000" logmemory="true"/>
+        <If condition="%{data.@datarate} != null" >
+            <streams.cta.io.JSONWriter url="file:./subscription_daq.json" keys="@stream,@datarate" writeblock="true"/>
+        </If>
+    </process>
+
+</application>
