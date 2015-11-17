@@ -36,7 +36,7 @@ public class CameraServerPublisher extends CTARawDataProcessor implements Statef
     @Override
     public void init(ProcessContext processContext) throws Exception {
         context = ZMQ.context(1);
-        publisher = context.socket(ZMQ.PUB);
+        publisher = context.socket(ZMQ.PUSH);
         for (String address : addresses) {
             publisher.bind(address);
             log.info("Binding to address: " + address);
@@ -55,7 +55,8 @@ public class CameraServerPublisher extends CTARawDataProcessor implements Statef
 
         //create the L0 data
         CoreMessages.AnyArray anyArray = new CoreMessages.AnyArray();
-        anyArray.currentComp = CoreMessages.AnyArray.S16;
+        anyArray.currentComp = CoreMessages.AnyArray.RAW;
+        anyArray.type = CoreMessages.AnyArray.S16;
         //save samples into byte array
         int bytesPerSample = 2;
         ByteBuffer buffer = ByteBuffer.allocate(roi*numPixel*bytesPerSample);
