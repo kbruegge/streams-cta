@@ -10,21 +10,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import stream.Data;
+import stream.annotations.Parameter;
 import stream.io.Stream;
 import stream.io.multi.AbstractMultiStream;
 
 /**
+ * Loops over a specified amount of events in the inner streams. If the first stream is emptied
+ * the next one is read until the specified number of event sis reached.
  * @author chris
- *
  */
 public class LoopStream extends AbstractMultiStream {
 
 	static Logger log = LoggerFactory.getLogger(LoopStream.class);
 
-	int idx = 0;
-	int events = 100;
-	ArrayList<Data> items = new ArrayList<Data>();
+	private int idx = 0;
 
+	@Parameter(description = "How many events you want to loop over." , defaultValue = "100", required = false)
+	int events = 100;
+
+
+	private final ArrayList<Data> items = new ArrayList<>();
 	/**
 	 * @see stream.io.multi.AbstractMultiStream#init()
 	 */
@@ -61,17 +66,7 @@ public class LoopStream extends AbstractMultiStream {
 		return item;
 	}
 
-	/**
-	 * @return the events
-	 */
-	public int getEvents() {
-		return events;
-	}
 
-	/**
-	 * @param events
-	 *            the events to set
-	 */
 	public void setEvents(int events) {
 		this.events = events;
 	}
