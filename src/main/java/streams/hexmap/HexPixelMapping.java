@@ -47,6 +47,9 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
 
     protected Orientation orientation = Orientation.FLAT_TOP;
 
+    //radius of a pixel. flat to flat.
+    protected final double pixelRadius = 10.0;
+
     //these offsets are a property of the offset coordinate system. The following offsets are for the odd-q layout.
     private final int[][][] neighbourOffsets = {
             {{1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {0, 1}}, //uneven
@@ -160,6 +163,10 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
         return pixelArray;
     }
 
+    protected int[] getAxialCoordinatesFromRealWorlCoordinates(double x, double y){
+        return null;
+    }
+
     /**
      * Get the FactCameraPixel sitting below the coordinates passed to the method.
      * The center of the coordinate system in the camera is the center of the camera.
@@ -175,9 +182,6 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
         yCoordinate /= -9.5;
         yCoordinate += 0.5;
 
-        //if (xCoordinate*xCoordinate + yCoordinate*yCoordinate >= 440){
-        //    return null;
-        //}
         //distance from center to corner
         double size  = 1.0/Math.sqrt(3);
         double axial_r = 0;

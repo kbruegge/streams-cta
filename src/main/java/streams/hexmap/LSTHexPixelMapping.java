@@ -26,6 +26,7 @@ public class LSTHexPixelMapping extends HexPixelMapping {
     public final int numberOfPixel = 1855;
 
 
+
     private static LSTHexPixelMapping mapping;
 
     public static LSTHexPixelMapping getInstance() {
