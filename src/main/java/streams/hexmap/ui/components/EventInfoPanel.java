@@ -71,7 +71,7 @@ public class EventInfoPanel extends JPanel implements EventObserver, PixelSelect
                  m = "Chid: " + p.id + "  SoftId: " + p.softid;
             }
 
-            m += " Position: " + sp.offsetCoordinateX + ", " + sp.offsetCoordinateY;
+            m += "Axial Position: " + sp.axialQ + ", " + sp.axialR;
 
             if(photonChargeArray !=  null){
                 m += String.format("  photons: %.2f", photonChargeArray[sp.id]);

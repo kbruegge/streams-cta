@@ -134,7 +134,7 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
             pixelArray[i] = p;
         }
 
-        axialGrid = (T[][]) new CameraPixel[abs(minQ) + maxQ + 1][abs(minR) + minR + 1];
+        axialGrid = (T[][]) new CameraPixel[abs(minQ) + maxQ + 1][abs(minR) + maxR + 1];
 
         for (T pixel : pixelArray){
             axialGrid[pixel.axialQ + abs(minQ)][pixel.axialR + abs(minR)] = pixel;
