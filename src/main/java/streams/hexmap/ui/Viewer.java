@@ -6,7 +6,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 import streams.cta.CTATelescope;
-import streams.hexmap.CTAHexPixelMapping;
+import streams.hexmap.LSTHexPixelMapping;
 import streams.hexmap.ui.components.AveragePlotPanel;
 import streams.hexmap.ui.components.EventInfoPanel;
 import streams.hexmap.ui.components.StreamNavigationPanel;
@@ -39,7 +39,7 @@ public class Viewer extends JFrame {
 
 
     //------some components for the viewer
-    final CameraDisplayPanel mapDisplay = new CameraDisplayPanel(CTAHexPixelMapping.getInstance());
+    final CameraDisplayPanel mapDisplay = new CameraDisplayPanel(LSTHexPixelMapping.getInstance());
     final StreamNavigationPanel navigation = new StreamNavigationPanel();
     final AveragePlotPanel chartPanel = new AveragePlotPanel(590, 350);
     final EventInfoPanel eventInfoPanel = new EventInfoPanel(590, 320);
@@ -125,7 +125,7 @@ public class Viewer extends JFrame {
         JMenu windows = new JMenu("Windows");
         JMenuItem camWindowMenuItem = new JMenuItem("New Camera Window");
         camWindowMenuItem.addActionListener(e -> {
-            CameraWindow mw = new CameraWindow(defaultKey, CTAHexPixelMapping.getInstance());
+            CameraWindow mw = new CameraWindow(defaultKey, LSTHexPixelMapping.getInstance());
             Bus.eventBus.post(Pair.create(item, defaultKey));
             mw.showWindow();
         });

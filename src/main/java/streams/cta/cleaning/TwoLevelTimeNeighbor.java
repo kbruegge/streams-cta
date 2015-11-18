@@ -4,7 +4,7 @@ import stream.Data;
 import stream.annotations.Parameter;
 import streams.cta.CTAExtractedDataProcessor;
 import streams.cta.CTATelescope;
-import streams.hexmap.CTAHexPixelMapping;
+import streams.hexmap.LSTHexPixelMapping;
 import streams.hexmap.CameraPixel;
 import streams.hexmap.ui.overlays.PixelSetOverlay;
 
@@ -34,7 +34,7 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
 
     HashSet<CameraPixel> showerPixel = new HashSet<>();
 
-    CTAHexPixelMapping pixelMap = CTAHexPixelMapping.getInstance();
+    LSTHexPixelMapping pixelMap = LSTHexPixelMapping.getInstance();
 
     @Override
     public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, double[] photons, double[] arrivalTimes) {
@@ -46,10 +46,11 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
 //        showerPixel = removeSmallCluster(showerPixel, 1);
 //        if(showerPixel.size() == 0 ){ return input; }
 
-        showerPixel = addNeighboringPixels(showerPixel, photons, levels[1]);
+        //showerPixel = addNeighboringPixels(showerPixel, photons, levels[1]);
 //        showerPixel = applyTimeNeighborCleaning(showerPixel,arrivalTimes, levels[2], 1);
-//        showerPixel = removeSmallCluster(showerPixel, (int) levels[3]);
+        //showerPixel = removeSmallCluster(showerPixel, levels[3].intValue());
 //        showerPixel = applyTimeNeighborCleaning(showerPixel,arrivalTimes, levels[2], 1);
+
 
 
 //        for (int i = 0; i < photons.length; i++) {
@@ -64,6 +65,17 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
 
         input.put("shower", showerPixel);
         input.put("@showerOverlay",new PixelSetOverlay(showerPixel));
+
+        //indicate outer pixel for testing purposes
+        HashSet<CameraPixel> borderPixel = new HashSet<>();
+        CameraPixel first = pixelMap.getPixelFromId(0);
+        ArrayList<CameraPixel> neighbors = pixelMap.getNeighboursForPixel(first);
+        borderPixel.addAll(neighbors);
+//        for(CameraPixel p : pixelMap.getAllPixel()){
+//            ArrayList<CameraPixel> neighbors = pixelMap.getNeighboursForPixel(p);
+//            System.out.println(neighbors.size());
+//        }
+        input.put("@borderOverlay",new PixelSetOverlay(borderPixel));
         return input;
     }
 
@@ -109,34 +121,36 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
     }
 
 
-//    /**
-//     * Remove all clusters of pixels with less than minNumberOfPixel pixels in the cluster
-//     * @param showerPixel 'HashSet containing the so far identified shower pixels'
-//     * @param minNumberOfPixel
-//     * @return
-//     */
-//    public HashSet<CameraPixel> removeSmallCluster(HashSet<CameraPixel> showerPixel, int minNumberOfPixel)
-//    {
-//
-//        ArrayList<Integer> list = new ArrayList<>();
-//        for(CameraPixel pix : showerPixel){
-//            list.add(pix.id);
-//        }
-//
-//        ArrayList<ArrayList<Integer>> listOfLists = pixelMap.breadthFirstSearch(list);
-//        ArrayList<Integer> newList = new ArrayList<>();
-//        for (ArrayList<Integer> l: listOfLists){
-//            if(l.size() >= minNumberOfPixel){
-//                newList.addAll(l);
-//            }
-//        }
-//
-//        for(Integer pix : newList){
-//            showerPixel.remove(pixelMap.getPixelFromId(pix));
-//        }
-//
-//        return showerPixel;
-//    }
+    /**
+     * Remove all clusters of pixels with less than minNumberOfPixel pixels in the cluster
+     * @param showerPixel 'HashSet containing the so far identified shower pixels'
+     * @param minNumberOfPixel
+     * @return
+     */
+    public HashSet<CameraPixel> removeSmallCluster(HashSet<CameraPixel> showerPixel, int minNumberOfPixel)
+    {
+
+        ArrayList<Integer> list = new ArrayList<>();
+        for(CameraPixel pix : showerPixel){
+            list.add(pix.id);
+        }
+
+        ArrayList<ArrayList<Integer>> listOfLists = pixelMap.breadthFirstSearch(list);
+        ArrayList<Integer> newList = new ArrayList<>();
+        for (ArrayList<Integer> l: listOfLists){
+            if(l.size() <= minNumberOfPixel){
+                newList.addAll(l);
+            }
+        }
+
+        for(Integer pix : newList){
+            showerPixel.remove(pixelMap.getPixelFromId(pix));
+        }
+        if(showerPixel.size() >= 5){
+            System.out.println("tadaa");
+        }
+        return showerPixel;
+    }
 
     /**
      * Remove pixels with less than minNumberOfNeighborPixel neighboring shower pixel,

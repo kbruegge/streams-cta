@@ -1,9 +1,7 @@
 package streams.cta;
 
 import stream.Data;
-import stream.Processor;
 import stream.annotations.Parameter;
-import streams.hexmap.CTAHexPixelMapping;
 import streams.hexmap.CameraPixel;
 
 import java.time.LocalDateTime;
