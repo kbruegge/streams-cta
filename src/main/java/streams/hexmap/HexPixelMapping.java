@@ -21,7 +21,8 @@ import java.util.List;
  *
  * This class can get instantiated as a singleton with the getInstance() method.
  *
- * The geometric coordinates stored in the text file to build this map are stored in the "odd -q" vertical layout
+ * The geometric coordinates stored in the text file to build this default map are stored in the "odd -q" vertical layout.
+ * Other PixelMappings can be stored
  * See http://www.redblobgames.com/grids/hexagons/ for details and pictures.
  *
  * @author kai
@@ -30,7 +31,21 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
 
     static Logger log = LoggerFactory.getLogger(HexPixelMapping.class);
 
-    //these offsets are a universal property of hexagonal coordinates.
+    public enum Orientation {
+        FLAT_TOP(0),
+        POINTY_TOP(1);
+
+        private final int orientation;
+
+        Orientation(int i) {
+            this.orientation = i;
+        }
+    }
+
+
+    protected Orientation orientation = Orientation.FLAT_TOP;
+
+    //these offsets are a property of the offset coordinate system. The following offsets are for the odd-q layout.
     private final int[][][] neighbourOffsets = {
             {{1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {0, 1}}, //uneven
             {{1, 1}, {1, 0}, {0, -1}, {-1, 0}, {-1, 1}, {0, 1}}  //pixel with a even x coordinate
@@ -40,6 +55,9 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
     private T[] pixelArray;
 
     private T[][] offsetCoordinates;
+
+    //This array contains the camera pixels in axial layout. I dont care about unused entries.
+    private T[][] axialGrid;
     private int cameraMaxOffsetX;
     private int cameraMaxOffsetY;
 //    private int cameraMinOffsetX;
@@ -85,7 +103,7 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
             log.error(e.toString());
         }
 
-//        FIXME: test this. See Effective Java Item 26 on how to create generic arrays. this could be replaced by some hashmap of course.
+//        TODO: test this. See Effective Java Item 26 on how to create generic arrays. this could be replaced by some hashmap of course.
         //But I cant think of a quick hash function.
 //        ArrayList<T> l = new ArrayList<>();
         pixelArray = (T[]) new CameraPixel[getNumberOfPixel()];
@@ -126,6 +144,10 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
         return l;
     }
 
+    public T[] getAllPixel(){
+        return pixelArray;
+    }
+
     /**
      * Get the FactCameraPixel sitting below the coordinates passed to the method.
      * The center of the coordinate system in the camera is the center of the camera.
@@ -146,9 +168,16 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
         //}
         //distance from center to corner
         double size  = 1.0/Math.sqrt(3);
+        double axial_r = 0;
+        double axial_q = 0;
 
-        double axial_q = 2.0/3.0 * xCoordinate/size;
-        double axial_r = (0.5773502693 * yCoordinate - 1.0/3.0 *xCoordinate)/size;
+        if (orientation == Orientation.FLAT_TOP) {
+            axial_q = 2.0 / 3.0 * xCoordinate / size;
+            axial_r = (0.5773502693 * yCoordinate - xCoordinate/3.0) / size;
+        } else if (orientation == Orientation.POINTY_TOP) {
+            axial_q = (0.5773502693 * xCoordinate - yCoordinate/3.0) / size;
+            axial_r = 2.0 / 3.0 * yCoordinate / size;
+        }
 
 
         double cube_x = axial_q;
@@ -174,14 +203,23 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
             rz = -rx-ry;
         }
 
+        //convert the cube coordinate back to axial coordiantes
+        int q = rx;
+        int r = rz;
 
+        T p = getPixelFromAxialCoordinates(q, r);
         //now convert cube coordinates back to even-q
         int qd = rx;
         int rd = rz + (rx - (rx&1))/2;
 
-        T p = getPixelFromOffsetCoordinates(qd, rd);
+        p = getPixelFromOffsetCoordinates(qd, rd);
         return p;
     }
+
+    private T getPixelFromAxialCoordinates(int q, int r) {
+        return null;
+    }
+
 
     /**
      * Finds all unconnected sets of pixel in the showerPixel List and returns a

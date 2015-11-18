@@ -10,39 +10,41 @@ import stream.Data;
 import java.net.URL;
 
 /**
- * This class provides a mapping between different Pixel ids and geometric information from a (so far) generic CTA LST layout
+ * This class provides a mapping between different Pixel ids and geometric information from a LST layout.
+ * The LSTs have a pointy_top orientation.
  *
  * @author Kai
  * 
  */
-public class CTAHexPixelMapping extends HexPixelMapping {
+public class LSTHexPixelMapping extends HexPixelMapping {
 
 
-    static Logger log = LoggerFactory.getLogger(CTAHexPixelMapping.class);
+    static Logger log = LoggerFactory.getLogger(LSTHexPixelMapping.class);
 
 
 
     public final int numberOfPixel = 1855;
 
 
-    private static CTAHexPixelMapping mapping;
+    private static LSTHexPixelMapping mapping;
 
-    public static CTAHexPixelMapping getInstance() {
+    public static LSTHexPixelMapping getInstance() {
         if (mapping ==  null){
-            String pixelMap = "/hexmap/pixel-map-cta.csv";
-            URL mapUrl = CTAHexPixelMapping.class.getResource(pixelMap);
+            String pixelMap = "/hexmap/lst-pixel-map.csv";
+            URL mapUrl = LSTHexPixelMapping.class.getResource(pixelMap);
             if(mapUrl == null){
                 String msg = "Could not load pixel mapping from URL: " + pixelMap + ". Does the file exist?";
                 log.error(msg);
                 throw new InstantiationError(msg);
             } else {
-                mapping = new CTAHexPixelMapping(mapUrl);
+                mapping = new LSTHexPixelMapping(mapUrl);
             }
         }
+        mapping.orientation = Orientation.POINTY_TOP;
         return mapping;
     }
 
-    private CTAHexPixelMapping(URL mappingURL) {
+    private LSTHexPixelMapping(URL mappingURL) {
         if(mappingURL.getFile().isEmpty()){
             throw new RuntimeException("Could not find pixel mapping file");
         }
@@ -59,8 +61,8 @@ public class CTAHexPixelMapping extends HexPixelMapping {
     @Override
     protected CameraPixel getPixelFromCSVItem(Data item){
         int id = (int)(item.get("id"));
-        int geometricX = (Integer)(item.get("geom_x"));
-        int geometricY = (Integer)(item.get("geom_y"));
+        int geometricX = Integer.parseInt(item.get("geom_x").toString());
+        int geometricY = Integer.parseInt(item.get("geom_y").toString());
         //convert from meter to millimeter
         double posX = Double.parseDouble(item.get("position_x").toString())*1000;
         double posY = Double.parseDouble(item.get("position_y").toString())*1000 * (-1);

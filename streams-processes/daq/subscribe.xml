@@ -1,15 +1,12 @@
 <application>
 
-    <stream id="cta:data" class="streams.cta.io.msgpack.MsgPackRawEventStream" addresses="tcp://127.0.0.1:5550,tcp://127.0.0.1:5551"/>
+    <stream id="cta:data" class="streams.cta.io.CameraServerStream" addresses="tcp://127.0.0.1:4849"/>
 
     <process input="cta:data">
         <streams.DataRate every="2000" logmemory="true"/>
-
         <If condition="%{data.@datarate} != null" >
-            <streams.cta.io.JSONWriter url="file:./subscription_extraction_msgpack.json" keys="@stream,@datarate" writeblock="true"/>
+            <streams.cta.io.JSONWriter url="file:./subscription_daq.json" keys="@stream,@datarate" writeblock="true"/>
         </If>
-
-
         <streams.cta.datacorrection.BaselineShift />
         <streams.cta.extraction.Photons />
         <streams.cta.extraction.ArrivalTime />
@@ -17,7 +14,6 @@
         <streams.cta.features.Size/>
         <streams.cta.features.COG/>
         <streams.cta.features.WidthLengthDelta/>
-
     </process>
 
 </application>
