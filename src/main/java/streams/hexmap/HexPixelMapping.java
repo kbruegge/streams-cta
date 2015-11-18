@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import static java.lang.Math.abs;
+
 /**
  * This class provides a mapping between different Pixel ids and geometric information from the
  * camera layout.
@@ -54,12 +56,10 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
 
     private T[] pixelArray;
 
-    private T[][] offsetCoordinates;
 
     //This array contains the camera pixels in axial layout. I dont care about unused entries.
     private T[][] axialGrid;
-    private int cameraMaxOffsetX;
-    private int cameraMaxOffsetY;
+
 //    private int cameraMinOffsetX;
 //    private int cameraMinOffsetY;
 
@@ -69,13 +69,14 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
 
 
     public T getPixelFromOffsetCoordinates(int x, int y){
-        if (x + cameraMaxOffsetX >= offsetCoordinates.length || y + cameraMaxOffsetY >= offsetCoordinates[0].length){
-            return null;
-        }
-        if (x + cameraMaxOffsetX < 0 || y + cameraMaxOffsetY < 0){
-            return null;
-        }
-        return offsetCoordinates[x + cameraMaxOffsetX][y + cameraMaxOffsetY];
+//        if (x + cameraMaxOffsetX >= offsetCoordinates.length || y + cameraMaxOffsetY >= offsetCoordinates[0].length){
+//            return null;
+//        }
+//        if (x + cameraMaxOffsetX < 0 || y + cameraMaxOffsetY < 0){
+//            return null;
+//        }
+//        return offsetCoordinates[x + cameraMaxOffsetX][y + cameraMaxOffsetY];
+        return null;
     }
 
     public ArrayList<T> getNeighboursForPixelId(int pixelId) {
@@ -108,6 +109,13 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
 //        ArrayList<T> l = new ArrayList<>();
         pixelArray = (T[]) new CameraPixel[getNumberOfPixel()];
 
+
+        int maxQ = Integer.MIN_VALUE;
+        int minQ = Integer.MAX_VALUE;
+
+        int maxR = Integer.MIN_VALUE;
+        int minR = Integer.MAX_VALUE;
+
         for (int i = 0; i < getNumberOfPixel(); i++) {
             Data item = null;
             try {
@@ -116,31 +124,35 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
                 log.error(e.toString());
             }
             T p = getPixelFromCSVItem(item);
+
+            maxQ = Math.max(maxQ, p.axialQ);
+            minQ = Math.min(minQ, p.axialQ);
+
+            maxR = Math.max(maxR, p.axialR);
+            minR = Math.min(minR, p.axialR);
+
             pixelArray[i] = p;
         }
 
-        cameraMaxOffsetX = Arrays.stream(pixelArray).map(e -> Math.abs(e.offsetCoordinateX)).max(Integer::compare).get();
-//        cameraMinOffsetX = Arrays.stream(pixelArray).map(e -> Math.abs(e.offsetCoordinateX)).min(Integer::compare).get();
-        cameraMaxOffsetY = Arrays.stream(pixelArray).map(e -> Math.abs(e.offsetCoordinateY)).max( Integer::compare).get();
-//        cameraMinOffsetY = Arrays.stream(pixelArray).map(e -> Math.abs(e.offsetCoordinateY)).min( Integer::compare).get();
-        offsetCoordinates = (T[][]) new CameraPixel[cameraMaxOffsetX*2 + 1][cameraMaxOffsetY*2 + 1];
+        axialGrid = (T[][]) new CameraPixel[abs(minQ) + maxQ + 1][abs(minR) + minR + 1];
+
         for (T pixel : pixelArray){
-            offsetCoordinates[pixel.offsetCoordinateX + cameraMaxOffsetX][pixel.offsetCoordinateY + cameraMaxOffsetY] = pixel;
+            axialGrid[pixel.axialQ + abs(minQ)][pixel.axialR + abs(minR)] = pixel;
         }
     }
 
     public ArrayList<T> getNeighboursForPixel(CameraPixel p) {
         ArrayList<T> l = new ArrayList<>();
         //check if x coordinate is even or not
-        int parity = (p.offsetCoordinateX & 1);
-        //get the neighbour in each direction and store them in the list
-        for (int direction = 0; direction <= 5; direction++) {
-            int[] d = neighbourOffsets[parity][direction];
-            T np = getPixelFromOffsetCoordinates(p.offsetCoordinateX + d[0], p.offsetCoordinateY + d[1]);
-            if (np != null){
-                l.add(np);
-            }
-        }
+        //int parity = (p.offsetCoordinateX & 1);
+//        //get the neighbour in each direction and store them in the list
+//        for (int direction = 0; direction <= 5; direction++) {
+//            //int[] d = neighbourOffsets[parity][direction];
+//            T np = getPixelFromOffsetCoordinates(p.axialQ + d[0], p.axialR + d[1]);
+//            if (np != null){
+//                l.add(np);
+//            }
+//        }
         return l;
     }
 
@@ -191,9 +203,9 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
         int ry = (int) Math.round(cube_y);
 
         //artificially fix the constraint.
-        double x_diff = Math.abs(rx -cube_x);
-        double z_diff = Math.abs(rz -cube_z);
-        double y_diff = Math.abs(ry -cube_y);
+        double x_diff = abs(rx -cube_x);
+        double z_diff = abs(rz -cube_z);
+        double y_diff = abs(ry -cube_y);
 
         if(x_diff > y_diff && x_diff > z_diff){
             rx = -ry-rz;

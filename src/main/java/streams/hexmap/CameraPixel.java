@@ -8,15 +8,15 @@ package streams.hexmap;
 public class CameraPixel {
 
     final public int id;
-    final public int offsetCoordinateX;
-    final public int offsetCoordinateY;
+    final public int axialQ;
+    final public int axialR;
     final public double xPositionInMM;
     final public double yPositionInMM;
 
-    public CameraPixel(int id, int offsetCoordinateX, int offsetCoordinateY, double xPositionInMM, double yPositionInMM) {
+    public CameraPixel(int id, int q, int r, double xPositionInMM, double yPositionInMM) {
         this.id = id;
-        this.offsetCoordinateX = offsetCoordinateX;
-        this.offsetCoordinateY = offsetCoordinateY;
+        this.axialQ= q;
+        this.axialR= r;
         this.xPositionInMM = xPositionInMM;
         this.yPositionInMM = yPositionInMM;
     }
