@@ -61,7 +61,7 @@
         <dependency>
         	<groupId>de.sfb876</groupId>
         	<artifactId>streams-kafka</artifactId>
-        	<version>[0.0.1-SNAPSHOT,)</version>
+        	<version>[0.0.2-SNAPSHOT,)</version>
         </dependency>
     </dependencies>
 
