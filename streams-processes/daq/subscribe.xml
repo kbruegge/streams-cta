@@ -1,6 +1,8 @@
 <application>
 
-    <stream id="cta:data" class="streams.cta.io.CameraServerStream" addresses="tcp://127.0.0.1:4849"/>
+    <property name="addresses" value="tcp://127.0.0.1:4849" />
+
+    <stream id="cta:data" class="streams.cta.io.CameraServerStream" addresses="${addresses}"/>
 
     <process input="cta:data">
         <streams.DataRate every="2000" logmemory="true"/>
