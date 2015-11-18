@@ -63,10 +63,18 @@ public class CameraServerStream extends AbstractStream {
             byte[] payloadData = ctaMessage.payloadData[0];
             L0.CameraEvent cameraEvent = L0.CameraEvent.parseFrom(payloadData);
             //int numPixel = cameraEvent.geometry.pixels.length;
-            int roi = cameraEvent.head.numTraces;
+            //int roi = cameraEvent.head.numTraces;
+//            log.info(cameraEvent.toString());
+//            log.info(cameraEvent.hiGain.toString());
+//            log.info(cameraEvent.hiGain.waveforms.toString());
+//            log.info(cameraEvent.hiGain.waveforms.samples.toString());
             int format = cameraEvent.hiGain.waveforms.samples.currentComp;
             int datatype = cameraEvent.hiGain.waveforms.samples.type;
+            int roi = cameraEvent.hiGain.waveforms.numSamples;
             byte[] hiGainSamples = cameraEvent.hiGain.waveforms.samples.data;
+
+            log.info("Roi : " + roi);
+            log.info("type : " + datatype);
 
             if (format != CoreMessages.AnyArray.RAW){
                 throw new NotImplementedException("Data compression handling not implemented yet.");
