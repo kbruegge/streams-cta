@@ -73,8 +73,8 @@ public class CameraServerStream extends AbstractStream {
             int roi = cameraEvent.hiGain.waveforms.numSamples;
             byte[] hiGainSamples = cameraEvent.hiGain.waveforms.samples.data;
 
-            log.info("Roi : " + roi);
-            log.info("type : " + datatype);
+            //log.info("Roi : " + roi);
+            //log.info("type : " + datatype);
 
             if (format != CoreMessages.AnyArray.RAW){
                 throw new NotImplementedException("Data compression handling not implemented yet.");

@@ -40,8 +40,8 @@ public class DataRate implements StatefulProcessor {
     @Parameter(required = false, description = "Flags whether to log memory usage to data item")
     boolean logmemory = false;
 
-    @Parameter(required = false, description = "the key under which you'll find the datarate " +
-            "in the item after calculating it.")
+    @Parameter(required = false, description = "The key under which you'll find the datarate " +
+            "in the item after calculating it.", defaultValue = "@datarate")
     String output = "@datarate";
 
     SummaryStatistics statistics = new SummaryStatistics();
