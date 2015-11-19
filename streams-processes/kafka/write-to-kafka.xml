@@ -1,0 +1,23 @@
+<application>
+
+	<properties>
+		<zookeeper>ls8cb01.cs.uni-dortmund.de:2181</zookeeper>
+		<kafka.broker>ls8cb01.cs.uni-dortmund.de:9092</kafka.broker>
+	</properties>
+
+
+<!--
+	<stream id="data" class="streams.cta.io.SyntheticEventStream" />
+-->
+	<stream id="data" class="stream.generator.GaussianStream" attributes="0,1,2,0.4"/>
+	
+	
+	<process input="data">
+<!--
+		<PrintData />
+-->
+		<streams.kafka.Publish topic="fact.data" zookeeper="${zookeeper}" broker="${kafka.broker}" codec="streams.codec.Kryo"/>
+		<stream.flow.Delay time="1s" />
+	</process>
+
+</application>
