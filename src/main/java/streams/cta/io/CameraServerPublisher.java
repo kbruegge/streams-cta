@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 /**
- * ProtoEventPublisher uses ZeroMQ with a Push / Pull pattern to publish telescope events serialized
+ * CameraServerPublisher uses ZeroMQ with a Push / Pull pattern to publish telescope events serialized
  * with protocol buffer format according to DAQs data model
  *
  * @author kai
@@ -37,11 +37,14 @@ public class CameraServerPublisher extends CTARawDataProcessor implements Statef
     private Stopwatch stopwatch;
 
 
-    @Parameter(required = false, description = "The IP of the daq monitor. Asin in tcp://127.0.0.1:1222")
+    @Parameter(required = false, description = "The IP of the daq monitor. As in in tcp://127.0.0.1:4849")
     String monitorAddress = "tcp://127.0.0.1:4849";
 
     @Parameter(required = false)
     String[] addresses = {"tcp://*:4849"};
+
+    @Parameter(required = false, description = "How often information should be send to the daq monitor.")
+    private int every = 200;
 
     @Override
     public void init(ProcessContext processContext) throws Exception {
@@ -52,7 +55,7 @@ public class CameraServerPublisher extends CTARawDataProcessor implements Statef
             log.info("Binding to address: " + address);
         }
 
-        monitorPublisher = context.socket(ZMQ.PUSH);
+        monitorPublisher = context.socket(ZMQ.PUB);
         monitorPublisher.bind(monitorAddress);
         log.info("Binding monitor to address: " + monitorAddress);
 
@@ -124,7 +127,7 @@ public class CameraServerPublisher extends CTARawDataProcessor implements Statef
         byte[] bytesTosend = CoreMessages.CTAMessage.toByteArray(ctaMessage);
 
         //send stuff to the central daq monitor every 5000 events or so
-        if(itemCounter == 5000){
+        if(itemCounter == every){
             itemCounter = 0;
             long ellapsedMicros = stopwatch.elapsed(TimeUnit.MICROSECONDS);
             stopwatch.reset();
@@ -159,6 +162,14 @@ public class CameraServerPublisher extends CTARawDataProcessor implements Statef
 
     public void setAddresses(String[] addresses) {
         this.addresses = addresses;
+    }
+
+    public void setMonitorAddress(String monitorAddress) {
+        this.monitorAddress = monitorAddress;
+    }
+
+    public void setEvery(int every) {
+        this.every = every;
     }
 
 }
