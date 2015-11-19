@@ -8,19 +8,20 @@
 	-->
 		<zookeeper>192.168.56.101:2181</zookeeper>
 		<kafka.broker>192.168.56.101:9092</kafka.broker>
-		<kafka.codec>streams.codec.Kryo</kafka.codec>
+		<kafka.codec>streams.cta.io.KryoCodec</kafka.codec>
 	</properties>
 
 	
 	<stream id="data" class="streams.cta.io.LoopStream" events="100">
 		<stream id="kryo" class="streams.cta.io.KryoStream" 
-			   url="file:events.kryo" />
+			   url="file:cta_gammas.kryo" />
 	</stream>
 	
 	
 	<process input="data">
 <!--
 		<stream.flow.Delay time="1s" />
+		<PrintData />
 -->
 		<streams.kafka.Publish topic="${topic}" zookeeper="${zookeeper}" broker="${kafka.broker}" codec="${kafka.codec}"/>
 		<stream.monitor.DataRate id="write-to-kafka-KryoCodec" every="100" />

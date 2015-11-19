@@ -69,3 +69,4 @@ events.kryo
 fits-to-kryo.xml
 read-kafka.xml
 subscribe-test.xml
+cta_gammas.kryo
