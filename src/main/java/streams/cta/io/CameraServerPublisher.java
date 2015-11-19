@@ -1,6 +1,7 @@
 package streams.cta.io;
 
 
+import com.google.common.base.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
@@ -16,6 +17,7 @@ import streams.cta.io.datamodel.nano.L0;
 
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 
 /**
  * ProtoEventPublisher uses ZeroMQ with a Push / Pull pattern to publish telescope events serialized
@@ -28,7 +30,15 @@ public class CameraServerPublisher extends CTARawDataProcessor implements Statef
     static Logger log = LoggerFactory.getLogger(CameraServerPublisher.class);
 
     private ZMQ.Socket publisher;
+    private ZMQ.Socket monitorPublisher;
     private ZMQ.Context context;
+    private int itemCounter = 0;
+
+    private Stopwatch stopwatch;
+
+
+    @Parameter(required = false, description = "The IP of the daq monitor. Asin in tcp://127.0.0.1:1222")
+    String monitorAddress = "tcp://127.0.0.1:4849";
 
     @Parameter(required = false)
     String[] addresses = {"tcp://*:4849"};
@@ -41,6 +51,21 @@ public class CameraServerPublisher extends CTARawDataProcessor implements Statef
             publisher.bind(address);
             log.info("Binding to address: " + address);
         }
+
+        monitorPublisher = context.socket(ZMQ.PUSH);
+        monitorPublisher.bind(monitorAddress);
+        log.info("Binding monitor to address: " + monitorAddress);
+
+        stopwatch = Stopwatch.createStarted();
+    }
+
+    private void sendToMonitor(int bytesSend, long ellapsedMicros){
+        CoreMessages.ThroughputStats stats = new CoreMessages.ThroughputStats();
+        stats.comment = "Bytes Published";
+        stats.numBytes = bytesSend;
+        stats.elapsedUs = (int) ellapsedMicros;
+        byte[] bytesTosend = CoreMessages.ThroughputStats.toByteArray(stats);
+        monitorPublisher.send(bytesTosend);
     }
 
     @Override
@@ -92,8 +117,20 @@ public class CameraServerPublisher extends CTARawDataProcessor implements Statef
         CoreMessages.CTAMessage ctaMessage = new CoreMessages.CTAMessage();
         ctaMessage.payloadType = new int[]{CoreMessages.CAMERA_EVENT};
         ctaMessage.payloadData = payloadWrap;
+        if (input.get("@source") != null){
+            ctaMessage.sourceName = input.get("@source").toString();
+        }
 
         byte[] bytesTosend = CoreMessages.CTAMessage.toByteArray(ctaMessage);
+
+        //send stuff to the central daq monitor every 5000 events or so
+        if(itemCounter == 5000){
+            itemCounter = 0;
+            long ellapsedMicros = stopwatch.elapsed(TimeUnit.MICROSECONDS);
+            stopwatch.reset();
+            sendToMonitor(bytesTosend.length, ellapsedMicros);
+        }
+
         input.put("@packetSize", bytesTosend.length);
         publisher.send(bytesTosend, 0);
         return input;

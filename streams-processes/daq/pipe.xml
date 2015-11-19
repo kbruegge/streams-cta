@@ -1,0 +1,21 @@
+<application>
+
+    <property name="addresses" value="tcp://127.0.0.1:4849" />
+
+    <stream id="cta:data" class="streams.cta.io.CameraServerStream" addresses="${addresses}"/>
+
+    <process input="cta:data">
+        <streams.DataRate every="2000" logmemory="true"/>
+        <If condition="%{data.@datarate} != null" >
+            <streams.cta.io.JSONWriter url="file:./subscription_daq.json" keys="@stream,@datarate" writeblock="true"/>
+        </If>
+        <streams.cta.datacorrection.BaselineShift />
+        <streams.cta.extraction.Photons />
+        <streams.cta.extraction.ArrivalTime />
+        <streams.cta.cleaning.TwoLevelTimeNeighbor levels="400,320,120,100" />
+        <streams.cta.features.Size/>
+        <streams.cta.features.COG/>
+        <streams.cta.features.WidthLengthDelta/>
+    </process>
+
+</application>
