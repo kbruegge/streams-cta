@@ -10,10 +10,9 @@ import stream.data.DataFactory;
 import stream.io.AbstractStream;
 
 /**
- * CameraServerStream uses ZeroMQ to subscribe to telescope events serialized
- * with protocol buffer format according to the datamodel as specified by ACTL
+ * CameraServerStream receives raw bytes from a ZMQ.Pull port.
  *
- * @author kai
+ * @author chris, kai
  */
 public class CameraDataStream extends AbstractStream {
     static Logger log = LoggerFactory.getLogger(CameraDataStream.class);
@@ -56,7 +55,8 @@ public class CameraDataStream extends AbstractStream {
         events++;
         bytes += data.length;
 
-        if (events % 10000 == 0) {
+        if (events == 10000) {
+            events = 0;
             Double gbits = (bytes * 8.0) / 1024.0 / 1024.0 / 1024.0;
             Double seconds = (now - start) / 1000.0;
             log.debug("{} read, data rate is {} GBit/s", bytes, gbits / seconds);
