@@ -1,21 +1,21 @@
 <application>
 
-    <property name="address" value="tcp://localhost:12810" />
+    <property name="addresses" value="tcp://localhost:4849" />
+    <property name="monitor" value="tcp://127.0.0.1:12800" />
 
-    <stream id="cta:data_${copy.id}" class="streams.cta.io.CameraServerStream" addresses="${address}" copies="4"/>
+    <stream id="cta:data_${copy.id}" class="streams.cta.io.CameraServerStream" addresses="${addresses}" copies="1"/>
 
     <property name="port" value="12811" />
 
-    <Queue id="monitor"/>
+    <Queue id="out"/>
 
-    <process input="cta:data_${copy.id}" copies="4">
-        <streams.DataRate every="100" />
-        <Enqueue queues="performance" condition="%{data.@datarate} != null"/>
-
+    <process input="cta:data_${copy.id}" copies="1">
+        <streams.DataRate every="200" />
+        <Enqueue queues="out"/>
     </process>
 
-    <process input="monitor" >
-        <streams.cta.io.CameraServerPublisher addresses="tcp://*:${port}" monitorAddress="tcp://"/>
+    <process input="out" >
+        <streams.cta.io.CameraServerPublisher addresses="tcp://*:${port}" monitorAddress="${monitor}"/>
     </process>
 
 

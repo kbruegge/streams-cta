@@ -9,12 +9,14 @@ import stream.Data;
 import stream.ProcessContext;
 import stream.StatefulProcessor;
 import stream.annotations.Parameter;
+import stream.io.SourceURL;
 import streams.cta.CTARawDataProcessor;
 import streams.cta.CTATelescope;
 import streams.cta.CTATelescopeType;
 import streams.cta.io.datamodel.nano.CoreMessages;
 import streams.cta.io.datamodel.nano.L0;
 
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +40,7 @@ public class CameraServerPublisher extends CTARawDataProcessor implements Statef
 
 
     @Parameter(required = false, description = "The IP of the daq monitor. As in in tcp://127.0.0.1:4849")
-    String monitorAddress = "tcp://127.0.0.1:4849";
+    String monitorAddress = null;
 
     @Parameter(required = false)
     String[] addresses = {"tcp://*:4849"};
@@ -55,20 +57,45 @@ public class CameraServerPublisher extends CTARawDataProcessor implements Statef
             log.info("Binding to address: " + address);
         }
 
-        monitorPublisher = context.socket(ZMQ.PUB);
-        monitorPublisher.bind(monitorAddress);
-        log.info("Binding monitor to address: " + monitorAddress);
+        if(monitorAddress != null) {
+            monitorPublisher = context.socket(ZMQ.PUB);
+            monitorPublisher.connect(monitorAddress);
+            log.info("Binding monitor to address: " + monitorAddress);
+        }
 
         stopwatch = Stopwatch.createStarted();
     }
 
-    private void sendToMonitor(int bytesSend, long ellapsedMicros){
+    private void sendToMonitor(int bytesSend, long ellapsedMicros, String source){
         CoreMessages.ThroughputStats stats = new CoreMessages.ThroughputStats();
-        stats.comment = "Bytes Published";
-        stats.numBytes = bytesSend;
-        stats.elapsedUs = (int) ellapsedMicros;
-        byte[] bytesTosend = CoreMessages.ThroughputStats.toByteArray(stats);
-        monitorPublisher.send(bytesTosend);
+        String hostname = "";
+        try {
+            hostname = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            hostname = "unkonwn";
+        }
+        try {
+            SourceURL originUrl= new SourceURL(source);
+            stats.dest = "stream:" + hostname;
+            stats.origin = originUrl.getHost();
+            stats.port = originUrl.getPort();
+            stats.comment = "Bytes Published";
+            stats.numBytes = bytesSend;
+            stats.elapsedUs = (int) ellapsedMicros;
+            log.info("Sending statistics to Monitor: " + stats.toString());
+            CoreMessages.CTAMessage msg = new CoreMessages.CTAMessage();
+            msg.sourceName = "stream";
+            msg.payloadType = new int[]{CoreMessages.THROUGHPUT_STATS};
+            byte[] statsBytes = CoreMessages.ThroughputStats.toByteArray(stats);
+            byte[][] bytesToSend = new byte[1][statsBytes.length];
+            bytesToSend[0] = CoreMessages.ThroughputStats.toByteArray(stats);
+            msg.payloadData = bytesToSend;
+
+            monitorPublisher.send(CoreMessages.CTAMessage.toByteArray(msg));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -120,18 +147,21 @@ public class CameraServerPublisher extends CTARawDataProcessor implements Statef
         CoreMessages.CTAMessage ctaMessage = new CoreMessages.CTAMessage();
         ctaMessage.payloadType = new int[]{CoreMessages.CAMERA_EVENT};
         ctaMessage.payloadData = payloadWrap;
+        String source = "unknown";
         if (input.get("@source") != null){
+            source = input.get("@source").toString();
             ctaMessage.sourceName = input.get("@source").toString();
         }
 
         byte[] bytesTosend = CoreMessages.CTAMessage.toByteArray(ctaMessage);
-
-        //send stuff to the central daq monitor every 5000 events or so
-        if(itemCounter == every){
+        //send stuff to the central daq monitor every few events
+        itemCounter++;
+        if(monitorAddress != null && itemCounter == every){
             itemCounter = 0;
             long ellapsedMicros = stopwatch.elapsed(TimeUnit.MICROSECONDS);
             stopwatch.reset();
-            sendToMonitor(bytesTosend.length, ellapsedMicros);
+            stopwatch.start();
+            sendToMonitor(bytesTosend.length, ellapsedMicros, source);
         }
 
         input.put("@packetSize", bytesTosend.length);

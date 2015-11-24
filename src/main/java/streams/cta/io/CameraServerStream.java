@@ -1,5 +1,6 @@
 package streams.cta.io;
 
+import com.google.common.base.Joiner;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
@@ -43,7 +44,6 @@ public class CameraServerStream extends AbstractStream {
             log.info("Connecting to address: " + address);
             subscriber.connect(address);
         }
-        //subscriber.subscribe(messageType);
     }
 
     @Override
@@ -62,35 +62,28 @@ public class CameraServerStream extends AbstractStream {
             }
             byte[] payloadData = ctaMessage.payloadData[0];
             L0.CameraEvent cameraEvent = L0.CameraEvent.parseFrom(payloadData);
-            //int numPixel = cameraEvent.geometry.pixels.length;
-            //int roi = cameraEvent.head.numTraces;
-            //log.info(cameraEvent.toString());
-            //log.info(cameraEvent.hiGain.toString());
-            //log.info(cameraEvent.hiGain.waveforms.toString());
-            //log.info(cameraEvent.hiGain.waveforms.samples.toString());
+
             int format = cameraEvent.hiGain.waveforms.samples.currentComp;
             int datatype = cameraEvent.hiGain.waveforms.samples.type;
-            int roi = cameraEvent.hiGain.waveforms.numSamples;
+            int numsamples = cameraEvent.hiGain.waveforms.numSamples;
             byte[] hiGainSamples = cameraEvent.hiGain.waveforms.samples.data;
-
-            //log.info("Roi : " + roi);
-            //log.info("type : " + datatype);
 
             if (format != CoreMessages.AnyArray.RAW){
                 throw new NotImplementedException("Data compression handling not implemented yet.");
             }
             Data item = DataFactory.create();
+            item.put("@source", Joiner.on(',').join(addresses));
             item.put("@telescope", telescope );
             item.put("@timestamp", LocalDateTime.now());
 
 
             if(datatype == CoreMessages.AnyArray.S16 ){
                 int skip = 2; //datatype has 2 bytes
-                int numPixel = (hiGainSamples.length/skip)/roi;
+                int numPixel = (hiGainSamples.length/skip)/numsamples;
                 int counter = 0;
-                short[][] samples = new short[numPixel][roi];
+                short[][] samples = new short[numPixel][numsamples];
                 for (int pix = 0; pix < numPixel; pix++) {
-                    for (int slice = 0; slice < roi; slice++) {
+                    for (int slice = 0; slice < numsamples; slice++) {
                         samples[pix][slice] = (short) hiGainSamples[counter*skip];
                         counter++;
                     }
