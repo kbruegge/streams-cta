@@ -1,6 +1,7 @@
 package streams.cta.io;
 
 
+import com.google.common.base.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
@@ -8,17 +9,20 @@ import stream.Data;
 import stream.ProcessContext;
 import stream.StatefulProcessor;
 import stream.annotations.Parameter;
+import stream.io.SourceURL;
 import streams.cta.CTARawDataProcessor;
 import streams.cta.CTATelescope;
 import streams.cta.CTATelescopeType;
 import streams.cta.io.datamodel.nano.CoreMessages;
 import streams.cta.io.datamodel.nano.L0;
 
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 
 /**
- * ProtoEventPublisher uses ZeroMQ with a Push / Pull pattern to publish telescope events serialized
+ * CameraServerPublisher uses ZeroMQ with a Push / Pull pattern to publish telescope events serialized
  * with protocol buffer format according to DAQs data model
  *
  * @author kai
@@ -28,10 +32,21 @@ public class CameraServerPublisher extends CTARawDataProcessor implements Statef
     static Logger log = LoggerFactory.getLogger(CameraServerPublisher.class);
 
     private ZMQ.Socket publisher;
+    private ZMQ.Socket monitorPublisher;
     private ZMQ.Context context;
+    private int itemCounter = 0;
+
+    private Stopwatch stopwatch;
+
+
+    @Parameter(required = false, description = "The IP of the daq monitor. As in in tcp://127.0.0.1:4849")
+    String monitorAddress = null;
 
     @Parameter(required = false)
     String[] addresses = {"tcp://*:4849"};
+
+    @Parameter(required = false, description = "How often information should be send to the daq monitor.")
+    private int every = 200;
 
     @Override
     public void init(ProcessContext processContext) throws Exception {
@@ -41,6 +56,46 @@ public class CameraServerPublisher extends CTARawDataProcessor implements Statef
             publisher.bind(address);
             log.info("Binding to address: " + address);
         }
+
+        if(monitorAddress != null) {
+            monitorPublisher = context.socket(ZMQ.PUB);
+            monitorPublisher.connect(monitorAddress);
+            log.info("Binding monitor to address: " + monitorAddress);
+        }
+
+        stopwatch = Stopwatch.createStarted();
+    }
+
+    private void sendToMonitor(int bytesSend, long ellapsedMicros, String source){
+        CoreMessages.ThroughputStats stats = new CoreMessages.ThroughputStats();
+        String hostname = "";
+        try {
+            hostname = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            hostname = "unkonwn";
+        }
+        try {
+            SourceURL originUrl= new SourceURL(source);
+            stats.dest = "stream:" + hostname;
+            stats.origin = originUrl.getHost();
+            stats.port = originUrl.getPort();
+            stats.comment = "Bytes Published";
+            stats.numBytes = bytesSend;
+            stats.elapsedUs = (int) ellapsedMicros;
+            log.info("Sending statistics to Monitor: " + stats.toString());
+            CoreMessages.CTAMessage msg = new CoreMessages.CTAMessage();
+            msg.sourceName = "stream";
+            msg.payloadType = new int[]{CoreMessages.THROUGHPUT_STATS};
+            byte[] statsBytes = CoreMessages.ThroughputStats.toByteArray(stats);
+            byte[][] bytesToSend = new byte[1][statsBytes.length];
+            bytesToSend[0] = CoreMessages.ThroughputStats.toByteArray(stats);
+            msg.payloadData = bytesToSend;
+
+            monitorPublisher.send(CoreMessages.CTAMessage.toByteArray(msg));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -92,8 +147,23 @@ public class CameraServerPublisher extends CTARawDataProcessor implements Statef
         CoreMessages.CTAMessage ctaMessage = new CoreMessages.CTAMessage();
         ctaMessage.payloadType = new int[]{CoreMessages.CAMERA_EVENT};
         ctaMessage.payloadData = payloadWrap;
+        String source = "unknown";
+        if (input.get("@source") != null){
+            source = input.get("@source").toString();
+            ctaMessage.sourceName = input.get("@source").toString();
+        }
 
         byte[] bytesTosend = CoreMessages.CTAMessage.toByteArray(ctaMessage);
+        //send stuff to the central daq monitor every few events
+        itemCounter++;
+        if(monitorAddress != null && itemCounter == every){
+            itemCounter = 0;
+            long ellapsedMicros = stopwatch.elapsed(TimeUnit.MICROSECONDS);
+            stopwatch.reset();
+            stopwatch.start();
+            sendToMonitor(bytesTosend.length, ellapsedMicros, source);
+        }
+
         input.put("@packetSize", bytesTosend.length);
         publisher.send(bytesTosend, 0);
         return input;
@@ -122,6 +192,14 @@ public class CameraServerPublisher extends CTARawDataProcessor implements Statef
 
     public void setAddresses(String[] addresses) {
         this.addresses = addresses;
+    }
+
+    public void setMonitorAddress(String monitorAddress) {
+        this.monitorAddress = monitorAddress;
+    }
+
+    public void setEvery(int every) {
+        this.every = every;
     }
 
 }
