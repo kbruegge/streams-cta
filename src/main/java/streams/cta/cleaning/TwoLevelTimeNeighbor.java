@@ -1,5 +1,6 @@
 package streams.cta.cleaning;
 
+import com.google.common.collect.Lists;
 import stream.Data;
 import stream.annotations.Parameter;
 import streams.cta.CTAExtractedDataProcessor;
@@ -10,6 +11,7 @@ import streams.hexmap.ui.overlays.PixelSetOverlay;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 
 /**
@@ -43,7 +45,7 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
         showerPixel = addCorePixel(showerPixel,photons,levels[0]);
         if(showerPixel.size() == 0 ){ return input; }
 
-//        showerPixel = removeSmallCluster(showerPixel, 1);
+        showerPixel = removeSmallCluster(showerPixel, 1);
 //        if(showerPixel.size() == 0 ){ return input; }
 
         //showerPixel = addNeighboringPixels(showerPixel, photons, levels[1]);
@@ -146,9 +148,7 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
         for(Integer pix : newList){
             showerPixel.remove(pixelMap.getPixelFromId(pix));
         }
-        if(showerPixel.size() >= 5){
-            System.out.println("tadaa");
-        }
+
         return showerPixel;
     }
 
