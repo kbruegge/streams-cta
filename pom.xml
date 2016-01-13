@@ -10,7 +10,7 @@
 
     <properties>
         <storm.scope>compile</storm.scope>
-        <streams.version>0.9.24</streams.version>
+        <streams.version>0.9.25-SNAPSHOT</streams.version>
         <streams.jar>cta-tools-${project.version}</streams.jar>
     </properties>
 
@@ -97,21 +97,21 @@
             <version>${streams.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.jwall</groupId>
-            <version>0.9.22-SNAPSHOT</version>
-            <artifactId>streams-storm</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.storm</groupId>
-                    <artifactId>storm</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.storm</groupId>
-                    <artifactId>storm-core</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.jwall</groupId>-->
+            <!--<version>0.9.22-SNAPSHOT</version>-->
+            <!--<artifactId>streams-storm</artifactId>-->
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.apache.storm</groupId>-->
+                    <!--<artifactId>storm</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.apache.storm</groupId>-->
+                    <!--<artifactId>storm-core</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
+        <!--</dependency>-->
 
 
         <dependency>
