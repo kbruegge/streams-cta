@@ -55,14 +55,22 @@ public class FactHexPixelMapping extends HexPixelMapping<FactCameraPixel> {
     protected FactCameraPixel getPixelFromCSVItem(Data item){
         int softID = (int)(item.get("softID"));
         int hardID = (int)(item.get("hardID"));
-        int geometricX = (Integer)(item.get("geom_i"));
-        int geometricY = (Integer)(item.get("geom_j"));
+        int col = (Integer)(item.get("geom_i"));
+        int row = (Integer)(item.get("geom_j"));
         //the units in the file are arbitrary
         //convert them to millimeter by multiplying with the pixel diameter
         double posX = Double.parseDouble(item.get("pos_X").toString())*9.5;
         double posY = Double.parseDouble(item.get("pos_Y").toString())*9.5;
 
-        FactCameraPixel p = new FactCameraPixel(softID, hardID, geometricX, geometricY, posX, posY);
+        int cubeX = col;
+        int cubeZ = row - (col - Math.abs(col % 2))/2;
+
+        int axialQ = cubeX;
+        int axialR = cubeZ;
+
+        //this is how you get the chid from all other numbers which are present in the fact pixelmapping file.
+        int chid = (hardID % 10) + 9 * ((hardID / 10) % 10) + 36 * ((hardID / 100) % 10) + 360 * (hardID / 1000);
+        FactCameraPixel p = new FactCameraPixel(chid, softID, hardID, axialQ , axialR, posX, posY);
         return p;
     }
 

@@ -10,6 +10,9 @@ public class CameraPixel {
     final public int id;
     final public int axialQ;
     final public int axialR;
+    final public int cubeX;
+    final public int cubeY;
+    final public int cubeZ;
     final public double xPositionInMM;
     final public double yPositionInMM;
 
@@ -19,6 +22,9 @@ public class CameraPixel {
         this.axialR= r;
         this.xPositionInMM = xPositionInMM;
         this.yPositionInMM = yPositionInMM;
+        this.cubeX = q;
+        this.cubeZ = r;
+        this.cubeY = -cubeX - cubeZ;
     }
 
 

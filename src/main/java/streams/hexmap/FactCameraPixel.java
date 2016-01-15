@@ -18,8 +18,8 @@ public class FactCameraPixel extends CameraPixel implements Serializable {
     final public int drs_chip;
 
 
-    public FactCameraPixel(int softid, int hardid, int geometricX, int geometricY, double posX, double posY) {
-        super((hardid % 10) + 9 * (hardid / 10) % 10 + 36 * (hardid / 100) % 10 + 360 * hardid / 1000, geometricX, geometricY, posX, posY);
+    public FactCameraPixel(int chid, int softid, int hardid, int q, int r, double posX, double posY) {
+        super(chid , q, r, posX, posY);
         this.softid = softid;
         this.hardid = hardid;
         this.crate = hardid / 1000;

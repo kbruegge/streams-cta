@@ -3,6 +3,7 @@
  */
 package streams.hexmap;
 
+import org.apache.storm.guava.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stream.Data;
@@ -170,8 +171,8 @@ public abstract class HexPixelMapping<T extends CameraPixel> {
         return l;
     }
 
-    public T[] getAllPixel(){
-        return pixelArray;
+    public ArrayList<T> getAllPixel(){
+        return Lists.newArrayList(pixelArray);
     }
 
     protected int[] getAxialCoordinatesFromRealWorlCoordinates(double x, double y){
