@@ -10,7 +10,7 @@
 
     <properties>
         <storm.scope>compile</storm.scope>
-        <streams.cta.version>0.9.22-SNAPSHOT</streams.cta.version>
+        <streams.cta.version>0.9.22</streams.cta.version>
         <streams.jar>cta-tools-${project.version}</streams.jar>
         <artifactid-streams-storm>streams-storm</artifactid-streams-storm>
     </properties>
