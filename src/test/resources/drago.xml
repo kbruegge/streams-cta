@@ -1,0 +1,13 @@
+<application>
+
+    <property name="infile" value="/local/data/jebuss/cta/lst-calibration/IP192.168.1.1/Pedestal/Ped444442_1.dat" />
+
+    <stream id="cta:data" class="streams.cta.io.DragoReader" url="file:${infile}"/>
+
+
+
+    <process input="cta:data" copies="1">
+        <stream.monitor.DataRate every="100"/>
+    </process>
+
+</application>
