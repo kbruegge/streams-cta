@@ -36,7 +36,7 @@ To read data either from Etienne DummyCameraServer or from another stream use
 
 ## EventIO files
 
-Three different eventio files can be downloaded from SFB876 homepage and used for testing purposes:
+Three different eventio files can be downloaded from SFB876 homepage and used for testing purposes (please, contact us, if you are interested in more details and do not have login for SFB876):
 
 * [small (~780 mb)](http://sfb876.tu-dortmund.de/auto?self=$eg7ezym8sg)
 * [medium (~1.9 Gb)](http://sfb876.tu-dortmund.de/auto?self=$eg7fcd8vsw)
