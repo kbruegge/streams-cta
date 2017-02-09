@@ -100,8 +100,8 @@
 
         <dependency>
             <groupId>org.jwall</groupId>
+            <version>${streams.cta.version}</version>
             <artifactId>${artifactid-streams-storm}</artifactId>
-            <version>0.9.20</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.storm</groupId>
@@ -199,7 +199,20 @@
         <dependency>
             <groupId>com.google.protobuf.nano</groupId>
             <artifactId>protobuf-javanano</artifactId>
-            <version>3.0.0-alpha-3.1</version>
+            <version>3.0.0-alpha-4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>de.sfb876</groupId>
+            <artifactId>streams-kafka</artifactId>
+            <version>[0.0.2-SNAPSHOT,)</version>
+        </dependency>
+
+
+        <dependency>
+        	<groupId>de.sfb876</groupId>
+        	<artifactId>streams-performance</artifactId>
+        	<version>0.9.24-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

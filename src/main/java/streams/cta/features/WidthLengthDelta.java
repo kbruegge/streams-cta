@@ -6,7 +6,6 @@ import org.apache.commons.math3.linear.RealMatrix;
 import stream.Data;
 import streams.cta.CTACleanedDataProcessor;
 import streams.cta.CTATelescope;
-import streams.hexmap.CTAHexPixelMapping;
 import streams.hexmap.CameraPixel;
 
 import java.time.LocalDateTime;

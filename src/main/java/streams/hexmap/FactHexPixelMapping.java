@@ -6,8 +6,6 @@ package streams.hexmap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stream.Data;
-import stream.io.CsvStream;
-import stream.io.SourceURL;
 
 import java.net.URL;
 
@@ -27,7 +25,7 @@ public class FactHexPixelMapping extends HexPixelMapping<FactCameraPixel> {
 
     public static FactHexPixelMapping getInstance() {
         if (mapping ==  null){
-            String pixelMap = "/hexmap/pixel-map.csv";
+            String pixelMap = "/hexmap/fact-pixel-map.csv";
             URL mapUrl = FactHexPixelMapping.class.getResource(pixelMap);
             if(mapUrl == null){
                 String msg = "Could not load pixel mapping from URL: " + pixelMap + ". Does the file exist?";
