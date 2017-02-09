@@ -10,32 +10,11 @@
 
     <properties>
         <storm.scope>compile</storm.scope>
-        <streams.cta.version>0.9.22</streams.cta.version>
+        <streams.cta.version>1.0.0</streams.cta.version>
         <streams.jar>cta-tools-${project.version}</streams.jar>
         <artifactid-streams-storm>streams-storm</artifactid-streams-storm>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>sonatype-snapshots</id>
-            <name>sonatype Snapshot Repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </repository>
-        <repository>
-            <id>sonatype-capnproto</id>
-            <name>capn proto</name>
-            <url>
-                https://oss.sonatype.org/content/repositories/snapshots/org/capnproto/runtime/0.1.0-SNAPSHOT/
-            </url>
-        </repository>
-    </repositories>
-
-    <distributionManagement>
-        <site>
-            <id>jwall-site</id>
-            <url>scp://builder@sfb876.de/var/www/sfb876.de/htdocs/cta/</url>
-        </site>
-    </distributionManagement>
 
     <licenses>
         <license>
@@ -94,44 +73,37 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.jwall</groupId>
+            <groupId>de.sfb876</groupId>
             <artifactId>streams-core</artifactId>
             <version>${streams.cta.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.jwall</groupId>
+            <groupId>de.sfb876</groupId>
             <artifactId>streams-runtime</artifactId>
             <version>${streams.cta.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.jwall</groupId>
-            <version>${streams.cta.version}</version>
-            <artifactId>${artifactid-streams-storm}</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.storm</groupId>
-                    <artifactId>storm</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.storm</groupId>
-                    <artifactId>storm-core</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>de.sfb876</groupId>-->
+            <!--<version>${streams.cta.version}</version>-->
+            <!--<artifactId>${artifactid-streams-storm}</artifactId>-->
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.apache.storm</groupId>-->
+                    <!--<artifactId>storm</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.apache.storm</groupId>-->
+                    <!--<artifactId>storm-core</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.0</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>com.jgoodies</groupId>
-            <artifactId>jgoodies-forms</artifactId>
-            <version>1.6.0</version>
         </dependency>
 
         <dependency>
@@ -145,11 +117,6 @@
             <artifactId>commons-math3</artifactId>
             <version>3.4</version>
         </dependency>
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>0.9.10</version>
-        </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -161,12 +128,6 @@
             <groupId>org.zeromq</groupId>
             <artifactId>jeromq</artifactId>
             <version>0.3.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jfree</groupId>
-            <artifactId>jfreechart</artifactId>
-            <version>1.0.19</version>
         </dependency>
 
         <dependency>
@@ -203,23 +164,17 @@
             <scope>${storm.scope}</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.google.protobuf.nano</groupId>
-            <artifactId>protobuf-javanano</artifactId>
-            <version>3.0.0-alpha-4</version>
-        </dependency>
-
-        <dependency>
-            <groupId>de.sfb876</groupId>
-            <artifactId>streams-kafka</artifactId>
-            <version>[0.0.2-SNAPSHOT,)</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>de.sfb876</groupId>-->
+            <!--<artifactId>streams-kafka</artifactId>-->
+            <!--<version>[0.0.2-SNAPSHOT,)</version>-->
+        <!--</dependency>-->
 
 
         <dependency>
         	<groupId>de.sfb876</groupId>
         	<artifactId>streams-performance</artifactId>
-        	<version>0.9.24-SNAPSHOT</version>
+        	<version>${streams.cta.version}</version>
         </dependency>
     </dependencies>
 
@@ -245,7 +200,7 @@
                 </configuration>
                 <dependencies>
                     <dependency>
-                        <groupId>org.jwall</groupId>
+                        <groupId>de.sfb876</groupId>
                         <artifactId>doxia-module-markdown</artifactId>
                         <version>1.1.4</version>
                     </dependency>
