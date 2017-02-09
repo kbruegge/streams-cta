@@ -12,7 +12,6 @@
         <storm.scope>compile</storm.scope>
         <streams.cta.version>1.0.0</streams.cta.version>
         <streams.jar>cta-tools-${project.version}</streams.jar>
-        <artifactid-streams-storm>streams-storm</artifactid-streams-storm>
     </properties>
 
 
@@ -84,22 +83,6 @@
             <version>${streams.cta.version}</version>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>de.sfb876</groupId>-->
-            <!--<version>${streams.cta.version}</version>-->
-            <!--<artifactId>${artifactid-streams-storm}</artifactId>-->
-            <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.apache.storm</groupId>-->
-                    <!--<artifactId>storm</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.apache.storm</groupId>-->
-                    <!--<artifactId>storm-core</artifactId>-->
-                <!--</exclusion>-->
-            <!--</exclusions>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
@@ -155,13 +138,6 @@
             <groupId>com.esotericsoftware</groupId>
             <artifactId>kryo-shaded</artifactId>
             <version>3.0.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.storm</groupId>
-            <artifactId>storm-core</artifactId>
-            <version>0.9.5</version>
-            <scope>${storm.scope}</scope>
         </dependency>
 
         <!--<dependency>-->
