@@ -16,7 +16,9 @@ import static streams.cta.io.eventio.EventIOConstants.TYPE_TEL_EVENT;
 import static streams.cta.io.eventio.EventIOConstants.TYPE_TRACK_EVENT;
 
 /**
- * All data for one event Created by alexey on 30.06.15.
+ * All data for one event
+ *
+ * @author alexey
  */
 public class FullEvent {
 
@@ -57,11 +59,6 @@ public class FullEvent {
      */
     public int[] teldataList;
 
-    /**
-     * Data retrieved by RunHeader. It contains information about the telescopes ID.
-     */
-    //public short[] triggeredTelescopeIds;
-
     public FullEvent() {
         this(H_MAX_TEL);
         numTel = 0;
@@ -78,7 +75,10 @@ public class FullEvent {
     }
 
     /**
+     * Read the whole event: central event, track events, telescope events, shower events.
      *
+     * @param buffer buffer using input stream to read event
+     * @param what some additional parameter used by hessio
      */
     public boolean readFullEvent(EventIOBuffer buffer, int what) {
         EventIOHeader header = new EventIOHeader(buffer);

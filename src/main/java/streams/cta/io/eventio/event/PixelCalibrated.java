@@ -11,7 +11,9 @@ import streams.cta.io.eventio.EventIOHeader;
 import static streams.cta.io.eventio.EventIOConstants.H_MAX_PIX;
 
 /**
- * Created by alexey on 30.06.15.
+ * Read calibrated
+ *
+ * @author alexey
  */
 public class PixelCalibrated {
 

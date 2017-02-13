@@ -106,12 +106,6 @@ public class RunHeader {
      */
     String observer;
 
-    /**
-     * For internal data handling only:
-     */
-    int maxLenTarget;
-    int maxLenObserver;
-
     public boolean readRunHeader(EventIOBuffer buffer) {
         EventIOHeader header = new EventIOHeader(buffer);
         try {

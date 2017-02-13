@@ -9,7 +9,9 @@ import streams.cta.io.eventio.EventIOBuffer;
 import streams.cta.io.eventio.EventIOHeader;
 
 /**
- * Image parameters Created by alexey on 30.06.15.
+ * Image and its parameters from a telescope
+ *
+ * @author alexey
  */
 public class ImgData {
 
@@ -187,6 +189,12 @@ public class ImgData {
         telId = id;
     }
 
+    /**
+     * Read telescope image data
+     *
+     * @param buffer buffer using input stream to read event
+     * @return true if no error occurs, false otherwise
+     */
     public boolean readTelImage(EventIOBuffer buffer) {
         EventIOHeader header = new EventIOHeader(buffer);
         try {

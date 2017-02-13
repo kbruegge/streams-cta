@@ -7,7 +7,6 @@ import streams.cta.CTAExtractedDataProcessor;
 import streams.cta.CTATelescope;
 import streams.hexmap.LSTHexPixelMapping;
 import streams.hexmap.CameraPixel;
-import streams.hexmap.ui.overlays.PixelSetOverlay;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -66,7 +65,6 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
         }
 
         input.put("shower", showerPixel);
-        input.put("@showerOverlay",new PixelSetOverlay(showerPixel));
 
         //indicate outer pixel for testing purposes
         HashSet<CameraPixel> borderPixel = new HashSet<>();
@@ -77,7 +75,6 @@ public class TwoLevelTimeNeighbor extends CTAExtractedDataProcessor {
 //            ArrayList<CameraPixel> neighbors = pixelMap.getNeighboursForPixel(p);
 //            System.out.println(neighbors.size());
 //        }
-        input.put("@borderOverlay",new PixelSetOverlay(borderPixel));
         return input;
     }
 

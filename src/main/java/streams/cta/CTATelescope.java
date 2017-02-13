@@ -28,7 +28,14 @@ public class CTATelescope implements Serializable {
         this.pixelGains = pixelGains;
     }
 
-    public CTATelescope(CTATelescopeType type, int telescopeId){
+    /**
+     * Construct CTATelescope object only with type and id. All other values as position and so on
+     * are set to 0 / null.
+     *
+     * @param type CTATelescopeType
+     * @param telescopeId telescope ID
+     */
+    public CTATelescope(CTATelescopeType type, int telescopeId) {
         this(type, telescopeId, 0, 0, 0, null, null, null);
     }
 

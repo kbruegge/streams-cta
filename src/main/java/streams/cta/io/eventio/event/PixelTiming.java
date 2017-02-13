@@ -10,7 +10,9 @@ import streams.cta.io.eventio.EventIOBuffer;
 import streams.cta.io.eventio.EventIOHeader;
 
 /**
- * Created by alexey on 30.06.15.
+ * Read pixel timings.
+ *
+ * @author alexey
  */
 public class PixelTiming {
 
