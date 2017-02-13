@@ -1,7 +1,7 @@
 import click
 from tqdm import tqdm
 from ctapipe.io.hessio import hessio_event_source
-from ctapipe.io.camera import guess_camera_geometry, _guess_camera_type
+from ctapipe.io.camera import _guess_camera_type
 
 import json
 
