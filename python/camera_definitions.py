@@ -6,18 +6,19 @@ from ctapipe.io.camera import guess_camera_geometry, _guess_camera_type
 import json
 
 
-def fill_camera_info(geom, telescope_type='SST'):
+def fill_camera_info(geom, telescope_type='LST', name='LSTCam'):
     c = {}
     c['number_of_pixel'] = len(geom.pix_x)
-    c['pix_x_meter'] = geom.pix_x.value.tolist()
-    c['pix_y_meter'] = geom.pix_y.value.tolist()
-    c['pix_rotation_degree'] = geom.pix_rotation.value
-    c['pix_type'] = geom.pix_type
-    c['pix_id'] = geom.pix_id.tolist()
-    c['pix_area_square_meter'] = geom.pix_area.value.tolist()
-    c['cam_rotaion_degree'] = geom.cam_rotation.value
-    c['neighbors'] = geom.neighbors
+    c['pixel_x_positions'] = geom.pix_x.value.tolist()
+    c['pixel_y_positions'] = geom.pix_y.value.tolist()
+    c['pixel_rotation'] = geom.pix_rotation.value
+    c['pixel_type'] = geom.pix_type
+    c['pixel_ids'] = geom.pix_id.tolist()
+    c['pixel_area'] = geom.pix_area.value.tolist()
+    c['camera_rotation'] = geom.cam_rotation.value
+    c['neighbours'] = geom.neighbors
     c['telescope_type'] = telescope_type
+    c['name'] = name
     return c
 
 
@@ -46,7 +47,7 @@ def main(input_file, output_file):
         num_pixels = len(pix_x)
         telescope_type, name, _, _, _ = _guess_camera_type(num_pixels, foc_len)
 
-        d[name] = fill_camera_info(geom, telescope_type)
+        d[name] = fill_camera_info(geom, telescope_type, name)
 
     with open(output_file, 'w') as of:
         json.dump(d, of, indent=2)
