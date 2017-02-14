@@ -3,7 +3,32 @@ from tqdm import tqdm
 from ctapipe.io.hessio import hessio_event_source
 
 import json
-import gzip
+# import gzip
+
+
+def calibrate(event, tel_id):
+    CALIB_SCALE = 1.05
+
+    samples = event.dl0.tel[tel_id].adc_samples
+
+    if len(samples) > 0:
+        # not astrii
+        n_samples = samples.shape[2]
+        pedestal = event.mc.tel[tel_id].pedestal / n_samples
+        gain = event.mc.tel[tel_id].dc_to_pe * CALIB_SCALE
+        calibrated_samples = (samples - pedestal[..., None]) * gain[..., None]
+        # sum up first gain channel
+        image = calibrated_samples[0].sum(axis=1)
+        return image
+
+    else:
+        n_samples = 1
+        samples = event.dl0.tel[tel_id].adc_sums
+        pedestal = event.mc.tel[tel_id].pedestal / n_samples
+        gain = event.mc.tel[tel_id].dc_to_pe * CALIB_SCALE
+        calibrated_samples = (samples - pedestal) * gain
+        # return first gain channel
+        return calibrated_samples[0]
 
 
 def fill_camera_info(geom, telescope_type='LST', name='LSTCam'):
@@ -37,8 +62,8 @@ def main(input_file, output_file):
     for event in tqdm(source):
         d = {}
         for tel_id in event.dl0.tels_with_data:
-            image = event.dl0.tel[tel_id].adc_sums[0].tolist()
-            d[str(tel_id)] = image
+            image = calibrate(event, tel_id)
+            d[str(tel_id)] = image.tolist()
         images.append(d)
 
     with open(output_file, 'w') as of:
