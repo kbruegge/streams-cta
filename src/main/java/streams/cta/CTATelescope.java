@@ -8,7 +8,7 @@ import java.io.Serializable;
  * @author kai
  */
 public class CTATelescope implements Serializable {
-    public CTATelescopeType type;
+//    public CTATelescopeType type;
     public int telescopeId;
     public double x, y, z;
 
@@ -16,9 +16,9 @@ public class CTATelescope implements Serializable {
     public double[] pixelDelays;
     public double[] pixelGains;
 
-    public CTATelescope(CTATelescopeType type, int telescopeId, double x, double y, double z,
+    public CTATelescope(int telescopeId, double x, double y, double z,
                         int[] brokenPixel, double[] pixelDelays, double[] pixelGains) {
-        this.type = type;
+//        this.type = type;
         this.telescopeId = telescopeId;
         this.x = x;
         this.y = y;
@@ -27,17 +27,17 @@ public class CTATelescope implements Serializable {
         this.pixelDelays = pixelDelays;
         this.pixelGains = pixelGains;
     }
-
-    /**
-     * Construct CTATelescope object only with type and id. All other values as position and so on
-     * are set to 0 / null.
-     *
-     * @param type CTATelescopeType
-     * @param telescopeId telescope ID
-     */
-    public CTATelescope(CTATelescopeType type, int telescopeId) {
-        this(type, telescopeId, 0, 0, 0, null, null, null);
-    }
+//
+//    /**
+//     * Construct CTATelescope object only with type and id. All other values as position and so on
+//     * are set to 0 / null.
+//     *
+//     * @param type CTATelescopeType
+//     * @param telescopeId telescope ID
+//     */
+//    public CTATelescope(CTATelescopeType type, int telescopeId) {
+//        this(type, telescopeId, 0, 0, 0, null, null, null);
+//    }
 
     private CTATelescope() {
 

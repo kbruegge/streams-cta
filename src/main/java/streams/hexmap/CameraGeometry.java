@@ -5,26 +5,26 @@ package streams.hexmap;
  */
 public class CameraGeometry {
 
-    int numberOfPixel;
+    public int numberOfPixel;
 
-    double[] pixelXPositions;
-    double[] pixelYPositions;
+    public double[] pixelXPositions;
+    public double[] pixelYPositions;
 
     double pixelRotation;
 
     PixelType pixelType;
 
-    int[] pixelIds;
+    public int[] pixelIds;
 
     double[] pixelArea;
 
     double cameraRotation;
 
-    int[][] neighbours;
+    public int[][] neighbours;
 
     TelescopeType telescopeType;
 
-    String name;
+    public String name;
 
 
     /**

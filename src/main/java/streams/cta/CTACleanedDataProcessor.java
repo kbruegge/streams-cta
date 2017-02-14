@@ -1,32 +1,39 @@
 package streams.cta;
 
 import stream.Data;
+import stream.Keys;
+import stream.Processor;
 import stream.annotations.Parameter;
-import streams.hexmap.CameraPixel;
+import streams.hexmap.Shower;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
- * Created by jebuss on 24.08.15.
+ * Created by kbruegge on 14.2.17.
  */
-public abstract class CTACleanedDataProcessor extends CTAExtractedDataProcessor {
+public abstract class CTACleanedDataProcessor implements Processor{
 
-
-    @Parameter(description = "The key under which to find the cleaned data in the data item.", required = false,
-            defaultValue = "cleanedData")
-    private String eventKey = "cleanedData";
-
-
-    @Override
-    public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, double[] photons, double[] arrivalTimes) {
-        HashSet<CameraPixel> showerPixel = (HashSet<CameraPixel> ) input.get("shower");
-
-        if (showerPixel != null) {
-            return process(input, telescope, timeStamp, photons, arrivalTimes, showerPixel);
-        }
-        return null;
+    public static void putShowerFeature(Data input, Serializable data, String name, int telescopeId){
+        input.put(String.format("shower:%d:%s", telescopeId, name), data);
     }
 
-    public abstract Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, double[] photons, double[] arrivalTimes, HashSet<CameraPixel> showerPixel);
+    @Override
+    public Data process(Data input) {
+
+        Set<String> select = Keys.select(input, "shower:*");
+        HashMap<Integer, Shower> map = new HashMap<>();
+
+        select.forEach(key -> {
+            Shower shower = (Shower) input.get(key);
+            map.put(shower.cameraId, shower);
+        });
+
+        return process(input, map);
+    }
+
+    public abstract Data process(Data input, HashMap<Integer, Shower> showerPixel);
 }
