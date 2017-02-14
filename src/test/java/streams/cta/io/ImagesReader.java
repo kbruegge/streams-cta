@@ -6,7 +6,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import org.junit.Test;
+import stream.Data;
+import stream.Keys;
+import stream.io.SourceURL;
+import stream.io.Stream;
 import streams.hexmap.CameraGeometry;
+import sun.jvm.hotspot.utilities.Assert;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,6 +20,10 @@ import java.net.URL;
 
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertThat;
 
 
 /**
@@ -30,13 +39,31 @@ public class ImagesReader {
 
 
     @Test
-    public void readArrayDefinition() throws IOException {
+    public void readImages() throws IOException {
         InputStreamReader streamReader = new InputStreamReader(new GZIPInputStream(images.openStream()), "UTF-8");
         JsonReader reader = new JsonReader(streamReader);
         reader.beginArray();
         while (reader.hasNext()) {
-            Map<Integer, double[]> image = gson.fromJson(reader, IMAGE_DEF);
+            Map<Integer, double[]> images = gson.fromJson(reader, IMAGE_DEF);
+            assertThat(images.size(), is(not(0)));
         }
+
     }
 
+
+
+    @Test
+    public void testStream() throws Exception {
+        ImageStream s = new ImageStream();
+        s.url = new SourceURL(CameraGeometry.class.getResource("/images.json.gz"));
+        s.init();
+
+        Data data = s.read();
+        while (data != null){
+            assertThat(Keys.select(data, "telescope:*").isEmpty(), is(false));
+            data = s.read();
+        }
+
+        s.close();
+    }
 }
