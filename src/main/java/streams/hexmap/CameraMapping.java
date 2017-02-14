@@ -55,8 +55,16 @@ public class CameraMapping {
 
     }
 
+    /**
+     * Get the camera geometry for the given id.  
+     *
+     * @param telescopeId the id of the telescope to get
+     * @return the camera geometry for the telescope
+     */
     public CameraGeometry cameraFromId(int telescopeId){
-        String name = telescopes.get(telescopeId).cameraName;
+        //Watch out for the index here. Telescope ids start at 1.
+        //The mapping from telescope index to array index hence needs a -1
+        String name = telescopes.get(telescopeId - 1).cameraName;
         return cameras.get(name);
     }
 }
