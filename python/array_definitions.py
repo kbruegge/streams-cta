@@ -2,7 +2,7 @@ import click
 from tqdm import tqdm
 from ctapipe.io.hessio import hessio_event_source
 from ctapipe.io.camera import _guess_camera_type
-
+from collections import OrderedDict
 import json
 
 

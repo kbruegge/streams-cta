@@ -31,22 +31,6 @@ def calibrate(event, tel_id):
         return calibrated_samples[0]
 
 
-def fill_camera_info(geom, telescope_type='LST', name='LSTCam'):
-    c = {}
-    c['number_of_pixel'] = len(geom.pix_x)
-    c['pixel_x_positions'] = geom.pix_x.value.tolist()
-    c['pixel_y_positions'] = geom.pix_y.value.tolist()
-    c['pixel_rotation'] = geom.pix_rotation.value
-    c['pixel_type'] = geom.pix_type
-    c['pixel_ids'] = geom.pix_id.tolist()
-    c['pixel_area'] = geom.pix_area.value.tolist()
-    c['camera_rotation'] = geom.cam_rotation.value
-    c['neighbours'] = geom.neighbors
-    c['telescope_type'] = telescope_type
-    c['name'] = name
-    return c
-
-
 @click.command()
 @click.argument('input_file', type=click.Path(exists=True))
 @click.argument('output_file', type=click.Path(exists=False))
