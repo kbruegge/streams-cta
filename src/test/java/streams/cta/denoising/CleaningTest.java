@@ -7,8 +7,11 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import org.junit.Test;
 import stream.Data;
+import stream.Keys;
 import stream.data.DataFactory;
-import streams.cta.cleaning.TwoLevelTimeNeighbor;
+import stream.io.SourceURL;
+import streams.cta.cleaning.TailCut;
+import streams.cta.io.ImageStream;
 import streams.hexmap.CameraGeometry;
 
 import java.io.IOException;
@@ -16,9 +19,11 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * Created by kbruegge on 2/13/17.
@@ -47,9 +52,27 @@ public class CleaningTest {
         Data item = DataFactory.create();
         item.put("images", (Serializable) images);
 
-        TwoLevelTimeNeighbor cl = new TwoLevelTimeNeighbor();
-        cl.levels = new Double[]{2700.0, 2100.0, 2250.0};
+        TailCut cl = new TailCut();
+        cl.levels = new Double[]{10.0, 8.0, 4.5};
         cl.process(item);
-        System.out.println(item);
+    }
+
+
+    @Test
+    public void testStreamWithTailCut() throws Exception {
+        ImageStream s = new ImageStream();
+        s.url = new SourceURL(CameraGeometry.class.getResource("/images.json.gz"));
+        s.init();
+
+        TailCut tc = new TailCut();
+
+
+        Data data = s.read();
+        while (data != null){
+            tc.process(data);
+            data = s.read();
+        }
+
+        s.close();
     }
 }
