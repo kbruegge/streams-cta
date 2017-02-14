@@ -1,5 +1,6 @@
 package streams.cta.io;
 
+import com.google.common.primitives.Ints;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -55,6 +56,9 @@ public class ImageStream extends AbstractStream {
         images.forEach((telId, image) -> {
             data.put(String.format("telescope:%d:raw:photons", telId), image);
         });
+
+        int[] triggeredTelescopeIds = Ints.toArray(images.keySet());
+        data.put("triggered_telescopes:ids", triggeredTelescopeIds);
 
         return data;
     }
