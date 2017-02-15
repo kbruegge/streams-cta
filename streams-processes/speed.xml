@@ -1,0 +1,14 @@
+<application>
+
+
+    <property name="infile" value="otto" />
+
+    <stream id="cta:data" class="streams.cta.io.ImageStream" url="file://src/main/resources.images.gz" />
+
+
+    
+    <process input="cta:data" copies="1">
+               <stream.monitor.DataRate every="100"/>
+    </process>
+    
+</application>
