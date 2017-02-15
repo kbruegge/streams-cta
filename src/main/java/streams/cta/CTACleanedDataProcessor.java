@@ -31,5 +31,5 @@ public abstract class CTACleanedDataProcessor implements Processor{
         return process(input, map);
     }
 
-    public abstract Data process(Data input, HashMap<Integer, Shower> showerPixel);
+    public abstract Data process(Data input, HashMap<Integer, Shower> showers);
 }
