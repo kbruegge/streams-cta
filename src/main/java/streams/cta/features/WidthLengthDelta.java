@@ -13,8 +13,6 @@ import java.util.HashMap;
  * Calculate the Width, Length and Delta from the spacial distribution of shower pixels,
  * by use of the covariance Matrix and its Eigenvalues of it.
  *
- *
- *
  * Created by jbuss and kbruegge on 27.08.15.
  */
 public class WidthLengthDelta extends CTACleanedDataProcessor{
@@ -24,9 +22,9 @@ public class WidthLengthDelta extends CTACleanedDataProcessor{
     public Data process(Data input, HashMap<Integer, Shower> showers) {
 
         showers.forEach((telescopeId, shower) -> {
-            double  size = (double) input.get(String.format("shower:%d:total_photons", telescopeId));
-            double  cogX = (double) input.get(String.format("shower:%d:cog:x", telescopeId));
-            double  cogY = (double) input.get(String.format("shower:%d:cog:y", telescopeId));
+            double  size = (double) input.get("telescope:"+ telescopeId + ":shower:total_photons");
+            double  cogX = (double) input.get("telescope:"+ telescopeId + ":shower:cog:x");
+            double  cogY = (double) input.get("telescope:"+ telescopeId + ":shower:cog:y");
 
 
             // Calculate the weighted Empirical variance along the x and y axis.
@@ -44,11 +42,9 @@ public class WidthLengthDelta extends CTACleanedDataProcessor{
             double width  = Math.sqrt(varianceTrans);
             double delta  = calculateDelta(eig);
 
-            input.put(String.format("shower:%d:length", telescopeId), length);
-            input.put(String.format("shower:%d:width", telescopeId), width);
-            input.put(String.format("shower:%d:delta", telescopeId), delta);
-
-
+            input.put("telescope:" + telescopeId + ":shower:length", length);
+            input.put("telescope:" + telescopeId + ":shower:width", width);
+            input.put("telescope:" + telescopeId + ":shower:delta", delta);
         });
 
 
@@ -87,7 +83,7 @@ public class WidthLengthDelta extends CTACleanedDataProcessor{
 
     /**
      *  calculate the angle between the eigenvector and the camera axis.
-     *  So basicly the angle between the major-axis of the ellipse and the camrera axis.
+     *  So basically the angle between the major-axis of the ellipse and the camrera axis.
      *  This will be written in radians.
      *
      *  @param eig 'Eigenvalue decomposition of the shower distribution'

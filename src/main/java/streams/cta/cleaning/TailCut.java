@@ -42,7 +42,7 @@ public class TailCut extends CTARawDataProcessor {
                 shower.dilate(image, levels[l]);
             }
 
-            input.put(String.format("shower:%d", cameraId), shower);
+            input.put("telescope:" + cameraId + ":shower", shower);
         });
 
         return input;

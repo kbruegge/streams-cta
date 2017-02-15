@@ -10,6 +10,8 @@ import streams.cta.CTATelescope;
 import streams.hexmap.Shower;
 
 /**
+ * Calculate the totals amount of photons in the shower. Some call this parameter 'size"
+ *
  * Created by jebuss, kbruegge on 24.08.15.
  */
 public class Size extends CTACleanedDataProcessor {
@@ -19,7 +21,7 @@ public class Size extends CTACleanedDataProcessor {
 
         showers.forEach((id, shower) ->{
             double size = shower.pixels.stream().mapToDouble(e -> e.weight).sum();
-            input.put(String.format("shower:%d:total_photons", id), size);
+            input.put("telescope:" + id + ":shower:total_photons", size);
         });
 
         return input;
