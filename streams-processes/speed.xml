@@ -14,7 +14,7 @@
     <process input="cta:loop" copies="1">
         <streams.cta.cleaning.TailCut />
         <streams.cta.features.Moments />
-        <stream.monitor.DataRate every="100"/>
+        <stream.monitor.DataRate every="4000"/>
     </process>
     
 </application>
