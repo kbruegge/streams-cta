@@ -51,8 +51,8 @@ public class ImagesReader {
 
     @Test
     public void testStream() throws Exception {
-        ImageStream s = new ImageStream();
-        s.url = new SourceURL(CameraGeometry.class.getResource("/images.json.gz"));
+        ImageStream s = new ImageStream(new SourceURL(ImageStream.class.getResource("/images.json.gz")));
+
         s.init();
 
         Data data = s.read();

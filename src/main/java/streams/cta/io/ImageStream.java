@@ -29,10 +29,7 @@ public class ImageStream extends AbstractStream {
 
     public ImageStream() {
     }
-
-    @Parameter(required = true)
-    public SourceURL url;
-
+    
     private Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
     private static final Type IMAGE_DEF= new TypeToken<Map<Integer, double[]>>() {}.getType();
@@ -41,6 +38,7 @@ public class ImageStream extends AbstractStream {
     @Override
     public void init() throws Exception {
         super.init();
+        System.out.println(url);
         InputStreamReader streamReader = new InputStreamReader(url.openStream(), "UTF-8");
         reader = new JsonReader(streamReader);
         reader.beginArray();
