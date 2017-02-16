@@ -29,29 +29,11 @@ import static org.junit.Assert.assertThat;
  */
 public class ImagesReader {
 
-    private URL images = CameraGeometry.class.getResource("/images.json.gz");
-    private Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-
-    private static final Type IMAGE_DEF= new TypeToken<Map<Integer, double[]>>() {}.getType();
-
-
-    @Test
-    public void readImages() throws IOException {
-        InputStreamReader streamReader = new InputStreamReader(new GZIPInputStream(images.openStream()), "UTF-8");
-        JsonReader reader = new JsonReader(streamReader);
-        reader.beginArray();
-        while (reader.hasNext()) {
-            Map<Integer, double[]> images = gson.fromJson(reader, IMAGE_DEF);
-            assertThat(images.size(), is(not(0)));
-        }
-
-    }
-
-
+    private URL images = ImageStream.class.getResource("/images.json.gz");
 
     @Test
     public void testStream() throws Exception {
-        ImageStream s = new ImageStream(new SourceURL(ImageStream.class.getResource("/images.json.gz")));
+        ImageStream s = new ImageStream(new SourceURL(images));
 
         s.init();
 

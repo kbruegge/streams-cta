@@ -26,13 +26,26 @@ public class ImageStream extends AbstractStream {
     public ImageStream(SourceURL url) {
         super(url);
     }
-
     public ImageStream() {
+    }
+
+
+    private class MC {
+        double energy, alt, az, coreY, coreX;
+    }
+    private class Array {
+        int[] triggeredTelescopes;
+        int numTriggeredTelescopes;
+    }
+    private class Event{
+        Map<Integer, double[]> images;
+        MC mc;
+        Array array;
+        long eventId;
     }
 
     private Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
-    private static final Type IMAGE_DEF = new TypeToken<Map<Integer, double[]>>() {}.getType();
     private JsonReader reader;
 
     @Override
@@ -53,15 +66,14 @@ public class ImageStream extends AbstractStream {
             return null;
         }
 
-        Map<Integer, double[]> images = gson.fromJson(reader, IMAGE_DEF);
+        Event event = gson.fromJson(reader, Event.class);
 
         Data data = DataFactory.create();
-        images.forEach((telId, image) -> {
+        event.images.forEach((telId, image) -> {
             data.put(String.format("telescope:%d:raw:photons", telId), image);
         });
 
-        int[] triggeredTelescopeIds = Ints.toArray(images.keySet());
-        data.put("triggered_telescopes:ids", triggeredTelescopeIds);
+        data.put("triggered_telescopes:ids", event.array.triggeredTelescopes);
 
         return data;
     }
