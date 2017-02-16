@@ -59,51 +59,49 @@ For Mac users the path to the codestyles folder is: ```~/Library/Preferences/Ide
 Afterwards your IDE can e.g. reformat your code to the Code Style suggested there (in IntelliJ: ```Code```-> ```Reformat Code...```).
 
 
-# Streams using Storm
+## Processing on top of distributed frameworks
 As CTA is going to produce a huge stream of data, one need to ensure to have enough machines to process this data.
 Apache Storm is an approach for simple handling of a cluster and deploying tasks (a.k.a topologies) for processing the data.
 
-## Packaging on its own
+Using maven profiles it is possible to package cta-streams for various distributed processing frameworks.
+At the moment following support is enabled:
 
-In order to build and deploy cta-streams package to a local storm installation we need two ``jar`` packages: 
+* Apache Storm using [streams-storm](https://bitbucket.org/cbockermann/streams-storm/)
+* Apache Flink using [streams-flink](https://github.com/alexeyegorov/streams-flink)
+* Apache Spark Streaming using [streams-spark](https://github.com/alexeyegorov/streams-spark)
 
-* one to **transform** the given streams XML into a topology which will be run in ``storm``
+For Flink and Spark the packaging is done using one step:
+
+```bash
+
+mvn -P deploy,{flink,spark} package
+
+```
+
+Deploying to a Storm cluster requires two ``jar`` files:
+
+* one to **transform** the given streams XML into a native distributed job definition
 * another one package will be **deployed to nimbus** node of storm cluster and used later by the workers to run the topology
 
 Thus, we need two lines of code to produce those packages:
 
 ```bash
 # package for deployment
-mvn -P deploy package
+mvn -P deploy,storm package
 
 # package for local start and transformation step
-mvn -P standalone package
+mvn -P standalone,storm package
 ```
 
-The result of such a bash script are two files:
+As a result following ``jar`` files are produced (one for Flink and Spark, two for Storm):
 
 ```bash
+# run locally
+cta-tools-0.0.1-SNAPSHOT-{platform}-compiled.jar 
+
 # does not contain storm, will be deployed
 cta-tools-0.0.1-SNAPSHOT-storm-provided.jar 
-
-# contains storm, run locally
-cta-tools-0.0.1-SNAPSHOT-storm-compiled.jar 
-```
-Afterwards all you need to do is 
-
-```
-java -jar -Dnimbus.host=localhost -Dstorm.jar=target/cta-tools-0.0.1-SNAPSHOT-storm-provided.jar target/cta-tools-0.0.1-SNAPSHOT-storm-compiled.jar streams_process.xml
 ```
 
-``-Dnimbus.host`` is used to define the IP adress of the storm nimbus and ``-Dstorm.jar`` declares the path to the jar package that will be deployed to the storm cluster.
-Jar file containing storm is used to run Storm Topology Builder on your machine and run the transformation and deployment process.
-
-## Using script
-
-As a shortcut there is a script ``packageScriptForDeploy.sh`` in the top level of this repository. It accepts as argument 
-
-* ``deployRun``: package everything and deploy to local storm installation with a provided xml file
-* ``run``: don't package (use existing packages) and just deploy those packages with a provided xml file
-* With no parameter given this script just packages everything and doesn't deploy anything.
 
 
