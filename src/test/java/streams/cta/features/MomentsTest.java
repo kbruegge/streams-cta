@@ -7,7 +7,6 @@ import stream.Data;
 import stream.io.SourceURL;
 import streams.cta.cleaning.TailCut;
 import streams.cta.io.ImageStream;
-import streams.hexmap.CameraGeometry;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -25,8 +24,8 @@ public class MomentsTest {
 
     @Before
     public void setUp() throws Exception {
-        s = new ImageStream();
-        s.url = new SourceURL(CameraGeometry.class.getResource("/images.json.gz"));
+        s = new ImageStream(new SourceURL(ImageStream.class.getResource("/images.json.gz")));
+//        s.url = new SourceURL(CameraGeometry.class.getResource("/images.json.gz"));
         s.init();
 
         tailCut = new TailCut();

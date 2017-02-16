@@ -3,16 +3,15 @@
  */
 package streams.cta.io;
 
-import java.util.ArrayList;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import stream.Data;
 import stream.annotations.Parameter;
 import stream.io.Stream;
 import stream.io.multi.AbstractMultiStream;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Loops over a specified amount of events in the inner streams. If the first stream is emptied
@@ -64,10 +63,5 @@ public class LoopStream extends AbstractMultiStream {
 		Data item = items.get(idx % items.size());
 		idx = (idx + 1) % items.size();
 		return item;
-	}
-
-
-	public void setEvents(int events) {
-		this.events = events;
 	}
 }

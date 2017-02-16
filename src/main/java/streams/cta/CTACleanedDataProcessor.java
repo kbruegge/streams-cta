@@ -1,13 +1,10 @@
 package streams.cta;
 
 import stream.Data;
-import stream.Keys;
 import stream.Processor;
 import streams.hexmap.Shower;
 
-import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Set;
 
 /**
  * Abstract processor class that extracts shower event data from a telescope event and

@@ -6,7 +6,6 @@ import streams.hexmap.CameraMapping;
 import streams.hexmap.Shower;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 /**
  * Test some aspects of the Cog calculations.

@@ -2,9 +2,7 @@ package streams.cta.cleaning;
 
 import stream.Data;
 import stream.annotations.Parameter;
-
 import streams.cta.CTARawDataProcessor;
-
 import streams.hexmap.Shower;
 
 import java.util.Map;

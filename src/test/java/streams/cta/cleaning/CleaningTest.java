@@ -4,7 +4,6 @@ import org.junit.Test;
 import stream.Data;
 import stream.io.SourceURL;
 import streams.cta.io.ImageStream;
-import streams.hexmap.CameraGeometry;
 import streams.hexmap.Shower;
 
 import static org.junit.Assert.assertFalse;
@@ -19,8 +18,7 @@ public class CleaningTest {
 
     @Test
     public void testStreamWithTailCut() throws Exception {
-        ImageStream s = new ImageStream();
-        s.url = new SourceURL(CameraGeometry.class.getResource("/images.json.gz"));
+        ImageStream s = new ImageStream(new SourceURL(ImageStream.class.getResource("/images.json.gz")));
         s.init();
 
         TailCut tc = new TailCut();
@@ -38,8 +36,7 @@ public class CleaningTest {
 
     @Test
     public void testTailCut() throws Exception {
-        ImageStream s = new ImageStream();
-        s.url = new SourceURL(CameraGeometry.class.getResource("/images.json.gz"));
+        ImageStream s = new ImageStream(new SourceURL(ImageStream.class.getResource("/images.json.gz")));
         s.init();
 
         TailCut tc = new TailCut();

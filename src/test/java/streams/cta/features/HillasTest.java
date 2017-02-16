@@ -27,7 +27,7 @@ public class HillasTest {
     @Before
     public void setUp() throws Exception {
         s = new ImageStream();
-        s.url = new SourceURL(CameraGeometry.class.getResource("/images.json.gz"));
+        s.setUrl(new SourceURL(CameraGeometry.class.getResource("/images.json.gz")));
         s.init();
 
         tailCut = new TailCut();

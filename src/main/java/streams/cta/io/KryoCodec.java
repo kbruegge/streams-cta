@@ -3,18 +3,17 @@
  */
 package streams.cta.io;
 
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import stream.Data;
+import stream.data.DataFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-
-import stream.Data;
-import stream.data.DataFactory;
 
 /**
  * This class implements a data item codec using an internal Kryo instance. The
