@@ -7,14 +7,15 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
-import stream.Data;
-import stream.data.DataFactory;
-import stream.io.AbstractStream;
-import stream.io.SourceURL;
 
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.Map;
+
+import stream.Data;
+import stream.data.DataFactory;
+import stream.io.AbstractStream;
+import stream.io.SourceURL;
 
 /**
  * Read images stored into json format as created by the 'convert_raw_data.py' sceript in this repo.
@@ -31,7 +32,7 @@ public class ImageStream extends AbstractStream {
 
     private Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
-    private static final Type IMAGE_DEF= new TypeToken<Map<Integer, double[]>>() {}.getType();
+    private static final Type IMAGE_DEF = new TypeToken<Map<Integer, double[]>>() {}.getType();
     private JsonReader reader;
 
     @Override
@@ -44,13 +45,12 @@ public class ImageStream extends AbstractStream {
     }
 
 
-
     @Override
     public Data readNext() throws Exception {
 
         //check whether the end of the file has been reached
         JsonToken token = reader.peek();
-        if(token == JsonToken.END_ARRAY){
+        if (token == JsonToken.END_ARRAY) {
             return null;
         }
 

@@ -1,67 +1,71 @@
 /**
- * 
+ *
  */
 package streams.cta.io;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Map;
+
 import stream.Data;
 import stream.annotations.Parameter;
 import stream.io.Stream;
 import stream.io.multi.AbstractMultiStream;
 
-import java.util.ArrayList;
-import java.util.Map;
-
 /**
- * Loops over a specified amount of events in the inner streams. If the first stream is emptied
- * the next one is read until the specified number of event sis reached.
+ * Loops over a specified amount of events in the inner streams. If the first stream is emptied the
+ * next one is read until the specified number of event sis reached.
+ *
  * @author chris
  */
 public class LoopStream extends AbstractMultiStream {
 
-	static Logger log = LoggerFactory.getLogger(LoopStream.class);
+    static Logger log = LoggerFactory.getLogger(LoopStream.class);
 
-	private int idx = 0;
+    private int idx = 0;
 
-	@Parameter(description = "How many events you want to loop over." , defaultValue = "100", required = false)
-	int events = 100;
+    @Parameter(description = "How many events you want to loop over.", defaultValue = "100", required = false)
+    int events = 100;
 
 
-	private final ArrayList<Data> items = new ArrayList<>();
-	/**
-	 * @see stream.io.multi.AbstractMultiStream#init()
-	 */
-	@Override
-	public void init() throws Exception {
-		super.init();
+    private final ArrayList<Data> items = new ArrayList<>();
 
-		Map<String, Stream> streams = this.getStreams();
-		log.info("Found {} inner streams", streams.size());
+    /**
+     * @see stream.io.multi.AbstractMultiStream#init()
+     */
+    @Override
+    public void init() throws Exception {
+        super.init();
 
-		for (Stream stream : streams.values()) {
-			stream.init();
-			Data item = stream.read();
-			while (item != null && items.size() < events) {
-				items.add(item);
-				item = stream.read();
-			}
+        Map<String, Stream> streams = this.getStreams();
+        log.info("Found {} inner streams", streams.size());
 
-			if (items.size() >= events) {
-				break;
-			}
-		}
+        for (Stream stream : streams.values()) {
+            stream.init();
+            Data item = stream.read();
+            while (item != null && items.size() < events) {
+                items.add(item);
+                item = stream.read();
+            }
 
-		log.info("Loaded {} events to inner queue.", items.size());
-	}
+            if (items.size() >= events) {
+                break;
+            }
+        }
 
-	/**
-	 * @see stream.io.AbstractStream#readNext()
-	 */
-	@Override
-	public Data readNext() throws Exception {
-		Data item = items.get(idx % items.size());
-		idx = (idx + 1) % items.size();
-		return item;
-	}
+        log.info("Loaded {} events to inner queue.", items.size());
+    }
+
+    /**
+     * @see stream.io.AbstractStream#readNext()
+     */
+    @Override
+    public Data readNext() throws Exception {
+        //TODO: do we have to apply modulo twice here?
+        Data item = items.get(idx % items.size());
+        idx = (idx + 1) % items.size();
+        return item;
+    }
 }

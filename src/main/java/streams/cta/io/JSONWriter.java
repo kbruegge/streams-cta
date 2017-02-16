@@ -2,11 +2,6 @@ package streams.cta.io;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import stream.Data;
-import stream.ProcessContext;
-import stream.StatefulProcessor;
-import stream.annotations.Parameter;
-import stream.data.DataFactory;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -14,6 +9,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
+
+import stream.Data;
+import stream.ProcessContext;
+import stream.StatefulProcessor;
+import stream.annotations.Parameter;
+import stream.data.DataFactory;
 
 /**
  * Writes a file containing a hopefully valid JSON String on each line. Heres a simple Python script
@@ -113,6 +114,7 @@ public class JSONWriter implements StatefulProcessor {
     }
 
 
+    //TODO: remove set/get for keys?
     public String[] getKeys() {
         return keys;
     }
