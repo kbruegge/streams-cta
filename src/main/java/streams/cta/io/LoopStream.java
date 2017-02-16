@@ -65,9 +65,4 @@ public class LoopStream extends AbstractMultiStream {
 		idx = (idx + 1) % items.size();
 		return item;
 	}
-
-
-	public void setEvents(int events) {
-		this.events = events;
-	}
 }
