@@ -7,7 +7,6 @@ import stream.Data;
 import stream.io.SourceURL;
 import streams.cta.cleaning.TailCut;
 import streams.cta.io.ImageStream;
-import streams.cta.io.Names;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

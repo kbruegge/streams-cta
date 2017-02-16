@@ -3,12 +3,11 @@ package streams.cta.features;
 import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
-
-import java.util.HashMap;
-
 import stream.Data;
 import streams.cta.CTACleanedDataProcessor;
 import streams.hexmap.Shower;
+
+import java.util.HashMap;
 
 /**
  * Calculate the Width, Length and Delta from the spacial distribution of shower pixels, by use of

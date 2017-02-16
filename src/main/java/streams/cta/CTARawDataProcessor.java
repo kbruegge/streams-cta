@@ -1,10 +1,10 @@
 package streams.cta;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import stream.Data;
 import stream.Processor;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Abstract processor class that extracts event data, telescope and timestamp information from a

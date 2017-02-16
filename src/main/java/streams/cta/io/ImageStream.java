@@ -5,14 +5,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
-
-import java.io.InputStreamReader;
-import java.util.Map;
-
 import stream.Data;
 import stream.data.DataFactory;
 import stream.io.AbstractStream;
 import stream.io.SourceURL;
+
+import java.io.InputStreamReader;
+import java.util.Map;
 
 /**
  * Read images stored into json format as created by the 'convert_raw_data.py' sceript in this repo.
