@@ -51,14 +51,6 @@ in the EventIO file.
 
 For now check out the xml in the `streams-processes` folder.
 
-## Code Style
-We intend to use [Java Code Style](https://google-styleguide.googlecode.com/svn/trunk/javaguide.html) suggested by google.
-
-In case you're using Java IDE such as IntelliJ or Eclipse you can simply import this style guide by following the simple [instruction](https://github.com/HPI-Information-Systems/Metanome/wiki/Installing-the-google-styleguide-settings-in-intellij-and-eclipse).
-For Mac users the path to the codestyles folder is: ```~/Library/Preferences/IdeaICxx/codestyles```
-Afterwards your IDE can e.g. reformat your code to the Code Style suggested there (in IntelliJ: ```Code```-> ```Reformat Code...```).
-
-
 ## Processing on top of distributed frameworks
 As CTA is going to produce a huge stream of data, one need to ensure to have enough machines to process this data.
 Apache Storm is an approach for simple handling of a cluster and deploying tasks (a.k.a topologies) for processing the data.
@@ -103,5 +95,10 @@ cta-tools-0.0.1-SNAPSHOT-{platform}-compiled.jar
 cta-tools-0.0.1-SNAPSHOT-storm-provided.jar 
 ```
 
+## Code Style
+We intend to use [Java Code Style](https://google-styleguide.googlecode.com/svn/trunk/javaguide.html) suggested by google.
 
+In case you're using Java IDE such as IntelliJ or Eclipse you can simply import this style guide by following the simple [instruction](https://github.com/HPI-Information-Systems/Metanome/wiki/Installing-the-google-styleguide-settings-in-intellij-and-eclipse).
+For Mac users the path to the codestyles folder is: ```~/Library/Preferences/IdeaICxx/codestyles```
+Afterwards your IDE can e.g. reformat your code to the Code Style suggested there (in IntelliJ: ```Code```-> ```Reformat Code...```).
 
