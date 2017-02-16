@@ -16,22 +16,27 @@ To introduce hierarchical semantics the data is stored
 according to the following naming scheme proposal: 
 
 1. For per camera/telescope specific image features
-
+       
+       ```
        telescope:<id>:<feature-group-name>:<feature-name>:*
-   
+       ```
    Some example for the well known hillas parameters
-   
+       
+       ```
        telescope:<id>:shower:width
        telescope:<id>:shower:cog:x
        telescope:<id>:shower:cog:y
-    
+       ```
+
 2. MonteCarlo information that is array wide
-   
-       mc:<mc-value-name>
        
+       ```
+        mc:<mc-value-name>
+       ```
    So for example the true energy could be stored as 
-      
-       mc:primary_energy
+     ```
+     mc:primary_energy
+     ```
        
 More to come soon. Keep in mind that these are currently only proposals. This might change quickly.
 
