@@ -91,20 +91,4 @@ public class DataRate implements StatefulProcessor {
         return input;
     }
 
-
-    public void setEvery(long every) {
-        this.every = every;
-    }
-
-    public void setSilent(boolean silent) {
-        this.silent = silent;
-    }
-
-    public void setOutput(String output) {
-        this.output = output;
-    }
-
-    public void setLogmemory(boolean logmemory) {
-        this.logmemory = logmemory;
-    }
 }
