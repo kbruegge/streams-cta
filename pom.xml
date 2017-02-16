@@ -12,6 +12,8 @@
         <storm.scope>compile</storm.scope>
         <streams.cta.version>1.0.0</streams.cta.version>
         <streams.jar>cta-tools-${project.version}</streams.jar>
+        <mainclass>stream.run</mainclass>
+        <platform>streams</platform>
     </properties>
 
 
@@ -286,11 +288,11 @@
 
             <properties>
                 <storm.scope>compile</storm.scope>
-                <streams.jar>cta-tools-${project.version}-storm-compiled</streams.jar>
+                <streams.jar>cta-tools-${project.version}-${platform}-compiled</streams.jar>
             </properties>
 
             <build>
-                <finalName>streams-storm-${project.version}-storm-compiled</finalName>
+                <finalName>streams-storm-${project.version}-${platform}-compiled</finalName>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -361,11 +363,11 @@
 
             <properties>
                 <storm.scope>provided</storm.scope>
-                <streams.jar>cta-tools-${project.version}-storm-provided</streams.jar>
+                <streams.jar>cta-tools-${project.version}-${platform}-provided</streams.jar>
             </properties>
 
             <build>
-                <finalName>streams-storm-${project.version}-storm-provided</finalName>
+                <finalName>streams-storm-${project.version}-${platform}-provided</finalName>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -452,6 +454,7 @@
 
             <properties>
                 <mainclass>flink.deploy_on_flink</mainclass>
+                <platform>flink</platform>
             </properties>
         </profile>
 
@@ -471,6 +474,7 @@
 
             <properties>
                 <mainclass>spark.deploy_on_spark</mainclass>
+                <platform>spark</platform>
             </properties>
         </profile>
 
@@ -496,17 +500,7 @@
 
             <properties>
                 <mainclass>storm.deploy</mainclass>
-            </properties>
-        </profile>
-
-        <profile>
-            <!--
-            use this to package with streams-runtime and set the mainclass to stream.run
-            -->
-            <id>streams</id>
-
-            <properties>
-                <mainclass>stream.run</mainclass>
+                <platform>storm</platform>
             </properties>
         </profile>
 
