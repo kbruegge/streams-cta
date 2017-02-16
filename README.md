@@ -1,4 +1,4 @@
-# streams-cta
+# streams-cta  [![Build Status](https://travis-ci.org/mackaiver/streams-cta.svg?branch=master)](https://travis-ci.org/mackaiver/streams-cta)
 
 The realtime analysis of the data from the CTA arrays poses interesting challenges to the design of a proper execution environment, that is capable of performing the required steps of data calibration, image cleaning and alert detection.
 
