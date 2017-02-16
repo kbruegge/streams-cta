@@ -114,6 +114,7 @@ public class JSONWriter implements StatefulProcessor {
     }
 
 
+    //TODO: remove set/get for keys?
     public String[] getKeys() {
         return keys;
     }

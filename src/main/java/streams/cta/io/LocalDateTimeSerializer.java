@@ -1,19 +1,19 @@
 package streams.cta.io;
 
 
-
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.esotericsoftware.kryo.Serializer;
 
 import java.time.LocalDateTime;
 
 
-
 public class LocalDateTimeSerializer extends Serializer<LocalDateTime> {
 
-    public LocalDateTimeSerializer() { setImmutable(true); }
+    public LocalDateTimeSerializer() {
+        setImmutable(true);
+    }
 
     @Override
     public LocalDateTime read(Kryo kryo, Input input, Class<LocalDateTime> type) {

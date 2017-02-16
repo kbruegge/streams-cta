@@ -27,7 +27,7 @@ public class KryoStream extends AbstractStream {
 
     static Logger log = LoggerFactory.getLogger(KryoStream.class);
 
-    public KryoStream(){}
+    public KryoStream() {}
 
     public KryoStream(SourceURL url) {
         super(url);

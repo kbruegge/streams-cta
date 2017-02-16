@@ -5,23 +5,49 @@ The realtime analysis of the data from the CTA arrays poses interesting challeng
 With the **streams-cta** project we investigate the use of highly scalable platforms, such as [Apache Storm](http://storm.apache.org/) and [Apache Kafka](http://kafka.apache.org/), that recently have been published by the computer science community to tackle Big Data analysis requirements. Based on the intermediate streams framework, which serves as a middle-layer design tool, we test different implementations and platforms for their performance and scalability.
 
 
+### Data Structure
 
+The input to the realtime analysis (RTA) are calibrated CTA Array events.
+These are the static images (given in estimated number of photons per camera pixel) from each telescope that triggered during the event.
+Each telescopes data is stored as a simple array of doubles.  
+Each telescope has a unique id. Starting at 1 and counting upwards.
+Image features are calculated for each camera separately. 
+To introduce hierarchical semantics the data is stored 
+according to the following naming scheme proposal: 
+
+1. For per camera/telescope specific image features
+
+       telescope:<id>:<feature-group-name>:<feature-name>:*
+   
+   Some example for the well known hillas parameters
+   
+       telescope:<id>:shower:width
+       telescope:<id>:shower:cog:x
+       telescope:<id>:shower:cog:y
+    
+2. MonteCarlo information that is array wide
+   
+       mc:<mc-value-name>
+       
+   So for example the true energy could be stored as 
+      
+       mc:primary_energy
+       
+More to come soon. Keep in mind that these are currently only proposals. This might change quickly.
+
+### Input Data
+
+The input to this program are note EventIO files but already calibrated events. These
+can be produced from any EventIO file using the `convert_raw_data.py` script in the python
+folder. It will create a gzipped json file containing the calibrated images for all the events
+in the EventIO file.
 
 ### Usage
 
-You can read in .kryo files.
-
-## EventIO files
-
-Three different eventio files can be downloaded from SFB876 homepage and used for testing purposes (please, contact us, if you are interested in more details and do not have login for SFB876):
-
-* [small (~780 mb)](http://sfb876.tu-dortmund.de/auto?self=$eg7ezym8sg)
-* [medium (~1.9 Gb)](http://sfb876.tu-dortmund.de/auto?self=$eg7fcd8vsw)
-* [large (~3.1 Gb)](http://sfb876.tu-dortmund.de/auto?self=$eg7gpm8000)
+For now check out the xml in the `streams-processes` folder.
 
 ## Code Style
-
-For this project we intend to use [Java Code Style](https://google-styleguide.googlecode.com/svn/trunk/javaguide.html) suggested by google.
+We intend to use [Java Code Style](https://google-styleguide.googlecode.com/svn/trunk/javaguide.html) suggested by google.
 
 In case you're using Java IDE such as IntelliJ or Eclipse you can simply import this style guide by following the simple [instruction](https://github.com/HPI-Information-Systems/Metanome/wiki/Installing-the-google-styleguide-settings-in-intellij-and-eclipse).
 For Mac users the path to the codestyles folder is: ```~/Library/Preferences/IdeaICxx/codestyles```

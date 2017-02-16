@@ -1,32 +1,36 @@
 package streams.cta;
 
 import stream.Data;
-import stream.annotations.Parameter;
-import streams.hexmap.CameraPixel;
+import stream.Processor;
+import streams.hexmap.Shower;
 
-import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.util.HashMap;
 
 /**
- * Created by jebuss on 24.08.15.
+ * Abstract processor class that extracts shower event data from a telescope event and
+ * calls process method with those extracted values. New processors can implement new processors
+ * based on this one using a process method with already extracted values.
+ *
+ * Created by kbruegge on 14.2.17.
  */
-public abstract class CTACleanedDataProcessor extends CTAExtractedDataProcessor {
-
-
-    @Parameter(description = "The key under which to find the cleaned data in the data item.", required = false,
-            defaultValue = "cleanedData")
-    private String eventKey = "cleanedData";
-
+public abstract class CTACleanedDataProcessor implements Processor{
 
     @Override
-    public Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, double[] photons, double[] arrivalTimes) {
-        HashSet<CameraPixel> showerPixel = (HashSet<CameraPixel> ) input.get("shower");
+    public Data process(Data input) {
 
-        if (showerPixel != null) {
-            return process(input, telescope, timeStamp, photons, arrivalTimes, showerPixel);
+        HashMap<Integer, Shower> map = new HashMap<>();
+
+        int[] triggeredTelescopes = (int[]) input.get("triggered_telescopes:ids");
+
+        for(int id : triggeredTelescopes){
+            String key = "telescope:" + id +  ":shower";
+            if (input.get(key) != null) {
+                Shower shower = (Shower) input.get(key);
+                map.put(id, shower);
+            }
         }
-        return null;
+        return process(input, map);
     }
 
-    public abstract Data process(Data input, CTATelescope telescope, LocalDateTime timeStamp, double[] photons, double[] arrivalTimes, HashSet<CameraPixel> showerPixel);
+    public abstract Data process(Data input, HashMap<Integer, Shower> showers);
 }

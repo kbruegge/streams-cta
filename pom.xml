@@ -12,6 +12,8 @@
         <storm.scope>compile</storm.scope>
         <streams.cta.version>1.0.0</streams.cta.version>
         <streams.jar>cta-tools-${project.version}</streams.jar>
+        <mainclass>stream.run</mainclass>
+        <platform>streams</platform>
     </properties>
 
 
@@ -69,6 +71,15 @@
         </mailingList>
     </mailingLists>
 
+    <!-- For some repositories such as streams-kafka only snapshots are available right now. -->
+    <repositories>
+        <repository>
+            <id>sonatype-snapshots</id>
+            <name>sonatype Snapshot Repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
 
         <dependency>
@@ -108,12 +119,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.zeromq</groupId>
-            <artifactId>jeromq</artifactId>
-            <version>0.3.5</version>
-        </dependency>
-
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.10</version>
@@ -139,13 +144,6 @@
             <artifactId>kryo-shaded</artifactId>
             <version>3.0.3</version>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>de.sfb876</groupId>-->
-            <!--<artifactId>streams-kafka</artifactId>-->
-            <!--<version>[0.0.2-SNAPSHOT,)</version>-->
-        <!--</dependency>-->
-
 
         <dependency>
         	<groupId>de.sfb876</groupId>
@@ -274,22 +272,6 @@
     <profiles>
         <profile>
             <!--
-            Import streams-storm from a local repository.
-            -->
-            <id>streams-storm-local</id>
-            <activation>
-                <property>
-                    <name>standalone</name>
-                    <value>true</value>
-                </property>
-            </activation>
-
-            <properties>
-                <artifactid-streams-storm>streams-storm-local</artifactid-streams-storm>
-            </properties>
-        </profile>
-        <profile>
-            <!--
             This profile can be used to produce JAR file that can be used to run locally and
             transform streams XML configuration into a valid storm topology.
             It contains 'storm' itself to run StormSubmitter.
@@ -306,11 +288,11 @@
 
             <properties>
                 <storm.scope>compile</storm.scope>
-                <streams.jar>cta-tools-${project.version}-storm-compiled</streams.jar>
+                <streams.jar>cta-tools-${project.version}-${platform}-compiled</streams.jar>
             </properties>
 
             <build>
-                <finalName>streams-storm-${project.version}-storm-compiled</finalName>
+                <finalName>streams-storm-${project.version}-${platform}-compiled</finalName>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -381,11 +363,11 @@
 
             <properties>
                 <storm.scope>provided</storm.scope>
-                <streams.jar>cta-tools-${project.version}-storm-provided</streams.jar>
+                <streams.jar>cta-tools-${project.version}-${platform}-provided</streams.jar>
             </properties>
 
             <build>
-                <finalName>streams-storm-${project.version}-storm-provided</finalName>
+                <finalName>streams-storm-${project.version}-${platform}-provided</finalName>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -439,5 +421,104 @@
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <!--
+            use this to package with streams-flink and set the mainclass to flink.deploy_on_flink
+            -->
+            <id>kafka</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>de.sfb876</groupId>
+                    <artifactId>streams-kafka</artifactId>
+                    <version>[0.0.2-SNAPSHOT,)</version>
+                </dependency>
+            </dependencies>
+
+        </profile>
+
+        <profile>
+            <!--
+            use this to package with streams-flink and set the mainclass to flink.deploy_on_flink
+            -->
+            <id>flink</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>de.sfb876</groupId>
+                    <artifactId>streams-flink</artifactId>
+                    <version>${streams.cta.version}</version>
+                </dependency>
+            </dependencies>
+
+            <properties>
+                <mainclass>flink.deploy_on_flink</mainclass>
+                <platform>flink</platform>
+            </properties>
+        </profile>
+
+        <profile>
+            <!--
+            use this to package with streams-spark and set the mainclass to spark.deploy_on_spark
+            -->
+            <id>spark</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>de.sfb876</groupId>
+                    <artifactId>streams-spark</artifactId>
+                    <version>${streams.cta.version}</version>
+                </dependency>
+            </dependencies>
+
+            <properties>
+                <mainclass>spark.deploy_on_spark</mainclass>
+                <platform>spark</platform>
+            </properties>
+        </profile>
+
+        <profile>
+            <!--
+            use this to package with streams-storm and set the mainclass to storm.deploy
+            -->
+            <id>storm</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>de.sfb876</groupId>
+                    <artifactId>streams-storm</artifactId>
+                    <version>[0.9.20,)</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>*</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+
+            <properties>
+                <mainclass>storm.deploy</mainclass>
+                <platform>storm</platform>
+            </properties>
+        </profile>
+
+        <profile>
+            <!--
+            use this to add the performance package and measure performance of the processes
+            -->
+            <id>performance</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>de.sfb876</groupId>
+                    <artifactId>streams-performance</artifactId>
+                    <version>${streams.cta.version}</version>
+                </dependency>
+            </dependencies>
+
+        </profile>
     </profiles>
+
 </project>
