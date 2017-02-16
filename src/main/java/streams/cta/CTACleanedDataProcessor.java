@@ -1,13 +1,10 @@
 package streams.cta;
 
 import stream.Data;
-import stream.Keys;
 import stream.Processor;
 import streams.hexmap.Shower;
 
-import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Set;
 
 /**
  * Created by kbruegge on 14.2.17.

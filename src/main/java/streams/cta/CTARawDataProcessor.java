@@ -1,16 +1,10 @@
 package streams.cta;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
+import stream.Data;
+import stream.Processor;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-
-import stream.Data;
-import stream.Keys;
-import stream.Processor;
-import stream.annotations.Parameter;
-import streams.hexmap.Shower;
 
 /**
  * Abstract processor class that extracts event data, telescope and timestamp information from a

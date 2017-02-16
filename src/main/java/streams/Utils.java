@@ -1,12 +1,6 @@
 package streams;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
-import java.util.ArrayList;
-
-import stream.Data;
 
 /**
  * @author Kai Bruegge &lt;kai.bruegge@tu-dortmund.de&gt;

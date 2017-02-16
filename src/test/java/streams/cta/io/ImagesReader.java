@@ -9,15 +9,12 @@ import org.junit.Test;
 import stream.Data;
 import stream.Keys;
 import stream.io.SourceURL;
-import stream.io.Stream;
 import streams.hexmap.CameraGeometry;
-import sun.jvm.hotspot.utilities.Assert;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.net.URL;
-
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 

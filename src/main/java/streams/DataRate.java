@@ -1,17 +1,15 @@
 package streams;
 
 import com.google.common.base.Stopwatch;
-
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.TimeUnit;
-
 import stream.Data;
 import stream.ProcessContext;
 import stream.StatefulProcessor;
 import stream.annotations.Parameter;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * DataRate counts number of items processed per second. Additionally it can log memory (free,
