@@ -68,7 +68,7 @@ def main(input_file, output_file):
     specified by OUTPUT_FILE argument.
     '''
 
-    source = hessio_event_source(input_file, max_events=20)
+    source = hessio_event_source(input_file)
     data = []
     event_id = 0
     for event in tqdm(source):
