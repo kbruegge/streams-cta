@@ -1,16 +1,10 @@
 package streams.cta;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import stream.Data;
-import stream.Keys;
 import stream.Processor;
-import stream.annotations.Parameter;
-import streams.hexmap.Shower;
 
 /**
  * Abstract processor class that extracts event data, telescope and timestamp information from a
@@ -26,7 +20,7 @@ public abstract class CTARawDataProcessor implements Processor {
 
         int[] triggeredTelescopes = (int[]) input.get("triggered_telescopes:ids");
         HashMap<Integer, double[]> map = new HashMap<>();
-        for (int i : triggeredTelescopes){
+        for (int i : triggeredTelescopes) {
             double[] image = (double[]) input.get("telescope:" + i + ":raw:photons");
             map.put(i, image);
         }
