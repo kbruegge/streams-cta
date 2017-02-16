@@ -69,6 +69,15 @@
         </mailingList>
     </mailingLists>
 
+    <!-- For some repositories such as streams-kafka only snapshots are available right now. -->
+    <repositories>
+        <repository>
+            <id>sonatype-snapshots</id>
+            <name>sonatype Snapshot Repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
 
         <dependency>
@@ -410,5 +419,112 @@
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <!--
+            use this to package with streams-flink and set the mainclass to flink.deploy_on_flink
+            -->
+            <id>kafka</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>de.sfb876</groupId>
+                    <artifactId>streams-kafka</artifactId>
+                    <version>[0.0.2-SNAPSHOT,)</version>
+                </dependency>
+            </dependencies>
+
+        </profile>
+
+        <profile>
+            <!--
+            use this to package with streams-flink and set the mainclass to flink.deploy_on_flink
+            -->
+            <id>flink</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>de.sfb876</groupId>
+                    <artifactId>streams-flink</artifactId>
+                    <version>${streams.cta.version}</version>
+                </dependency>
+            </dependencies>
+
+            <properties>
+                <mainclass>flink.deploy_on_flink</mainclass>
+            </properties>
+        </profile>
+
+        <profile>
+            <!--
+            use this to package with streams-spark and set the mainclass to spark.deploy_on_spark
+            -->
+            <id>spark</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>de.sfb876</groupId>
+                    <artifactId>streams-spark</artifactId>
+                    <version>${streams.cta.version}</version>
+                </dependency>
+            </dependencies>
+
+            <properties>
+                <mainclass>spark.deploy_on_spark</mainclass>
+            </properties>
+        </profile>
+
+        <profile>
+            <!--
+            use this to package with streams-storm and set the mainclass to storm.deploy
+            -->
+            <id>storm</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>de.sfb876</groupId>
+                    <artifactId>streams-storm</artifactId>
+                    <version>[0.9.20,)</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>*</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+
+            <properties>
+                <mainclass>storm.deploy</mainclass>
+            </properties>
+        </profile>
+
+        <profile>
+            <!--
+            use this to package with streams-runtime and set the mainclass to stream.run
+            -->
+            <id>streams</id>
+
+            <properties>
+                <mainclass>stream.run</mainclass>
+            </properties>
+        </profile>
+
+        <profile>
+            <!--
+            use this to add the performance package and measure performance of the processes
+            -->
+            <id>performance</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>de.sfb876</groupId>
+                    <artifactId>streams-performance</artifactId>
+                    <version>${streams.cta.version}</version>
+                </dependency>
+            </dependencies>
+
+        </profile>
     </profiles>
+
 </project>
