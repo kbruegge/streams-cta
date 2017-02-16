@@ -1,7 +1,5 @@
 package streams.cta.io;
 
-import com.google.common.primitives.Ints;
-import com.google.common.reflect.TypeToken;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -9,7 +7,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.util.Map;
 
 import stream.Data;
@@ -73,7 +70,16 @@ public class ImageStream extends AbstractStream {
             data.put(String.format("telescope:%d:raw:photons", telId), image);
         });
 
-        data.put("triggered_telescopes:ids", event.array.triggeredTelescopes);
+        data.put("array:triggered_telescopes", event.array.triggeredTelescopes);
+        data.put("array:num_triggered_telescopes", event.array.numTriggeredTelescopes);
+
+        data.put("mc:alt", event.mc.alt);
+        data.put("mc:az", event.mc.az);
+        data.put("mc:core_x", event.mc.coreX);
+        data.put("mc:core_y", event.mc.coreY);
+        data.put("mc:energy", event.mc.energy);
+
+        data.put("event_id", event.eventId);
 
         return data;
     }

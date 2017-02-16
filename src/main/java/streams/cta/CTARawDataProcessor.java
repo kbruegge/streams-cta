@@ -18,7 +18,7 @@ public abstract class CTARawDataProcessor implements Processor {
     @Override
     public Data process(Data input) {
 
-        int[] triggeredTelescopes = (int[]) input.get("triggered_telescopes:ids");
+        int[] triggeredTelescopes = (int[]) input.get("array:triggered_telescopes");
         HashMap<Integer, double[]> map = new HashMap<>();
         for (int i : triggeredTelescopes) {
             double[] image = (double[]) input.get("telescope:" + i + ":raw:photons");
