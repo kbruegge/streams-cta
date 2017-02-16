@@ -3,16 +3,18 @@ package streams.cta.io;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.Input;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import stream.Data;
-import stream.data.DataFactory;
-import stream.io.AbstractStream;
-import stream.io.SourceURL;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+
+import stream.Data;
+import stream.data.DataFactory;
+import stream.io.AbstractStream;
+import stream.io.SourceURL;
 
 /**
  * KryoStream creates a stream out of an <a href="https://github.com/EsotericSoftware/kryo">Kryo</a>
@@ -25,7 +27,7 @@ public class KryoStream extends AbstractStream {
 
     static Logger log = LoggerFactory.getLogger(KryoStream.class);
 
-    public KryoStream(){}
+    public KryoStream() {}
 
     public KryoStream(SourceURL url) {
         super(url);

@@ -9,10 +9,11 @@ import com.esotericsoftware.kryo.io.Output;
 import java.time.LocalDateTime;
 
 
-
 public class LocalDateTimeSerializer extends Serializer<LocalDateTime> {
 
-    public LocalDateTimeSerializer() { setImmutable(true); }
+    public LocalDateTimeSerializer() {
+        setImmutable(true);
+    }
 
     @Override
     public LocalDateTime read(Kryo kryo, Input input, Class<LocalDateTime> type) {

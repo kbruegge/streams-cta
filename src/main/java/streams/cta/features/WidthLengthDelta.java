@@ -3,28 +3,29 @@ package streams.cta.features;
 import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
+
+import java.util.HashMap;
+
 import stream.Data;
 import streams.cta.CTACleanedDataProcessor;
 import streams.hexmap.Shower;
 
-import java.util.HashMap;
-
 /**
- * Calculate the Width, Length and Delta from the spacial distribution of shower pixels,
- * by use of the covariance Matrix and its Eigenvalues of it.
+ * Calculate the Width, Length and Delta from the spacial distribution of shower pixels, by use of
+ * the covariance Matrix and its Eigenvalues of it.
  *
  * Created by jbuss and kbruegge on 27.08.15.
  */
-public class WidthLengthDelta extends CTACleanedDataProcessor{
+public class WidthLengthDelta extends CTACleanedDataProcessor {
 
 
     @Override
     public Data process(Data input, HashMap<Integer, Shower> showers) {
 
         showers.forEach((telescopeId, shower) -> {
-            double  size = (double) input.get("telescope:"+ telescopeId + ":shower:total_photons");
-            double  cogX = (double) input.get("telescope:"+ telescopeId + ":shower:cog:x");
-            double  cogY = (double) input.get("telescope:"+ telescopeId + ":shower:cog:y");
+            double size = (double) input.get("telescope:" + telescopeId + ":shower:total_photons");
+            double cogX = (double) input.get("telescope:" + telescopeId + ":shower:cog:x");
+            double cogY = (double) input.get("telescope:" + telescopeId + ":shower:cog:y");
 
 
             // Calculate the weighted Empirical variance along the x and y axis.
@@ -39,8 +40,8 @@ public class WidthLengthDelta extends CTACleanedDataProcessor{
             double varianceTrans = eig.getRealEigenvalue(1) / size;
 
             double length = Math.sqrt(varianceLong);
-            double width  = Math.sqrt(varianceTrans);
-            double delta  = calculateDelta(eig);
+            double width = Math.sqrt(varianceTrans);
+            double delta = calculateDelta(eig);
 
             input.put("telescope:" + telescopeId + ":shower:length", length);
             input.put("telescope:" + telescopeId + ":shower:width", width);
@@ -55,8 +56,8 @@ public class WidthLengthDelta extends CTACleanedDataProcessor{
      * calculate the covariance Matrix of the shower distribution.
      *
      * @param shower the shower to calculate the covariance for
-     * @param cogX the x coordinate of the showers center of gravity
-     * @param cogY the y coordinate of the center of grtavity
+     * @param cogX   the x coordinate of the showers center of gravity
+     * @param cogY   the y coordinate of the center of grtavity
      * @return the covariance matrix weighted by the individual pixel weights
      */
     private RealMatrix calculateCovarianceMatrix(Shower shower, double cogX, double cogY) {
@@ -76,18 +77,17 @@ public class WidthLengthDelta extends CTACleanedDataProcessor{
 
         }
 
-        double[][] matrixData = { { variance_xx, covariance_xy },
-                { covariance_xy, variance_yy } };
+        double[][] matrixData = {{variance_xx, covariance_xy},
+                {covariance_xy, variance_yy}};
         return MatrixUtils.createRealMatrix(matrixData);
     }
 
     /**
-     *  calculate the angle between the eigenvector and the camera axis.
-     *  So basically the angle between the major-axis of the ellipse and the camrera axis.
-     *  This will be written in radians.
+     * calculate the angle between the eigenvector and the camera axis. So basically the angle
+     * between the major-axis of the ellipse and the camrera axis. This will be written in radians.
      *
-     *  @param eig 'Eigenvalue decomposition of the shower distribution'
-     *  @return (double) delta 'rotation angle of the shower'
+     * @param eig 'Eigenvalue decomposition of the shower distribution'
+     * @return (double) delta 'rotation angle of the shower'
      */
     private double calculateDelta(EigenDecomposition eig) {
 
