@@ -16,6 +16,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * This class is a singleton providing access to geometrical camera descriptions (aka CameraGeometry objects)
+ * by the specified telescope/camera id. These ids and camera descroptions are defined in the
+ * json files stored in the resources folder : 'cta_array_definition.json' and 'cta_camera_definition.json'.
+ *
  * Created by kbruegge on 2/13/17.
  */
 public class CameraMapping {

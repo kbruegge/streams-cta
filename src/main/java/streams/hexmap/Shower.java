@@ -6,9 +6,14 @@ import java.io.Serializable;
 import java.util.HashSet;
 
 /**
- * This describes the stuff a pixel to be drawn on the  must have. This should be subclassed if you need
- * more information in each pixel
- * Created by kaibrugge on 23.04.14.
+ * This class holds information about the shower. The set of selected signal pixels from the telescopes
+ * image. The pixel class holds all required information to perform simple geometric algorithms
+ * on the signal. Like the Hillas parameters for example. Each signal pixel also holds the Ids of its
+ * neighbouring pixels. This is useful for dilating the shower.
+ *
+ * TODO: still missing is a lot of documentation
+ *
+ * Created by kaibrugge on 13.02.17.
  */
 public class Shower implements Serializable {
 

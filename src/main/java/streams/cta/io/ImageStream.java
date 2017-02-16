@@ -23,6 +23,13 @@ import java.util.Map;
  */
 public class ImageStream extends AbstractStream {
 
+    public ImageStream(SourceURL url) {
+        super(url);
+    }
+
+    public ImageStream() {
+    }
+
     @Parameter(required = true)
     public SourceURL url;
 
