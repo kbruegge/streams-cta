@@ -37,7 +37,6 @@ public class ImageStream extends AbstractStream {
     @Override
     public void init() throws Exception {
         super.init();
-        System.out.println(url);
         InputStreamReader streamReader = new InputStreamReader(url.openStream(), "UTF-8");
         reader = new JsonReader(streamReader);
         reader.beginArray();
