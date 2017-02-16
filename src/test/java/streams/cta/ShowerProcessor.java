@@ -12,6 +12,7 @@ import static org.junit.Assert.*;
 import static streams.cta.io.Names.TRIGGERED_TELESCOPE_IDS;
 
 /**
+ * Test whether the showerprocessor finds the right data in the event item.
  * Created by kbruegge on 2/15/17.
  */
 public class ShowerProcessor {
