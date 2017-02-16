@@ -4,7 +4,6 @@ import org.junit.Test;
 import stream.Data;
 import stream.io.SourceURL;
 import streams.cta.io.ImageStream;
-import streams.hexmap.CameraGeometry;
 import streams.hexmap.Shower;
 
 import static org.junit.Assert.assertFalse;

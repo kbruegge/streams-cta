@@ -8,7 +8,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import stream.Data;
-import stream.annotations.Parameter;
 import stream.data.DataFactory;
 import stream.io.AbstractStream;
 import stream.io.SourceURL;
@@ -29,7 +28,7 @@ public class ImageStream extends AbstractStream {
 
     public ImageStream() {
     }
-    
+
     private Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
     private static final Type IMAGE_DEF= new TypeToken<Map<Integer, double[]>>() {}.getType();

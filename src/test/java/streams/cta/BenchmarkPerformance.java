@@ -5,18 +5,14 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-
 import stream.Data;
 import stream.io.SourceURL;
 import streams.cta.cleaning.TailCut;
 import streams.cta.features.Moments;
 import streams.cta.io.ImageStream;
 import streams.cta.io.LoopStream;
-import streams.hexmap.CameraGeometry;
 
 import java.net.URL;
-
-import static org.openjdk.jmh.annotations.Mode.Throughput;
 
 /**
  * Bencvhmark a simple process calculating hillas parameter
