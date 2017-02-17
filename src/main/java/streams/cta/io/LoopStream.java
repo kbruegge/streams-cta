@@ -65,6 +65,6 @@ public class LoopStream extends AbstractMultiStream {
         //TODO: do we have to apply modulo twice here?
         Data item = items.get(idx % items.size());
         idx = (idx + 1) % items.size();
-        return item;
+        return item.createCopy();
     }
 }

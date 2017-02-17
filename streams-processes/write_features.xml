@@ -12,19 +12,19 @@
     <Queue id="flat_stream" />
     
     <process input="cta:loop" copies="1">
-        <stream.flow.Delay time="100ms" />
+        <!--<stream.flow.Delay time="100ms" />-->
         <streams.cta.cleaning.TailCut />
         <streams.cta.features.Moments />
 
-        <RemoveKeys keys="telescope:*:raw*" />
+        <RemoveKeys keys="telescope:*:raw*,telescope:*:shower" />
 
         <streams.Flatten queue="flat_stream"/>
-        <streams.DataRate every="50"/>
+        <streams.DataRate every="4000"/>
     </process>
 
 
     <process input="flat_stream" copies="1">
-        <streams.cta.io.CSVWriter keys="shower:*" url="file:test.csv"/>
+        <streams.cta.io.CSVWriter keys="shower:*,*num_trigge*" url="file:test.csv"/>
     </process>
 
     

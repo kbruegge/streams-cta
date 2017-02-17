@@ -1,7 +1,5 @@
 package streams.cta.io;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Output;
 import com.google.common.base.Joiner;
 import stream.Data;
 import stream.Keys;
@@ -11,17 +9,15 @@ import stream.annotations.Parameter;
 import stream.io.SourceURL;
 
 import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * KryoWriter writes DataItem as an Kryo object to a given file.
+ * CSVWriter writes out the values for the given keys to a csv file.
+ * The first line of the CSV file is a header. Its started by a  '#' and
+ * followed by the names of the keys found in the data item.
  *
  * @author kai
  */
@@ -35,9 +31,9 @@ public class CSVWriter implements StatefulProcessor {
     Keys keys;
 
 
-    boolean headerWritten = false;
+    private boolean headerWritten = false;
     private PrintWriter writer;
-    String seperator = ",";
+    private String seperator = ",";
 
 
     @Override
@@ -71,7 +67,7 @@ public class CSVWriter implements StatefulProcessor {
                                           .map(String::valueOf)
                                           .collect(Collectors.toList());
 
-        String joinedValues = Joiner.on(",").join(values);
+        String joinedValues = Joiner.on(seperator).join(values);
         writer.println(joinedValues);
 
         return data;
