@@ -20,7 +20,7 @@ public abstract class CTACleanedDataProcessor implements Processor{
 
         HashMap<Integer, Shower> map = new HashMap<>();
 
-        int[] triggeredTelescopes = (int[]) input.get("triggered_telescopes:ids");
+        int[] triggeredTelescopes = (int[]) input.get("array:triggered_telescopes");
 
         for(int id : triggeredTelescopes){
             String key = "telescope:" + id +  ":shower";

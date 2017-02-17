@@ -1,17 +1,12 @@
 package streams.cta.features;
 
-import java.util.HashMap;
-
 import stream.Data;
 import streams.cta.CTACleanedDataProcessor;
 import streams.hexmap.Shower;
 
-import static java.lang.Math.abs;
-import static java.lang.Math.atan;
-import static java.lang.Math.atan2;
-import static java.lang.Math.min;
-import static java.lang.Math.pow;
-import static java.lang.Math.sqrt;
+import java.util.HashMap;
+
+import static java.lang.Math.*;
 
 /**
  * This will be a basic translation of the code found in ctapipe. Some reference is in here:

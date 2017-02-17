@@ -46,7 +46,7 @@ public class CleaningTest {
         tc.process(data);
 
         //test that the shower objects are in the data item.
-        int[]  tels = (int[]) data.get("triggered_telescopes:ids");
+        int[]  tels = (int[]) data.get("array:triggered_telescopes");
         for(int id : tels){
             assertTrue("data item does not contain shower", data.containsKey("telescope:" + id + ":shower"));
 
