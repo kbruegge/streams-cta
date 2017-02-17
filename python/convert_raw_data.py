@@ -61,14 +61,21 @@ def fill_images_dict(event):
 @click.command()
 @click.argument('input_file', type=click.Path(exists=True))
 @click.argument('output_file', type=click.Path(exists=False))
-def main(input_file, output_file):
+@click.option('--limit', default=100, help='number of events to convert from the file.'
+                                           'If a negative value is given, the whole file'
+                                           'will be read')
+def main(input_file, output_file, limit):
     '''
     The INPUT_FILE argument specifies the path to a simtel file. This script reads the
     camera definitions from there and puts them into a json file
     specified by OUTPUT_FILE argument.
     '''
 
-    source = hessio_event_source(input_file)
+    if limit > 0:
+        source = hessio_event_source(input_file, max_events=limit)
+    else:
+        source = hessio_event_source(input_file)
+
     data = []
     event_id = 0
     for event in tqdm(source):
