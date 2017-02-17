@@ -26,18 +26,33 @@ public class ImageStream extends AbstractStream {
     }
 
 
-    private class MC {
-        double energy, alt, az, coreY, coreX;
-    }
-    private class Array {
-        int[] triggeredTelescopes;
-        int numTriggeredTelescopes;
-    }
+    /**
+     * One CTA event contains MC information, Array information and of course the images
+     * for each camera.
+     * The classes below mirror the structure of the JSON file which contains the CTA events.
+     * By using this intermediat class structure we can simplify the reading of the json to one
+     * songle line. Because GSON is pretty nice.
+     */
     private class Event{
         Map<Integer, double[]> images;
         MC mc;
         Array array;
         long eventId;
+    }
+    /**
+     * Calibrated CTA Events. First up is the Monte-Carlo data.
+     */
+    private class MC {
+        double energy, alt, az, coreY, coreX;
+    }
+    /**
+     * Information about the event which is not specific to one single camera but to
+     * the whole array at once. At some point this shoudl include a Timestamp I suppose.
+     * The CTA monte-carlo does not have unique ids or timestamps from what I can see.
+     */
+    private class Array {
+        int[] triggeredTelescopes;
+        int numTriggeredTelescopes;
     }
 
     private Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
