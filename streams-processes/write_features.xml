@@ -1,30 +1,25 @@
 <application>
 
 
-    <property name="infile" value="otto" />
+    <property name="infile" value="file:/Users/kbruegge/cta_raw_data/protons.json.gz" />
 
-    <stream id="cta:loop" class="streams.cta.io.LoopStream" >
-
-        <stream id="cta:data" class="streams.cta.io.ImageStream" url="file:src/main/resources/images.json.gz" />
-
-    </stream>
+    <stream id="cta:data" class="streams.cta.io.ImageStream" url="${infile}" />
 
     <Queue id="flat_stream" />
     
-    <process input="cta:loop" copies="1">
-        <!--<stream.flow.Delay time="100ms" />-->
+    <process input="cta:data" copies="1">
         <streams.cta.cleaning.TailCut />
         <streams.cta.features.Moments />
 
         <RemoveKeys keys="telescope:*:raw*,telescope:*:shower" />
 
-        <streams.Flatten queue="flat_stream"/>
-        <streams.DataRate every="4000"/>
+        <streams.SplitByTelescope queue="flat_stream"/>
+        <streams.DataRate every="10"/>
     </process>
 
 
     <process input="flat_stream" copies="1">
-        <streams.cta.io.CSVWriter keys="shower:*,*num_trigge*" url="file:test.csv"/>
+        <streams.cta.io.CSVWriter keys="shower:*,*num_trigge*" url="file:protons.csv"/>
     </process>
 
     

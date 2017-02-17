@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 
 /**
  * CSVWriter writes out the values for the given keys to a csv file.
- * The first line of the CSV file is a header. Its started by a  '#' and
- * followed by the names of the keys found in the data item.
+ * The first line of the CSV file is a header.
+ * The header contains the names of the keys found in the data item.
  *
  * @author kai
  */
@@ -57,7 +57,6 @@ public class CSVWriter implements StatefulProcessor {
         Set<String> selectedKeys = keys.select(data);
         if (!headerWritten){
             String header = Joiner.on(seperator).join(selectedKeys);
-            writer.print('#');
             writer.println(header);
             headerWritten = true;
         }
