@@ -1,10 +1,10 @@
 package streams.cta.features;
 
-import java.util.HashMap;
-
 import stream.Data;
 import streams.cta.CTACleanedDataProcessor;
 import streams.hexmap.Shower;
+
+import java.util.HashMap;
 
 /**
  * Calculate the center of gravity COG, which is the weighted center of the shower pixels.

@@ -9,8 +9,10 @@ import streams.hexmap.Shower;
 import java.util.HashMap;
 
 import static org.junit.Assert.*;
+import static streams.cta.io.Names.TRIGGERED_TELESCOPE_IDS;
 
 /**
+ * Test whether the showerprocessor finds the right data in the event item.
  * Created by kbruegge on 2/15/17.
  */
 public class ShowerProcessor {
@@ -44,7 +46,7 @@ public class ShowerProcessor {
     @Test
     public void testEmptyShower() throws Exception {
         Data data = DataFactory.create();
-        data.put("triggered_telescopes:ids", new int[]{1});
+        data.put(TRIGGERED_TELESCOPE_IDS, new int[]{1});
 
         Processor emptyProcessor = new ExpectEmptyShowerProcessor();
         emptyProcessor.process(data);
@@ -56,7 +58,7 @@ public class ShowerProcessor {
     @Test
     public void testShower() throws Exception {
         Data data = DataFactory.create();
-        data.put("triggered_telescopes:ids", new int[]{1});
+        data.put(TRIGGERED_TELESCOPE_IDS, new int[]{1});
         data.put("telescope:1:shower", new Shower(1));
 
         Processor processor = new ExpectShowerProcessor();
@@ -67,7 +69,7 @@ public class ShowerProcessor {
     @Test
     public void testManyShowers() throws Exception {
         Data data = DataFactory.create();
-        data.put("triggered_telescopes:ids", new int[]{1,2,3,4,5});
+        data.put(TRIGGERED_TELESCOPE_IDS, new int[]{1,2,3,4,5});
         data.put("telescope:1:shower", new Shower(1));
         data.put("telescope:2:shower", new Shower(1));
         data.put("telescope:3:shower", new Shower(1));

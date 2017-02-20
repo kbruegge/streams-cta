@@ -1,17 +1,12 @@
 package streams.cta.features;
 
-import java.util.HashMap;
-
 import stream.Data;
 import streams.cta.CTACleanedDataProcessor;
 import streams.hexmap.Shower;
 
-import static java.lang.Math.abs;
-import static java.lang.Math.atan;
-import static java.lang.Math.atan2;
-import static java.lang.Math.min;
-import static java.lang.Math.pow;
-import static java.lang.Math.sqrt;
+import java.util.HashMap;
+
+import static java.lang.Math.*;
 
 /**
  * This will be a basic translation of the code found in ctapipe. Some reference is in here:
@@ -59,8 +54,8 @@ public class Moments extends CTACleanedDataProcessor {
             double a = d2 / d1;
 
             //apperently things can get less than zero. just set to  zero then.
-            double width = sqrt(min((syy + a * a * sxx - 2 * a * sxy) / (1 + a * a), 0));
-            double length = sqrt(min((sxx + a * a * syy - 2 * a * sxy) / (1 + a * a), 0));
+            double width = sqrt(max((syy + a * a * sxx - 2 * a * sxy) / (1 + a * a), 0));
+            double length = sqrt(max((sxx + a * a * syy - 2 * a * sxy) / (1 + a * a), 0));
 
             double delta = atan(a);
             double cos_delta = 1 / sqrt(1 + a * a);
@@ -96,7 +91,8 @@ public class Moments extends CTACleanedDataProcessor {
             input.put("telescope:" + telescopeId + ":shower:miss", miss);
             input.put("telescope:" + telescopeId + ":shower:r", r);
             input.put("telescope:" + telescopeId + ":shower:cog:x", meanX);
-            input.put("telescope:" + telescopeId + ":shower:cog:Y", meanY);
+            input.put("telescope:" + telescopeId + ":shower:cog:y", meanY);
+            input.put("telescope:" + telescopeId + ":shower:size", size);
 
         });
 

@@ -41,6 +41,7 @@ public class TailCut extends CTARawDataProcessor {
             }
 
             input.put("telescope:" + cameraId + ":shower", shower);
+            input.put("telescope:" + cameraId + ":shower:number_of_pixel", shower.pixels.size());
         });
 
         return input;

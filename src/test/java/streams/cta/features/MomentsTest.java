@@ -10,6 +10,7 @@ import streams.cta.io.ImageStream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static streams.cta.io.Names.TRIGGERED_TELESCOPE_IDS;
 
 
 /**
@@ -50,7 +51,7 @@ public class MomentsTest {
             tailCut.process(data);
             hillas.process(data);
 
-            int[]  tels = (int[]) data.get("triggered_telescopes:ids");
+            int[]  tels = (int[]) data.get(TRIGGERED_TELESCOPE_IDS);
             for(int id : tels){
                 assertTrue(
                         "data item does not contain shower width",

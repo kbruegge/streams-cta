@@ -34,10 +34,21 @@ according to the following naming scheme proposal:
         mc:<mc-value-name>
        ```
    So for example the true energy could be stored as 
-     ```
-     mc:primary_energy
-     ```
+   
+       ```
+       mc:primary_energy
        
+       ```
+3. Array wide information. Should contain things like the event timestamp at some point.
+For now just trigger information really.
+
+       
+       ```
+       array:triggered_telescope_ids
+       array:num_triggered_telescopes
+       
+       ```   
+   
 More to come soon. Keep in mind that these are currently only proposals. This might change quickly.
 
 ### Input Data

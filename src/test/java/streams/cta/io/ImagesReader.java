@@ -1,26 +1,18 @@
 package streams.cta.io;
 
-import com.google.common.reflect.TypeToken;
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.stream.JsonReader;
 import org.junit.Test;
 import stream.Data;
 import stream.Keys;
 import stream.io.SourceURL;
-import streams.hexmap.CameraGeometry;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.net.URL;
-import java.util.Map;
-import java.util.zip.GZIPInputStream;
 
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -29,35 +21,32 @@ import static org.junit.Assert.assertThat;
  */
 public class ImagesReader {
 
-    private URL images = CameraGeometry.class.getResource("/images.json.gz");
-    private Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-
-    private static final Type IMAGE_DEF= new TypeToken<Map<Integer, double[]>>() {}.getType();
-
-
-    @Test
-    public void readImages() throws IOException {
-        InputStreamReader streamReader = new InputStreamReader(new GZIPInputStream(images.openStream()), "UTF-8");
-        JsonReader reader = new JsonReader(streamReader);
-        reader.beginArray();
-        while (reader.hasNext()) {
-            Map<Integer, double[]> images = gson.fromJson(reader, IMAGE_DEF);
-            assertThat(images.size(), is(not(0)));
-        }
-
-    }
-
-
+    private URL images = ImageStream.class.getResource("/images.json.gz");
 
     @Test
     public void testStream() throws Exception {
-        ImageStream s = new ImageStream(new SourceURL(ImageStream.class.getResource("/images.json.gz")));
+        ImageStream s = new ImageStream(new SourceURL(images));
 
         s.init();
 
         Data data = s.read();
         while (data != null){
             assertThat(Keys.select(data, "telescope:*").isEmpty(), is(false));
+
+            int[] ids = (int[]) data.get("array:triggered_telescopes");
+            assertThat(ids.length, is(not(0)));
+
+            double energy = (double) data.get("mc:energy");
+            assertTrue(energy > 0);
+
+            double x = (double) data.get("mc:core_x");
+            double y= (double) data.get("mc:core_y");
+
+            assertTrue(
+                    "Impact parameter should be less than 100 000 meters. I guess",
+                    sqrt(pow(x, 2) + pow(y, 2)) < 1000_000
+            );
+
             data = s.read();
         }
 
