@@ -329,7 +329,7 @@
                                         </Implementation-Revision>
                                         <Specification-Title>streams-storm</Specification-Title>
                                         <Specification-Version>1.0</Specification-Version>
-                                        <main-class>storm.deploy</main-class>
+                                        <main-class>${platform}.deploy_on_flink</main-class>
                                     </manifestEntries>
                                 </transformer>
                             </transformers>
@@ -448,7 +448,7 @@
                 <dependency>
                     <groupId>de.sfb876</groupId>
                     <artifactId>streams-flink</artifactId>
-                    <version>${streams.cta.version}</version>
+                    <version>${streams.cta.version}-SNAPSHOT</version>
                 </dependency>
             </dependencies>
 
@@ -468,7 +468,7 @@
                 <dependency>
                     <groupId>de.sfb876</groupId>
                     <artifactId>streams-spark</artifactId>
-                    <version>${streams.cta.version}</version>
+                    <version>${streams.cta.version}-SNAPSHOT</version>
                 </dependency>
             </dependencies>
 
