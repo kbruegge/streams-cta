@@ -56,10 +56,10 @@ fi
 # rebuild (package) the needed jars
 if $build; then
     # package for deployment
-    mvn -P deploy package
+    mvn -P deploy,storm package
 
     # package for local start
-    mvn -Dstorm.mainclass=${stormmainclass} -P standalone package
+    mvn -Dstorm.mainclass=${stormmainclass} -P standalone,storm package
 fi
 
 # run the deployment process
