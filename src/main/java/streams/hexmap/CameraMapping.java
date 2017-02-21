@@ -71,4 +71,14 @@ public class CameraMapping {
         String name = telescopes.get(telescopeId - 1).cameraName;
         return cameras.get(name);
     }
+
+    /**
+     * Get the Telescope definition for the given id.
+     *
+     * @param telescopeId the id of the telescope to get
+     * @return the TelescopeDefinition object describing this telescope
+     */
+    public TelescopeDefinition telescopeFromId(int telescopeId){
+        return telescopes.get(telescopeId);
+    }
 }
