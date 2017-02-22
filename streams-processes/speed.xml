@@ -1,15 +1,15 @@
 <application>
 
-    <stream id="cta:loop" class="streams.cta.io.LoopStream" >
-        <stream id="cta:data" class="streams.cta.io.ImageStream" url="file:src/main/resources/images.json.gz" />
+    <stream id="cta:loop" class="streams.cta.io.LoopStream" limit="1000000">
+        <stream id="cta:data" class="streams.cta.io.ImageStream" url="classpath:/images.json.gz" />
     </stream>
 
     <process input="cta:loop" copies="1">
-        <streams.performance.Performance every="1000" host="ls8ws007.cs.uni-dortmund.de">
+        <!--<streams.performance.Performance every="2000" host="ls8ws007.cs.uni-dortmund.de">-->
             <streams.cta.cleaning.TailCut />
             <streams.cta.features.Moments />
-            <streams.DataRate every="4000"/>
-        </streams.performance.Performance>
+            <!--<streams.DataRate every="4000"/>-->
+        <!--</streams.performance.Performance>-->
     </process>
 
 </application>
