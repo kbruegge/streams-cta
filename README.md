@@ -31,7 +31,7 @@ according to the following naming scheme proposal:
 2. MonteCarlo information that is array wide
        
        ```
-        mc:<mc-value-name>
+       mc:<mc-value-name>
        ```
    So for example the true energy could be stored as 
    
@@ -105,6 +105,20 @@ cta-tools-0.0.1-SNAPSHOT-{platform}-compiled.jar
 # does not contain storm, will be deployed
 cta-tools-0.0.1-SNAPSHOT-storm-provided.jar 
 ```
+
+### Run a process locally using Flink
+
+First of all, we need a package with Flink:
+```
+mvn -P deploy,flink package
+```
+
+Using this jar we are then able to run the example ``speed.xml`` as following:
+```
+java -jar target/cta-tools-0.0.1-SNAPSHOT-flink-compiled.jar streams-processes/speed.xml
+```
+
+More details about starting a standalone Flink cluster or deploying jobs to an existing YARN cluster can be found in the [streams-flink repository](https://github.com/alexeyegorov/streams-flink).
 
 ## Code Style
 We intend to use [Java Code Style](https://google-styleguide.googlecode.com/svn/trunk/javaguide.html) suggested by google.
