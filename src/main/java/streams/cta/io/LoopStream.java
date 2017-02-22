@@ -62,6 +62,11 @@ public class LoopStream extends AbstractMultiStream {
      */
     @Override
     public Data readNext() throws Exception {
+        if (items.size() == 0) {
+            log.error("No items found for the loop.");
+            return null;
+        }
+
         //TODO: do we have to apply modulo twice here?
         Data item = items.get(idx % items.size());
         idx = (idx + 1) % items.size();
