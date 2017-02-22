@@ -475,6 +475,21 @@
 
         <profile>
             <!--
+            use this to package with streams-spark and set the mainclass to spark.deploy_on_spark
+            -->
+            <id>parallelSources</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>de.sfb876</groupId>
+                    <artifactId>streams-spark</artifactId>
+                    <version>${streams.cta.version}-SNAPSHOT</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <!--
             use this to package with streams-storm and set the mainclass to storm.deploy
             -->
             <id>storm</id>
