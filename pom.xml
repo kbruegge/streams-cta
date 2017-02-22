@@ -514,6 +514,21 @@
             </dependencies>
 
         </profile>
+
+        <profile>
+            <!--
+            add support for streams-hdfs
+            -->
+            <id>hdfs</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>de.sfb876</groupId>
+                    <artifactId>streams-hdfs</artifactId>
+                    <version>0.0.4-SNAPSHOT</version>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
 
 </project>
