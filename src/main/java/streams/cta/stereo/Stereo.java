@@ -2,7 +2,7 @@ package streams.cta.stereo;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Collections2;
-import org.apache.commons.math3.fitting.leastsquares.LeastSquaresBuilder;
+import com.google.common.collect.Lists;
 import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.apache.commons.math3.geometry.euclidean.threed.RotationConvention;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
@@ -14,6 +14,7 @@ import stream.Processor;
 import streams.hexmap.CameraMapping;
 import streams.hexmap.TelescopeDefinition;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -30,49 +31,67 @@ import static java.lang.Math.*;
 public class Stereo  implements Processor{
 
 
-    double[] pixelDirection(double x, double y, double phi, double theta, double foclen, double cameraRotation){
+    /**
+     * Convert in-camera coordinates to direction vectors in 3D-space.
+     *
+     * @param x in-camera coordinates in meter
+     * @param y in-camera coordinates in meter
+     * @param phi pointing in radians
+     * @param theta pointing in radians
+     * @param foclen focal length of the telescope in radians
+     * @param cameraRotation rotation of the camera within the telescope housing in radians
+     * @return a direction vector, (x,y,z), corresponding to the direction of the given point in the camera
+     */
+    static double[] pixelDirection(double x, double y, double phi, double theta, double foclen, double cameraRotation){
         double alpha = atan2(y, x);
         double rho = length(x, y);
         double beta = rho / foclen;
 
-        double[] telescopeDirection = directionVectorFromAngles(phi, theta);
+        double[] telescopeDirection = cartesianFromPolar(phi, theta);
 
-        double[] p = directionVectorFromAngles(phi, theta + beta);
+        double[] p = cartesianFromPolar(phi, theta + beta);
 
         return rotateAroundAxis(p, telescopeDirection, alpha - cameraRotation);
 
     }
 
-    double[] rotateAroundAxis(double[] vector, double[] axis, double angle){
+    static double[] rotateAroundAxis(double[] vector, double[] axis, double angleInRadians){
         Vector3D v = new Vector3D(vector);
         Vector3D ax = new Vector3D(axis);
 
-        Rotation rotation = new Rotation(ax, angle, RotationConvention.FRAME_TRANSFORM);
+        Rotation rotation = new Rotation(ax, angleInRadians, RotationConvention.FRAME_TRANSFORM);
         Vector3D rotatedVector = rotation.applyTo(v);
         return rotatedVector.toArray();
     }
 
     /**
-     * Create a direction vector from the pointing of the telescope
+     * Go from spherical coordinates to cartesian coordinates. Useful for
+     * creating a direction vector from the pointing of the telescope.
+     * This assumes the typical 'mathematical conventions', or ISO, for naming these angles.
+     * (radius r, inclination θ, azimuth φ)
+     *
+     * The converions works like this.
+     *
      *    [ sin(theta)*cos(phi),
      *      sin(theta)*sin(phi),
      *      cos(theta)         ]
+     *
      * @param phi pointing phi angle of a telescope
      * @param theta pointing theta angle of a telescope
-     * @return a direction vector of length 1 originating at the telescope
+     * @return a direction vector of length 1
      */
-    double[] directionVectorFromAngles(double phi, double theta){
-        double x = sin(theta) * cos(theta);
-        double y = sin(theta) * sin(theta);
+    static double[] cartesianFromPolar(double phi, double theta){
+        double x = sin(theta) * cos(phi);
+        double y = sin(theta) * sin(phi);
         double z = cos(theta);
         return new double[] {x, y, z};
     }
 
-    double length(double x, double y){
+    private static double length(double x, double y){
         return sqrt(pow(x, 2) + pow(y, 2));
     }
 
-    double length(double x, double y, double z){
+    private double length(double x, double y, double z){
         return sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
     }
 
@@ -90,19 +109,27 @@ public class Stereo  implements Processor{
         int[] triggeredTelescopes = (int[]) data.get("array:triggered_telescopes");
 
         List<Plane> planes = Arrays.stream(triggeredTelescopes)
-                .mapToObj(id -> new Plane(id, data))
+                .mapToObj(id -> new Plane(id,0, 20, data))
                 .collect(Collectors.toList());
 
-        Vector3D direction = estimateDirection(planes);
+        double[] direction = estimateDirection(planes);
 
         double[] corePosition = estimateCorePosition(planes);
 
+        data.put("stereo:estimated_direction", direction);
+        data.put("stereo:estimated_direction:x", direction[0]);
+        data.put("stereo:estimated_direction:y", direction[1]);
+        data.put("stereo:estimated_direction:z", direction[2]);
+
+        data.put("stereo:estimated_impact_position", corePosition);
+        data.put("stereo:estimated_direction:x", corePosition[0]);
+        data.put("stereo:estimated_direction:y", corePosition[1]);
 
         return data;
     }
 
 
-    public double[] estimateCorePosition(List<Plane> planes){
+    double[] estimateCorePosition(List<Plane> planes){
         int n = planes.size();
 
         double[][] mat = new double[n][2];
@@ -121,7 +148,7 @@ public class Stereo  implements Processor{
 
             Vector2D telPos = new Vector2D(plane.telescopePosition[0], plane.telescopePosition[1]);
 
-            d[i] = projection.dotProduct(telPos);
+            d[i] = (projection.scalarMultiply(weight)).dotProduct(telPos);
         }
 
         //Do a linear least square regresssion
@@ -129,14 +156,17 @@ public class Stereo  implements Processor{
         return MatrixUtils.inverse(A.transpose().multiply(A)).multiply(A.transpose()).operate(d);
     }
 
-    Vector3D estimateDirection(List<Plane> planes){
+    double[] estimateDirection(List<Plane> planes){
 
-        // get all permutations of size 2 in the most inefficient way possible
-        List<List<Plane>> tuples = Collections2.permutations(planes)
-                .stream()
-                .filter(l -> l.size() == 2)
-                .filter(l -> !l.get(0).equals(l.get(1)))
-                .collect(Collectors.toList());
+        // get all permutations of size 2 in this (rather inelegant way)
+        List<List<Plane>> tuples = new ArrayList<>();
+        for(Plane p1 : planes){
+            for(Plane p2 : planes){
+                if(p1 != p2){
+                    tuples.add(Lists.newArrayList(p1, p2));
+                }
+            }
+        }
 
         Optional<Vector3D> direction = tuples.stream()
                 .map(l -> {
@@ -161,12 +191,13 @@ public class Stereo  implements Processor{
                     return product.scalarMultiply(plane1.weight * plane2.weight);
 
                 })
-                .reduce(Vector3D::add);
+                .reduce(Vector3D::add)
+                .map(Vector3D::normalize);
 
-        return direction.orElse(new Vector3D(0, 0, 0)).normalize();
+        return direction.orElse(new Vector3D(0, 0, 0)).toArray();
     }
 
-    class Plane {
+    static class Plane {
         public final int telescopeId;
         public final double weight;
         public final double[] v1;
@@ -176,7 +207,7 @@ public class Stereo  implements Processor{
 
         public final double[] telescopePosition;
 
-        Plane(int id, Data data) {
+        Plane(int id, double phi, double theta,  Data data) {
             this.telescopeId = id;
             double length = (double) data.get("telescope:" + id + ":shower:length");
             double width = (double) data.get("telescope:" + id + ":shower:width");
@@ -185,29 +216,29 @@ public class Stereo  implements Processor{
             double psi = (double) data.get("telescope:" + id + ":shower:psi");
             double size = (double) data.get("telescope:" + id + ":shower:size");
 
+            TelescopeDefinition tel = CameraMapping.getInstance().telescopeFromId(id);
+
             //get two points on the shower axis
-            double pX = cogX + length*cos(psi);
-            double pY = cogY + length*sin(psi);
+            double pX = cogX + length * cos(psi);
+            double pY = cogY + length * sin(psi);
 
-            double[] pDirection = pixelDirection(pX, pY, 0, 20, 15, 0);
-            double[] cogDirection = pixelDirection(cogX, cogY, 0, 20, 15, 0);
+            double[] pDirection = pixelDirection(pX, pY, phi, theta, tel.opticalFocalLength, 0);
+            double[] cogDirection = pixelDirection(cogX, cogY, phi, theta, tel.opticalFocalLength, 0);
 
-            //this.weight = weight;
             this.weight = size * (length / width);
             this.v1 = cogDirection;
             this.v2 = pDirection;
 
-            Vector3D c = Vector3D.crossProduct(new Vector3D(v1), new Vector3D(v2));
+            // c  = (v1 X v2) X v1
+            Vector3D c = Vector3D.crossProduct(Vector3D.crossProduct(new Vector3D(v1), new Vector3D(v2)), new Vector3D(v1));
             Vector3D norm = Vector3D.crossProduct(new Vector3D(v1), c);
 
             this.normalVector = norm.normalize().toArray();
 
-            TelescopeDefinition tel = CameraMapping.getInstance().telescopeFromId(id);
-
             telescopePosition = new double[]{tel.telescopePositionX, tel.telescopePositionY, tel.telescopePositionZ};
         }
 
-        public Vector3D getNormalAsVector(){
+        Vector3D getNormalAsVector(){
             return new Vector3D(normalVector);
         }
 

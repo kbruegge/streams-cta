@@ -74,6 +74,10 @@ public class HillasTest {
                 double width = (double) data.get("telescope:" + id + ":shower:width");
                 double length = (double) data.get("telescope:" + id + ":shower:length");
 
+                if(Double.isNaN(width)){
+                    continue;
+                }
+
                 //length should always be larger or equal to width because of maths!
                 assertTrue("Length hast to be greater or equal to width", length >= width);
             }
