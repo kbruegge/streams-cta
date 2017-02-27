@@ -79,6 +79,8 @@ public class CameraMapping {
      * @return the TelescopeDefinition object describing this telescope
      */
     public TelescopeDefinition telescopeFromId(int telescopeId){
-        return telescopes.get(telescopeId);
+        //Telescopes ids start with one. Lists are zero based.
+        //Let the bugs flow right out of this!
+        return telescopes.get(telescopeId - 1);
     }
 }

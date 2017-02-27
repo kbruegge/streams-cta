@@ -120,7 +120,8 @@ public class PlanesTest {
 
 
         //results from the python implementation
-        double[] expectedPosition = new double[]{-1012.2812074 ,  861.41655442};
+        // https://www.youtube.com/watch?v=WxnN05vOuSM
+        double[] expectedPosition = new double[]{730.89736272,-666.86657648};
 
         assertArrayEquals(expectedPosition, position, 0.00001);
     }
