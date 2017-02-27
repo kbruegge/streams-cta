@@ -4,6 +4,7 @@ camera_path = ../src/main/resources/hexmap/cta_camera_definitions.json
 
 simtel_path = ../../gamma_test_large.simtel.gz
 
+limit = 100
 
 all: $(array_path) $(camera_path) $(images_path)
 
@@ -14,7 +15,7 @@ cameras $(camera_path): camera_definitions.py
 	python ./camera_definitions.py $(simtel_path) $(camera_path)
 
 raw $(images_path): convert_raw_data.py
-	python ./convert_raw_data.py $(simtel_path) $(images_path)
+	python ./convert_raw_data.py $(simtel_path) $(images_path) --limit=$(limit)
 	gzip $(images_path)
 
 clean:
