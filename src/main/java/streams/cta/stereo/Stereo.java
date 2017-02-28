@@ -1,7 +1,6 @@
 package streams.cta.stereo;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.apache.commons.math3.geometry.euclidean.threed.RotationConvention;
@@ -23,8 +22,12 @@ import java.util.stream.Collectors;
 import static java.lang.Math.*;
 
 /**
- * The FitGammaHillas thing from Tino Michael. See https://github.com/tino-michael/ctapipe
+ * This processor takes the image parameters of an array event, so all image parameters for each
+ * telescope in the event and uses them to estimate the position of the shower impact on the ground
+ * and the direction the shower originated from.
  *
+ * The original implementation was created by Tino Michael. And is called FitGammaHillas
+ * within the ctapipe project. https://github.com/cta-observatory/ctapipe
  *
  * Created by Kai on 20.02.17.
  */
@@ -38,14 +41,26 @@ public class Stereo  implements Processor{
      * @param y in-camera coordinates in meter
      * @param phi pointing in radians
      * @param theta pointing in radians
-     * @param foclen focal length of the telescope in radians
+     * @param focalLength focal length of the telescope in meter
      * @param cameraRotation rotation of the camera within the telescope housing in radians
      * @return a direction vector, (x,y,z), corresponding to the direction of the given point in the camera
      */
-    static double[] pixelDirection(double x, double y, double phi, double theta, double foclen, double cameraRotation){
+    static double[] cameraCoordinateToDirectionVector
+        (
+                double x,
+                double y,
+                double phi,
+                double theta,
+                double focalLength,
+                double cameraRotation
+        ){
+
+        //angle between x-axis of camera and the line connecting 0,0 with x,y
         double alpha = atan2(y, x);
-        double rho = length(x, y);
-        double beta = rho / foclen;
+
+        //distance from center of camera
+        double rho = sqrt(pow(x, 2) + pow(y, 2));
+        double beta = rho / focalLength;
 
         double[] telescopeDirection = cartesianFromPolar(phi, theta);
 
@@ -55,6 +70,13 @@ public class Stereo  implements Processor{
 
     }
 
+    /**
+     * A helper function which rotates a vector around a given axis.
+     * @param vector the vector to rotate
+     * @param axis the (fixed) axis around which to rotate
+     * @param angleInRadians the angle by which to rotate
+     * @return an array [x,y,z] encoding the rotated vector.
+     */
     static double[] rotateAroundAxis(double[] vector, double[] axis, double angleInRadians){
         Vector3D v = new Vector3D(vector);
         Vector3D ax = new Vector3D(axis);
@@ -70,11 +92,12 @@ public class Stereo  implements Processor{
      * This assumes the typical 'mathematical conventions', or ISO, for naming these angles.
      * (radius r, inclination θ, azimuth φ)
      *
-     * The converions works like this.
+     * The conversion works like this:
      *
      *    [ sin(theta)*cos(phi),
      *      sin(theta)*sin(phi),
      *      cos(theta)         ]
+     *
      *
      * @param phi pointing phi angle of a telescope
      * @param theta pointing theta angle of a telescope
@@ -87,22 +110,6 @@ public class Stereo  implements Processor{
         return new double[] {x, y, z};
     }
 
-    private static double length(double x, double y){
-        return sqrt(pow(x, 2) + pow(y, 2));
-    }
-
-    private double length(double x, double y, double z){
-        return sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
-    }
-
-    double phi(double x, double y){
-        return atan2(y, x);
-    }
-
-    double theta(double x, double y, double z){
-        double length = length(x, y, z);
-        return acos(z / length);
-    }
 
     @Override
     public Data process(Data data) {
@@ -128,7 +135,11 @@ public class Stereo  implements Processor{
         return data;
     }
 
-
+    /**
+     * Estimate the position x,y of the showers impact from a collection of Plane objects
+     * @param planes planes for each telescope in the event
+     * @return an array [x, y] giving a point on the surface
+     */
     double[] estimateCorePosition(List<Plane> planes){
         int n = planes.size();
 
@@ -156,9 +167,19 @@ public class Stereo  implements Processor{
         return MatrixUtils.inverse(A.transpose().multiply(A)).multiply(A.transpose()).operate(d);
     }
 
+    /**
+     * Estimate the direction of the shower from a collection of Plane objects
+     * Returns a direction vector [x, y, z] pointing into the direction the shower
+     * originated.
+     * It does so by calculating a weighted sum of the estimated directions
+     * from all pairs of planes in the given as the method argument.
+     *
+     * @param planes the plane objects for each Telescope
+     * @return an array [x, y, z]
+     */
     double[] estimateDirection(List<Plane> planes){
 
-        // get all permutations of size 2 in this (rather inelegant way)
+        // get all combinations of size 2 in a rather inelegant way.
         List<List<Plane>> tuples = new ArrayList<>();
         for(Plane p1 : planes){
             for(Plane p2 : planes){
@@ -178,18 +199,17 @@ public class Stereo  implements Processor{
 
                     Vector3D product = Vector3D.crossProduct(new Vector3D(v1), new Vector3D(v2));
 
-                    //dont know what happens now. heres the sting from the python
+                    //dont know what happens now. here is the docstring from the python
                     // # two great circles cross each other twice (one would be
                     // # the origin, the other one the direction of the gamma) it
                     // # doesn't matter which we pick but it should at least be
                     // # consistent: make sure to always take the "upper"
                     // # solution
-
                     if (product.getZ() < 0) {
                         product = product.scalarMultiply(-1);
                     }
-                    return product.scalarMultiply(plane1.weight * plane2.weight);
 
+                    return product.scalarMultiply(plane1.weight * plane2.weight);
                 })
                 .reduce(Vector3D::add)
                 .map(Vector3D::normalize);
@@ -197,15 +217,28 @@ public class Stereo  implements Processor{
         return direction.orElse(new Vector3D(0, 0, 0)).toArray();
     }
 
+
+    /**
+     * This class describes a plane in [x, y, z] space for a single telescope shower.
+     * The plane is aligned with the reconstructed angle of the shower in the camera.
+     * One plane for each camera partaking in an event is created. Using these planes both impact position
+     * and direction can be reconstructed.
+     *
+     */
     static class Plane {
-        public final int telescopeId;
-        public final double weight;
-        public final double[] v1;
-        public final double[] v2;
+        //the tlescope id this reconstructed plane belongs to
+        final int telescopeId;
+        //the weight given to the plane
+        final double weight;
+        //two vectors describing the plane
+        final double[] v1;
+        final double[] v2;
 
-        public final double[] normalVector;
+        //the normalvector of that plane
+        final double[] normalVector;
 
-        public final double[] telescopePosition;
+        //the position of the telescope on the ground
+        final double[] telescopePosition;
 
         Plane(int id, double phi, double theta,  Data data) {
             this.telescopeId = id;
@@ -222,8 +255,8 @@ public class Stereo  implements Processor{
             double pX = cogX + length * cos(psi);
             double pY = cogY + length * sin(psi);
 
-            double[] pDirection = pixelDirection(pX, pY, phi, theta, tel.opticalFocalLength, 0);
-            double[] cogDirection = pixelDirection(cogX, cogY, phi, theta, tel.opticalFocalLength, 0);
+            double[] pDirection = cameraCoordinateToDirectionVector(pX, pY, phi, theta, tel.opticalFocalLength, 0);
+            double[] cogDirection = cameraCoordinateToDirectionVector(cogX, cogY, phi, theta, tel.opticalFocalLength, 0);
 
             this.weight = size * (length / width);
             this.v1 = cogDirection;
@@ -238,6 +271,11 @@ public class Stereo  implements Processor{
             telescopePosition = new double[]{tel.telescopePositionX, tel.telescopePositionY, tel.telescopePositionZ};
         }
 
+        /**
+         * A small convenience function to return the [x, y, z] normal vector as an actual Vector3d object
+         *
+         * @return a the normal vector of the plane
+         */
         Vector3D getNormalAsVector(){
             return new Vector3D(normalVector);
         }

@@ -1,7 +1,6 @@
 package streams.cta.stereo;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.junit.Test;
 import stream.Data;
 import stream.data.DataFactory;
@@ -119,7 +118,7 @@ public class PlanesTest {
         double[] position = stereo.estimateCorePosition(Lists.newArrayList(plane1, plane2));
 
 
-        //results from the python implementation
+        // results from the python implementation
         // https://www.youtube.com/watch?v=WxnN05vOuSM
         double[] expectedPosition = new double[]{730.89736272,-666.86657648};
 

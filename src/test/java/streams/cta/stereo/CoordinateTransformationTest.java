@@ -6,6 +6,11 @@ import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Test the java implementation of Tino Michael's FitGammaHillas routine from ctapipe.
+ * The expected results where taken from the FitGammasHillas module by calling the
+ * 'guess_pix_direction' direction with the appropriate values. See example below.
+ *
+ *  'guess_pix_direction(np.array([0.05])*u.m, np.array([0.25])*u.m, 0*u.deg, 45*u.deg, 4.8*u.m,180*u.deg)'
+
  *
  * Created by kbruegge on 2/27/17.
  */
@@ -83,7 +88,7 @@ public class CoordinateTransformationTest {
     public void testPixelDirectionOfCameraCenter(){
         double phi = Math.toRadians(45);
         double theta = Math.toRadians(45);
-        double[] direction = Stereo.pixelDirection(0, 0, phi, theta, 4.8, 0);
+        double[] direction = Stereo.cameraCoordinateToDirectionVector(0, 0, phi, theta, 4.8, 0);
 
         double[] expectedResults = new double[] {0.5, 0.5, 0.70710678};
         assertArrayEquals
@@ -101,7 +106,15 @@ public class CoordinateTransformationTest {
     public void testPixelDirection(){
         double phi = Math.toRadians(45);
         double theta = Math.toRadians(45);
-        double[] direction = Stereo.pixelDirection(0.05, 0.05, phi, theta, 4.8, 0);
+        double[] direction = Stereo.cameraCoordinateToDirectionVector
+                                (
+                                    0.05,
+                                    0.05,
+                                    phi,
+                                    theta,
+                                    4.8,
+                                    0
+                                );
 
         double[] expectedResults = new double[] { 0.51251932, 0.49778846, 0.69966463};
         assertArrayEquals
@@ -114,13 +127,84 @@ public class CoordinateTransformationTest {
 
     }
 
+    @Test
+    public void testPixelDirectionForRotatedCamera(){
+        double phi = Math.toRadians(0);
+        double theta = Math.toRadians(45);
+        double[] direction = Stereo.cameraCoordinateToDirectionVector
+                (
+                        0.05,
+                        0.25,
+                        phi,
+                        theta,
+                        4.8,
+                        Math.toRadians(20)
+                );
+
+        double[] expectedResults = new double[] { 0.72561797,-0.04535828, 0.68660118};
+        assertArrayEquals
+                (
+                        "pixel direction should match python implementation",
+                        expectedResults,
+                        direction,
+                        0.000001
+                );
+    }
+
+    @Test
+    public void testPixelDirectionForFlippedCamera(){
+        double phi = Math.toRadians(0);
+        double theta = Math.toRadians(45);
+
+        //unrotated camera
+        double[] direction = Stereo.cameraCoordinateToDirectionVector
+                (
+                        0.05,
+                        0.25,
+                        phi,
+                        theta,
+                        4.8,
+                        Math.toRadians(0)
+                );
+
+        double[] expectedResults = new double[] { 0.71347181,-0.05205885, 0.69874734};
+        assertArrayEquals
+                (
+                        "pixel direction should match python implementation",
+                        expectedResults,
+                        direction,
+                        0.000001
+                );
+
+        //flip the camera by 180 degrees
+        direction = Stereo.cameraCoordinateToDirectionVector
+                (
+                        0.05,
+                        0.25,
+                        phi,
+                        theta,
+                        4.8,
+                        Math.toRadians(180)
+                );
+        //the y coordinate should switch signs
+        //also the x and z coordinates should switch places
+        expectedResults = new double[] { expectedResults[2],  -expectedResults[1], expectedResults[0]};
+
+        assertArrayEquals
+                (
+                        "pixel direction should match python implementation",
+                        expectedResults,
+                        direction,
+                        0.000001
+                );
+    }
 
 
     @Test
     public void testPixelDirectionThirdExample(){
         double phi = Math.toRadians(0);
         double theta = Math.toRadians(20);
-        double[] direction = Stereo.pixelDirection(0.05, 0.05, phi, theta, 4.8, 0);
+        double[] direction = Stereo.cameraCoordinateToDirectionVector(0.05, 0.05, phi, theta, 4.8, 0);
 
         double[] expectedResults = new double[] {  0.35177114,-0.01041629, 0.93602808};
         assertArrayEquals
@@ -137,7 +221,7 @@ public class CoordinateTransformationTest {
     public void testPixelDirectionFourthExample(){
         double phi = Math.toRadians(0);
         double theta = Math.toRadians(20);
-        double[] direction = Stereo.pixelDirection(1, 0, phi, theta, 28, 0);
+        double[] direction = Stereo.cameraCoordinateToDirectionVector(1, 0, phi, theta, 28, 0);
 
         double[] expectedResults = new double[]  {0.37535536, 0.        , 0.92688098};
         assertArrayEquals
@@ -155,7 +239,7 @@ public class CoordinateTransformationTest {
     public void testPixelDirectionFifthExample(){
         double phi = Math.toRadians(0);
         double theta = Math.toRadians(20);
-        double[] direction = Stereo.pixelDirection(1, 1, phi, theta, 4.8, 0);
+        double[] direction = Stereo.cameraCoordinateToDirectionVector(1, 1, phi, theta, 4.8, 0);
 
         double[] expectedResults = new double[]  {0.52023185,-0.20533231, 0.82897375};
         assertArrayEquals
@@ -172,7 +256,7 @@ public class CoordinateTransformationTest {
     public void testPixelDirectionSixthExample(){
         double phi = Math.toRadians(0);
         double theta = Math.toRadians(20);
-        double[] direction = Stereo.pixelDirection(1, 0, phi, theta, 4.8, 0);
+        double[] direction = Stereo.cameraCoordinateToDirectionVector(1, 0, phi, theta, 4.8, 0);
 
         double[] expectedResults = new double[]  {0.52898085, 0.        , 0.84863376};
         assertArrayEquals
@@ -189,7 +273,7 @@ public class CoordinateTransformationTest {
     public void testPixelDirectionSecondExample(){
         double phi = Math.toRadians(0);
         double theta = Math.toRadians(20);
-        double[] direction = Stereo.pixelDirection(0.14642135623730954, 0.44142135623730949, phi, theta, 28, 0);
+        double[] direction = Stereo.cameraCoordinateToDirectionVector(0.14642135623730954, 0.44142135623730949, phi, theta, 28, 0);
 
         double[] expectedResults = new double[] {  0.34688671,-0.01576432, 0.93777455};
         assertArrayEquals
@@ -208,7 +292,7 @@ public class CoordinateTransformationTest {
         double phi = Math.toRadians(0);
         double theta = Math.toRadians(90);
         //use the center of the camera
-        double[] direction = Stereo.pixelDirection(0.0, 0.0, phi, theta, 4.8, 0);
+        double[] direction = Stereo.cameraCoordinateToDirectionVector(0.0, 0.0, phi, theta, 4.8, 0);
 
         // we should point into some direction along one axis. since the output is normalized this
         // component should be 1 I suppose.
