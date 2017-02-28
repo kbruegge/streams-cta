@@ -6,16 +6,9 @@ import org.junit.Test;
 import stream.Data;
 import stream.io.SourceURL;
 import streams.cta.cleaning.TailCut;
-import streams.cta.features.COG;
 import streams.cta.features.Moments;
-import streams.cta.features.Size;
-import streams.cta.features.WidthLengthDelta;
 import streams.cta.io.ImageStream;
 import streams.hexmap.CameraGeometry;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static streams.cta.io.Names.TRIGGERED_TELESCOPE_IDS;
 
 /**
  * Test the stereo features processor.
