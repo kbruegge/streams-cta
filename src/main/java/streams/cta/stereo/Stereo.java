@@ -135,8 +135,8 @@ public class Stereo  implements Processor{
         data.put("stereo:estimated_direction:z", direction[2]);
 
         data.put("stereo:estimated_impact_position", corePosition);
-        data.put("stereo:estimated_direction:x", corePosition[0]);
-        data.put("stereo:estimated_direction:y", corePosition[1]);
+        data.put("stereo:estimated_impact_position:x", corePosition[0]);
+        data.put("stereo:estimated_impact_position:y", corePosition[1]);
 
         return data;
     }
@@ -206,11 +206,11 @@ public class Stereo  implements Processor{
                     Vector3D product = Vector3D.crossProduct(new Vector3D(v1), new Vector3D(v2));
 
                     //dont know what happens now. here is the docstring from the python
+                    //TODO: Find out what exactly this calculation does. and why it can have two solutions
                     // # two great circles cross each other twice (one would be
                     // # the origin, the other one the direction of the gamma) it
                     // # doesn't matter which we pick but it should at least be
-                    // # consistent: make sure to always take the "upper"
-                    // # solution
+                    // # consistent: make sure to always take the "upper" solution.
                     if (product.getZ() < 0) {
                         product = product.scalarMultiply(-1);
                     }
@@ -237,8 +237,8 @@ public class Stereo  implements Processor{
         //the weight given to the plane
         final double weight;
         //two vectors describing the plane
-        final double[] v1;
-        final double[] v2;
+        final double[] planeVector1;
+        final double[] planeVector2;
 
         //the normalvector of that plane
         final double[] normalVector;
@@ -248,12 +248,16 @@ public class Stereo  implements Processor{
 
         Plane(int id, double phi, double theta,  Data data) {
             this.telescopeId = id;
-            double length = (double) data.get("telescope:" + id + ":shower:length");
-            double width = (double) data.get("telescope:" + id + ":shower:width");
-            double cogX = (double) data.get("telescope:" + id + ":shower:cog:x");
-            double cogY = (double) data.get("telescope:" + id + ":shower:cog:y");
-            double psi = (double) data.get("telescope:" + id + ":shower:psi");
-            double size = (double) data.get("telescope:" + id + ":shower:size");
+
+            //common prefix for all keys.
+            final String prefix = "telescope:" + id + ":shower:";
+
+            double length = (double) data.get(prefix + "length");
+            double width = (double) data.get(prefix + "width");
+            double cogX = (double) data.get(prefix + "cog:x");
+            double cogY = (double) data.get(prefix + "cog:y");
+            double psi = (double) data.get(prefix + "psi");
+            double size = (double) data.get(prefix + "size");
 
             TelescopeDefinition tel = CameraMapping.getInstance().telescopeFromId(id);
 
@@ -265,12 +269,12 @@ public class Stereo  implements Processor{
             double[] cogDirection = cameraCoordinateToDirectionVector(cogX, cogY, phi, theta, tel.opticalFocalLength, 0);
 
             this.weight = size * (length / width);
-            this.v1 = cogDirection;
-            this.v2 = pDirection;
+            this.planeVector1 = cogDirection;
+            this.planeVector2 = pDirection;
 
             // c  = (v1 X v2) X v1
-            Vector3D c = Vector3D.crossProduct(Vector3D.crossProduct(new Vector3D(v1), new Vector3D(v2)), new Vector3D(v1));
-            Vector3D norm = Vector3D.crossProduct(new Vector3D(v1), c);
+            Vector3D crossProduct = Vector3D.crossProduct(Vector3D.crossProduct(new Vector3D(planeVector1), new Vector3D(planeVector2)), new Vector3D(planeVector1));
+            Vector3D norm = Vector3D.crossProduct(new Vector3D(planeVector1), crossProduct);
 
             this.normalVector = norm.normalize().toArray();
 
@@ -288,8 +292,12 @@ public class Stereo  implements Processor{
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()){
+                return false;
+            }
             Plane plane = (Plane) o;
             return telescopeId == plane.telescopeId;
         }
