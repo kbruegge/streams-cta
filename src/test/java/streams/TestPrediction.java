@@ -32,7 +32,7 @@ public class TestPrediction {
 
     @BeforeClass
     public static void setUpModel() throws Exception {
-        s.url = new SourceURL(TestPrediction.class.getResource("/test_model_cta.pmml"));
+        s.url = new SourceURL(TestPrediction.class.getResource("/test_classifier.pmml"));
         s.init();
     }
 
