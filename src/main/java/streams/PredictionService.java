@@ -28,15 +28,17 @@ import java.util.stream.Collectors;
 
 /**
  * Given a pmml file, this service provides two synchronized methods for predicting classification and
- * regression problems
+ * regression problems.
+ *
+ * It provides two methods. {@link #applyClassifier(Data)} and {@link #applyRegression(Data)} (Data)}.
+ * If this service is given a classification model pmml file the {@link #applyRegression(Data)} method will
+ * fail and vice versa.
  *
  * Created by kai on 02.02.16.
  */
 public class PredictionService implements Service {
     private static Logger log = LoggerFactory.getLogger(PredictionService.class);
 
-    //arguments to pass to the decision function
-    private Map<FieldName, FieldValue> arguments = new LinkedHashMap<>();
     private ModelEvaluator<? extends Model> modelEvaluator;
 
     private FieldName targetName;
@@ -92,32 +94,16 @@ public class PredictionService implements Service {
      */
     public synchronized ProbabilityDistribution applyClassifier(Data data){
 
-        if (modelEvaluator == null){
-            init();
-        }
-
-        for(InputField activeField : activeFields){
-
-            Object rawValue = data.get(activeField.getName().toString());
-
-            FieldValue activeValue = activeField.prepare(rawValue);
-
-            arguments.put(activeField.getName(), activeValue);
-        }
+        Map<FieldName, FieldValue> fieldsMap = transformData(data);
 
 
         try {
-            Map<FieldName, ?> results = modelEvaluator.evaluate(arguments);
+            Map<FieldName, ?> results = modelEvaluator.evaluate(fieldsMap);
             Object targetValue = results.get(targetName);
             return (ProbabilityDistribution) targetValue;
 
         } catch (MissingFieldException | TypeCheckException exception){
-            String missingKeys = arguments.entrySet()
-                    .stream()
-                    .filter(e -> e.getValue() == null)
-                    .map(Map.Entry::getKey)
-                    .map(FieldName::getValue)
-                    .collect(Collectors.joining(", "));
+            String missingKeys = collectMissingNames(fieldsMap);
 
             log.warn(
                     "Event had missing fields or missing field values: \n" + missingKeys
@@ -126,10 +112,24 @@ public class PredictionService implements Service {
 
             return null;
         } catch (ClassCastException e){
-            log.error("The modell did not return a ProbalilityDistribution");
+            log.error("The model did not return a ProbalilityDistribution. Make sure its not a regression model.");
             throw new RuntimeException(e);
         }
 
+    }
+
+    /**
+     * Convinience method to get missing names from fieldsmap.
+     * @param fieldsMap the fieldsmap to check
+     * @return missing names as on comma separated string.
+     */
+    private String collectMissingNames(Map<FieldName, FieldValue> fieldsMap) {
+        return fieldsMap.entrySet()
+                        .stream()
+                        .filter(e -> e.getValue() == null)
+                        .map(Map.Entry::getKey)
+                        .map(FieldName::getValue)
+                        .collect(Collectors.joining(", "));
     }
 
     /**
@@ -142,30 +142,24 @@ public class PredictionService implements Service {
      */
     public synchronized Double applyRegression(Data data){
 
-        if (modelEvaluator == null){
-            init();
-        }
-        for(InputField activeField : activeFields){
+        Map<FieldName, FieldValue> fieldsMap = transformData(data);
 
-            Object rawValue = data.get(activeField.getName().toString());
-
-            if(rawValue == null){
-                throw new MissingFieldException(activeField.getName());
-            }
-
-            FieldValue activeValue = activeField.prepare(rawValue);
-
-            arguments.put(activeField.getName(), activeValue);
-        }
         try {
 
-            Map<FieldName, ?> results = modelEvaluator.evaluate(arguments);
+            Map<FieldName, ?> results = modelEvaluator.evaluate(fieldsMap);
             Object targetValue = results.get(targetName);
             return (Double) targetValue;
 
-        } catch (MissingFieldException e){
-            log.warn("Data had missing fields or missing field values for field. Skipping to next event.");
+        } catch (MissingFieldException | TypeCheckException exception){
+            String missingKeys = collectMissingNames(fieldsMap);
+
+            log.warn(
+                    "Event had missing fields or missing field values: \n" + missingKeys
+
+            );
+
             return Double.NaN;
+
         } catch (ClassCastException e){
             log.error(
                     "The model did not return a double as target. \n " +
@@ -175,6 +169,32 @@ public class PredictionService implements Service {
         }
 
     }
+
+    /**
+     * Transform data in data item to FieldNames and FieldValues for the evaluatoing the pmml model.
+     * @param data the data item to transform
+     * @return FieldNames and FieldValues in a map.
+     */
+    Map<FieldName, FieldValue> transformData(Data data) {
+
+        //arguments to pass to the decision function
+        Map<FieldName, FieldValue> arguments = new LinkedHashMap<>();
+
+        if (modelEvaluator == null){
+            init();
+        }
+        for(InputField activeField : activeFields){
+
+            Object rawValue = data.get(activeField.getName().toString());
+
+            FieldValue activeValue = activeField.prepare(rawValue);
+
+            arguments.put(activeField.getName(), activeValue);
+        }
+
+        return arguments;
+    }
+
 
     @Override
     public void reset() throws Exception {

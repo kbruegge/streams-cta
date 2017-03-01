@@ -2,13 +2,18 @@ package streams;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import org.dmg.pmml.FieldName;
+import org.jpmml.evaluator.FieldValue;
 import org.jpmml.evaluator.ProbabilityDistribution;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import stream.data.DataFactory;
 import stream.io.SourceURL;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -22,40 +27,59 @@ import static org.junit.Assert.assertThat;
  */
 public class TestPrediction {
 
-    PredictionService s = new PredictionService();
+    private static PredictionService s = new PredictionService();
+    private HashMap<String, Serializable> m = new HashMap<>();
 
+    @BeforeClass
+    public static void setUpModel() throws Exception {
+        s.url = new SourceURL(TestPrediction.class.getResource("/test_model_cta.pmml"));
+        s.init();
+    }
 
     @Before
-    public void setUp() throws Exception {
-        s.url = new SourceURL(TestPrediction.class.getResource("/test_model.pmml"));
-
-//        s.url = new SourceURL(CameraGeometry.class.getResource("/images.json.gz"));
-        s.init();
+    public void setupData(){
+        m.put("shower:number_of_pixel", 10);
+        m.put("shower:width", 10);
+        m.put("shower:length", 20);
+        m.put("shower:skewness", 0.23);
+        m.put("shower:kurtosis", 0.02);
+        m.put("shower:size", 500);
+        m.put("shower:miss", 1);
+        m.put("array:num_triggered_telescopes", 4);
     }
 
     @Test
     public void testClassify(){
-        ImmutableMap<String, Serializable> map = ImmutableMap.of("Size", 1000.0, "Length", 200.0, "Width", 100.0);
-        ProbabilityDistribution prediction = s.applyClassifier(DataFactory.create(map));
+        ProbabilityDistribution prediction = s.applyClassifier(DataFactory.create(m));
         assertThat(prediction, is(not(nullValue())));
+    }
+
+
+    @Test
+    public void testTransform(){
+        Map<FieldName, FieldValue> fieldValueMap = s.transformData(DataFactory.create(m));
+
+        FieldName name = FieldName.create("shower:length");
+        Double length = fieldValueMap.get(name).asDouble();
+
+        assertThat(length, is(20.0));
     }
 
     @Test
     public void testMissingFieldClassify(){
-        ImmutableMap<String, Serializable> map = ImmutableMap.of("Size", 1000.0, "Width", 100.0);
-        ProbabilityDistribution prediction = s.applyClassifier(DataFactory.create(map));
-        assertThat(prediction, is(nullValue()));
+        ProbabilityDistribution prediction = s.applyClassifier(DataFactory.create(m));
+        assertThat(prediction, is(not(nullValue())));
 
-        map = ImmutableMap.of("Width", 100.0);
-        prediction = s.applyClassifier(DataFactory.create(map));
+        m.remove("shower:width");
+        m.remove("shower:length");
+        prediction = s.applyClassifier(DataFactory.create(m));
         assertThat(prediction, is(nullValue()));
     }
 
 
-    @Test
+    @Test(expected = RuntimeException.class)
     public void testRegressor(){
-        ImmutableMap<String, Serializable> map = ImmutableMap.of("Size", 1000.0, "Length", 200.0, "Width", 100.0);
-        Double prediction = s.applyRegression(DataFactory.create(map));
+        Double prediction = s.applyRegression(DataFactory.create(m));
         assertThat(prediction, is(not(nullValue())));
     }
 
