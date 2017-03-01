@@ -5,13 +5,11 @@ import stream.annotations.Parameter;
 import streams.cta.CTARawDataProcessor;
 import streams.hexmap.Shower;
 
-import java.util.Map;
-
 /**
- * A heuristic to find signal pixels in the image.
- * Its based on a ideas from the equivalent fact-tools processors, HESS methods and some things in ctapipe.
+ * A heuristic to find signal pixels in the image. Its based on a ideas from the equivalent
+ * fact-tools processors, HESS methods and some things in ctapipe.
  *
- *  @author  Kai Bruegge on 14.02.17
+ * @author Kai Bruegge on 14.02.17
  */
 public class TailCut extends CTARawDataProcessor {
 
@@ -20,30 +18,26 @@ public class TailCut extends CTARawDataProcessor {
 
 
     @Override
-    public Data process(Data input, Map<Integer, double[]> images) {
+    public Data process(Data input, double[] image) {
 
-        images.forEach((cameraId, image) -> {
+        int cameraId = (int) input.get("telescope:id");
+        Shower shower = new Shower(cameraId);
 
-            Shower shower = new Shower(cameraId);
-
-            //add the pixels over the first threshold
-            for(int pixelId = 0; pixelId < image.length; pixelId++)
-            {
-                double weight = image[pixelId];
-                if (weight > levels[0]){
-                    shower.addPixel(pixelId, weight);
-                }
+        //add the pixels over the first threshold
+        for (int pixelId = 0; pixelId < image.length; pixelId++) {
+            double weight = image[pixelId];
+            if (weight > levels[0]) {
+                shower.addPixel(pixelId, weight);
             }
+        }
 
-            // dilate the shower
-            for (int l = 1; l < levels.length; l++) {
-                shower.dilate(image, levels[l]);
-            }
+        // dilate the shower
+        for (int l = 1; l < levels.length; l++) {
+            shower.dilate(image, levels[l]);
+        }
 
-            input.put("telescope:" + cameraId + ":shower", shower);
-            input.put("telescope:" + cameraId + ":shower:number_of_pixel", shower.pixels.size());
-        });
-
+        input.put("shower", shower);
+        input.put("shower:number_of_pixel", shower.pixels.size());
         return input;
     }
 }

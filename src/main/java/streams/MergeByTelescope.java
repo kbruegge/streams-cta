@@ -17,10 +17,12 @@ public class MergeByTelescope implements Processor {
 
         //create a new data item for each triggered telescope
         for (Data telescope : triggeredTelescopes) {
+            int id = (int) telescope.get("telescope:id");
+            String prefix = "telescope:" + id + ":";
             for (String key : telescope.keySet()) {
-                item.put(key, item.get(key));
+                item.put(prefix + key, telescope.get(key));
             }
-
+            item.remove("telescope:" + id + ":telescope:id");
         }
 
         return item;

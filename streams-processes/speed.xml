@@ -8,10 +8,10 @@
 
     <process id="cta:processing" input="cta:loop" copies="1">
         <!--<streams.performance.Performance every="2000" host="ls8ws007.cs.uni-dortmund.de">-->
-            <streams.cta.cleaning.TailCut />
-            <streams.cta.features.Moments />
             <streams.SplitByTelescope key="@telescopes" />
             <ForEach key="@telescopes">
+                <streams.cta.cleaning.TailCut />
+                <streams.cta.features.Moments />
                 <PrintData/>
             </ForEach>
             <streams.MergeByTelescope key="@telescopes"/>

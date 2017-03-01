@@ -3,11 +3,10 @@ package streams.cta.features;
 import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
+
 import stream.Data;
 import streams.cta.CTACleanedDataProcessor;
 import streams.hexmap.Shower;
-
-import java.util.HashMap;
 
 /**
  * Calculate the Width, Length and Delta from the spacial distribution of shower pixels, by use of
@@ -19,34 +18,30 @@ public class WidthLengthDelta extends CTACleanedDataProcessor {
 
 
     @Override
-    public Data process(Data input, HashMap<Integer, Shower> showers) {
+    public Data process(Data input, Shower shower) {
 
-        showers.forEach((telescopeId, shower) -> {
-            double size = (double) input.get("telescope:" + telescopeId + ":shower:total_photons");
-            double cogX = (double) input.get("telescope:" + telescopeId + ":shower:cog:x");
-            double cogY = (double) input.get("telescope:" + telescopeId + ":shower:cog:y");
-
-
-            // Calculate the weighted Empirical variance along the x and y axis.
-            RealMatrix covarianceMatrix = calculateCovarianceMatrix(shower, cogX, cogY);
+        double size = (double) input.get("shower:total_photons");
+        double cogX = (double) input.get("shower:cog:x");
+        double cogY = (double) input.get("shower:cog:y");
 
 
-            EigenDecomposition eig = new EigenDecomposition(covarianceMatrix);
-            // turns out the eigenvalues describe the variance in the eigenbasis of
-            // the covariance matrix
+        // Calculate the weighted Empirical variance along the x and y axis.
+        RealMatrix covarianceMatrix = calculateCovarianceMatrix(shower, cogX, cogY);
 
-            double varianceLong = eig.getRealEigenvalue(0) / size;
-            double varianceTrans = eig.getRealEigenvalue(1) / size;
+        EigenDecomposition eig = new EigenDecomposition(covarianceMatrix);
+        // turns out the eigenvalues describe the variance in the eigenbasis of
+        // the covariance matrix
 
-            double length = Math.sqrt(varianceLong);
-            double width = Math.sqrt(varianceTrans);
-            double delta = calculateDelta(eig);
+        double varianceLong = eig.getRealEigenvalue(0) / size;
+        double varianceTrans = eig.getRealEigenvalue(1) / size;
 
-            input.put("telescope:" + telescopeId + ":shower:length", length);
-            input.put("telescope:" + telescopeId + ":shower:width", width);
-            input.put("telescope:" + telescopeId + ":shower:delta", delta);
-        });
+        double length = Math.sqrt(varianceLong);
+        double width = Math.sqrt(varianceTrans);
+        double delta = calculateDelta(eig);
 
+        input.put("shower:length", length);
+        input.put("shower:width", width);
+        input.put("shower:delta", delta);
 
         return input;
     }

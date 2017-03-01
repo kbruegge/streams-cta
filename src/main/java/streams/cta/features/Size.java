@@ -14,13 +14,10 @@ import java.util.HashMap;
 public class Size extends CTACleanedDataProcessor {
 
     @Override
-    public Data process(Data input, HashMap<Integer, Shower> showers) {
+    public Data process(Data input, Shower shower) {
 
-        showers.forEach((id, shower) -> {
-            double size = shower.pixels.stream().mapToDouble(e -> e.weight).sum();
-            input.put("telescope:" + id + ":shower:total_photons", size);
-        });
-
+        double size = shower.pixels.stream().mapToDouble(e -> e.weight).sum();
+        input.put("shower:total_photons", size);
         return input;
     }
 }

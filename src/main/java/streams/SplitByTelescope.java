@@ -1,5 +1,9 @@
 package streams;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+
+import java.util.List;
 import java.util.Set;
 
 import stream.Data;
@@ -26,6 +30,10 @@ public class SplitByTelescope implements Processor {
     @Parameter(description = "Save collected telescopes under this key.", required = true)
     String key = "@telescopes";
 
+    public void setKey(String key) {
+        this.key = key;
+    }
+
     @Override
     public Data process(Data item) {
 
@@ -42,9 +50,20 @@ public class SplitByTelescope implements Processor {
             Set<String> selectedKeys = Keys.select(item, "telescope:" + id + ":*");
             for (String key : selectedKeys) {
 
-                data.put(key, item.get(key));
+                List<String> splitToList = Splitter.on(":")
+                        .trimResults()
+                        .omitEmptyStrings()
+                        .splitToList(key);
+
+                //remove first two elements (telescope:*:)
+                List<String> subList = splitToList.subList(2, splitToList.size());
+
+                String newKey = Joiner.on(":").join(subList);
+                data.put(newKey, item.get(key));
                 item.remove(key);
             }
+
+            data.put("telescope:id", id);
 
             items[i++] = data;
         }
