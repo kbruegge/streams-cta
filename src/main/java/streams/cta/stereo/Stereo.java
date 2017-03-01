@@ -115,8 +115,14 @@ public class Stereo  implements Processor{
     public Data process(Data data) {
         int[] triggeredTelescopes = (int[]) data.get("array:triggered_telescopes");
 
+        //get pointing information from data stream. while these variables have different names
+        // I think they are the same.
+        // I hope.
+        double phi = (double) data.get("mc:az");
+        double theta = (double) data.get("mc:alt");
+
         List<Plane> planes = Arrays.stream(triggeredTelescopes)
-                .mapToObj(id -> new Plane(id,0, 20, data))
+                .mapToObj(id -> new Plane(id,phi, theta, data))
                 .collect(Collectors.toList());
 
         double[] direction = estimateDirection(planes);
