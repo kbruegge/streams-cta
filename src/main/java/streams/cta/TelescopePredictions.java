@@ -15,7 +15,7 @@ import java.util.Set;
  * Add predictions telescope-wise predictions for energy and signal/background to the data stream.
  * Created by kbruegge on 3/1/17.
  */
-public class AddSingleTelescopePredictions implements Processor {
+public class TelescopePredictions implements Processor {
 
     @Service
     private PredictionService regressor;

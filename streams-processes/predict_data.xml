@@ -3,7 +3,7 @@
 
     <property name="infile" value="otto" />
 
-    <stream id="cta:loop" class="streams.cta.io.LoopStream" >
+    <stream id="cta:loop" class="streams.cta.io.LoopStream"  >
 
         <stream id="cta:data" class="streams.cta.io.ImageStream" url="file:src/main/resources/images.json.gz" />
 
@@ -12,15 +12,17 @@
     <service id="regressor" class="streams.PredictionService" url="file:src/test/resources/test_regressor.pmml" />
     <service id="classifier" class="streams.PredictionService" url="file:src/test/resources/test_classifier.pmml" />
     
-    <process input="cta:loop" copies="4">
+    <process input="cta:loop" copies="1">
         <streams.SplitByTelescope key="@telescopes" />
         <ForEach key="@telescopes">
             <streams.cta.cleaning.TailCut />
             <streams.cta.features.Moments />
-            <streams.cta.AddSingleTelescopePredictions regressor="regressor" classifier="classifier"/>
+            <streams.cta.TelescopePredictions regressor="regressor" classifier="classifier"/>
         </ForEach>
         <streams.MergeByTelescope key="@telescopes"/>
-
+        <streams.cta.SummarizePredictions />
+        <!--<RemoveKeys keys="telescope:*" />-->
+        <!--<PrintData/>-->
         <!--<streams.cta.io.CSVWriter url="file:./test.csv" keys="prediction:*,array:num_triggered_telescopes,mc:*"/>-->
         <streams.DataRate every="4000"/>
     </process>
