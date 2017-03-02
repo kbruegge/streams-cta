@@ -4,21 +4,23 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Type;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
- * This class is a singleton providing access to geometrical camera descriptions (aka CameraGeometry objects)
- * by the specified telescope/camera id. These ids and camera descroptions are defined in the
- * json files stored in the resources folder : 'cta_array_definition.json' and 'cta_camera_definition.json'.
+ * This class is a singleton providing access to geometrical camera descriptions (aka CameraGeometry
+ * objects) by the specified telescope/camera id. These ids and camera descroptions are defined in
+ * the json files stored in the resources folder : 'cta_array_definition.json' and
+ * 'cta_camera_definition.json'.
  *
  * Created by kbruegge on 2/13/17.
  */
@@ -26,46 +28,62 @@ public class CameraMapping {
     private static Logger log = LoggerFactory.getLogger(CameraMapping.class);
 
     private static final Type CAMERA_DEF = new TypeToken<Map<String, CameraGeometry>>() {}.getType();
-    private static final Type ARRAY_DEF= new TypeToken<List<TelescopeDefinition>>() {}.getType();
+    private static final Type ARRAY_DEF = new TypeToken<List<TelescopeDefinition>>() {}.getType();
 
+    /**
+     * Singleton instance containing information about cameras' geometry and telescope definition
+     */
     private static CameraMapping mapping;
 
+    /**
+     * Map with camera geometries (value) for different cameras (key).
+     */
     private final Map<String, CameraGeometry> cameras;
+
+    /**
+     * List of various defined telescopes.
+     */
     private final ArrayList<TelescopeDefinition> telescopes;
 
+    /**
+     * Retrieve the singleton instance of the camera mapping which contains geometry data for the
+     * cameras and definition of the telescopes
+     */
     public synchronized static CameraMapping getInstance() {
-        if (mapping ==  null){
-            final URL cameraDefs = CameraGeometry.class.getResource("/hexmap/cta_camera_definitions.json");
-            final URL arrayDef= CameraGeometry.class.getResource("/hexmap/cta_array_definition.json");
-
-            try{
-                mapping = new CameraMapping(arrayDef, cameraDefs);
-            } catch (FileNotFoundException e){
-                log.error("Could not load array or camera definitons from files. Do they exist?");
+        if (mapping == null) {
+            try {
+                mapping = new CameraMapping();
+            } catch (FileNotFoundException e) {
+                log.error("Could not load array or camera definitions from files. Do they exist?");
                 throw new InstantiationError();
             }
         }
         return mapping;
     }
 
-    private CameraMapping(URL arrayDef, URL cameraDefs) throws FileNotFoundException {
-        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+    private CameraMapping() throws FileNotFoundException {
+        Gson gson = new GsonBuilder().
+                setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+        Class cl = CameraGeometry.class;
 
-        FileReader reader = new FileReader(cameraDefs.getFile());
+        // initialize geometry for the cameras
+        final InputStream cameraDefs = cl.getResourceAsStream("/hexmap/cta_camera_definitions.json");
+        InputStreamReader reader = new InputStreamReader(cameraDefs);
         this.cameras = gson.fromJson(reader, CAMERA_DEF);
 
-        reader = new FileReader(arrayDef.getFile());
+        // initialize definition for the telescopes
+        final InputStream arrayDef = cl.getResourceAsStream("/hexmap/cta_array_definition.json");
+        reader = new InputStreamReader(arrayDef);
         this.telescopes = gson.fromJson(reader, ARRAY_DEF);
-
     }
 
     /**
-     * Get the camera geometry for the given id.  
+     * Get the camera geometry for the given id.
      *
      * @param telescopeId the id of the telescope to get
      * @return the camera geometry for the telescope
      */
-    public CameraGeometry cameraFromId(int telescopeId){
+    public CameraGeometry cameraFromId(int telescopeId) {
         //Watch out for the index here. Telescope ids start at 1.
         //The mapping from telescope index to array index hence needs a -1
         String name = telescopes.get(telescopeId - 1).cameraName;

@@ -6,10 +6,10 @@ import java.io.Serializable;
 import java.util.HashSet;
 
 /**
- * This class holds information about the shower. The set of selected signal pixels from the telescopes
- * image. The pixel class holds all required information to perform simple geometric algorithms
- * on the signal. Like the Hillas parameters for example. Each signal pixel also holds the Ids of its
- * neighbouring pixels. This is useful for dilating the shower.
+ * This class holds information about the shower. The set of selected signal pixels from the
+ * telescopes image. The pixel class holds all required information to perform simple geometric
+ * algorithms on the signal. Like the Hillas parameters for example. Each signal pixel also holds
+ * the Ids of its neighbouring pixels. This is useful for dilating the shower.
  *
  * TODO: still missing is a lot of documentation
  *
@@ -27,7 +27,6 @@ public class Shower implements Serializable {
         this.cameraId = cameraId;
     }
 
-
     public final static class Pixel {
         final public int cameraId;
         final public int pixelId;
@@ -37,7 +36,8 @@ public class Shower implements Serializable {
         final public int[] neighbours;
 
 
-        Pixel(int cameraId, int pixelId, double xPositionInM, double yPositionInM, double weight, int[] neighbours) {
+        Pixel(int cameraId, int pixelId, double xPositionInM,
+              double yPositionInM, double weight, int[] neighbours) {
             this.cameraId = cameraId;
             this.pixelId = pixelId;
             this.xPositionInMM = xPositionInM;
@@ -64,7 +64,7 @@ public class Shower implements Serializable {
         }
     }
 
-    private Pixel createPixel(int pixelId, double weight){
+    private Pixel createPixel(int pixelId, double weight) {
         double x = mapping.cameraFromId(cameraId).pixelXPositions[pixelId];
         double y = mapping.cameraFromId(cameraId).pixelYPositions[pixelId];
 
@@ -77,12 +77,12 @@ public class Shower implements Serializable {
         pixels.add(createPixel(pixelId, weight));
     }
 
-    public void dilate(double[] image, double threshold){
+    public void dilate(double[] image, double threshold) {
         HashSet<Pixel> ids = Sets.newHashSet();
 
-        for(Pixel pix : pixels){
-            for (int n : pix.neighbours){
-                if (image[n] > threshold){
+        for (Pixel pix : pixels) {
+            for (int n : pix.neighbours) {
+                if (image[n] > threshold) {
                     ids.add(createPixel(n, image[n]));
                 }
             }

@@ -3,63 +3,72 @@ package streams.cta.features;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import stream.Data;
+import stream.flow.ForEach;
 import stream.io.SourceURL;
+import streams.MergeByTelescope;
+import streams.SplitByTelescope;
 import streams.cta.cleaning.TailCut;
 import streams.cta.io.ImageStream;
-import streams.hexmap.CameraGeometry;
 
 import static org.junit.Assert.assertTrue;
 import static streams.cta.io.Names.TRIGGERED_TELESCOPE_IDS;
 
 
 /**
- * Test calulcation of some hillas parameters calculations.
- * Created by kbruegge on 2/15/17.
+ * Test calulcation of some hillas parameters calculations. Created by kbruegge on 2/15/17.
  */
 public class HillasTest {
 
-    private ImageStream s;
-    private WidthLengthDelta hillas;
-    private TailCut tailCut;
-    private Size size;
-    private COG cog;
+    private ImageStream stream;
+    private SplitByTelescope split;
+    private ForEach forEach;
+    private MergeByTelescope merge;
+
+    final String splitKey = "@telescopes";
 
     @Before
     public void setUp() throws Exception {
-        s = new ImageStream();
-        s.setUrl(new SourceURL(CameraGeometry.class.getResource("/images.json.gz")));
-        s.init();
+        stream = new ImageStream(new SourceURL(ImageStream.class.getResource("/images.json.gz")));
+        stream.init();
 
-        tailCut = new TailCut();
-        hillas = new WidthLengthDelta();
-        cog = new COG();
-        size = new Size();
-
+        split = new SplitByTelescope();
+        split.setKey(splitKey);
+        TailCut tailCut = new TailCut();
+        WidthLengthDelta hillas = new WidthLengthDelta();
+        COG cog = new COG();
+        Size size = new Size();
+        forEach = new ForEach();
+        forEach.setKey(splitKey);
+        forEach.add(tailCut);
+        forEach.add(size);
+        forEach.add(cog);
+        forEach.add(hillas);
+        merge = new MergeByTelescope();
+        merge.setKey(splitKey);
     }
 
     @After
     public void tearDown() throws Exception {
-        s.close();
+        stream.close();
     }
 
-
     /**
-     * Create a stream of images. Apply the tailcut and hillas processor and check the output
-     * stored in the data item
+     * Create a stream of images. Apply the tailcut and hillas processor and check the output stored
+     * in the data item
      */
     @Test
     public void testStreamWithHillas() throws Exception {
 
-        Data data = s.read();
-        while (data != null){
-            tailCut.process(data);
-            size.process(data);
-            cog.process(data);
-            hillas.process(data);
+        Data data = stream.read();
+        while (data != null) {
+            Data splitData = split.process(data);
+            Data foreachData = forEach.process(splitData);
+            data = merge.process(foreachData);
 
-            int[]  tels = (int[]) data.get(TRIGGERED_TELESCOPE_IDS);
-            for(int id : tels){
+            int[] tels = (int[]) data.get(TRIGGERED_TELESCOPE_IDS);
+            for (int id : tels) {
                 assertTrue(
                         "data item does not contain shower width",
                         data.containsKey("telescope:" + id + ":shower:width"));
@@ -82,10 +91,9 @@ public class HillasTest {
                 assertTrue("Length hast to be greater or equal to width", length >= width);
             }
 
-
-            data = s.read();
+            data = stream.read();
         }
 
-        s.close();
+        stream.close();
     }
 }

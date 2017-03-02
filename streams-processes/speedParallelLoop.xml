@@ -1,0 +1,19 @@
+<application>
+
+    <!--ParallelLoopStream can be executed on Flink, Spark or Storm using the respective -->
+    <!--packages streams-{flink, spark, storm}-->
+    <!--streams-runtime does not support multiple copies of a data stream source-->
+    <stream id="cta:loop" class="streams.cta.io.ParallelLoopStream" limit="1000000" copies="2">
+        <stream id="cta:data" class="streams.cta.io.ImageStream" url="classpath:/images.json.gz" />
+    </stream>
+
+    <process id="cta:processing" input="cta:loop" copies="2">
+        <!--<streams.performance.Performance every="2000" host="ls8ws007.cs.uni-dortmund.de">-->
+            <streams.cta.cleaning.TailCut />
+            <streams.cta.features.Moments />
+            <!--<streams.DataRate every="2"/>-->
+            <PrintData/>
+        <!--</streams.performance.Performance>-->
+    </process>
+
+</application>

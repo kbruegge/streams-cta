@@ -18,19 +18,13 @@ public abstract class CTACleanedDataProcessor implements Processor{
     @Override
     public Data process(Data input) {
 
-        HashMap<Integer, Shower> map = new HashMap<>();
-
-        int[] triggeredTelescopes = (int[]) input.get("array:triggered_telescopes");
-
-        for(int id : triggeredTelescopes){
-            String key = "telescope:" + id +  ":shower";
-            if (input.get(key) != null) {
-                Shower shower = (Shower) input.get(key);
-                map.put(id, shower);
-            }
+        String key = "shower";
+        if (input.get(key) != null) {
+            Shower shower = (Shower) input.get(key);
+            return process(input, shower);
         }
-        return process(input, map);
+        return null;
     }
 
-    public abstract Data process(Data input, HashMap<Integer, Shower> showers);
+    public abstract Data process(Data input, Shower shower);
 }

@@ -71,13 +71,7 @@
         </mailingList>
     </mailingLists>
 
-    <distributionManagement>
-        <repository>
-            <id>bintray-mackaiver-maven</id>
-            <name>mackaiver-maven</name>
-            <url>https://api.bintray.com/maven/mackaiver/maven/streams-cta/;publish=1</url>
-        </repository>
-    </distributionManagement>
+
     <!-- For some repositories such as streams-kafka only snapshots are available right now. -->
     <repositories>
         <repository>
@@ -122,7 +116,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>18.0</version>
+            <version>19.0</version>
         </dependency>
 
         <dependency>
@@ -152,19 +146,19 @@
             <version>3.0.3</version>
         </dependency>
 
+
+        <!--REMOVE THIS when distributed stream is available as a standalone package-->
+        <dependency>
+            <groupId>de.sfb876</groupId>
+            <artifactId>streams-spark</artifactId>
+            <version>${streams.cta.version}-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 
 
     <build>
         <plugins>
-            <plugin>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
-                <configuration>
-                    <releaseProfiles>release</releaseProfiles>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                </configuration>
-            </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.6.1</version>
@@ -339,7 +333,7 @@
                                         </Implementation-Revision>
                                         <Specification-Title>streams-storm</Specification-Title>
                                         <Specification-Version>1.0</Specification-Version>
-                                        <main-class>storm.deploy</main-class>
+                                        <main-class>${platform}.deploy_on_flink</main-class>
                                     </manifestEntries>
                                 </transformer>
                             </transformers>
@@ -412,9 +406,9 @@
                                         </Implementation-Version>
                                         <Implementation-Revision>${project.version}
                                         </Implementation-Revision>
-                                        <Specification-Title>streams-storm</Specification-Title>
+                                        <Specification-Title>streams-${platform}</Specification-Title>
                                         <Specification-Version>1.0</Specification-Version>
-                                        <main-class>storm.run</main-class>
+                                        <main-class>${mainclass}</main-class>
                                     </manifestEntries>
                                 </transformer>
                             </transformers>
@@ -458,7 +452,7 @@
                 <dependency>
                     <groupId>de.sfb876</groupId>
                     <artifactId>streams-flink</artifactId>
-                    <version>${streams.cta.version}</version>
+                    <version>${streams.cta.version}-SNAPSHOT</version>
                 </dependency>
             </dependencies>
 
@@ -478,7 +472,7 @@
                 <dependency>
                     <groupId>de.sfb876</groupId>
                     <artifactId>streams-spark</artifactId>
-                    <version>${streams.cta.version}</version>
+                    <version>${streams.cta.version}-SNAPSHOT</version>
                 </dependency>
             </dependencies>
 
@@ -486,6 +480,21 @@
                 <mainclass>spark.deploy_on_spark</mainclass>
                 <platform>spark</platform>
             </properties>
+        </profile>
+
+        <profile>
+            <!--
+            use this to package with streams-spark and set the mainclass to spark.deploy_on_spark
+            -->
+            <id>parallelSources</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>de.sfb876</groupId>
+                    <artifactId>streams-spark</artifactId>
+                    <version>${streams.cta.version}-SNAPSHOT</version>
+                </dependency>
+            </dependencies>
         </profile>
 
         <profile>
@@ -529,35 +538,21 @@
             </dependencies>
 
         </profile>
+
         <profile>
-            <!--The release profile for releasing this stuff to bintray or whatever-->
-            <id>release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
+            <!--
+            add support for streams-hdfs
+            -->
+            <id>hdfs</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>de.sfb876</groupId>
+                    <artifactId>streams-hdfs</artifactId>
+                    <version>0.0.4-SNAPSHOT</version>
+                </dependency>
+            </dependencies>
+
         </profile>
     </profiles>
 

@@ -4,50 +4,70 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import stream.Data;
+import stream.flow.ForEach;
 import stream.io.SourceURL;
+import streams.MergeByTelescope;
+import streams.SplitByTelescope;
 import streams.cta.cleaning.TailCut;
 import streams.cta.features.Moments;
 import streams.cta.io.ImageStream;
 import streams.hexmap.CameraGeometry;
 
 /**
- * Test the stereo features processor.
+ * Test the stereo features processor in a complete pipeline.
  *
  * Created by kbruegge on 2/27/17.
  */
 public class StereoTest {
 
 
-    private ImageStream s;
-    private Moments hillas;
-    private TailCut tailCut;
-    private Stereo stereo;
+    private ImageStream stream;
+    private SplitByTelescope split;
+    private ForEach forEach;
+    private MergeByTelescope merge;
+
+    final String splitKey = "@telescopes";
+
 
     @Before
     public void setUp() throws Exception {
-        s = new ImageStream();
-        s.setUrl(new SourceURL(CameraGeometry.class.getResource("/images.json.gz")));
-        s.init();
+        stream = new ImageStream(new SourceURL(ImageStream.class.getResource("/images.json.gz")));
+        stream.init();
 
-        tailCut = new TailCut();
-        hillas = new Moments();
-        stereo = new Stereo();
+        split = new SplitByTelescope();
+        split.setKey(splitKey);
+
+        merge = new MergeByTelescope();
+        merge.setKey(splitKey);
     }
 
     @After
     public void tearDown() throws Exception {
-        s.close();
+        stream.close();
     }
 
     @Test
     public void testStereo() throws Exception {
-        Data data = s.read();
+        Data data = stream.read();
+
+        TailCut tailCut = new TailCut();
+        Moments hillas = new Moments();
+        Stereo stereo = new Stereo();
+
+        forEach = new ForEach();
+        forEach.setKey(splitKey);
+        forEach.add(tailCut);
+        forEach.add(hillas);
+
+
         while (data != null){
-            tailCut.process(data);
-            hillas.process(data);
+            Data splitData = split.process(data);
+            Data foreachData = forEach.process(splitData);
+            data = merge.process(foreachData);
+
             stereo.process(data);
 
-            data = s.read();
+            data = stream.read();
         }
     }
 }
