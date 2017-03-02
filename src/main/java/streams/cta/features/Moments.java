@@ -13,7 +13,9 @@ import static java.lang.Math.sqrt;
 
 /**
  * This will be a basic translation of the code found in ctapipe. Some reference is in here:
- * http://adsabs.harvard.edu/abs/1993ApJ...404..206R (Whipple&Reynolds et al. 1993)
+ * <a href="http://adsabs.harvard.edu/abs/1993ApJ...404..206R"> link </a>
+ *
+ * (Whipple and Reynolds et al. 1993)
  *
  * Created by kbruegge on 2/15/17.
  */
