@@ -5,9 +5,9 @@ package streams.hexmap;
  */
 public class TelescopeDefinition {
 
-    double opticalFocalLength;
-    String cameraName;
-    CameraGeometry.TelescopeType telescopeType;
-    double telescopePositionX, telescopePositionY, telescopePositionZ;
+    public double opticalFocalLength;
+    public String cameraName;
+    public CameraGeometry.TelescopeType telescopeType;
+    public double telescopePositionX, telescopePositionY, telescopePositionZ;
 
 }
