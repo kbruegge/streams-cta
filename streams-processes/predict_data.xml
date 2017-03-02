@@ -13,9 +13,14 @@
     <service id="classifier" class="streams.PredictionService" url="file:src/test/resources/test_classifier.pmml" />
     
     <process input="cta:loop" copies="4">
-        <streams.cta.cleaning.TailCut />
-        <streams.cta.features.Moments />
-        <streams.cta.AddSingleTelescopePredictions regressor="regressor" classifier="classifier"/>
+        <streams.SplitByTelescope key="@telescopes" />
+        <ForEach key="@telescopes">
+            <streams.cta.cleaning.TailCut />
+            <streams.cta.features.Moments />
+            <streams.cta.AddSingleTelescopePredictions regressor="regressor" classifier="classifier"/>
+        </ForEach>
+        <streams.MergeByTelescope key="@telescopes"/>
+
         <!--<streams.cta.io.CSVWriter url="file:./test.csv" keys="prediction:*,array:num_triggered_telescopes,mc:*"/>-->
         <streams.DataRate every="4000"/>
     </process>
