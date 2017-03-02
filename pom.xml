@@ -145,6 +145,14 @@
             <version>3.0.3</version>
         </dependency>
 
+
+        <!--REMOVE THIS when distributed stream is available as a standalone package-->
+        <dependency>
+            <groupId>de.sfb876</groupId>
+            <artifactId>streams-spark</artifactId>
+            <version>${streams.cta.version}-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 
 
