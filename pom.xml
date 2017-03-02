@@ -71,13 +71,7 @@
         </mailingList>
     </mailingLists>
 
-    <distributionManagement>
-        <repository>
-            <id>bintray-mackaiver-maven</id>
-            <name>mackaiver-maven</name>
-            <url>https://api.bintray.com/maven/mackaiver/maven/streams-cta/;publish=1</url>
-        </repository>
-    </distributionManagement>
+
     <!-- For some repositories such as streams-kafka only snapshots are available right now. -->
     <repositories>
         <repository>
@@ -165,14 +159,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
-                <configuration>
-                    <releaseProfiles>release</releaseProfiles>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                </configuration>
-            </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.6.1</version>
