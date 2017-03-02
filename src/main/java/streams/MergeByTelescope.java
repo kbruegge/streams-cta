@@ -5,6 +5,9 @@ import stream.Processor;
 import stream.annotations.Parameter;
 
 /**
+ * Using the 'key' attribute, this processor merges the array of telescopes saved as in the data
+ * item into the original data item. It should be applied after SplitByTelescope which should be
+ * combined with the ForEach processor list.
  */
 public class MergeByTelescope implements Processor {
 
