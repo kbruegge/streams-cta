@@ -14,6 +14,10 @@ public class MergeByTelescope implements Processor {
     @Parameter(description = "Save collected telescopes under this key.", required = true)
     String key = "@telescopes";
 
+    public void setKey(String key) {
+        this.key = key;
+    }
+
     @Override
     public Data process(Data item) {
         Data[] triggeredTelescopes = (Data[]) item.get(key);
