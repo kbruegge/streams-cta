@@ -71,6 +71,13 @@
         </mailingList>
     </mailingLists>
 
+    <distributionManagement>
+        <repository>
+            <id>bintray-mackaiver-maven</id>
+            <name>mackaiver-maven</name>
+            <url>https://api.bintray.com/maven/mackaiver/maven/streams-cta/;publish=1</url>
+        </repository>
+    </distributionManagement>
     <!-- For some repositories such as streams-kafka only snapshots are available right now. -->
     <repositories>
         <repository>
