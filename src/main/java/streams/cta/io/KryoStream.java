@@ -18,8 +18,9 @@ import java.util.HashMap;
  * KryoStream creates a stream out of an <a href="https://github.com/EsotericSoftware/kryo">Kryo</a>
  * serialized file.
  *
+ *
  * @author kai
- * @see <a href="https://github.com/EsotericSoftware/kryo"/>
+ *
  */
 public class KryoStream extends AbstractStream {
 
