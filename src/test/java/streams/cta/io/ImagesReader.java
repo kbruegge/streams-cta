@@ -25,11 +25,11 @@ public class ImagesReader {
 
     @Test
     public void testStream() throws Exception {
-        ImageStream s = new ImageStream(new SourceURL(images));
+        ImageStream stream = new ImageStream(new SourceURL(images));
 
-        s.init();
+        stream.init();
 
-        Data data = s.read();
+        Data data = stream.read();
         while (data != null){
             assertThat(Keys.select(data, "telescope:*").isEmpty(), is(false));
 
@@ -47,9 +47,9 @@ public class ImagesReader {
                     sqrt(pow(x, 2) + pow(y, 2)) < 1000_000
             );
 
-            data = s.read();
+            data = stream.read();
         }
 
-        s.close();
+        stream.close();
     }
 }
