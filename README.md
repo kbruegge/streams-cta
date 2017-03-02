@@ -56,7 +56,21 @@ More to come soon. Keep in mind that these are currently only proposals. This mi
 The input to this program are note EventIO files but already calibrated events. These
 can be produced from any EventIO file using the `convert_raw_data.py` script in the python
 folder. It will create a gzipped json file containing the calibrated images for all the events
-in the EventIO file.
+in the EventIO file. Input files can be found on Konrads Bernloehrs Website.
+The URLs of the files look like this for the super arrays
+    
+    https://www.mpi-hd.mpg.de/personalhomes/bernlohr/cta-raw/Prod-3/Paranal/electron_20deg_0deg_run732___cta-prod3-merged_desert-2150m-Paranal-subarray-1.simtel.gz
+    https://www.mpi-hd.mpg.de/personalhomes/bernlohr/cta-raw/Prod-3/Paranal/proton_20deg_0deg_run8050___cta-prod3-merged_desert-2150m-Paranal-subarray-1.simtel.gz
+    https://www.mpi-hd.mpg.de/personalhomes/bernlohr/cta-raw/Prod-3/Paranal/gamma_20deg_0deg_run8142___cta-prod3-merged_desert-2150m-Paranal-subarray-1.simtel.gz
+    
+There are 5 sub-arrays to pick from. I don't know what the differences are.
+The password is the well known CTA password. Contact me if you don't know it.
+These URLs point to some sub arrays I believe
+
+    https://www.mpi-hd.mpg.de/personalhomes/bernlohr/cta-raw/Prod-3/Paranal/Remerged-3HB8/proton_20deg_0deg_run7866___cta-prod3-merged_desert-2150m-Paranal-3HB8-NG.simtel.gz
+    https://www.mpi-hd.mpg.de/personalhomes/bernlohr/cta-raw/Prod-3/Paranal/Remerged-3HB8/gamma_20deg_0deg_run5706___cta-prod3-merged_desert-2150m-Paranal-3HB8-NG.simtel.gz
+
+
 
 ### Usage
 

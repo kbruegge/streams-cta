@@ -71,6 +71,7 @@
         </mailingList>
     </mailingLists>
 
+
     <!-- For some repositories such as streams-kafka only snapshots are available right now. -->
     <repositories>
         <repository>
@@ -152,6 +153,13 @@
         </dependency>
 
 
+        <!--REMOVE THIS when distributed stream is available as a standalone package-->
+        <dependency>
+            <groupId>de.sfb876</groupId>
+            <artifactId>streams-spark</artifactId>
+            <version>${streams.cta.version}-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 
 
@@ -159,7 +167,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.0.2</version>
+                <version>3.6.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -331,7 +339,7 @@
                                         </Implementation-Revision>
                                         <Specification-Title>streams-storm</Specification-Title>
                                         <Specification-Version>1.0</Specification-Version>
-                                        <main-class>storm.deploy</main-class>
+                                        <main-class>${platform}.deploy_on_flink</main-class>
                                     </manifestEntries>
                                 </transformer>
                             </transformers>
@@ -450,7 +458,7 @@
                 <dependency>
                     <groupId>de.sfb876</groupId>
                     <artifactId>streams-flink</artifactId>
-                    <version>${streams.cta.version}</version>
+                    <version>${streams.cta.version}-SNAPSHOT</version>
                 </dependency>
             </dependencies>
 
@@ -470,7 +478,7 @@
                 <dependency>
                     <groupId>de.sfb876</groupId>
                     <artifactId>streams-spark</artifactId>
-                    <version>${streams.cta.version}</version>
+                    <version>${streams.cta.version}-SNAPSHOT</version>
                 </dependency>
             </dependencies>
 
@@ -478,6 +486,21 @@
                 <mainclass>spark.deploy_on_spark</mainclass>
                 <platform>spark</platform>
             </properties>
+        </profile>
+
+        <profile>
+            <!--
+            use this to package with streams-spark and set the mainclass to spark.deploy_on_spark
+            -->
+            <id>parallelSources</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>de.sfb876</groupId>
+                    <artifactId>streams-spark</artifactId>
+                    <version>${streams.cta.version}-SNAPSHOT</version>
+                </dependency>
+            </dependencies>
         </profile>
 
         <profile>
@@ -517,6 +540,22 @@
                     <groupId>de.sfb876</groupId>
                     <artifactId>streams-performance</artifactId>
                     <version>${streams.cta.version}</version>
+                </dependency>
+            </dependencies>
+
+        </profile>
+
+        <profile>
+            <!--
+            add support for streams-hdfs
+            -->
+            <id>hdfs</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>de.sfb876</groupId>
+                    <artifactId>streams-hdfs</artifactId>
+                    <version>0.0.4-SNAPSHOT</version>
                 </dependency>
             </dependencies>
 

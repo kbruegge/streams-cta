@@ -4,8 +4,6 @@ import stream.Data;
 import streams.cta.CTACleanedDataProcessor;
 import streams.hexmap.Shower;
 
-import java.util.HashMap;
-
 /**
  * Calculate the center of gravity COG, which is the weighted center of the shower pixels.
  *
@@ -14,15 +12,10 @@ import java.util.HashMap;
 public class COG extends CTACleanedDataProcessor {
 
     @Override
-    public Data process(Data input, HashMap<Integer, Shower> showers) {
-        showers.forEach((id, shower) -> {
-
-            CoGPoint coGPoint = calculateCenterOfGravity(shower);
-
-            input.put(String.format("telescope:%d:shower:cog:x", id), coGPoint.cogX);
-            input.put(String.format("telescope:%d:shower:cog:y", id), coGPoint.cogY);
-        });
-
+    public Data process(Data input, Shower shower) {
+        CoGPoint coGPoint = calculateCenterOfGravity(shower);
+        input.put("shower:cog:x", coGPoint.cogX);
+        input.put("shower:cog:y", coGPoint.cogY);
         return input;
     }
 

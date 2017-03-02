@@ -5,13 +5,14 @@ package streams.cta.io;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Map;
+
 import stream.Data;
 import stream.annotations.Parameter;
 import stream.io.Stream;
 import stream.io.multi.AbstractMultiStream;
-
-import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Loops over a specified amount of events in the inner streams. If the first stream is emptied the
@@ -27,7 +28,6 @@ public class LoopStream extends AbstractMultiStream {
 
     @Parameter(description = "How many events you want to loop over.", defaultValue = "100", required = false)
     int events = 100;
-
 
     private final ArrayList<Data> items = new ArrayList<>();
 
@@ -62,9 +62,14 @@ public class LoopStream extends AbstractMultiStream {
      */
     @Override
     public Data readNext() throws Exception {
+        if (items.size() == 0) {
+            log.error("No items found for the loop.");
+            return null;
+        }
+
         //TODO: do we have to apply modulo twice here?
         Data item = items.get(idx % items.size());
         idx = (idx + 1) % items.size();
-        return item;
+        return item.createCopy();
     }
 }
