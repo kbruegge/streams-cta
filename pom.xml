@@ -96,6 +96,12 @@
         </dependency>
 
         <dependency>
+            <groupId>de.sfb876</groupId>
+            <artifactId>streams-parallel-source</artifactId>
+            <version>${streams.cta.version}-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.0</version>
@@ -144,14 +150,6 @@
             <groupId>com.esotericsoftware</groupId>
             <artifactId>kryo-shaded</artifactId>
             <version>3.0.3</version>
-        </dependency>
-
-
-        <!--REMOVE THIS when distributed stream is available as a standalone package-->
-        <dependency>
-            <groupId>de.sfb876</groupId>
-            <artifactId>streams-spark</artifactId>
-            <version>${streams.cta.version}-SNAPSHOT</version>
         </dependency>
 
     </dependencies>
