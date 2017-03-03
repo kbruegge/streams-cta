@@ -4,7 +4,6 @@ The realtime analysis of the data from the CTA arrays poses interesting challeng
 
 With the **streams-cta** project we investigate the use of highly scalable platforms, such as [Apache Storm](http://storm.apache.org/) and [Apache Kafka](http://kafka.apache.org/), that recently have been published by the computer science community to tackle Big Data analysis requirements. Based on the intermediate streams framework, which serves as a middle-layer design tool, we test different implementations and platforms for their performance and scalability.
 
-
 ### Data Structure
 
 The input to the realtime analysis (RTA) are calibrated CTA Array events.
@@ -141,3 +140,10 @@ In case you're using Java IDE such as IntelliJ or Eclipse you can simply import 
 For Mac users the path to the codestyles folder is: ```~/Library/Preferences/IdeaICxx/codestyles```
 Afterwards your IDE can e.g. reformat your code to the Code Style suggested there (in IntelliJ: ```Code```-> ```Reformat Code...```).
 
+
+## Other resources
+
+Heres a bunch of other proposals and design overviews for the CTA project
+
+ - https://pos.sissa.it/archive/conferences/236/985/ICRC2015_985.pdf (Low Level Data proposal) 
+ - https://arxiv.org/abs/1509.01963 (The On-Site Analysis of the Cherenkov Telescope Array)
