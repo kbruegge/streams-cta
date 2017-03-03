@@ -3,15 +3,14 @@ package streams.cta.io;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.net.URL;
-import java.util.Map;
-
 import stream.Data;
 import stream.io.SourceURL;
 import stream.io.Stream;
 
-import static org.junit.Assert.*;
+import java.net.URL;
+import java.util.Map;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test looping over a substream (using ImageStream here).

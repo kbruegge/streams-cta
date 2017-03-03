@@ -1,7 +1,6 @@
 package streams.cta;
 
 import org.junit.Test;
-
 import stream.Data;
 import stream.Processor;
 import stream.data.DataFactory;

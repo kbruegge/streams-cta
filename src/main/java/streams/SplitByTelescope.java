@@ -2,15 +2,14 @@ package streams;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-
-import java.util.List;
-import java.util.Set;
-
 import stream.Data;
 import stream.Keys;
 import stream.Processor;
 import stream.annotations.Parameter;
 import stream.data.DataFactory;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * Split the data items by telescopes. Recieves on data item with many telescopes like
@@ -63,8 +62,10 @@ public class SplitByTelescope implements Processor {
                 item.remove(key);
             }
 
+            for (String key: Keys.select(item, "array:*")){
+                data.put(key, item.get(key));
+            }
             data.put("telescope:id", id);
-
             items[i++] = data;
         }
 

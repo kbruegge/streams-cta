@@ -12,8 +12,8 @@ import stream.annotations.Parameter;
 import java.util.concurrent.TimeUnit;
 
 /**
- * DataRate counts number of items processed per second. Additionally it can log memory (free,
- * total, max).
+ * DataRate counts number of items processed per second.
+ * Additionally it can log memory (free, total, max).
  *
  * @author kai
  */

@@ -11,7 +11,6 @@ import streams.SplitByTelescope;
 import streams.cta.cleaning.TailCut;
 import streams.cta.features.Moments;
 import streams.cta.io.ImageStream;
-import streams.hexmap.CameraGeometry;
 
 /**
  * Test the stereo features processor in a complete pipeline.
