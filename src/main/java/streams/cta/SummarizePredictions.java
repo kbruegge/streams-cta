@@ -1,15 +1,9 @@
 package streams.cta;
 
-import org.apache.commons.math.stat.descriptive.SummaryStatistics;
-import org.jpmml.evaluator.ProbabilityDistribution;
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import stream.Data;
 import stream.Keys;
 import stream.Processor;
-import stream.annotations.Service;
-import stream.data.DataFactory;
-import streams.PredictionService;
-
-import java.util.Set;
 
 /**
  * Add predictions telescope-wise predictions for energy and signal/background to the data stream.

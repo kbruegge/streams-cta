@@ -3,7 +3,6 @@ package streams.cta.cleaning;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import stream.Data;
 import stream.io.SourceURL;
 import streams.SplitByTelescope;

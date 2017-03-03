@@ -5,14 +5,13 @@ package streams.cta.io;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
-
 import stream.Data;
 import stream.annotations.Parameter;
 import stream.io.Stream;
 import stream.io.multi.AbstractMultiStream;
 import streams.io.parallel.ParallelMultiStream;
+
+import java.util.Map;
 
 /**
  * Loops over a specified amount of events in the inner streams. If the first stream is emptied the

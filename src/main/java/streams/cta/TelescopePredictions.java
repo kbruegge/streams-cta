@@ -1,20 +1,15 @@
 package streams.cta;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.jpmml.evaluator.ProbabilityDistribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import stream.*;
+import stream.Data;
+import stream.ProcessContext;
+import stream.StatefulProcessor;
 import stream.annotations.Parameter;
 import stream.annotations.Service;
 import stream.io.SourceURL;
 import streams.PredictionService;
-import streams.hexmap.TelescopeDefinition;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * Add predictions telescope-wise predictions for energy and signal/background to the data stream.

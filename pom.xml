@@ -151,7 +151,7 @@
             <artifactId>kryo-shaded</artifactId>
             <version>3.0.3</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.jpmml</groupId>
             <artifactId>pmml-evaluator</artifactId>

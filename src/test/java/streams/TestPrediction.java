@@ -1,7 +1,5 @@
 package streams;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import org.dmg.pmml.FieldName;
 import org.jpmml.evaluator.FieldValue;
 import org.jpmml.evaluator.ProbabilityDistribution;
@@ -15,9 +13,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 /**

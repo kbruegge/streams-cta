@@ -4,8 +4,6 @@ import stream.Data;
 import streams.cta.CTACleanedDataProcessor;
 import streams.hexmap.Shower;
 
-import java.util.HashMap;
-
 /**
  * Calculate the totals amount of photons in the shower. Some call this parameter 'size"
  *
