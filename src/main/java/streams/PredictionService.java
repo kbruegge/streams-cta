@@ -47,7 +47,7 @@ public class PredictionService implements Service {
     private List<InputField> activeFields;
 
     @Parameter(required = true, description = "URL point to the .pmml model")
-    SourceURL url;
+    public SourceURL url;
 
 
     public void init() {

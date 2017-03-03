@@ -13,11 +13,12 @@
     <service id="classifier" class="streams.PredictionService" url="file:src/test/resources/test_classifier.pmml" />
     
     <process input="cta:loop" copies="1">
+        <!--<streams.performance.Performance every="2000" host="127.0.0.1:8080">-->
         <streams.SplitByTelescope key="@telescopes" />
         <ForEach key="@telescopes">
             <streams.cta.cleaning.TailCut />
             <streams.cta.features.Moments />
-            <streams.cta.TelescopePredictions regressor="regressor" classifier="classifier"/>
+            <streams.cta.TelescopePredictions regressor="regressor" classifier="classifier" local="true"/>
         </ForEach>
         <streams.MergeByTelescope key="@telescopes"/>
         <streams.cta.SummarizePredictions />
@@ -25,6 +26,7 @@
         <!--<PrintData/>-->
         <!--<streams.cta.io.CSVWriter url="file:./test.csv" keys="prediction:*,array:num_triggered_telescopes,mc:*"/>-->
         <streams.DataRate every="4000"/>
+        <!--</streams.performance.Performance>-->
     </process>
     
 </application>
