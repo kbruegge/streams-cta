@@ -5,6 +5,7 @@ import org.dmg.pmml.FieldName;
 import org.dmg.pmml.Model;
 import org.dmg.pmml.PMML;
 import org.jpmml.evaluator.*;
+import org.jpmml.evaluator.visitors.PredicateOptimizer;
 import org.jpmml.model.ImportFilter;
 import org.jpmml.model.JAXBUtil;
 import org.slf4j.Logger;
@@ -62,6 +63,8 @@ public class PredictionService implements Service {
             throw  new RuntimeException(ex);
         }
 
+        PredicateOptimizer optimizer = new PredicateOptimizer();
+        optimizer.applyTo(pmml);
         //build a model evaluator from the loaded pmml file
         ModelEvaluatorFactory modelEvaluatorFactory = ModelEvaluatorFactory.newInstance();
         modelEvaluator = modelEvaluatorFactory.newModelEvaluator(pmml);
