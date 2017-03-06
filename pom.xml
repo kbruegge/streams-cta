@@ -159,6 +159,12 @@
         </dependency>
 
 
+        <dependency>
+            <groupId>org.jpmml</groupId>
+            <artifactId>pmml-evaluator-extension</artifactId>
+            <version>1.3.5</version>
+        </dependency>
+
         <!--REMOVE THIS when distributed stream is available as a standalone package-->
         <dependency>
             <groupId>de.sfb876</groupId>
