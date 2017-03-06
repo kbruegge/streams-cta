@@ -63,9 +63,10 @@ public class PredictionService implements Service {
             throw  new RuntimeException(ex);
         }
 
-        PredicateOptimizer optimizer = new PredicateOptimizer();
-        optimizer.applyTo(pmml);
-        //build a model evaluator from the loaded pmml file
+        // see https://github.com/jpmml/jpmml-evaluator/issues/38
+        new PredicateOptimizer().applyTo(pmml);
+
+        // build a model evaluator from the loaded pmml file
         ModelEvaluatorFactory modelEvaluatorFactory = ModelEvaluatorFactory.newInstance();
         modelEvaluator = modelEvaluatorFactory.newModelEvaluator(pmml);
 
