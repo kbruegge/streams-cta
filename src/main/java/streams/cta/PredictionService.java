@@ -1,4 +1,4 @@
-package streams;
+package streams.cta;
 
 
 import org.dmg.pmml.FieldName;
@@ -20,7 +20,7 @@ import stream.service.Service;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.Source;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,8 +54,8 @@ public class PredictionService implements Service {
     public void init() {
         log.debug("Loading pmml model from url: " + url);
         PMML pmml;
-        try (InputStream is = url.openStream()) {
-            Source transformedSource = ImportFilter.apply(new InputSource(is));
+        try (InputStreamReader isr = new InputStreamReader(url.openStream())) {
+            Source transformedSource = ImportFilter.apply(new InputSource(isr));
             pmml = JAXBUtil.unmarshalPMML(transformedSource);
         } catch (SAXException | IOException | JAXBException ex) {
             log.error("Could not load model from file provided at" + url);

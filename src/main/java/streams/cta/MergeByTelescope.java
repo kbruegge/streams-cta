@@ -1,4 +1,4 @@
-package streams;
+package streams.cta;
 
 import stream.Data;
 import stream.Processor;

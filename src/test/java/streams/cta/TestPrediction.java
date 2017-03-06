@@ -1,4 +1,4 @@
-package streams;
+package streams.cta;
 
 import org.dmg.pmml.FieldName;
 import org.jpmml.evaluator.FieldValue;
@@ -23,13 +23,13 @@ import static org.junit.Assert.assertThat;
  */
 public class TestPrediction {
 
-    private static PredictionService s = new PredictionService();
+    private static PredictionService predictionService = new PredictionService();
     private HashMap<String, Serializable> m = new HashMap<>();
 
     @BeforeClass
     public static void setUpModel() throws Exception {
-        s.url = new SourceURL(TestPrediction.class.getResource("/test_classifier.pmml"));
-        s.init();
+        predictionService.url = new SourceURL(TestPrediction.class.getResource("/test_classifier.pmml"));
+        predictionService.init();
     }
 
     @Before
@@ -46,14 +46,14 @@ public class TestPrediction {
 
     @Test
     public void testClassify(){
-        ProbabilityDistribution prediction = s.applyClassifier(DataFactory.create(m));
+        ProbabilityDistribution prediction = predictionService.applyClassifier(DataFactory.create(m));
         assertThat(prediction, is(not(nullValue())));
     }
 
 
     @Test
     public void testTransform(){
-        Map<FieldName, FieldValue> fieldValueMap = s.transformData(DataFactory.create(m));
+        Map<FieldName, FieldValue> fieldValueMap = predictionService.transformData(DataFactory.create(m));
 
         FieldName name = FieldName.create("shower:length");
         Double length = fieldValueMap.get(name).asDouble();
@@ -63,19 +63,19 @@ public class TestPrediction {
 
     @Test
     public void testMissingFieldClassify(){
-        ProbabilityDistribution prediction = s.applyClassifier(DataFactory.create(m));
+        ProbabilityDistribution prediction = predictionService.applyClassifier(DataFactory.create(m));
         assertThat(prediction, is(not(nullValue())));
 
         m.remove("shower:width");
         m.remove("shower:length");
-        prediction = s.applyClassifier(DataFactory.create(m));
+        prediction = predictionService.applyClassifier(DataFactory.create(m));
         assertThat(prediction, is(nullValue()));
     }
 
 
     @Test(expected = RuntimeException.class)
     public void testRegressor(){
-        Double prediction = s.applyRegression(DataFactory.create(m));
+        Double prediction = predictionService.applyRegression(DataFactory.create(m));
         assertThat(prediction, is(not(nullValue())));
     }
 

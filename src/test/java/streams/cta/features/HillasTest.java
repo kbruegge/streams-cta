@@ -6,8 +6,9 @@ import org.junit.Test;
 import stream.Data;
 import stream.flow.ForEach;
 import stream.io.SourceURL;
-import streams.MergeByTelescope;
-import streams.SplitByTelescope;
+import streams.cta.MergeByTelescope;
+import streams.cta.SplitByTelescope;
+import streams.cta.SummarizePredictions;
 import streams.cta.cleaning.TailCut;
 import streams.cta.io.ImageStream;
 

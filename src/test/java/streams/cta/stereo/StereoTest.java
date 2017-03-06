@@ -3,11 +3,12 @@ package streams.cta.stereo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import stream.Data;
 import stream.flow.ForEach;
 import stream.io.SourceURL;
-import streams.MergeByTelescope;
-import streams.SplitByTelescope;
+import streams.cta.MergeByTelescope;
+import streams.cta.SplitByTelescope;
 import streams.cta.cleaning.TailCut;
 import streams.cta.features.Moments;
 import streams.cta.io.ImageStream;
@@ -19,10 +20,8 @@ import streams.cta.io.ImageStream;
  */
 public class StereoTest {
 
-
     private ImageStream stream;
     private SplitByTelescope split;
-    private ForEach forEach;
     private MergeByTelescope merge;
 
     final String splitKey = "@telescopes";
@@ -49,17 +48,15 @@ public class StereoTest {
     public void testStereo() throws Exception {
         Data data = stream.read();
 
-        TailCut tailCut = new TailCut();
-        Moments hillas = new Moments();
         Stereo stereo = new Stereo();
 
-        forEach = new ForEach();
+        ForEach forEach = new ForEach();
         forEach.setKey(splitKey);
-        forEach.add(tailCut);
-        forEach.add(hillas);
+        forEach.add(new TailCut());
+        forEach.add(new Moments());
 
 
-        while (data != null){
+        while (data != null) {
             Data splitData = split.process(data);
             Data foreachData = forEach.process(splitData);
             data = merge.process(foreachData);

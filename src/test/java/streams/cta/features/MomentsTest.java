@@ -3,11 +3,12 @@ package streams.cta.features;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import stream.Data;
 import stream.flow.ForEach;
 import stream.io.SourceURL;
-import streams.MergeByTelescope;
-import streams.SplitByTelescope;
+import streams.cta.MergeByTelescope;
+import streams.cta.SplitByTelescope;
 import streams.cta.cleaning.TailCut;
 import streams.cta.io.ImageStream;
 
@@ -87,7 +88,7 @@ public class MomentsTest {
                 double width = (double) data.get("telescope:" + id + ":shower:width");
                 double length = (double) data.get("telescope:" + id + ":shower:length");
 
-                if(Double.isNaN(width)){
+                if (Double.isNaN(width)) {
                     continue;
                 }
 
