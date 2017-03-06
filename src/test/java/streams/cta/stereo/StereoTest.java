@@ -3,7 +3,6 @@ package streams.cta.stereo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import stream.Data;
 import stream.flow.ForEach;
 import stream.io.SourceURL;

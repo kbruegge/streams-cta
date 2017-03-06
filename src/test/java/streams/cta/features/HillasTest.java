@@ -8,7 +8,6 @@ import stream.flow.ForEach;
 import stream.io.SourceURL;
 import streams.cta.MergeByTelescope;
 import streams.cta.SplitByTelescope;
-import streams.cta.SummarizePredictions;
 import streams.cta.cleaning.TailCut;
 import streams.cta.io.ImageStream;
 

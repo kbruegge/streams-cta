@@ -6,7 +6,6 @@ import org.junit.Test;
 import stream.Data;
 import stream.io.SourceURL;
 import streams.cta.SplitByTelescope;
-import streams.cta.SummarizePredictions;
 import streams.cta.io.ImageStream;
 import streams.hexmap.Shower;
 
