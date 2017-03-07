@@ -1,9 +1,8 @@
 import click
 from tqdm import tqdm
 from ctapipe.io.hessio import hessio_event_source
-
+import gzip
 import json
-# import gzip
 
 
 def calibrate(event, tel_id):
@@ -21,6 +20,7 @@ def calibrate(event, tel_id):
         image = calibrated_samples[0].sum(axis=1)
         return image
 
+    # below is the calibration in case of astrii
     else:
         n_samples = 1
         samples = event.dl0.tel[tel_id].adc_sums
@@ -58,13 +58,29 @@ def fill_images_dict(event):
     return img_dict
 
 
+def convert(source):
+    data = []
+    event_id = 0
+    for event in tqdm(source):
+        c = {}
+        c['images'] = fill_images_dict(event)
+        c['mc'] = fill_mc_dict(event)
+        c['array'] = fill_array_dict(event)
+        c['event_id'] = event_id
+        event_id += 1
+
+        data.append(c)
+
+    return data
+
+
 @click.command()
 @click.argument('input_file', type=click.Path(exists=True))
 @click.argument('output_file', type=click.Path(exists=False))
 @click.option('--limit', default=100, help='number of events to convert from the file.'
                                            'If a negative value is given, the whole file'
                                            'will be read')
-def main(input_file, output_file, limit):
+def main(input_file, output_file, limit, compress):
     '''
     The INPUT_FILE argument specifies the path to a simtel file. This script reads the
     camera definitions from there and puts them into a json file
@@ -76,22 +92,11 @@ def main(input_file, output_file, limit):
     else:
         source = hessio_event_source(input_file)
 
-    data = []
-    event_id = 0
-    for event in tqdm(source):
-        # from IPython import embed
-        # embed()
-        c = {}
-        c['images'] = fill_images_dict(event)
-        c['mc'] = fill_mc_dict(event)
-        c['array'] = fill_array_dict(event)
-        c['event_id'] = event_id
-        event_id += 1
-
-        data.append(c)
+    data = convert(source)
 
     with open(output_file, 'w') as of:
         json.dump(data, of, indent=2)
+
 
 if __name__ == '__main__':
     main()
