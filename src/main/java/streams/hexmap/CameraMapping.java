@@ -12,7 +12,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -26,8 +26,8 @@ import java.util.Map;
 public class CameraMapping {
     private static Logger log = LoggerFactory.getLogger(CameraMapping.class);
 
-    private static final Type CAMERA_DEF = new TypeToken<Map<String, CameraGeometry>>() {}.getType();
-    private static final Type ARRAY_DEF = new TypeToken<List<TelescopeDefinition>>() {}.getType();
+    private static final Type CAMERA_DEF = new TypeToken<HashMap<String, CameraGeometry>>() {}.getType();
+    private static final Type ARRAY_DEF = new TypeToken<ArrayList<TelescopeDefinition>>() {}.getType();
 
     /**
      * Singleton instance containing information about cameras' geometry and telescope definition

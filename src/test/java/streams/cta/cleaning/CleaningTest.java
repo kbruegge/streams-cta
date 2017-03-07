@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import stream.Data;
 import stream.io.SourceURL;
-import streams.SplitByTelescope;
+import streams.cta.SplitByTelescope;
 import streams.cta.io.ImageStream;
 import streams.hexmap.Shower;
 

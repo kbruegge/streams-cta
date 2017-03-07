@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stream.Data;
 import stream.annotations.Parameter;
+import stream.data.DataFactory;
 import stream.io.Stream;
 import stream.io.multi.AbstractMultiStream;
 
@@ -66,9 +67,8 @@ public class LoopStream extends AbstractMultiStream {
             return null;
         }
 
-        //TODO: do we have to apply modulo twice here?
         Data item = items.get(idx % items.size());
         idx = (idx + 1) % items.size();
-        return item.createCopy();
+        return DataFactory.create(item);
     }
 }

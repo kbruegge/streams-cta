@@ -1,5 +1,9 @@
 target
+build
 *.DS_Store
+
+### Python stuff
+python/__pycache__/
 
 ### JetBrains template
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm

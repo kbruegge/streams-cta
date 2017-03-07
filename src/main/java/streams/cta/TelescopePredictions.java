@@ -9,7 +9,6 @@ import stream.StatefulProcessor;
 import stream.annotations.Parameter;
 import stream.annotations.Service;
 import stream.io.SourceURL;
-import streams.PredictionService;
 
 /**
  * Add predictions telescope-wise predictions for energy and signal/background to the data stream.

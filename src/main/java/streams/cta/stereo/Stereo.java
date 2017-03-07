@@ -232,7 +232,8 @@ public class Stereo  implements Processor{
      *
      */
     static class Plane {
-        //the tlescope id this reconstructed plane belongs to
+        static final CameraMapping MAPPING = CameraMapping.getInstance();
+        //the telescope id this reconstructed plane belongs to
         final int telescopeId;
         //the weight given to the plane
         final double weight;
@@ -259,7 +260,7 @@ public class Stereo  implements Processor{
             double psi = (double) data.get(prefix + "psi");
             double size = (double) data.get(prefix + "size");
 
-            TelescopeDefinition tel = CameraMapping.getInstance().telescopeFromId(id);
+            TelescopeDefinition tel = MAPPING.telescopeFromId(id);
 
             //get two points on the shower axis
             double pX = cogX + length * cos(psi);
