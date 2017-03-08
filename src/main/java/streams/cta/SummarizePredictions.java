@@ -25,6 +25,7 @@ public class SummarizePredictions implements Processor {
 
         
         item.put("prediction:signal:mean", signal.getMean());
+        item.put("prediction:signal:sum", signal.getSum());
         item.put("prediction:signal:max", signal.getMax());
         item.put("prediction:signal:min", signal.getMin());
         item.put("prediction:signal:std", signal.getStandardDeviation());
