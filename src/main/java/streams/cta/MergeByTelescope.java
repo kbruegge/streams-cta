@@ -31,6 +31,7 @@ public class MergeByTelescope implements Processor {
             }
             item.remove("telescope:" + id + ":telescope:id");
         }
+        item.remove(key);
 
         return item;
     }
