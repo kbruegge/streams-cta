@@ -110,7 +110,6 @@ public class RecursiveDirectoryStream extends AbstractMultiStream {
             stream = (AbstractStream) streams.get(additionOrder.get(0));
             stream.setUrl(new SourceURL(files.poll().toUri().toURL()));
             stream.init();
-            log.info("Streaming file: " + stream.getUrl().toString());
             filesCounter++;
         }
     }
@@ -132,6 +131,7 @@ public class RecursiveDirectoryStream extends AbstractMultiStream {
                 stream.setUrl(new SourceURL(f.toURI().toURL()));
                 stream.init();
 
+                log.info("Streaming file: " + stream.getUrl().toString());
                 filesCounter++;
             }
 
