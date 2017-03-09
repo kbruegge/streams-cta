@@ -26,34 +26,41 @@ def main(input_file, output_file):
     az = Angle(lon).wrap_at(180*u.deg).degree
     mc_az = Angle(df['mc:az'].values*u.rad).wrap_at(180*u.deg).degree
 
-    resolution = np.sqrt(
-                np.percentile(alt - mc_alt, 68)**2 + np.percentile(az - mc_az, 68)**2
-            )
+    distance = np.sqrt((alt - mc_alt)**2 + (az - mc_az)**2)
+    resolution = np.percentile(distance, 68)
 
-    plt.hist2d(
-     alt, az, range=[[69.5, 70.5], [-0.4, 0.4]], bins=100,  cmap='viridis', norm=LogNorm()
+    fig, (ax1, ax2) = plt.subplots(2, 1)
+
+    (_, _, _, im) = ax1.hist2d(
+     alt, az, range=[[69.5, 70.5], [-0.4, 0.4]], bins=200,  cmap='viridis',
     )
+    # ax1.set_xlabel('Altitude')
 
-    plt.plot(np.unique(mc_alt), np.unique(mc_az), '+', ms=20, mew=2, color='red')
-    plt.text(69.55, -0.37, 'Angular Resolution ~ {:.2f}'.format(resolution))
-    plt.colorbar()
+    ax1.set_ylabel('Azimuth')
+    ax1.set_ylim([-0.2, 0.2])
+    ax1.set_xlim([69.8, 70.2])
+    ax1.get_xaxis().set_visible(False)
+    ax1.grid(b=False)
+    ax1.plot(np.unique(mc_alt), np.unique(mc_az), '+', ms=20, mew=1, color='red')
+    fig.colorbar(im, ax=ax1)
+
+    (_, _, _, im) = ax2.hist2d(
+     alt, az, range=[[69.5, 70.5], [-0.4, 0.4]], bins=200,  cmap='viridis', norm=LogNorm()
+    )
+    ax2.set_xlabel('Altitude')
+    ax2.set_ylim([-0.2, 0.2])
+    ax2.set_xlim([69.8, 70.2])
+    ax2.grid(b=False)
+    ax2.plot(np.unique(mc_alt), np.unique(mc_az), '+', ms=20, mew=1, color='red')
+    props = dict(facecolor='white', alpha=0.7)
+    ax2.text(69.85,
+             -0.17,
+             'Angular Resolution ~ {:.3f} degrees'.format(resolution),
+             bbox=props
+             )
+    fig.colorbar(im, ax=ax2)
 
     # import IPython; IPython.embed()
-    # plt.hist(alt, bins=bins, range=[-0.02, 0.02])
-    # plt.show()
-    # bins = 100
-    # fig, (ax1, ax2) = plt.subplots(1, 2)
-    # ax1.hist(alt, bins=bins, range=[69, 71], histtype='step', lw=2)
-    # ax1.hist(mc_alt, bins=bins, range=[69, 71], histtype='step', lw=1)
-    # ax1.set_ylim([0, 5000])
-    # # ax1.legend()
-    #
-    # ax2.hist(az, bins=bins, range=[-0.3, 0.3], histtype='step', lw=2)
-    # ax2.hist(mc_az, bins=bins, range=[-0.3, 0.3], histtype='step', lw=1)
-    # ax2.set_ylim([0, 5000])
-    # # ax2.legend()
-
-    # plt.show()
     plt.savefig(output_file)
 
 if __name__ == "__main__":
