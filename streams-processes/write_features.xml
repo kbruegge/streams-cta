@@ -1,26 +1,28 @@
 <application>
 
+<property name="prefix" value="proton*.json.gz" />
+<property name="folder" value="./data/raw" />
+<property name="outfile" value="./data/processed/protons_training_features.csv" />
 
-    <property name="infile" value="file:/Users/kbruegge/cta_raw_data/protons.json.gz" />
+<stream id="cta:data"
+        class="streams.cta.io.RecursiveDirectoryStream"
+        url="file:${folder}"
+        pattern="${prefix}" >
 
-    <stream id="cta:data" class="streams.cta.io.ImageStream" url="${infile}" />
+    <stream id="images" class="streams.cta.io.ImageStream"/>
 
-    <Queue id="flat_stream" />
-    
-    <process input="cta:data" copies="1">
+</stream>
+
+
+<process input="cta:data">
+    <streams.cta.SplitByTelescope key="@telescopes" />
+    <ForEach key="@telescopes">
         <streams.cta.cleaning.TailCut />
         <streams.cta.features.Moments />
+        <streams.cta.io.CSVWriter keys="shower:*,*num_trigge*,mc:energy" url="file:${outfile}"/>
+    </ForEach>
+    <streams.cta.MergeByTelescope key="@telescopes"/>
+    <streams.DataRate every="4000"/>
+</process>
 
-        <RemoveKeys keys="telescope:*:raw*,telescope:*:shower" />
-
-        <streams.SplitByTelescope queue="flat_stream"/>
-        <streams.DataRate every="10"/>
-    </process>
-
-
-    <process input="flat_stream" copies="1">
-        <streams.cta.io.CSVWriter keys="shower:*,*num_trigge*" url="file:protons.csv"/>
-    </process>
-
-    
 </application>
