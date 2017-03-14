@@ -10,17 +10,17 @@ The input to the realtime analysis (RTA) are calibrated CTA Array events.
 These are the static images (given in estimated number of photons per camera pixel) from each telescope that triggered during the event.
 Each telescopes data is stored as a simple array of doubles.  
 Each telescope has a unique id. Starting at 1 and counting upwards.
-Image features are calculated for each camera separately. 
-To introduce hierarchical semantics the data is stored 
-according to the following naming scheme proposal: 
+Image features are calculated for each camera separately.
+To introduce hierarchical semantics the data is stored
+according to the following naming scheme proposal:
 
 1. For per camera/telescope specific image features
-       
+
        ```
        telescope:<id>:<feature-group-name>:<feature-name>:*
        ```
    Some example for the well known hillas parameters
-       
+
        ```
        telescope:<id>:shower:width
        telescope:<id>:shower:cog:x
@@ -28,26 +28,26 @@ according to the following naming scheme proposal:
        ```
 
 2. MonteCarlo information that is array wide
-       
+
        ```
        mc:<mc-value-name>
        ```
-   So for example the true energy could be stored as 
-   
+   So for example the true energy could be stored as
+
        ```
        mc:primary_energy
-       
+
        ```
 3. Array wide information. Should contain things like the event timestamp at some point.
 For now just trigger information really.
 
-       
+
        ```
        array:triggered_telescope_ids
        array:num_triggered_telescopes
-       
+
        ```   
-   
+
 More to come soon. Keep in mind that these are currently only proposals. This might change quickly.
 
 ### Input Data
@@ -57,11 +57,11 @@ can be produced from any EventIO file using the `convert_raw_data.py` script in 
 folder. It will create a gzipped json file containing the calibrated images for all the events
 in the EventIO file. Input files can be found on Konrads Bernloehrs Website.
 The URLs of the files look like this for the super arrays
-    
+
     https://www.mpi-hd.mpg.de/personalhomes/bernlohr/cta-raw/Prod-3/Paranal/electron_20deg_0deg_run732___cta-prod3-merged_desert-2150m-Paranal-subarray-1.simtel.gz
     https://www.mpi-hd.mpg.de/personalhomes/bernlohr/cta-raw/Prod-3/Paranal/proton_20deg_0deg_run8050___cta-prod3-merged_desert-2150m-Paranal-subarray-1.simtel.gz
     https://www.mpi-hd.mpg.de/personalhomes/bernlohr/cta-raw/Prod-3/Paranal/gamma_20deg_0deg_run8142___cta-prod3-merged_desert-2150m-Paranal-subarray-1.simtel.gz
-    
+
 There are 5 sub-arrays to pick from. I don't know what the differences are.
 The password is the well known CTA password. Contact me if you don't know it.
 These URLs point to some sub arrays I believe
@@ -113,10 +113,10 @@ As a result following ``jar`` files are produced (one for Flink and Spark, two f
 
 ```bash
 # run locally
-cta-tools-0.0.1-SNAPSHOT-{platform}-compiled.jar 
+cta-tools-0.0.2-SNAPSHOT-{platform}-compiled.jar
 
 # does not contain storm, will be deployed
-cta-tools-0.0.1-SNAPSHOT-storm-provided.jar 
+cta-tools-0.0.2-SNAPSHOT-storm-provided.jar
 ```
 
 ### Run a process locally using Flink
@@ -128,7 +128,7 @@ mvn -P deploy,flink package
 
 Using this jar we are then able to run the example ``speed.xml`` as following:
 ```
-java -jar target/cta-tools-0.0.1-SNAPSHOT-flink-compiled.jar streams-processes/speed.xml
+java -jar target/cta-tools-0.0.2-SNAPSHOT-flink-compiled.jar streams-processes/speed.xml
 ```
 
 More details about starting a standalone Flink cluster or deploying jobs to an existing YARN cluster can be found in the [streams-flink repository](https://github.com/alexeyegorov/streams-flink).
@@ -145,5 +145,5 @@ Afterwards your IDE can e.g. reformat your code to the Code Style suggested ther
 
 Heres a bunch of other proposals and design overviews for the CTA project
 
- - https://pos.sissa.it/archive/conferences/236/985/ICRC2015_985.pdf (Low Level Data proposal) 
+ - https://pos.sissa.it/archive/conferences/236/985/ICRC2015_985.pdf (Low Level Data proposal)
  - https://arxiv.org/abs/1509.01963 (The On-Site Analysis of the Cherenkov Telescope Array)
