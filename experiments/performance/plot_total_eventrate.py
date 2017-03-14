@@ -10,6 +10,11 @@ from natsort import natsorted
 @click.argument('input_files', nargs=-1, type=click.Path(exists=True))
 @click.argument('output_file', type=click.Path(exists=False))
 def main(input_files, output_file):
+    '''
+    This takes multiple csv files as INPUT_FILES and produces a
+    plot at the given OUTPUT_FILE path. The csv files are expected to contain at
+    least the '@stream' and '@datarate' columns.
+    '''
 
     total_datarates = pd.DataFrame()
 
