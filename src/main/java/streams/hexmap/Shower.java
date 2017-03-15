@@ -33,7 +33,7 @@ public class Shower implements Serializable {
      * A Shower holds a number of SignalPixels objects defined in this class.
      * Each SignalPixel knows its neighbouring pixel for fast dilation operations.
      */
-    public final static class SignalPixel {
+    public static class SignalPixel implements Serializable{
         final int cameraId;
         final int pixelId;
         final public double weight;
