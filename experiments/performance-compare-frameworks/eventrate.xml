@@ -2,7 +2,7 @@
 
     <property name="runtime" value="streams-runtime" />
 
-    <stream id="data" class="streams.cta.io.LoopStream" limit="128000">
+    <stream id="data" class="streams.cta.io.LoopStream" limit="80000">
 
         <stream id="cta:data" class="streams.cta.io.ImageStream" url="classpath:/images.json.gz" />
 
