@@ -12,9 +12,9 @@
             <ForEach key="@telescopes">
                 <streams.cta.cleaning.TailCut />
                 <streams.cta.features.Moments />
-                <!--<PrintData/>-->
             </ForEach>
             <streams.cta.MergeByTelescope key="@telescopes"/>
+            <streams.cta.stereo.Stereo/>
             <!--<PrintData/>-->
             <streams.DataRate every="2000"/>
         <!--</streams.performance.Performance>-->

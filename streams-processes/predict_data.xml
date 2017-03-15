@@ -1,30 +1,24 @@
 <application>
 
-    <property name="num_copies" value="1" />
     <property name="splitKey" value="@telescopes"/>
 
-    <!--<stream id="data-${copy.id}" class="streams.cta.io.LoopStream" copies="${num_copies}">-->
-    <stream id="data" class="streams.cta.io.LoopStream" copies="${num_copies}">
-        <stream id="cta:data" class="streams.cta.io.ImageStream" url="file:src/main/resources/images.json.gz" />
+    <stream id="data" class="streams.cta.io.LoopStream">
+        <stream id="cta:data" class="streams.cta.io.ImageStream" url="classpath:/images.json.gz" />
     </stream>
 
     <!--<stream id="cta:loop" class="streams.cta.io.ParallelLoopStream" copies="8" limit="1000000" >-->
         <!--<stream id="cta:data" class="streams.cta.io.ImageStream" url="classpath:/images.json.gz" />-->
     <!--</stream>-->
 
-    <!--<service id="regressor" class="streams.cta.PredictionService" url="file:src/test/resources/test_regressor.pmml" />-->
-    <!--<service id="classifier" class="streams.cta.PredictionService" url="file:src/test/resources/test_classifier.pmml" />-->
     <service id="regressor" class="streams.cta.PredictionService" url="classpath:/test_regressor.pmml" />
     <service id="classifier" class="streams.cta.PredictionService" url="classpath:/test_classifier.pmml" />
 
-
-    <!--<process input="data-${copy.id}" copies="4">-->
-    <process input="data" copies="4">
+    <process input="data">
         <streams.cta.SplitByTelescope key="@telescopes" />
         <ForEach key="@telescopes">
             <streams.cta.cleaning.TailCut />
             <streams.cta.features.Moments />
-            <streams.cta.TelescopePredictions regressor="regressor" classifier="classifier" local="true"/>
+            <streams.cta.TelescopePredictions regressor="regressor" classifier="classifier"/>
         </ForEach>
         <streams.cta.MergeByTelescope key="@telescopes"/>
         <streams.cta.SummarizePredictions />
