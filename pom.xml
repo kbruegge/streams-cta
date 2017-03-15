@@ -11,7 +11,7 @@
     <properties>
         <storm.scope>compile</storm.scope>
         <streams.cta.version>1.0.0</streams.cta.version>
-        <streams.jar>cta-tools-${project.version}</streams.jar>
+        <streams.jar>streams-cta-${project.version}</streams.jar>
         <mainclass>stream.run</mainclass>
         <platform>streams</platform>
     </properties>
@@ -248,7 +248,7 @@
                                 <Implementation-Version>${project.version}</Implementation-Version>
                                 <Implementation-Revision>${project.version}
                                 </Implementation-Revision>
-                                <Specification-Title>cta-tools</Specification-Title>
+                                <Specification-Title>streams-cta</Specification-Title>
                                 <Specification-Version>1.0</Specification-Version>
                                 <main-class>${mainclass}</main-class>
                             </manifestEntries>
@@ -313,7 +313,7 @@
 
             <properties>
                 <storm.scope>compile</storm.scope>
-                <streams.jar>cta-tools-${project.version}-${platform}-compiled</streams.jar>
+                <streams.jar>streams-cta-${project.version}-${platform}-compiled</streams.jar>
             </properties>
 
             <build>
@@ -357,6 +357,9 @@
                                         <main-class>${mainclass}</main-class>
                                     </manifestEntries>
                                 </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                  <resource>reference.conf</resource>
+                                </transformer>
                             </transformers>
                         </configuration>
                         <executions>
@@ -379,20 +382,20 @@
             <id>
                 deploy
             </id>
-            <activation>
+            <!-- <activation>
                 <property>
                     <name>standalone</name>
                     <value>true</value>
                 </property>
-            </activation>
+            </activation> -->
 
             <properties>
                 <storm.scope>provided</storm.scope>
-                <streams.jar>cta-tools-${project.version}-${platform}-provided</streams.jar>
+                <streams.jar>streams-cta-${project.version}-${platform}-provided</streams.jar>
             </properties>
 
             <build>
-                <finalName>streams-storm-${project.version}-${platform}-provided</finalName>
+                <finalName>streams-cta-${project.version}-${platform}-provided</finalName>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>

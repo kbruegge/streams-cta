@@ -76,8 +76,10 @@ These URLs point to some sub arrays I believe
 For now check out the xml in the `streams-processes` folder.
 
 ## Processing on top of distributed frameworks
-As CTA is going to produce a huge stream of data, one need to ensure to have enough machines to process this data.
-Apache Storm is an approach for simple handling of a cluster and deploying tasks (a.k.a topologies) for processing the data.
+As CTA is going to produce a huge stream of data, one need to ensure to have enough machines
+to process this data.
+Apache Storm is an approach for simple handling of a cluster and deploying tasks
+(a.k.a topologies) for processing the data.
 
 Using maven profiles it is possible to package cta-streams for various distributed processing frameworks.
 At the moment following support is enabled:
@@ -97,7 +99,8 @@ mvn -P deploy,{flink,spark} package
 Deploying to a Storm cluster requires two ``jar`` files:
 
 * one to **transform** the given streams XML into a native distributed job definition
-* another one package will be **deployed to nimbus** node of storm cluster and used later by the workers to run the topology
+* another one package will be **deployed to nimbus** node of storm cluster and used later
+ by the workers to run the topology
 
 Thus, we need two lines of code to produce those packages:
 
@@ -113,32 +116,37 @@ As a result following ``jar`` files are produced (one for Flink and Spark, two f
 
 ```bash
 # run locally
-cta-tools-0.0.2-SNAPSHOT-{platform}-compiled.jar
+streams-cta-0.0.2-SNAPSHOT-{platform}-compiled.jar
 
 # does not contain storm, will be deployed
-cta-tools-0.0.2-SNAPSHOT-storm-provided.jar
+streams-cta-0.0.2-SNAPSHOT-storm-provided.jar
 ```
 
 ### Run a process locally using Flink
 
 First of all, we need a package with Flink:
 ```
-mvn -P deploy,flink package
+mvn -P standalone,flink package
 ```
 
 Using this jar we are then able to run the example ``speed.xml`` as following:
 ```
-java -jar target/cta-tools-0.0.2-SNAPSHOT-flink-compiled.jar streams-processes/speed.xml
+java -jar target/streams-cta-0.0.2-SNAPSHOT-flink-compiled.jar streams-processes/speed.xml
 ```
 
-More details about starting a standalone Flink cluster or deploying jobs to an existing YARN cluster can be found in the [streams-flink repository](https://github.com/alexeyegorov/streams-flink).
+More details about starting a standalone Flink cluster or deploying jobs to an existing YARN cluster can be
+found in the [streams-flink repository](https://github.com/alexeyegorov/streams-flink).
 
 ## Code Style
-We intend to use [Java Code Style](https://google-styleguide.googlecode.com/svn/trunk/javaguide.html) suggested by google.
+We intend to use [Java Code Style](https://google-styleguide.googlecode.com/svn/trunk/javaguide.html)
+suggested by google.
 
-In case you're using Java IDE such as IntelliJ or Eclipse you can simply import this style guide by following the simple [instruction](https://github.com/HPI-Information-Systems/Metanome/wiki/Installing-the-google-styleguide-settings-in-intellij-and-eclipse).
+In case you're using Java IDE such as IntelliJ or Eclipse you can import this style guide by following the
+simple
+[instruction](https://github.com/HPI-Information-Systems/Metanome/wiki/Installing-the-google-styleguide-settings-in-intellij-and-eclipse).
 For Mac users the path to the codestyles folder is: ```~/Library/Preferences/IdeaICxx/codestyles```
-Afterwards your IDE can e.g. reformat your code to the Code Style suggested there (in IntelliJ: ```Code```-> ```Reformat Code...```).
+Afterwards your IDE can e.g. reformat your code to the Code Style suggested there
+(in IntelliJ: ```Code```-> ```Reformat Code...```).
 
 
 ## Other resources
