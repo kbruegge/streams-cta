@@ -4,6 +4,8 @@ import stream.Data;
 import streams.cta.CTACleanedDataProcessor;
 import streams.hexmap.Shower;
 
+import static streams.hexmap.Shower.*;
+
 /**
  * Calculate the center of gravity COG, which is the weighted center of the shower pixels.
  *
@@ -25,7 +27,7 @@ public class COG extends CTACleanedDataProcessor {
         double size = 0;
 
         // find weighted center of the shower pixels.
-        for (Shower.Pixel pixel : shower.pixels) {
+        for (SignalPixel pixel : shower.signalPixels) {
             cogX += pixel.xPositionInMM * pixel.weight;
             cogY += pixel.yPositionInMM * pixel.weight;
             size += pixel.weight;
