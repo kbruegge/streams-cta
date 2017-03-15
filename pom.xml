@@ -503,6 +503,18 @@
                             <groupId>com.google.guava</groupId>
                             <artifactId>guava</artifactId>
                         </exclusion>
+                        <exclusion>
+                            <groupId>com.data-artisans</groupId>
+                            <artifactId>flakka-actor_2.10</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>com.data-artisans</groupId>
+                            <artifactId>flakka-remote_2.10</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>com.data-artisans</groupId>
+                            <artifactId>flakka-slf4j_2.10</artifactId>
+                        </exclusion>
                     </exclusions>
                 </dependency>
             </dependencies>
