@@ -68,7 +68,7 @@ public class CSVWriter implements StatefulProcessor {
 
         String joinedValues = Joiner.on(seperator).join(values);
         writer.println(joinedValues);
-
+        writer.flush();
         return data;
     }
 }
