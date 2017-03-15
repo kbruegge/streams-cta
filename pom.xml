@@ -520,7 +520,7 @@
             </dependencies>
 
             <properties>
-                <mainclass>flink.deploy_on_flink</mainclass>
+                <mainclass>deploy_on_flink</mainclass>
                 <platform>flink</platform>
             </properties>
         </profile>
