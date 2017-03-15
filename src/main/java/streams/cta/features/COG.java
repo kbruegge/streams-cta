@@ -25,7 +25,7 @@ public class COG extends CTACleanedDataProcessor {
         double size = 0;
 
         // find weighted center of the shower pixels.
-        for (Shower.Pixel pixel : shower.pixels) {
+        for (Shower.SignalPixel pixel : shower.signalPixels) {
             cogX += pixel.xPositionInMM * pixel.weight;
             cogY += pixel.yPositionInMM * pixel.weight;
             size += pixel.weight;

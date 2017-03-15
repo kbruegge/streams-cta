@@ -37,7 +37,7 @@ public class TailCut extends CTARawDataProcessor {
         }
 
         input.put("shower", shower);
-        input.put("shower:number_of_pixel", shower.pixels.size());
+        input.put("shower:number_of_pixel", shower.signalPixels.size());
         return input;
     }
 }

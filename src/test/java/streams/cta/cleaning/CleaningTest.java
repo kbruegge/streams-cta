@@ -68,7 +68,7 @@ public class CleaningTest {
 
             Shower shower = (Shower) tel.get("shower");
 
-            assertFalse("shower pixels should not be empty", shower.pixels.isEmpty());
+            assertFalse("shower pixels should not be empty", shower.signalPixels.isEmpty());
 
             int id = (int) tel.get("telescope:id");
             assertTrue("camera id saved in shower has to match the true id", shower.cameraId == id);

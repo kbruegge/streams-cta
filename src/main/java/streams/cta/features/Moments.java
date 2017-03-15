@@ -20,12 +20,12 @@ public class Moments extends CTACleanedDataProcessor {
     @Override
     public Data process(Data input, Shower shower) {
 
-        double size = shower.pixels.stream().mapToDouble(e -> e.weight).sum();
+        double size = shower.signalPixels.stream().mapToDouble(e -> e.weight).sum();
         double sumX = 0;
         double sumY = 0;
 
         // find weighted center of the shower pixels.
-        for (Shower.Pixel pixel : shower.pixels) {
+        for (Shower.SignalPixel pixel : shower.signalPixels) {
             sumX += pixel.xPositionInMM * pixel.weight;
             sumY += pixel.yPositionInMM * pixel.weight;
             size += pixel.weight;
@@ -36,7 +36,7 @@ public class Moments extends CTACleanedDataProcessor {
 
         //calculate the covariance matrix
         double sxx = 0, syy = 0, sxy = 0;
-        for (Shower.Pixel p : shower.pixels) {
+        for (Shower.SignalPixel p : shower.signalPixels) {
             sxx += p.weight * pow((p.xPositionInMM - meanX), 2);
             syy += p.weight * pow((p.yPositionInMM - meanY), 2);
             sxy += p.weight * (p.xPositionInMM - meanX) * (p.yPositionInMM - meanY);
@@ -68,7 +68,7 @@ public class Moments extends CTACleanedDataProcessor {
 
         //calculate higher order moments
         double skewness_a = 0, skewness_b = 0, kurtosis_a = 0, kurtosis_b = 0;
-        for (Shower.Pixel p : shower.pixels) {
+        for (Shower.SignalPixel p : shower.signalPixels) {
             double sk = cos_delta * (p.xPositionInMM - meanX) + sin_delta * (p.yPositionInMM - meanY);
             skewness_a += p.weight * pow(sk, 3);
             skewness_b += p.weight * pow(sk, 2);

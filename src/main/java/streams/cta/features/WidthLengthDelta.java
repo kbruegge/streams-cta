@@ -59,7 +59,7 @@ public class WidthLengthDelta extends CTACleanedDataProcessor {
         double variance_yy = 0;
         double covariance_xy = 0;
 
-        for (Shower.Pixel pix : shower.pixels) {
+        for (Shower.SignalPixel pix : shower.signalPixels) {
 
             double posx = pix.xPositionInMM;
             double posy = pix.yPositionInMM;
