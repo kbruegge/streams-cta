@@ -11,8 +11,9 @@
     <service id="regressor" class="streams.cta.PredictionService" url="classpath:/test_regressor.pmml" />
     <service id="classifier" class="streams.cta.PredictionService" url="classpath:/test_classifier.pmml" />
 
+    <queue id="passDataRate"/>
 
-    <process input="data" >
+    <process id="processing" input="data" copies="4">
         <streams.cta.SplitByTelescope key="@telescopes" />
         <ForEach key="@telescopes">
             <streams.cta.cleaning.TailCut />
@@ -23,12 +24,15 @@
         <streams.cta.SummarizePredictions />
         <streams.cta.stereo.Stereo/>
         <RemoveKeys keys="@datarate,@*memory,*telescope*" />
+        <Enqueue condition="True" queue="passDataRate"/>
+    </process>
+
+    <process id="datarate" input="passDataRate">
         <streams.DataRate every="2000" logmemory="true"/>
 
         <If condition="%{data.@datarate} != null}" >
-            <streams.cta.io.CSVWriter url="file:../../data/measurements/performance-compare-frameworks/performance.csv" keys="@datarate,@stream,@totalmemory,@freememory"/>
+            <streams.cta.io.CSVWriter url="file:performance.csv" keys="@datarate,@stream,@totalmemory,@freememory"/>
         </If>
-
     </process>
 
 </application>
