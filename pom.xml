@@ -12,8 +12,8 @@
         <storm.scope>compile</storm.scope>
         <streams.cta.version>1.0.0</streams.cta.version>
         <streams.jar>streams-cta-${project.version}</streams.jar>
-        <mainclass>stream.run</mainclass>
-        <platform>streams</platform>
+        <mainclass>run</mainclass>
+        <platform>stream</platform>
     </properties>
 
 
@@ -354,7 +354,7 @@
                                         </Implementation-Revision>
                                         <Specification-Title>streams-storm</Specification-Title>
                                         <Specification-Version>1.0</Specification-Version>
-                                        <main-class>${mainclass}</main-class>
+                                        <main-class>${platform}.${mainclass}</main-class>
                                     </manifestEntries>
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
@@ -432,7 +432,7 @@
                                         </Implementation-Revision>
                                         <Specification-Title>streams-${platform}</Specification-Title>
                                         <Specification-Version>1.0</Specification-Version>
-                                        <main-class>${mainclass}</main-class>
+                                        <main-class>${platform}.${mainclass}</main-class>
                                     </manifestEntries>
                                 </transformer>
                             </transformers>
@@ -540,7 +540,7 @@
             </dependencies>
 
             <properties>
-                <mainclass>spark.deploy_on_spark</mainclass>
+                <mainclass>deploy_on_spark</mainclass>
                 <platform>spark</platform>
             </properties>
         </profile>
@@ -584,10 +584,31 @@
                     </exclusions>
                 </dependency>
             </dependencies>
+            <properties>
+                <mainclass>deploy</mainclass>
+                <platform>storm</platform>
+            </properties>
+        </profile>
+
+        <profile>
+            <!--
+            use this to package with streams-storm and set the mainclass to storm.deploy
+            -->
+            <id>storm-run</id>
 
             <properties>
-                <mainclass>storm.deploy</mainclass>
-                <platform>storm</platform>
+                <mainclass>run</mainclass>
+            </properties>
+        </profile>
+
+        <profile>
+            <!--
+            use this to package with streams-storm and set the mainclass to storm.deploy
+            -->
+            <id>storm-deploy</id>
+
+            <properties>
+                <mainclass>deploy</mainclass>
             </properties>
         </profile>
 
