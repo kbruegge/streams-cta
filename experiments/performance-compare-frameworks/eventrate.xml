@@ -8,8 +8,10 @@
 
     </stream>
 
-    <service id="regressor" class="streams.cta.PredictionService" url="classpath:/test_regressor.pmml" />
-    <service id="classifier" class="streams.cta.PredictionService" url="classpath:/test_classifier.pmml" />
+    <service id="regressor" class="streams.cta.PredictionService"
+             url="classpath:/test_regressor.pmml" />
+    <service id="classifier" class="streams.cta.PredictionService"
+             url="classpath:/test_classifier.pmml" />
 
     <queue id="passDataRate"/>
 
@@ -18,20 +20,24 @@
         <ForEach key="@telescopes">
             <streams.cta.cleaning.TailCut />
             <streams.cta.features.Moments />
-            <streams.cta.TelescopePredictions regressor="regressor" classifier="classifier" local="true"/>
+            <streams.cta.TelescopePredictions regressor="regressor"
+                                              classifier="classifier"
+                                              local="true"/>
         </ForEach>
         <streams.cta.MergeByTelescope key="@telescopes"/>
         <streams.cta.SummarizePredictions />
         <streams.cta.stereo.Stereo/>
         <RemoveKeys keys="@datarate,@*memory,*telescope*" />
-        <Enqueue condition="True" queue="passDataRate"/>
+        <Enqueue queue="passDataRate"/>
     </process>
 
     <process id="datarate" input="passDataRate">
         <streams.DataRate every="2000" logmemory="true"/>
 
         <If condition="%{data.@datarate} != null}" >
-            <streams.cta.io.CSVWriter url="file:performance.csv" keys="@datarate,@stream,@totalmemory,@freememory"/>
+            <streams.cta.io.CSVWriter
+                    url="file:../../data/measurements/performance-compare-frameworks/performance.csv"
+                    keys="@datarate,@stream,@totalmemory,@freememory"/>
         </If>
     </process>
 
