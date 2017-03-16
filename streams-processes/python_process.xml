@@ -1,0 +1,29 @@
+<application>
+
+    <property name="splitKey" value="@telescopes"/>
+
+    <stream id="data" class="streams.cta.io.LoopStream">
+        <stream id="cta:data" class="streams.cta.io.ImageStream" url="classpath:/images.json.gz" />
+    </stream>
+
+    <!--<stream id="cta:loop" class="streams.cta.io.ParallelLoopStream" copies="8" limit="1000000" >-->
+        <!--<stream id="cta:data" class="streams.cta.io.ImageStream" url="classpath:/images.json.gz" />-->
+    <!--</stream>-->
+
+    <service id="regressor" class="streams.cta.PredictionService" url="classpath:/test_regressor.pmml" />
+    <service id="classifier" class="streams.cta.PredictionService" url="classpath:/test_classifier.pmml" />
+
+    <process input="data">
+        <streams.cta.SplitByTelescope key="@telescopes" />
+        <ForEach key="@telescopes">
+            <streams.cta.cleaning.TailCut />
+            <streams.cta.features.Moments />
+            <streams.cta.TelescopePredictions regressor="regressor" classifier="classifier"/>
+        </ForEach>
+        <streams.cta.MergeByTelescope key="@telescopes"/>
+        <streams.cta.SummarizePredictions />
+        <streams.DataRate every="40"/>
+    </process>
+
+
+</application>
