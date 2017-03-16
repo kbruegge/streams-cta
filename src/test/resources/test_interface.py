@@ -7,6 +7,9 @@ class Processor(object):
     def process(self, a, b):
         return a + b
 
+    def add(self, a, b):
+        return a + b
+
 
 # daemon = Pyro4.Daemon()
 # uri = daemon.register(Processor)
@@ -24,7 +27,7 @@ class Processor(object):
 def main():
     Pyro4.Daemon.serveSimple(
             {
-                Processor: 'streams.processor'
+                Processor: 'streams.processors'
             },
             ns=True
     )

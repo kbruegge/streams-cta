@@ -23,9 +23,9 @@ public class TestPythonProcessor {
         try(PythonExecutor p = new PythonExecutor(resource);
                 PyroNameServer d = new PyroNameServer()){
 
-            PyroProxy remoteObject = d.lookup("streams.processor");
+            PyroProxy remoteObject = d.lookup("streams.processors");
 
-            int result = (int) remoteObject.call("process", 1, 1 );
+            int result = (int) remoteObject.call("add", 1, 1 );
 
             assertThat(result, is(2));
 
