@@ -15,15 +15,15 @@ all: $(plot)
 
 
 
-$(flink_output): $(flink_jar) eventrate.xml
+$(flink_output): $(flink_jar) eventrate_distributed.xml
 	mkdir -p $(csv_dir)
-	java -jar $(flink_jar) eventrate.xml
+	java -Xmx6G -jar $(flink_jar) eventrate_distributed.xml
 	mv $(csv_dir)/{performance.csv,performance_flink.csv}
 
 
 $(streams_output): $(jar) eventrate.xml
 	mkdir -p ../../data/measurements/performance-compare-frameworks/
-	java -jar $(jar) eventrate.xml
+	java -Xmx6G -jar $(jar) eventrate.xml
 	mv $(csv_dir)/{performance.csv,performance_streams-runtime.csv}
 
 $(flink_jar):
