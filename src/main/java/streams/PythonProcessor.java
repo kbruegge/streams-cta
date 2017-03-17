@@ -9,7 +9,19 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 /**
- * Test processor calling python code. Somewhere. Dunno yet.
+ * This processor calls a method on the script provided by the PythonContext xml element.
+ *
+ * <pre>
+ * {@code
+ *  <streams.PythonContext url="file:./python/processors/test.py">
+ *
+ *   <streams.PythonProcessor method="process" />
+ *
+ *  </streams.PythonContext>
+ * }
+ * </pre>
+ * @see streams.PythonContext
+ *
  * Created by kbruegge on 3/16/17.
  */
 public class PythonProcessor implements StatefulProcessor{

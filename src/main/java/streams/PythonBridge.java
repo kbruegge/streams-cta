@@ -6,6 +6,11 @@ import net.razorvine.pyro.PyroProxy;
 import java.io.IOException;
 
 /**
+ * This object is the heart of the connection between python and java.
+ * The constructor takes the path to a python script. on that python script
+ * methods can then be called using the callMethod() function.
+ *
+ * It encapsulates the PyroLite api https://github.com/irmen/Pyrolite for now.
  * Created by kbruegge on 3/16/17.
  */
 public class PythonBridge implements AutoCloseable {
@@ -20,7 +25,7 @@ public class PythonBridge implements AutoCloseable {
         ProcessBuilder pB = new ProcessBuilder(nameServerCommand);
         nameServerProcess = pB.start();
 
-        //TODO: find a way to check whether this has finished loading isntead of sleeping
+        //TODO: find a way to check whether this has finished loading instead of sleeping
         Thread.sleep(2000);
 
 
