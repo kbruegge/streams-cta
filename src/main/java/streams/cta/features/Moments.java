@@ -5,7 +5,7 @@ import streams.cta.CTACleanedDataProcessor;
 import streams.hexmap.Shower;
 
 import static java.lang.Math.*;
-import static streams.hexmap.Shower.*;
+import static streams.hexmap.Shower.SignalPixel;
 
 /**
  * This will be a basic translation of the code found in ctapipe. Some reference is in here:

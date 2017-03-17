@@ -1,5 +1,4 @@
 import com.google.common.collect.ImmutableMap;
-import net.razorvine.pyro.PyroProxy;
 import org.junit.Test;
 import stream.Data;
 import stream.data.DataFactory;

@@ -1,6 +1,5 @@
 package streams;
 
-import net.razorvine.pyro.PyroProxy;
 import stream.Data;
 import stream.ProcessContext;
 import stream.Processor;

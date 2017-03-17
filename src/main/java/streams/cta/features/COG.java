@@ -4,7 +4,7 @@ import stream.Data;
 import streams.cta.CTACleanedDataProcessor;
 import streams.hexmap.Shower;
 
-import static streams.hexmap.Shower.*;
+import static streams.hexmap.Shower.SignalPixel;
 
 /**
  * Calculate the center of gravity COG, which is the weighted center of the shower pixels.

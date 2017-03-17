@@ -1,7 +1,8 @@
 package streams;
 
-import net.razorvine.pyro.PyroProxy;
-import stream.*;
+import stream.Data;
+import stream.ProcessContext;
+import stream.StatefulProcessor;
 import stream.annotations.Parameter;
 
 import java.io.IOException;
