@@ -13,6 +13,7 @@ import java.net.URL;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the pyro python bridge
@@ -55,6 +56,29 @@ public class TestPythonProcessor {
             Data newItem = c.process(item);
 
             assertThat(item.get("thing"), is(newItem.get("thing")));
+        }
+
+    }
+
+    @Test
+    public void testPutNewThingInDataItem() throws Exception {
+
+        URL resource = TestPythonProcessor.class.getResource("/test_interface.py");
+
+        try(PythonContext c = new PythonContext()) {
+            c.url = new SourceURL(resource);
+
+            PythonProcessor p = new PythonProcessor();
+            p.method = "add_thing_to_item";
+            c.add(p);
+
+            c.init(new ProcessContextImpl());
+
+            Data item = DataFactory.create();
+            Data newItem = c.process(item);
+
+            assertTrue(newItem.containsKey("thing"));
+            assertThat(newItem.get("thing"), is("an awesome thing"));
         }
 
     }
