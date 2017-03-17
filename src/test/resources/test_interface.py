@@ -4,8 +4,8 @@ import Pyro4
 
 @Pyro4.expose
 class Processor(object):
-    def process(self, a, b):
-        return a + b
+    def process(self, item):
+        return item
 
     def add(self, a, b):
         return a + b

@@ -3,11 +3,10 @@ package streams;
 import net.razorvine.pyro.PyroProxy;
 import stream.*;
 import stream.annotations.Parameter;
-import stream.io.SourceURL;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Test processor calling python code. Somewhere. Dunno yet.
@@ -18,13 +17,12 @@ public class PythonProcessor implements StatefulProcessor{
     @Parameter(required = true, description = "Name of the method to be called")
     public String method;
 
-    private PyroProxy remoteObject;
+    private PythonBridge bridge;
 
     @Override
     public Data process(Data item) {
         try {
-
-            HashMap map = (HashMap) remoteObject.call(method, item);
+            @SuppressWarnings("unchecked") HashMap<String, Serializable> map = (HashMap) bridge.callMethod(method, item);
             item.clear();
             item.putAll(map);
 
@@ -37,7 +35,7 @@ public class PythonProcessor implements StatefulProcessor{
 
     @Override
     public void init(ProcessContext context) throws Exception {
-            remoteObject = (PyroProxy) context.get("pyro_proxy");
+            bridge = (PythonBridge) context.get("python_bridge");
     }
 
     @Override
@@ -47,6 +45,5 @@ public class PythonProcessor implements StatefulProcessor{
 
     @Override
     public void finish() throws Exception {
-        remoteObject.close();
     }
 }

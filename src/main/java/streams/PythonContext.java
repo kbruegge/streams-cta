@@ -12,14 +12,12 @@ import stream.io.SourceURL;
  * Test processor calling python code. Somewhere. Dunno yet.
  * Created by kbruegge on 3/16/17.
  */
-public class PythonContext extends ProcessorList{
+public class PythonContext extends ProcessorList implements AutoCloseable{
 
     @Parameter(required = true, description = "The path to the python file whose methods should be called")
     public SourceURL url;
 
-    private PyroProxy remoteObject;
-    private PythonExecutor pythonExecutor;
-    private PyroNameServer nameServer;
+    private PythonBridge bridge;
 
     @Override
     public Data process(Data item) {
@@ -37,21 +35,20 @@ public class PythonContext extends ProcessorList{
     @Override
     public void init(ProcessContext context) throws Exception {
 
-        pythonExecutor= new PythonExecutor(url.getPath());
-        nameServer = new PyroNameServer();
+        bridge = new PythonBridge(url.getPath());
 
-
-        remoteObject = nameServer.lookup("streams.processors");
-        context.set("pyro_proxy", remoteObject);
-
+        context.set("python_bridge", bridge);
 
         super.init(context);
     }
 
     @Override
     public void finish() throws Exception {
-        nameServer.close();
-        remoteObject.close();
-        remoteObject.close();
+        bridge.close();
+    }
+
+    @Override
+    public void close() throws Exception {
+        this.finish();
     }
 }

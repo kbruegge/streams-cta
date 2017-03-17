@@ -1,7 +1,15 @@
+import com.google.common.collect.ImmutableMap;
 import net.razorvine.pyro.PyroProxy;
 import org.junit.Test;
-import streams.PyroNameServer;
-import streams.PythonExecutor;
+import stream.Data;
+import stream.data.DataFactory;
+import stream.io.SourceURL;
+import stream.runtime.ProcessContextImpl;
+import streams.PythonBridge;
+import streams.PythonContext;
+import streams.PythonProcessor;
+
+import java.net.URL;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -16,20 +24,38 @@ import static org.junit.Assert.assertThat;
 public class TestPythonProcessor {
 
     @Test
-    public void testNameServer() throws Exception {
+    public void testPythonBridge() throws Exception {
 
         String resource = TestPythonProcessor.class.getResource("/test_interface.py").getPath();
 
-        try(PythonExecutor p = new PythonExecutor(resource);
-                PyroNameServer d = new PyroNameServer()){
+        try(PythonBridge d = new PythonBridge(resource);){
 
-            PyroProxy remoteObject = d.lookup("streams.processors");
-
-            int result = (int) remoteObject.call("add", 1, 1 );
+            int result = (int) d.callMethod("add", 1, 1 );
 
             assertThat(result, is(2));
 
-            remoteObject.close();
         }
+    }
+
+    @Test
+    public void testContext() throws Exception {
+
+        URL resource = TestPythonProcessor.class.getResource("/test_interface.py");
+
+        try(PythonContext c = new PythonContext()) {
+            c.url = new SourceURL(resource);
+
+            PythonProcessor p = new PythonProcessor();
+            p.method = "process";
+            c.add(p);
+
+            c.init(new ProcessContextImpl());
+
+            Data item = DataFactory.create(ImmutableMap.of("thing", 123));
+            Data newItem = c.process(item);
+
+            assertThat(item.get("thing"), is(newItem.get("thing")));
+        }
+
     }
 }
