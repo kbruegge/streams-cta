@@ -1,3 +1,5 @@
+xml = eventrate.xml
+
 flink_jar = ../../target/streams-cta-0.0.2-SNAPSHOT-flink-compiled.jar
 storm_jar = ../../target/streams-cta-0.0.2-SNAPSHOT-storm-compiled.jar
 jar = ../../target/streams-cta-0.0.2-SNAPSHOT-stream-compiled.jar
@@ -17,20 +19,17 @@ all: $(plot)
 
 
 
-$(flink_output): $(flink_jar) eventrate_distributed.xml
+$(flink_output): $(flink_jar) $(xml)
 	mkdir -p $(csv_dir)
-	java -Xmx6G -jar $(flink_jar) eventrate_kai.xml
-	mv $(csv_dir)/{performance.csv,performance_flink.csv}
+	java -Xmx6G -jar $(flink_jar) $(xml) -Doutfile=$(flink_output)
 
-$(storm_output): $(storm_jar) eventrate_distributed.xml
+$(storm_output): $(storm_jar) $(xml)
 	mkdir -p $(csv_dir)
-	java -Xmx6G -jar $(storm_jar) eventrate_kai.xml
-	mv $(csv_dir)/{performance.csv,performance_storm.csv}
+	java -Xmx6G -jar $(storm_jar) $(xml) -Doutfile=$(storm_output)
 
-$(streams_output): $(jar) eventrate.xml
-	mkdir -p ../../data/measurements/performance-compare-frameworks/
-	java -Xmx6G -jar $(jar) eventrate_kai.xml
-	mv $(csv_dir)/{performance.csv,performance_streams-runtime.csv}
+$(streams_output): $(jar) $(xml)
+	mkdir -p $(csv_dir)
+	java -Xmx6G -jar $(jar) $(xml) -Doutfile=$(streams_output)
 
 $(flink_jar): ../../pom.xml
 	echo "building flink package"

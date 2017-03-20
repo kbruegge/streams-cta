@@ -1,8 +1,9 @@
 <application>
 
     <property name="runtime" value="streams-runtime" />
+    <property name="outfile" value="../../data/measurements/performance-compare-frameworks/performance.csv" />
 
-    <stream id="data" class="streams.cta.io.LoopStream" limit="80000">
+    <stream id="data" class="streams.cta.io.LoopStream" limit="10000">
 
         <stream id="cta:data" class="streams.cta.io.ImageStream" url="classpath:/images.json.gz" />
 
@@ -15,7 +16,7 @@
 
     <queue id="passDataRate"/>
 
-    <process id="processing" input="data" copies="4">
+    <process id="processing" input="data">
         <streams.cta.SplitByTelescope key="@telescopes" />
         <ForEach key="@telescopes">
             <streams.cta.cleaning.TailCut />
@@ -28,15 +29,15 @@
         <streams.cta.SummarizePredictions />
         <streams.cta.stereo.Stereo/>
         <RemoveKeys keys="@datarate,@*memory,*telescope*" />
-        <Enqueue queue="passDataRate"/>
+        <streams.DataRate every="1000" logmemory="true"/>
+        <Enqueue condition="%{data.@datarate} != null" queue="passDataRate"/>
     </process>
 
     <process id="datarate" input="passDataRate">
-        <streams.DataRate every="2000" logmemory="true"/>
 
         <If condition="%{data.@datarate} != null}" >
             <streams.cta.io.CSVWriter
-                    url="file:../../data/measurements/performance-compare-frameworks/performance.csv"
+                    url="file:${outfile}"
                     keys="@datarate,@stream,@totalmemory,@freememory"/>
         </If>
     </process>
