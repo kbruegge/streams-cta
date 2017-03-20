@@ -32,14 +32,14 @@ $(streams_output): $(jar) eventrate.xml
 	java -Xmx6G -jar $(jar) eventrate_kai.xml
 	mv $(csv_dir)/{performance.csv,performance_streams-runtime.csv}
 
-$(flink_jar):
+$(flink_jar): ../../pom.xml
 	echo "building flink package"
 	cd ../../; mvn -P standalone,flink package -DskipTests; cd -
 
-$(storm_jar):
+$(storm_jar): ../../pom.xml
 	echo "building storm package"
 	cd ../../; mvn -P standalone,storm,storm-run package -DskipTests; cd -
 
-$(jar):
+$(jar): ../../pom.xml
 	echo "building streams package"
 	cd ../../; mvn -P standalone package -DskipTests; cd -
