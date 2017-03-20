@@ -18,6 +18,7 @@
         </ForEach>
         <streams.cta.MergeByTelescope key="@telescopes"/>
         <streams.cta.SummarizePredictions />
+        <streams.cta.stereo.Stereo />
         <RemoveKeys keys="*telescope*,*array*" />
 
         <streams.PythonContext url="file:./python/processors/test.py">
