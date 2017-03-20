@@ -43,7 +43,7 @@ public class PythonBridge implements AutoCloseable {
             BufferedReader stdin = new BufferedReader(new InputStreamReader(nameServerProcess.getInputStream()));
 
             boolean isNameServerRunning = false;
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 50; i++) {
                 String output = stdin.readLine();
                 if (output != null && output.startsWith("NS running")) {
                     log.debug("NameServer is running");
@@ -64,7 +64,7 @@ public class PythonBridge implements AutoCloseable {
             stdin = new BufferedReader(new InputStreamReader(pythonProcess.getInputStream()));
 
             boolean isPyroDaemonRunning = false;
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 50; i++) {
                 String output = stdin.readLine();
                 if (output != null && output.startsWith("Pyro daemon running.")) {
                     log.debug("Pyro daemon is running.");
@@ -99,7 +99,7 @@ public class PythonBridge implements AutoCloseable {
     /**
      * Calls a Python method by name.
      * This methods delegates to the {@link PyroProxy#call} method.
-     * 
+     *
      * @param name the name of the python method to call
      * @param args the argumeents to pass to python
      * @return the return value of the python method. The object has to be cast back to the proper type.
