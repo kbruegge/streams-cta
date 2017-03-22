@@ -39,7 +39,7 @@ def download_file(folder, url, auth):
 @click.option('--password', prompt=True, hide_input=True)
 @click.option('--kind', default='proton', help='kind of files to download. either '
                                                'proton, gamma or electron')
-def main(output_folder, limit, password, kind):
+def main(output_folder, password, kind):
     '''
     The OUTPUT_FOLDER argument specifies the path to the folder
     where the simtel files will be saved.
