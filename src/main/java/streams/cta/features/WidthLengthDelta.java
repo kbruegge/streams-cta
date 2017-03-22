@@ -7,6 +7,8 @@ import stream.Data;
 import streams.cta.CTACleanedDataProcessor;
 import streams.hexmap.Shower;
 
+import static streams.hexmap.Shower.*;
+
 /**
  * Calculate the Width, Length and Delta from the spacial distribution of shower pixels, by use of
  * the covariance Matrix and its Eigenvalues of it.
@@ -59,7 +61,7 @@ public class WidthLengthDelta extends CTACleanedDataProcessor {
         double variance_yy = 0;
         double covariance_xy = 0;
 
-        for (Shower.Pixel pix : shower.pixels) {
+        for (SignalPixel pix : shower.signalPixels) {
 
             double posx = pix.xPositionInMM;
             double posy = pix.yPositionInMM;

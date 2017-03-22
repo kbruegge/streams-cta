@@ -1,8 +1,8 @@
 <application>
 
-    <property name="num_copies" value="4" />
+    <property name="num_copies" value="1" />
 
-    <stream id="data-${copy.id}" class="streams.cta.io.LoopStream" copies="${num_copies}" limit="16000">
+    <stream id="data-${copy.id}" class="streams.cta.io.LoopStream" copies="${num_copies}" limit="128000">
 
         <stream id="cta:data" class="streams.cta.io.ImageStream" url="file:src/main/resources/images.json.gz" />
 
@@ -21,8 +21,9 @@
         </ForEach>
         <streams.cta.MergeByTelescope key="@telescopes"/>
         <streams.cta.SummarizePredictions />
+        <streams.cta.stereo.Stereo/>
         <RemoveKeys keys="@datarate,@*memory,*telescope*" />
-        <streams.DataRate every="4000" logmemory="true"/>
+        <streams.DataRate every="2000" logmemory="true"/>
 
         <If condition="%{data.@datarate} != null}" >
             <Enqueue queue="perf"/>
@@ -31,7 +32,7 @@
     </process>
 
     <process input="perf">
-        <streams.cta.io.CSVWriter url="file:./performance_threads_${num_copies}.csv" keys="@datarate,@stream,@totalmemory,@freememory"/>
+        <streams.cta.io.CSVWriter url="file:./data/measurements/performance/performance_threads_${num_copies}.csv" keys="@datarate,@stream,@totalmemory,@freememory"/>
     </process>
 
 </application>

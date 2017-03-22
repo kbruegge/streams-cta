@@ -8,6 +8,7 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.SingularMatrixException;
 import stream.Data;
 import stream.Processor;
 import streams.hexmap.CameraMapping;
@@ -170,7 +171,12 @@ public class Stereo  implements Processor{
 
         //Do a linear least square regresssion
         RealMatrix A = MatrixUtils.createRealMatrix(mat);
-        return MatrixUtils.inverse(A.transpose().multiply(A)).multiply(A.transpose()).operate(d);
+        try {
+            return MatrixUtils.inverse(A.transpose().multiply(A)).multiply(A.transpose()).operate(d);
+        } catch (SingularMatrixException e){
+            return new double[]{Double.NaN, Double.NaN, Double.NaN};
+        }
+
     }
 
     /**
@@ -277,7 +283,11 @@ public class Stereo  implements Processor{
             Vector3D crossProduct = Vector3D.crossProduct(Vector3D.crossProduct(new Vector3D(planeVector1), new Vector3D(planeVector2)), new Vector3D(planeVector1));
             Vector3D norm = Vector3D.crossProduct(new Vector3D(planeVector1), crossProduct);
 
-            this.normalVector = norm.normalize().toArray();
+            if (Double.isNaN(weight)){
+                this.normalVector = new double[]{Double.NaN,Double.NaN,Double.NaN};
+            } else {
+                this.normalVector = norm.normalize().toArray();
+            }
 
             telescopePosition = new double[]{tel.telescopePositionX, tel.telescopePositionY, tel.telescopePositionZ};
         }

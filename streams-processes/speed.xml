@@ -2,21 +2,21 @@
 
     <!--LoopStream can not be parallelized (only the process)-->
     <!--Use ParallelLoopStream as shown in speedParallelLoop.xml-->
-    <stream id="cta:loop" class="streams.cta.io.LoopStream" limit="2">
+    <stream id="cta:loop" class="streams.cta.io.LoopStream">
         <stream id="cta:data" class="streams.cta.io.ImageStream" url="classpath:/images.json.gz" />
     </stream>
 
     <process id="cta:processing" input="cta:loop" copies="1">
         <!--<streams.performance.Performance every="2000" host="ls8ws007.cs.uni-dortmund.de">-->
-            <streams.SplitByTelescope key="@telescopes" />
+            <streams.cta.SplitByTelescope key="@telescopes" />
             <ForEach key="@telescopes">
                 <streams.cta.cleaning.TailCut />
                 <streams.cta.features.Moments />
-                <PrintData/>
             </ForEach>
-            <streams.MergeByTelescope key="@telescopes"/>
-            <PrintData/>
-            <!--<streams.DataRate every="2"/>-->
+            <streams.cta.MergeByTelescope key="@telescopes"/>
+            <streams.cta.stereo.Stereo/>
+            <!--<PrintData/>-->
+            <streams.DataRate every="2000"/>
         <!--</streams.performance.Performance>-->
     </process>
 

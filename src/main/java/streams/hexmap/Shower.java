@@ -11,33 +11,39 @@ import java.util.HashSet;
  * algorithms on the signal. Like the Hillas parameters for example. Each signal pixel also holds
  * the Ids of its neighbouring pixels. This is useful for dilating the shower.
  *
- * TODO: still missing is a lot of documentation
- *
  * Created by kaibrugge on 13.02.17.
  */
 public class Shower implements Serializable {
 
-    private final CameraMapping mapping = CameraMapping.getInstance();
+    private static final CameraMapping mapping = CameraMapping.getInstance();
 
-    public final HashSet<Pixel> pixels = new HashSet<>();
+    public final HashSet<SignalPixel> signalPixels = new HashSet<>();
 
     public final int cameraId;
 
+    /**
+     * Each camera (in one event) can have exactly one shower object.
+     * @param cameraId the id of the camera which recorded the image.
+     */
     public Shower(int cameraId) {
         this.cameraId = cameraId;
     }
 
-    public final static class Pixel {
-        final public int cameraId;
-        final public int pixelId;
+    /**
+     * A Shower holds a number of SignalPixels objects defined in this class.
+     * Each SignalPixel knows its neighbouring pixel for fast dilation operations.
+     */
+    public static class SignalPixel implements Serializable{
+        final int cameraId;
+        final int pixelId;
         final public double weight;
         final public double xPositionInMM;
         final public double yPositionInMM;
-        final public int[] neighbours;
+        final int[] neighbours;
 
 
-        Pixel(int cameraId, int pixelId, double xPositionInM,
-              double yPositionInM, double weight, int[] neighbours) {
+        private SignalPixel(int cameraId, int pixelId, double xPositionInM,
+                    double yPositionInM, double weight, int[] neighbours) {
             this.cameraId = cameraId;
             this.pixelId = pixelId;
             this.xPositionInMM = xPositionInM;
@@ -46,12 +52,28 @@ public class Shower implements Serializable {
             this.neighbours = neighbours;
         }
 
+        /**
+         * This methid creates a SignalPixel from the ids and the weight of that pixel.
+         *
+         * @param cameraId the id of the camera/telescope in which this pixel is located
+         * @param pixelId the id of the pixel
+         * @param weight the weight of the pixel. (like estimated number of photons or similar)
+         * @return an instance of a SignalPixel with the given valuess.
+         */
+        static SignalPixel create(int cameraId, int pixelId, double weight){
+            double x = mapping.cameraFromId(cameraId).pixelXPositions[pixelId];
+            double y = mapping.cameraFromId(cameraId).pixelYPositions[pixelId];
+
+            int[] neighbours = mapping.cameraFromId(cameraId).neighbours[pixelId];
+            return new SignalPixel(cameraId, pixelId, x, y, weight, neighbours);
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            Pixel pixel = (Pixel) o;
+            SignalPixel pixel = (SignalPixel) o;
 
             return cameraId == pixel.cameraId && pixelId == pixel.pixelId;
         }
@@ -64,31 +86,30 @@ public class Shower implements Serializable {
         }
     }
 
-    private Pixel createPixel(int pixelId, double weight) {
-        double x = mapping.cameraFromId(cameraId).pixelXPositions[pixelId];
-        double y = mapping.cameraFromId(cameraId).pixelYPositions[pixelId];
-
-        int[] neighbours = mapping.cameraFromId(cameraId).neighbours[pixelId];
-        return new Pixel(cameraId, pixelId, x, y, weight, neighbours);
-
-    }
-
     public void addPixel(int pixelId, double weight) {
-        pixels.add(createPixel(pixelId, weight));
+        signalPixels.add(SignalPixel.create(cameraId, pixelId, weight));
     }
 
+    /**
+     * This mehtod adds pixels to this Shower instance by selecting pixels adjacent
+     * to the already selected pixels which have a value which is greater or equal to the given
+     * threshold.
+     *
+     * @param image the camera image in estimated number of photons.
+     * @param threshold the threshold to select pixel which are added to the shower
+     */
     public void dilate(double[] image, double threshold) {
-        HashSet<Pixel> ids = Sets.newHashSet();
+        HashSet<SignalPixel> ids = Sets.newHashSet();
 
-        for (Pixel pix : pixels) {
+        for (SignalPixel pix : signalPixels) {
             for (int n : pix.neighbours) {
                 if (image[n] > threshold) {
-                    ids.add(createPixel(n, image[n]));
+                    ids.add(SignalPixel.create(cameraId, n, image[n]));
                 }
             }
         }
 
-        pixels.addAll(ids);
+        signalPixels.addAll(ids);
     }
 
 }
