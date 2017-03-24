@@ -1,22 +1,24 @@
 <application>
 
     <property name="prefix" value="gamma*.json.gz" />
-    <property name="outfile" value="./data/processed/gammas_rta.csv" />
+    <property name="num_copies" value="1" />
+    <property name="out_file" value="./gammas.csv" />
+    <property name="in_folder" value="/fhgfs/users/kbruegge/cta/" />
 
     <stream id="cta:data"
             class="streams.cta.io.RecursiveDirectoryStream"
-            url="file:./data/raw/"
+            url="file:${in_folder}"
             pattern="${prefix}" >
 
         <stream id="images" class="streams.cta.io.ImageStream"/>
 
     </stream>
 
-    <service id="regressor" class="streams.cta.PredictionService" url="file:srt/test/resources/test_regressor.pmml" />
-    <service id="classifier" class="streams.cta.PredictionService" url="file:src/test/resources/test_classifier.pmml" />
+    <service id="regressor" class="streams.cta.PredictionService" url="classpath:/test_regressor.pmml" />
+    <service id="classifier" class="streams.cta.PredictionService" url="classpath:/test_classifier.pmml" />
 
 
-    <process input="cta:data">
+    <process input="cta:data" copies="${num_copies}">
         <streams.cta.SplitByTelescope key="@telescopes" />
         <ForEach key="@telescopes">
             <streams.cta.cleaning.TailCut />
@@ -35,7 +37,7 @@
 
     <process input="perf">
         <streams.DataRate every="1000"/>
-        <streams.cta.io.CSVWriter url="file:${outfile}" keys="stereo:estimated_direction:*,
+        <streams.cta.io.CSVWriter url="file:${out_file}" keys="stereo:estimated_direction:*,
                                                               stereo:estimated_impact_position:*,
                                                               prediction:*,
                                                               array:num_*,
