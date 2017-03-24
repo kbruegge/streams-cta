@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -36,6 +37,10 @@ public class PythonBridge implements AutoCloseable {
      * @throws IOException in case an error occurs when starting the processes
      */
     public PythonBridge(String pathToPythonScript) throws IOException {
+        if (!new File(pathToPythonScript).canRead()){
+            log.error("File at " + pathToPythonScript + " is not readable.");
+            throw new IOException("Python file not readable");
+        }
         try {
             String[] nameServerCommand = {"python", "-u", "-m", "Pyro4.naming"}; // -u for unbuffered python output
 
@@ -85,6 +90,7 @@ public class PythonBridge implements AutoCloseable {
         } catch (IOException | InterruptedException e){
             pythonProcess.destroyForcibly();
             nameServerProcess.destroyForcibly();
+            e.printStackTrace();
             throw new IOException("An error occured while invoking the python processes");
         }
 
