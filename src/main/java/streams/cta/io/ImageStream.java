@@ -11,7 +11,6 @@ import stream.io.AbstractStream;
 import stream.io.SourceURL;
 
 import java.io.InputStreamReader;
-import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
@@ -84,9 +83,7 @@ public class ImageStream extends AbstractStream {
         Event event = gson.fromJson(reader, Event.class);
 
         Data data = DataFactory.create();
-        event.images.forEach((telId, image) -> {
-            data.put(String.format("telescope:%d:raw:photons", telId), image);
-        });
+        event.images.forEach((telId, image) -> data.put(String.format("telescope:%d:raw:photons", telId), image));
 
         data.put("array:triggered_telescopes", event.array.triggeredTelescopes);
         data.put("array:num_triggered_telescopes", event.array.numTriggeredTelescopes);
@@ -96,6 +93,7 @@ public class ImageStream extends AbstractStream {
         data.put("mc:core_x", event.mc.coreX);
         data.put("mc:core_y", event.mc.coreY);
         data.put("mc:energy", event.mc.energy);
+        data.put("mc:type", event.mc.type);
 
         data.put("event_id", event.eventId);
         data.put("timestamp", event.timestamp);
