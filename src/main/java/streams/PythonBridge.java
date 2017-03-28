@@ -5,10 +5,7 @@ import net.razorvine.pyro.PyroProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 
 /**
  * This object is the heart of the connection between python and java.
@@ -46,7 +43,7 @@ public class PythonBridge implements AutoCloseable {
 
             nameServerProcess = new ProcessBuilder(nameServerCommand).start();
             BufferedReader stdin = new BufferedReader(new InputStreamReader(nameServerProcess.getInputStream()));
-
+            BufferedReader stderr = new BufferedReader(new InputStreamReader(nameServerProcess.getErrorStream()));
             boolean isNameServerRunning = false;
             for (int i = 0; i < 50; i++) {
                 String output = stdin.readLine();
@@ -58,6 +55,7 @@ public class PythonBridge implements AutoCloseable {
                 Thread.sleep(200);
             }
             if (!isNameServerRunning) {
+                stderr.lines().forEach(e -> log.error(e));
                 nameServerProcess.destroy();
                 throw new IOException("Timeout while waiting for start of NameServer.");
             }
@@ -65,8 +63,9 @@ public class PythonBridge implements AutoCloseable {
 
             String[] command = {"python", "-u", pathToPythonScript}; // -u for unbuffered python output
 
-            pythonProcess = new ProcessBuilder(command).start();
+            pythonProcess = new ProcessBuilder(command).redirectErrorStream(true).start();
             stdin = new BufferedReader(new InputStreamReader(pythonProcess.getInputStream()));
+            stderr = new BufferedReader(new InputStreamReader(pythonProcess.getErrorStream()));
 
             boolean isPyroDaemonRunning = false;
             for (int i = 0; i < 50; i++) {
@@ -79,6 +78,7 @@ public class PythonBridge implements AutoCloseable {
                 Thread.sleep(200);
             }
             if (!isPyroDaemonRunning) {
+                stderr.lines().forEach(e -> log.error(e));
                 pythonProcess.destroy();
                 throw new IOException("Timeout while waiting for start of PyroDaemon.");
             }
@@ -105,6 +105,7 @@ public class PythonBridge implements AutoCloseable {
     /**
      * Calls a Python method by name.
      * This methods delegates to the {@link PyroProxy#call} method.
+     * There is some more code in here which logs python output to the appropriate java log.
      *
      * @param name the name of the python method to call
      * @param args the argumeents to pass to python
@@ -112,7 +113,30 @@ public class PythonBridge implements AutoCloseable {
      * @throws IOException in case an error occurs when calling the python method.
      */
     public Object callMethod(String name, Object... args) throws IOException {
-        return remoteObject.call(name, args);
+        BufferedReader stdin = new BufferedReader(new InputStreamReader(pythonProcess.getInputStream()));
+        BufferedReader stderr = new BufferedReader(new InputStreamReader(pythonProcess.getErrorStream()));
+
+        Object result = remoteObject.call(name, args);
+
+        StringBuilder sb = new StringBuilder();
+        while (stdin.ready()) {
+            sb.append((char) stdin.read());
+        }
+        String output = sb.toString();
+        if (!output.isEmpty()) {
+            log.info(output);
+        }
+
+        sb = new StringBuilder();
+        while (stderr.ready()) {
+            sb.append((char) stdin.read());
+        }
+        output = sb.toString();
+        if (!output.isEmpty()) {
+            log.error(output);
+        }
+
+        return result;
     }
 
     @Override
