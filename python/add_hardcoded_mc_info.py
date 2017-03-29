@@ -6,7 +6,7 @@ import pandas as pd
 @click.command()
 @click.argument('input_folder', type=click.Path(exists=True, file_okay=False))
 @click.argument('output_file', type=click.Path(exists=False))
-def main(input_files, output_file):
+def main(input_folder, output_file):
     '''
     The INPUT_FOLDER argument specifies the path to the json.gz files which have been
     converted from simtel files. This script assumes standard Prod3 settings
@@ -20,9 +20,9 @@ def main(input_files, output_file):
         return
 
     protons = filter(lambda f: f.startswith('proton'), map(
-        lambda s: s.replace('.json.gz', ''),  os.listdir('./')))
+        lambda s: s.replace('.json.gz', ''),  os.listdir(input_folder)))
     gammas = filter(lambda f: f.startswith('gamma'), map(
-        lambda s: s.replace('.json.gz', ''),  os.listdir('./')))
+        lambda s: s.replace('.json.gz', ''),  os.listdir(input_folder)))
 
     gammas = {s: {'index': -2.0, 'simulated_showers': 2400000} for s in gammas}
     protons = {s: {'index': -2.0, 'simulated_showers': 12000000}
