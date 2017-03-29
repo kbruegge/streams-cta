@@ -42,6 +42,7 @@
                                                                stereo:estimated_impact_position:*,
                                                                prediction:*,
                                                                array:num_*,
+							       source_file,
                                                                mc:*"/>
     </process>
 
