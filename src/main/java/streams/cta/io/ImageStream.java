@@ -1,5 +1,6 @@
 package streams.cta.io;
 
+import com.google.common.io.Files;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -94,6 +95,11 @@ public class ImageStream extends AbstractStream {
         data.put("mc:energy", event.mc.energy);
 
         data.put("event_id", event.eventId);
+
+        //Add the filename of the file we read from. This will be used to map
+        //event lists to MC production information.
+        String filename = Files.getNameWithoutExtension(url.getFile()).replace(".json", "");
+        data.put("source_file", filename);
 
         return data;
     }
