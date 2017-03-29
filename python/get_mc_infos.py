@@ -75,11 +75,7 @@ def main(input_files, output_file):
         d[key] = {'index': index, 'simulated_showers': simulated_showers}
 
     df = pd.DataFrame.from_dict(d, orient='index')
-    df.to_csv(output_file)
-
-    # l = subprocess.run(['ls'], stdout=subprocess.PIPE)
-    # print(l)
-
+    df.to_csv(output_file, index_label='file_names')
 
 
 if __name__ == '__main__':
