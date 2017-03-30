@@ -2,6 +2,7 @@
 
 <property name="prefix" value="proton*.json.gz" />
 <property name="folder" value="./data/raw" />
+<property name="limit" value="-1" />
 <property name="outfile" value="./data/processed/protons_training_features.csv" />
 
 <stream id="cta:data"
@@ -9,7 +10,7 @@
         url="file:${folder}"
         pattern="${prefix}" >
 
-    <stream id="images" class="streams.cta.io.ImageStream"/>
+    <stream id="images" class="streams.cta.io.ImageStream" limit="${limit}"/>
 
 </stream>
 
