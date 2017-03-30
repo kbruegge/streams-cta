@@ -24,8 +24,8 @@ def main(input_folder, output_file):
     gammas = filter(lambda f: f.startswith('gamma'), map(
         lambda s: s.replace('.json.gz', ''),  os.listdir(input_folder)))
 
-    gammas = {s: {'index': -2.0, 'simulated_showers': 2400000} for s in gammas}
-    protons = {s: {'index': -2.0, 'simulated_showers': 12000000}
+    gammas = {s: {'index': -2.0, 'simulated_showers': 20000*10} for s in gammas}
+    protons = {s: {'index': -2.0, 'simulated_showers': 50000*20}
                for s in protons}
 
     entries = dict(gammas, **protons)
