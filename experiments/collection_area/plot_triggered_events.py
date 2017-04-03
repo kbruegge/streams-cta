@@ -29,8 +29,10 @@ def plot(bin_edges, energy, expectation):
 
     ax.set_yscale('log')
     ax.errorbar(bin_center, expectation, xerr=bin_width *
-                0.5, marker='.', linestyle='', capsize=0)
-    H, _, _ = ax.hist(energy, bins=len(bin_center))
+                0.5, marker='.', linestyle='', capsize=0, label='Simulated Showers')
+    H, _, _ = ax.hist(energy, bins=len(bin_center), label='Triggered Events')
+
+    ax.legend()
 
     ax2.errorbar(bin_center, H / expectation, xerr=bin_width *
                  0.5, marker='.', linestyle='', capsize=0, color='0.25')

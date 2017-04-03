@@ -7,7 +7,7 @@ data_dir = ../../data/area
 proton_output = $(data_dir)/proton_triggered.csv
 gamma_output = $(data_dir)/gamma_triggered.csv
 
-plot = triggered_events.pdf
+plot = ../../build/triggered_events.pdf
 mc_meta_information = $(data_dir)/mc_production.csv
 
 raw_data_folder = ../../data/raw

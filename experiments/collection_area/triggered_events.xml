@@ -16,7 +16,7 @@
 
 <process input="cta:data">
     <streams.cta.io.CSVWriter keys="mc:energy,source_file" url="file:${outfile}"/>
-    <streams.DataRate every="10000"/>
+    <streams.DataRate every="1000"/>
 </process>
 
 </application>
