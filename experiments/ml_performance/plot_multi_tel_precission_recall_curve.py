@@ -2,7 +2,7 @@ import click
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-from sklearn.metrics import roc_curve, roc_auc_score
+from sklearn.metrics import precision_recall_curve
 
 
 def add_rectangles(ax, offset=0.1):
@@ -56,21 +56,30 @@ def main(predicted_gammas, predicted_protons, output_file):
     protons['true_label'] = 0
 
     df = pd.concat([gammas, protons])
-
     y_score = df['prediction:signal:mean']
     y_true = df['true_label']
 
-    fpr, tpr, _ = roc_curve(y_true, y_score)
-    auc = roc_auc_score(y_true, y_score)
+    precission, recall, thresholds = precision_recall_curve(y_true, y_score)
+    fig, ax = plt.subplots(1)
 
-    plt.plot(fpr, tpr, lw=1)
+    ax.plot(
+            thresholds,
+            recall[:-1],
+            label='Recall'
+            )
 
-    add_rectangles(plt.gca())
+    ax.plot(
+            thresholds,
+            precission[:-1],
+            label='Precission'
+            )
 
-    plt.text(0.95, 0.1, 'Area Under Curve: ${:.4f}$'.format(auc),
-             verticalalignment='bottom', horizontalalignment='right',
-             color='#404040', fontsize=11)
+    add_rectangles(ax)
 
+    ax.set_ylim([0, 1.05])
+    ax.set_xlim([-0.05, 1.05])
+    ax.set_xlabel('Prediction Threshold')
+    plt.legend()
     plt.savefig(output_file)
 
 

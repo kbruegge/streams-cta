@@ -32,6 +32,8 @@ ytick.color: 555555
 ytick.direction: out
 
 grid.color: white
+grid.linewidth: 0.5
+grid.alpha: 0.5
 grid.linestyle: -    # solid line
 
 figure.facecolor: white

@@ -3,17 +3,17 @@
 #the classifier to use
 classifier : |
   ensemble.RandomForestClassifier(
-      n_estimators=30,
+      n_estimators=100,
       max_features='sqrt',
       n_jobs=-1,
-      max_depth=15,
+      max_depth=13,
       criterion='entropy',
   )
 
 
 # # randomly sample the data if you dont want to use the whole set
-# n_background: 100000
-# n_signal: 100000
+n_background: 5000
+n_signal: 5000
 
 # define the number of cross validations to perform
 n_cross_validations : 5
