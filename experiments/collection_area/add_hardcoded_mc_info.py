@@ -24,8 +24,19 @@ def main(input_folder, output_file):
     gammas = filter(lambda f: f.startswith('gamma'), map(
         lambda s: s.replace('.json.gz', ''),  os.listdir(input_folder)))
 
-    gammas = {s: {'index': -2.0, 'simulated_showers': 20000*10, 'scatter_radius_meter': 2500.0} for s in gammas}
-    protons = {s: {'index': -2.0, 'simulated_showers': 50000*20, 'scatter_radius_meter': 3000.0} for s in protons}
+    gammas = {s: {'index': -2.0,
+                  'simulated_showers': 20000*10,
+                  'scatter_radius_meter': 2500.0,
+                  'energy_min': 0.003,
+                  'energy_max': 330,
+                  } for s in gammas}
+
+    protons = {s: {'index': -2.0,
+                   'simulated_showers': 50000*20,
+                   'scatter_radius_meter': 3000.0,
+                   'energy_min': 0.004,
+                   'energy_max': 600,
+                   } for s in protons}
 
     entries = dict(gammas, **protons)
     df = pd.DataFrame.from_dict(entries, orient='index')
