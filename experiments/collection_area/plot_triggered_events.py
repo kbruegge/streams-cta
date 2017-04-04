@@ -2,24 +2,7 @@ import numpy as np
 import click
 import pandas as pd
 import matplotlib.pyplot as plt
-plt.style.use('ggplot')
-
-
-def expected_events(index, N, bin_edges, log=True):
-    events = []
-    for e_low, e_high in zip(bin_edges[0:], bin_edges[1:]):
-        if log:
-            e_low, e_high = 10**e_low, 10**e_high
-
-        e = (1 / (index + 1)) * e_high**(index + 1) - \
-            (1 / (index + 1)) * e_low**(index + 1)
-        # e = e_high**(index) - e_low**index
-        events.append(e)
-
-    events = np.array(events)
-    total = np.sum(events)
-
-    return N / total * events
+from expected_events import power_spectrum
 
 
 def plot(bin_edges, energy, expectation):
@@ -53,7 +36,7 @@ def main(
         mc_production_information,
         outputfile,
         n_energy,
-):
+        ):
     '''
     Plot the event distributions from the triggered gammas given in the
     PREDICTED_EVENTS input file.
@@ -72,11 +55,10 @@ def main(
 
     _, edges = np.histogram(energy, bins=n_energy)
 
-    expectation = expected_events(-2, simulated_showers, edges)
+    expectation = power_spectrum(-2, simulated_showers, edges)
 
     fig, _ = plot(edges, energy, expectation)
     fig.savefig(outputfile)
-
 
 if __name__ == '__main__':
     main()
