@@ -27,9 +27,10 @@ limit = 20000
 
 training_limit = 5000
 
-all: plots 
+all: plots
 
-plots:	$(plot_single_telescope) \
+export MATPLOTLIBRC=../;
+plots:  $(plot_single_telescope) \
 				$(plot_multi_tel)\
 				$(plot_multi_tel_hist)\
 				$(plot_multi_tel_auc_vs_energy)\
