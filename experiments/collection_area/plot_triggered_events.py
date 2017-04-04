@@ -2,21 +2,25 @@ import numpy as np
 import click
 import pandas as pd
 import matplotlib.pyplot as plt
-from expected_events import power_spectrum
+import astropy.units as u
+import power_law
 
 
-def plot(bin_edges, energy, expectation):
+@u.quantity_input(event_energies=u.GeV)
+def plot(bin_edges, event_energies, expectation):
+
+    event_energies = np.log10(event_energies.to('GeV').value)
     fig, (ax, ax2) = plt.subplots(2, 1)
     bin_center = 0.5 * (bin_edges[:-1] + bin_edges[1:])
     bin_width = np.diff(bin_edges)
 
-    ax.set_yscale('log')
     ax.errorbar(bin_center, expectation, xerr=bin_width *
                 0.5, marker='.', linestyle='', capsize=0, label='Simulated Showers')
-    H, _, _ = ax.hist(energy, bins=len(bin_center), label='Triggered Events')
-
+    H, _, _ = ax.hist(event_energies, bins=len(bin_center), label='Triggered Events')
+    ax.set_yscale('log')
     ax.legend()
 
+    # plot efficiency in lower axis
     ax2.errorbar(bin_center, H / expectation, xerr=bin_width *
                  0.5, marker='.', linestyle='', capsize=0, color='0.25')
 
@@ -51,11 +55,16 @@ def main(
         .sum()
 
     # energy is stored in TeV apparently. lets make it GeV and log it
-    energy = (triggered_events['mc:energy'] * 1000).apply(np.log10)
+    energy = triggered_events['mc:energy'].values * u.TeV
 
-    _, edges = np.histogram(energy, bins=n_energy)
-
-    expectation = power_spectrum(-2, simulated_showers, edges)
+    expectation, edges = power_law.expected_events_for_bins(
+        simulated_showers,
+        energy,
+        bins=30,
+        index=-2.0,
+        e_min=0.003*u.TeV,
+        e_max=330*u.TeV
+    )
 
     fig, _ = plot(edges, energy, expectation)
     fig.savefig(outputfile)
