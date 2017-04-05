@@ -6,6 +6,7 @@ import uncertainties as unc
 import uncertainties.unumpy as unp
 import astropy.units as u
 import power_law
+from scipy.integrate import quad
 from coordinates import distance_between_estimated_and_mc_direction
 
 
@@ -121,20 +122,11 @@ def read_and_select_events(
     df = df.query('gammaness >= {}'.format(gammaness))
 
     # select background and source events
-    signal_events = df.query(
+    df = df.query(
         'theta_deg <= {}'.format(inner_radius.value)
     )
-    background_events = df.query(
-        'theta_deg > {} & theta_deg <= {}'.format(
-            inner_radius.value, outter_radius.value)
-    )
 
-    # calculate ratio of areas
-    area_on = np.pi * inner_radius**2
-    area_off = np.pi * (outter_radius**2 - inner_radius**2)
-    alpha = (area_on / area_off).value
-
-    return signal_events, background_events, alpha
+    return df.query('true_label == 1'), df.query('true_label == 0')
 
 
 def get_mc_information(path_to_events, path_to_mc_information):
@@ -167,6 +159,7 @@ def get_mc_information(path_to_events, path_to_mc_information):
     return n_simulated_showers, e_min, e_max, area, time
 
 
+
 @click.command()
 @click.argument('predicted_gammas', type=click.Path(exists=True, dir_okay=False,))
 @click.argument('predicted_protons', type=click.Path(exists=True, dir_okay=False,))
@@ -185,7 +178,7 @@ def main(
     '''
     t_obs = 50 * u.hour
 
-    on_events, off_events, alpha = read_and_select_events(
+    on_events, off_events = read_and_select_events(
         predicted_gammas,
         predicted_protons,
         t_obs=t_obs,
@@ -194,28 +187,67 @@ def main(
     N_gammas, e_min, e_max, area, simulation_time = get_mc_information(
         predicted_gammas, mc_production_information)
 
+    index_crab = -2.48
+    index_mc = -2.0
+
+    def f(e, area, t_obs):
+        return (power_law.crab_source_rate(e*u.TeV) * area.to('m^2') * t_obs.to('s')).value
+
+    def weight(energy, simulated_showers, expected_showers, index_mc, index_target):
+        w = (energy/u.TeV)**(index_mc - index_target) * expected_showers / simulated_showers
+        return w
+
+    expected_crab_events, _ = quad(lambda e: f(e, area, t_obs), e_min.value, e_max.value)
+
     energy = on_events.energy.values * u.TeV
-    crab = power_law.crab_source_rate(energy)
-    mc = power_law.power_law(energy, N_gammas, e_min=e_min, e_max=e_max,
-                             index=-2.0, collection_area=area, simulation_time=simulation_time)
-    on_events['weight'] = crab / mc
+    on_events['weight'] = weight(energy, N_gammas, expected_crab_events, index_mc, index_crab)
 
-
-
+    # hmm
+    # lecker
     N_protons, e_min, e_max, area, simulation_time = get_mc_information(
         predicted_protons, mc_production_information)
 
+    index_cosmic = -3.0/8.0
+    index_mc = -2.0
+
+    def f_cosmic(e, area, t_obs):
+        return (power_law.CR_background_rate(e*u.TeV) * area.to('m^2') * t_obs.to('s')).value
+
+    expected_CR_events, _ = quad(lambda e: f_cosmic(e, area, t_obs), e_min.value, e_max.value)
+
     energy = off_events.energy.values * u.TeV
-    crab = power_law.crab_source_rate(energy)
-    mc = power_law.power_law(energy, N_protons, e_min=e_min, e_max=e_max,
-                             index=-2.0, collection_area=area, simulation_time=simulation_time)
-    off_events['weight'] = crab / mc
+    off_events['weight'] = weight(energy, N_protons, expected_CR_events, index_mc, index_cosmic)
+
+
+    on_events.energy = np.log10(on_events.energy)
+    off_events.energy = np.log10(off_events.energy)
+
+    min_energy = min(on_events.energy.min(), off_events.energy.min())
+    max_energy = max(on_events.energy.max(), off_events.energy.max())
+
+    bin_edges = np.linspace(min_energy, max_energy, 20)
+
+    on_events['energy_bin'] = pd.cut(on_events.energy, bin_edges)
+    off_events['energy_bin'] = pd.cut(off_events.energy, bin_edges)
+
+    n_on = on_events.groupby('energy_bin').sum()['weight']
+    n_off = off_events.groupby('energy_bin').sum()['weight']
+
+    sens, err = relative_sensitivity(
+        n_on, n_off, alpha=1, t_obs=t_obs, t_ref=t_obs)
+
+    sens = sens * 1 / (u.TeV * u.s * u.m**2)
+
+    sens = sens.to(1 / (u.erg * u.s * u.cm**2))
 
 
     from IPython import embed
     embed()
 
-%matplo
+
+    fig, ax = plt.subplots(1)
+    plot_sensitivity(bin_edges, sens.value, error=err, ax=ax)
+
     plt.show()
 
 
