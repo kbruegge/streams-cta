@@ -131,7 +131,13 @@ if __name__ == '__main__':
 
     random_energies = s.draw_energy_distribution(e_min, e_max, N, index=simulation_index)
 
-    events, edges = s.expected_events_for_bins(e_min=e_min, e_max=e_max, area=area, t_obs=1*u.s, bins=20)
+    events, edges = s.expected_events_for_bins(
+            e_min=e_min,
+            e_max=e_max,
+            area=area,
+            t_obs=1*u.s,
+            bins=20
+        )
 
     bin_center = 0.5 * (edges[:-1] + edges[1:])
     bin_width = np.diff(edges)
@@ -142,13 +148,21 @@ if __name__ == '__main__':
             xerr=bin_width.value*0.5,
             linestyle='',
             marker='.',
-            label='expected events from crab'
+            label='expected events from crab',
+            color='black',
         )
-    plt.hist(random_energies, bins=edges, histtype='step')
+    plt.hist(
+            random_energies,
+            bins=edges,
+            histtype='step',
+            label='randomply sampled events with index {}'.format(simulation_index),
+        )
 
     w = s.weight(random_energies, e_min, e_max, area=area, simulated_showers=N, simulated_index=simulation_index)
-    plt.hist(random_energies, bins=edges, histtype='step', weights=w, label='reweighted energies')
+    plt.hist(random_energies, bins=edges, histtype='step', weights=w, label='reweighted energies', color='red')
 
+    plt.title('Event Reweighing')
+    plt.suptitle('Red line should be on black points')
     plt.yscale('log')
     plt.xscale('log')
     plt.legend()
