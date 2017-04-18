@@ -29,6 +29,7 @@ def main(input_folder, output_file):
                   'scatter_radius_meter': 2500.0,
                   'energy_min': 0.003,
                   'energy_max': 330,
+                  'solidangle_deg': None,
                   } for s in gammas}
 
     protons = {s: {'index': -2.0,
@@ -36,6 +37,7 @@ def main(input_folder, output_file):
                    'scatter_radius_meter': 3000.0,
                    'energy_min': 0.004,
                    'energy_max': 600,
+                   'solidangle_deg': 6,
                    } for s in protons}
 
     entries = dict(gammas, **protons)
