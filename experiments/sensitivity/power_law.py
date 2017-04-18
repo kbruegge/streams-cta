@@ -119,6 +119,47 @@ class CosmicRaySpectrum(Spectrum):
     generator_solid_angle = 6 * u.deg
 
 
+class MCSpectrum(Spectrum):
+    generator_solid_angle = None
+
+    @u.quantity_input(e_min=u.TeV, e_max=u.TeV)
+    def __init__(self, e_min, e_max, index, total_showers_simulated):
+        self.index = index
+        self.normalization_constant = 1
+        self.normalization_constant = (total_showers_simulated /self._integral(e_min.to('GeV'), e_max.to('GeV'))).value * (1 / (u.GeV * u.m**2 * u.s))
+
+    @u.quantity_input(e_min=u.TeV, e_max=u.TeV)
+    def expected_events(self, e_min, e_max):
+
+        events = self._integral(e_min, e_max) * 1*u.m**2 * 1 * u.s
+
+        assert events.si.unit.is_unity() == True
+        return events.si.value
+
+    @u.quantity_input(e_min=u.TeV, e_max=u.TeV)
+    def expected_events_for_bins(
+                    self,
+                    e_min,
+                    e_max,
+                    bins=10,
+                    log=True,
+                ):
+        if log:
+            a = e_min.to('TeV').value
+            b = e_max.to('TeV').value
+            edges = np.logspace(np.log10(a), np.log10(b), num=bins, base=10.0) * u.TeV
+        else:
+            edges = np.linspace(e_min, e_max, num=bins)
+
+        events = []
+        for e_low, e_high in zip(edges[0:], edges[1:]):
+            e = self.expected_events(e_low, e_high)
+            events.append(e)
+
+        events = np.array(events)
+        return events, edges
+
+
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     s = CrabSpectrum()
