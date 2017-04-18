@@ -165,5 +165,6 @@ if __name__ == '__main__':
     plt.suptitle('Red line should be on black points')
     plt.yscale('log')
     plt.xscale('log')
+    plt.xlabel('Energy in TeV')
     plt.legend()
     plt.show()
