@@ -76,12 +76,12 @@ def main(
                             e_min,
                             e_max,
                             area=area,
-                            simulated_showers=2*N,
+                            simulated_showers=N,
                             simulated_index=-2.0
                         )
 
     selected_gammas = gammas.query('gammaness >= 0.7')
-    from IPython import embed; embed()
+    # from IPython import embed; embed()
     events, edges = crab.expected_events_for_bins(
             e_min=e_min,
             e_max=e_max,
