@@ -1,5 +1,6 @@
 import numpy as np
 import astropy.units as u
+from scipy.stats import lognorm
 
 
 class Spectrum():
@@ -76,7 +77,8 @@ class Spectrum():
         event_energies=u.TeV,
         e_max_simulated=u.TeV,
         e_min_simulated=u.TeV,
-        area=u.m**2
+        area=u.m**2,
+        t_assumed_obs=u.h,
     )
     def weight(
             self,
@@ -84,27 +86,46 @@ class Spectrum():
             e_min_simulated,
             e_max_simulated,
             area,
+            t_assumed_obs,
             simulated_showers,
-            simulated_index=-2.0
+            simulated_index=-2.0,
             ):
         event_energies = event_energies.to('TeV')
+        e_min = e_min_simulated
+        e_max = e_max_simulated
+        #
+        # expected_events = self.expected_events(
+        #             e_min_simulated,
+        #             e_max_simulated,
+        #             area,
+        #             t_obs=1*u.s
+        #         )
+        # #
+        # s = MCSpectrum(e_min, e_max, simulated_index, simulated_showers)
+        # w = s.expected_events(e_min, e_max)/simulated_showers * (event_energies/u.TeV)**(-simulated_index)
+        # w = w * self.flux(event_energies) * area * u.TeV * u.s
+        # w = w/expected_events
+        #
+        # from IPython import embed; embed()
+        #
 
-        expected_events = self.expected_events(
-                    e_min_simulated,
-                    e_max_simulated,
-                    area,
-                    t_obs=1*u.s
-                )
+        # event weights to reskew the energy spectrum
+        gamma = -simulated_index
+        w = event_energies**(gamma) * (e_max**(1 - gamma) - e_min**(1 - gamma)) / (1 - gamma)
+        w = w * area * t_assumed_obs / simulated_showers
+        if self.generator_solid_angle:
+            angle = self.generator_solid_angle.to('rad').value
+            w = w * (1 - np.cos(angle)) * 2 * np.pi * u.sr
+        # from IPython import embed; embed()
+        w = w * self.flux(event_energies)/1000
 
-        w = (event_energies/u.TeV)**(self.index - simulated_index)
-        k = (len(event_energies)/simulated_showers)*expected_events
-        w = k * w / np.sum(w)
-
+        # w = area * event_energies**(gamma) * (e_max**(1 - gamma) - e_min**(1 - gamma)) / (1 - gamma) * t_assumed_obs / simulated_showers # * angular_thing
+        # from IPython import embed; embed()
         # print('expected_events {}'.format(expected_events))
         # print('sum of weights: {}'.format(np.sum(w)))
 
         assert w.si.unit.is_unity() == True
-        return w.value
+        return w.si.value
 
 
 class CrabSpectrum(Spectrum):
@@ -164,19 +185,31 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     s = CrabSpectrum()
 
-    e_min = 0.1*u.TeV
-    e_max = 100*u.TeV
-    area = 100*u.km**2
-    N = 1000000
-    simulation_index = -1.8
+    e_min = 0.003*u.TeV
+    e_max = 300*u.TeV
+    area = 1*u.km**2
+    N = 500000
+    simulation_index = -2.0
+    t_assumed_obs = 50 * u.h
 
     random_energies = s.draw_energy_distribution(e_min, e_max, N, index=simulation_index)
+    #
+    def efficiency(e):
+        return lognorm.pdf(e, s=0.96, loc=0, scale=1)
+
+    p = efficiency(random_energies)
+
+    # from IPython import embed; embed()
+    random_energies = np.random.choice(random_energies, size=N/2, replace=False, p=p/p.sum()) * u.TeV
+    # triggered_event_energies = random_energies
+    # print(random_energies)
+    # random_energies = random_energies[random_energies > 10*u.TeV]
 
     events, edges = s.expected_events_for_bins(
             e_min=e_min,
             e_max=e_max,
             area=area,
-            t_obs=1*u.s,
+            t_obs=t_assumed_obs,
             bins=20
         )
 
@@ -186,7 +219,7 @@ if __name__ == '__main__':
     plt.errorbar(
             bin_center.value,
             events,
-            xerr=bin_width.value*0.5,
+            xerr=bin_width.value * 0.5,
             linestyle='',
             marker='.',
             label='expected events from crab',
@@ -199,7 +232,8 @@ if __name__ == '__main__':
             label='randomply sampled events with index {}'.format(simulation_index),
         )
 
-    w = s.weight(random_energies, e_min, e_max, area=area, simulated_showers=N, simulated_index=simulation_index)
+
+    w = s.weight(random_energies, e_min, e_max, area=area, t_assumed_obs=t_assumed_obs, simulated_showers=N, simulated_index=simulation_index)
     plt.hist(random_energies, bins=edges, histtype='step', weights=w, label='reweighted energies', color='red')
 
     plt.title('Event Reweighing')

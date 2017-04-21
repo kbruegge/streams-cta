@@ -6,12 +6,9 @@ import uncertainties as unc
 import uncertainties.unumpy as unp
 import astropy.units as u
 import power_law
-from coordinates import distance_between_estimated_and_mc_direction
+# from coordinates import distance_between_estimated_and_mc_direction
 from astropy.coordinates import cartesian_to_spherical, Angle, EarthLocation, SkyCoord, Latitude, Longitude
 from dateutil import parser
-from scipy.integrate import quad
-
-
 
 
 def plot_sensitivity(bin_edges, sensitivity, ax=None, error=None, **kwargs):
@@ -24,7 +21,7 @@ def plot_sensitivity(bin_edges, sensitivity, ax=None, error=None, **kwargs):
 
     ax.errorbar(
         bin_center,
-        sensitivity,
+        sensitivity.value,
         xerr=bin_width * 0.5,
         yerr=error,
         marker='.',
@@ -71,19 +68,6 @@ def relative_sensitivity(
         Significance necessary for a detection
     '''
 
-    on_events.energy = np.log10(on_events.energy)
-    off_events.energy = np.log10(off_events.energy)
-
-    min_energy = min(on_events.energy.min(), off_events.energy.min())
-    max_energy = max(on_events.energy.max(), off_events.energy.max())
-
-    bin_edges = np.linspace(min_energy, max_energy, 20)
-
-    on_events['energy_bin'] = pd.cut(on_events.energy, bin_edges)
-    off_events['energy_bin'] = pd.cut(off_events.energy, bin_edges)
-
-    n_on = on_events.groupby('energy_bin')['weight'].sum()
-    n_off = off_events.groupby('energy_bin')['weight'].sum()
 
     ratio = (t_obs / t_ref).decompose().value
 
@@ -187,53 +171,6 @@ def get_mc_information(df, df_mc):
     return n_simulated_showers, e_min, e_max, area
 
 
-def calc_e_0(index, simulated_index, e_min, e_max):
-    e_0 = (1 + index)/(1 + simulated_index) * \
-            ((e_max**(1 + simulated_index)) - (e_min**(1 + simulated_index))) \
-                / ((e_max**(1 + index)) - (e_min**(1 + index)))
-
-    e_0 = e_0**(1/(simulated_index - index))
-    return e_0
-
-def weigh_protons(events, mc_information, t_obs):
-    N, e_min, e_max, area = get_mc_information(events, mc_information)
-    index = -2.70
-    simulated_index = -2.0
-    solidangle = 2 * np.pi * (1 - np.cos(np.deg2rad(6))) * u.sr
-    norm = 9.6E-9 * (1/(u.GeV * u.s * u.sr * u.cm**2)) * solidangle
-    e_norm = 1000 * u.GeV
-
-    e_0 = calc_e_0(index, simulated_index, e_min.to('GeV').value, e_max.to('GeV').value) * u.GeV
-
-    flux = norm/(1 + index) * e_norm**(-index) * ( (e_max**(1 + index)) - (e_min**(1 + index)) )
-
-    flux = flux * area * t_obs
-
-    energy = events.energy.values * u.TeV
-    weight = (energy/e_0)**(index - simulated_index) * flux / N
-    assert weight.decompose().unit.is_unity() is True
-
-    return weight
-
-def weigh_gammas(events, mc_information, t_obs):
-    N, e_min, e_max, area = get_mc_information(events, mc_information)
-    index = -2.62
-    simulated_index = -2.0
-    norm = 2.83E-14 * (1/(u.GeV * u.s * u.cm**2))
-    e_norm = 1000 * u.GeV
-
-    e_0 = calc_e_0(index, simulated_index, e_min.to('GeV').value, e_max.to('GeV').value) * u.GeV
-
-    flux = norm/(1 + index) * e_norm**(-index) * ( (e_max**(1 + index)) - (e_min**(1 + index)) )
-
-    flux = flux * area * t_obs
-
-    energy = events.energy.values * u.TeV
-    weight = (energy/e_0)**(index - simulated_index) * flux / N
-    assert weight.decompose().unit.is_unity() is True
-
-    return weight
-
 
 @click.command()
 @click.argument('predicted_gammas', type=click.Path(exists=True, dir_okay=False,))
@@ -251,7 +188,7 @@ def main(
     '''
     Plot the sensitivity curve.
     '''
-    t_obs = 50 * u.h
+    t_obs = 3.6 * u.h
     # gammaness = 0.5
 
     df_mc = pd.read_csv(mc_production_information)
@@ -262,63 +199,102 @@ def main(
     crab = power_law.CrabSpectrum()
     N, e_min, e_max, area = get_mc_information(gammas, df_mc)
     energies = gammas.energy.values*u.GeV
-    gammas['weight'] = crab.event_weights(energies, N, e_min, e_max, area,)
+    gammas['weight'] = crab.weight(energies, e_min, e_max, area, t_assumed_obs=t_obs, simulated_showers=N)
 
     cosmic_spectrum = power_law.CosmicRaySpectrum()
     N, e_min, e_max, area = get_mc_information(protons, df_mc)
     energies = protons.energy.values*u.GeV
-    protons['weight'] = cosmic_spectrum.event_weights(energies, N, e_min, e_max, area,)
+    protons['weight'] = cosmic_spectrum.weight(energies, e_min, e_max, area, t_assumed_obs=t_obs, simulated_showers=N)
 
-    # weigh_events(gammas, df_mc, t_obs, spectrum=power_law.CrabSpectrum())
-    # weigh_events(protons, df_mc, t_obs, spectrum=power_law.CosmicRaySpectrum())
+    selected_protons = protons.query('gammaness >= 0.8')
+    selected_gammas = gammas.query('gammaness >= 0.8')
 
-    selected_protons = protons.query('gammaness >= 0.7')
-    selected_gammas = gammas.query('gammaness >= 0.7')
+    #
+    # # calculate ratio of areas
+    # area_on = np.pi * inner_radius**2
+    # area_off = np.pi * outter_radius**2
+    # alpha = (area_on / area_off)
 
-    inner_radius = 0.014
-    outter_radius = 0.1
-
-    on_events = selected_gammas.query('theta_deg_squared < {}'.format(inner_radius)).copy()
-    off_events = selected_protons.query('theta_deg_squared < {}'.format(outter_radius)).copy()
-
-    # calculate ratio of areas
-    area_on = np.pi * inner_radius**2
-    area_off = np.pi * outter_radius**2
-    alpha = (area_on / area_off)
-
-    sens, err, bin_edges = relative_sensitivity(
-        on_events, off_events, alpha=alpha, t_obs=t_obs, t_ref=50*u.h,
-    )
-
-    sens = sens * 1 / (u.TeV * u.s * u.m**2)
-    err = err * 1 / (u.TeV * u.s * u.m**2)
-
+    # sens, err, bin_edges = relative_sensitivity(
+    #     on_events, off_events, alpha=alpha, t_obs=t_obs, t_ref=50*u.h,
+    # )
+    #
+    # sens = sens * 1 / (u.TeV * u.s * u.m**2)
+    # err = err * 1 / (u.TeV * u.s * u.m**2)
+    #
+    # plot_sensitivity(bin_edges, sens, ax=None, error=None)
+    # plt.show()
+    # from IPython import embed; embed()
     # sens = sens.to(1 / (u.erg * u.s * u.cm**2))
 
+    # on_events.energy = np.log10(on_events.energy)
+    # off_events.energy = np.log10(off_events.energy)
 
-    from IPython import embed
-    embed()
+    _, edges, _ = plt.hist(
+                    selected_protons.theta_deg**2,
+                    bins=n_bins,
+                    range=[0, 0.2],
+                    weights=selected_protons.weight,
+                    histtype='step',
+                )
+    plt.hist(
+        selected_gammas.theta_deg**2,
+        bins=edges,
+        weights=selected_gammas.weight,
+        histtype='step',
+    )
+    plt.xlabel('$(\mathrm{Theta} / \mathrm{degree})^2$')
+    plt.ylabel('Expected events in {} '.format(t_obs))
+    plt.savefig(outputfile)
 
-    event_energies = np.log10(gammas.energy)
-    H, _, _ = plt.hist(event_energies, bins=bin_edges, weights=gammas.weight, label='Triggered Events')
-    plt.yscale('log')
-
-
-    events = []
-    N, e_min, e_max, area = get_mc_information(gammas, df_mc)
-    for e_low, e_high in zip(bin_edges[0:], bin_edges[1:]):
-        e = crab.expected_events(e_low*u.TeV, e_high, area=area, t_obs=t_obs)
-        events.append(e)
-
+    # min_energy = min(selected_gammas.energy.min(), selected_protons.energy.min())
+    # max_energy = max(selected_gammas.energy.max(), selected_protons.energy.max())
     #
-    # protons = protons.query('gammaness >= {}'.format(gammaness))
+    # edges = np.logspace(np.log10(min_energy), np.log10(max_energy), num=8, base=10.0)
     #
-    # gammas = gammas.query('gammaness >= {}'.format(gammaness))
+    # selected_gammas['energy_bin'] = pd.cut(selected_gammas.energy, edges)
+    # selected_protons['energy_bin'] = pd.cut(selected_protons.energy, edges)
+
+    # for (n, protons), (n2, gammas) in zip(selected_protons.groupby('energy_bin'), selected_gammas.groupby('energy_bin')):
+    #     plt.figure()
+    #     # print(n, n2)
+    #     _, edges, _ = plt.hist(
+    #                     gammas.theta_deg**2,
+    #                     bins=n_bins,
+    #                     range=[0, .15],
+    #                     weights=gammas.weight,
+    #                     histtype='step',
+    #                 )
+    #     plt.hist(
+    #         protons.theta_deg**2,
+    #         bins=edges,
+    #         weights=protons.weight,
+    #         histtype='step',
+    #     )
+    #     plt.show()
+
+    # background_region_radius = 0.01
+    # signal_region_radius = 0.01
     #
-    # _, edges, _ = plt.hist(protons.theta_deg**2,
-    #                        bins=n_bins, range=[0, .15], histtype='step')
-    # plt.hist(gammas.theta_deg**2,
-    #          bins=edges, histtype='step')
+    # n_off = []
+    # for n, group in selected_protons.groupby('energy_bin'):
+    #     H, _ = np.histogram(group.theta_deg**2, bins=np.arange(0, 0.2, background_region_radius), weights=group.weight)
+    #     n_off.append(H.mean())
+    # n_off = np.array(n_off)
+    #
+    # n_on = selected_gammas.query('theta_deg_squared < {}'.format(signal_region_radius)).groupby('energy_bin')['weight'].sum().values
+    #
+    # print(n_off, n_on)
+
+    # event_energies = np.log10(selected_gammas.energy)
+    # a = e_min.to('TeV').value
+    # b = e_max.to('TeV').value
+    # edges = np.logspace(np.log10(a), np.log10(b), num=bins, base=10.0) * u.TeV
+    # bin_edges = np.linspace(e_min, e_max, num=5)
+    # H, _, _ = plt.hist(event_energies, bins=bin_edges, weights=selected_gammas.weight, label='Triggered Events')
+    # plt.yscale('log')
+    # from IPython import embed; embed()
+
     # plt.show()
 
 
