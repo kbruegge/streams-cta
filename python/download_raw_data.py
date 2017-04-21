@@ -23,7 +23,6 @@ def download_file(folder, url, auth):
     local_filename = local_filename.split('.gz')[0]
 
     r = requests.get(url, stream=True, auth=auth)
-    print(r.status_code)
 
     name = os.path.join(folder, local_filename)
     with open(name, 'wb') as f:
@@ -39,7 +38,7 @@ def download_file(folder, url, auth):
 @click.option('--password', prompt=True, hide_input=True)
 @click.option('--kind', default='proton', help='kind of files to download. either '
                                                'proton, gamma or electron')
-def main(output_folder, limit, password, kind):
+def main(output_folder, password, kind):
     '''
     The OUTPUT_FOLDER argument specifies the path to the folder
     where the simtel files will be saved.
@@ -56,16 +55,28 @@ def main(output_folder, limit, password, kind):
     links = re.findall(regex, r.text)
 
     for l in links:
-        name = download_file(output_folder, url + l, auth=('CTA', password))
-        outname = name.split('.simtel')[0] + '.json.gz'
 
-        print('converting file to ' + outname)
-        source = hessio_event_source(name)
-        d = convert_raw_data.convert(source)
+        # remove gz extension
+        local_filename = l.split('.gz')[0]
+        outname = local_filename.split('.simtel')[0] + '.json.gz'
 
-        with gzip.open(outname, mode='wt') as of:
-            json.dump(d, of, indent=2)
-            os.remove(name)
+        if '20deg_0deg' not in outname:
+            print('skipping file because pointing not at 0, 20 {}'.format(outname))
+
+        elif os.path.exists(os.path.join(output_folder, outname)):
+            print('skipping file because it exists {}'.format(outname))
+
+        else:
+            name = download_file(output_folder, url + l, auth=('CTA', password))
+            outname = name.split('.simtel')[0] + '.json.gz'
+
+            print('converting file to ' + outname)
+            source = hessio_event_source(name)
+            d = convert_raw_data.convert(source)
+
+            with gzip.open(outname, mode='wt') as of:
+                json.dump(d, of, indent=2)
+                os.remove(name)
 
 
 if __name__ == '__main__':
