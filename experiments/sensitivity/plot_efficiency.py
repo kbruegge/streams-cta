@@ -61,21 +61,21 @@ def main(
     '''
     Plot the sensitivity curve.
     '''
-    # t_obs = 50 * u.h
-    # gammaness = 0.5
+    t_obs = 50 * u.h
 
     df_mc = pd.read_csv(mc_production_information)
 
     gammas = read_events(predicted_gammas)
 
-    crab = power_law.CrabSpectrum()
     N, e_min, e_max, area = get_mc_information(gammas, df_mc)
-
+    energy = gammas.energy.values * u.TeV
+    crab = power_law.CrabSpectrum()
     gammas['weight'] = crab.weight(
-                            gammas.energy.values * u.TeV,
+                            energy,
                             e_min,
                             e_max,
                             area=area,
+                            t_assumed_obs=t_obs,
                             simulated_showers=N,
                             simulated_index=-2.0
                         )
@@ -86,7 +86,7 @@ def main(
             e_min=e_min,
             e_max=e_max,
             area=area,
-            t_obs=1*u.s,
+            t_obs=t_obs,
             bins=20
         )
 
@@ -128,7 +128,7 @@ def main(
     plt.xscale('log')
     plt.xlabel('Energy in TeV')
     plt.legend()
-    plt.show()
+    plt.savefig(outputfile)
 
 
 if __name__ == '__main__':
