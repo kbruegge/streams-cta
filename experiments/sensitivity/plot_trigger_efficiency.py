@@ -77,11 +77,13 @@ def main(
 
     n_simulated_showers, e_min, e_max, area = get_mc_information(gammas, df_mc)
 
-    mc = power_law.MCSpectrum(e_min, e_max, -2.0, n_simulated_showers)
+    mc = power_law.MCSpectrum(e_min=e_min, e_max=e_max, total_showers_simulated=n_simulated_showers)
 
     expected_events, edges = mc.expected_events_for_bins(
             e_min=e_min,
             e_max=e_max,
+            area=1*u.m**2,
+            t_obs=1*u.s,
             bins=30
         )
 

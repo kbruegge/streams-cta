@@ -85,7 +85,7 @@ class Spectrum():
         b = e_max.to('TeV')/u.TeV
 
         index = self.index
-        N = self.normalization_constant * u.GeV
+        N = self.normalization_constant.to(1/(u.TeV * u.s * u.m**2)) * u.TeV
 
         return N * (1 / (index + 1)) * (b**(index + 1) - a**(index + 1))
 
@@ -134,36 +134,15 @@ class Spectrum():
         event_energies = event_energies.to('TeV')
         e_min = e_min_simulated
         e_max = e_max_simulated
-        #
-        # expected_events = self.expected_events(
-        #             e_min_simulated,
-        #             e_max_simulated,
-        #             area,
-        #             t_obs=1*u.s
-        #         )
-        # #
-        # s = MCSpectrum(e_min, e_max, simulated_index, simulated_showers)
-        # w = s.expected_events(e_min, e_max)/simulated_showers * (event_energies/u.TeV)**(-simulated_index)
-        # w = w * self.flux(event_energies) * area * u.TeV * u.s
-        # w = w/expected_events
-        #
-        # from IPython import embed; embed()
-        #
 
-        # event weights to reskew the energy spectrum
         gamma = -simulated_index
         w = event_energies**(gamma) * (e_max**(1 - gamma) - e_min**(1 - gamma)) / (1 - gamma)
         w = w * area * t_assumed_obs / simulated_showers
         if self.generator_solid_angle:
             angle = self.generator_solid_angle.to('rad').value
             w = w * (1 - np.cos(angle)) * 2 * np.pi * u.sr
-        # from IPython import embed; embed()
-        w = w * self.flux(event_energies)/1000
 
-        # w = area * event_energies**(gamma) * (e_max**(1 - gamma) - e_min**(1 - gamma)) / (1 - gamma) * t_assumed_obs / simulated_showers # * angular_thing
-        # from IPython import embed; embed()
-        # print('expected_events {}'.format(expected_events))
-        # print('sum of weights: {}'.format(np.sum(w)))
+        w = w * self.flux(event_energies)
 
         assert w.si.unit.is_unity() == True
         return w.si.value
@@ -184,44 +163,47 @@ class CosmicRaySpectrum(Spectrum):
 
 
 class MCSpectrum(Spectrum):
+    index = -2.0
     generator_solid_angle = None
+    normalization_constant = 1 / (u.TeV * u.m**2 * u.s)
 
     @u.quantity_input(e_min=u.TeV, e_max=u.TeV)
-    def __init__(self, e_min, e_max, index, total_showers_simulated):
+    def __init__(self, e_min, e_max, total_showers_simulated, index=-2.0):
         self.index = index
-        self.normalization_constant = 1
-        self.normalization_constant = (total_showers_simulated /self._integral(e_min.to('GeV'), e_max.to('GeV'))).value * (1 / (u.GeV * u.m**2 * u.s))
+        N = self._integral(e_min.to('TeV'), e_max.to('TeV')) * (u.m**2 * u.s)
+        self.normalization_constant = (total_showers_simulated / N) / (u.TeV * u.m**2 * u.s)
 
-    @u.quantity_input(e_min=u.TeV, e_max=u.TeV)
-    def expected_events(self, e_min, e_max):
 
-        events = self._integral(e_min, e_max) * 1*u.m**2 * 1 * u.s
-
-        assert events.si.unit.is_unity() == True
-        return events.si.value
-
-    @u.quantity_input(e_min=u.TeV, e_max=u.TeV)
-    def expected_events_for_bins(
-                    self,
-                    e_min,
-                    e_max,
-                    bins=10,
-                    log=True,
-                ):
-        if log:
-            a = e_min.to('TeV').value
-            b = e_max.to('TeV').value
-            edges = np.logspace(np.log10(a), np.log10(b), num=bins, base=10.0) * u.TeV
-        else:
-            edges = np.linspace(e_min, e_max, num=bins)
-
-        events = []
-        for e_low, e_high in zip(edges[0:], edges[1:]):
-            e = self.expected_events(e_low, e_high)
-            events.append(e)
-
-        events = np.array(events)
-        return events, edges
+    # @u.quantity_input(e_min=u.TeV, e_max=u.TeV)
+    # def expected_events(self, e_min, e_max):
+    #
+    #     events = self._integral(e_min, e_max) * u.m**2 * u.s
+    #
+    #     assert events.si.unit.is_unity() == True
+    #     return events.si.value
+    #
+    # @u.quantity_input(e_min=u.TeV, e_max=u.TeV)
+    # def expected_events_for_bins(
+    #                 self,
+    #                 e_min,
+    #                 e_max,
+    #                 bins=10,
+    #                 log=True,
+    #             ):
+    #     if log:
+    #         a = e_min.to('TeV').value
+    #         b = e_max.to('TeV').value
+    #         edges = np.logspace(np.log10(a), np.log10(b), num=bins, base=10.0) * u.TeV
+    #     else:
+    #         edges = np.linspace(e_min, e_max, num=bins)
+    #
+    #     events = []
+    #     for e_low, e_high in zip(edges[0:], edges[1:]):
+    #         e = self.expected_events(e_low, e_high)
+    #         events.append(e)
+    #
+    #     events = np.array(events)
+    #     return events, edges
 
 
 if __name__ == '__main__':
@@ -237,13 +219,13 @@ if __name__ == '__main__':
 
     random_energies = s.draw_energy_distribution(e_min, e_max, N, index=simulation_index)
     #
-    def efficiency(e):
-        return lognorm.pdf(e, s=0.96, loc=0, scale=1)
-
-    p = efficiency(random_energies)
-
+    # def efficiency(e):
+    #     return lognorm.pdf(e, s=0.96, loc=0, scale=1)
+    #
+    # p = efficiency(random_energies)
+    #
     # from IPython import embed; embed()
-    random_energies = np.random.choice(random_energies, size=N/2, replace=False, p=p/p.sum()) * u.TeV
+    # random_energies = np.random.choice(random_energies, size=N/2, replace=False, p=p/p.sum()) * u.TeV
     # triggered_event_energies = random_energies
     # print(random_energies)
     # random_energies = random_energies[random_energies > 10*u.TeV]
