@@ -1,7 +1,48 @@
 import numpy as np
 import astropy.units as u
 from scipy.stats import lognorm
+from scipy.optimize import minimize_scalar
+from fact.analysis import li_ma_significance
 
+
+@u.quantity_input(t_obs=u.hour, t_ref=u.hour)
+def relative_sensitivity(
+        n_on,
+        n_off,
+        alpha,
+        target_significance=5,
+        ):
+    '''
+    Calculate the relative sensitivity defined as the flux
+    relative to the reference source that is detectable with
+    significance in t_ref.
+
+    Parameters
+    ----------
+    n_on: int or array-like
+        Number of signal-like events for the on observations
+    n_off: int or array-like
+        Number of signal-like events for the off observations
+    alpha: float
+        Scaling factor between on and off observations.
+        1 / number of off regions for wobble observations.
+    target_significance: float
+        Significance necessary for a detection
+
+    Returns
+    ----------
+    The relative flux neccessary to detect the source with the given target significance.
+    '''
+    scale = []
+    for on, off in zip(n_on, n_off):
+        def f(relative_flux):
+            s = li_ma_significance((on - off) * relative_flux + off, off, alpha=alpha)
+            return s
+
+        s = minimize_scalar(lambda x: (target_significance - f(x))**2, bounds=(1e-12, 100), method='bounded')
+
+        scale.append(s.x)
+    return scale
 
 class Spectrum():
 
@@ -128,6 +169,8 @@ class Spectrum():
         return w.si.value
 
 
+
+
 class CrabSpectrum(Spectrum):
     index = -2.62
     normalization_constant = 2.83e-14/(u.GeV * u.cm**2 * u.s)
@@ -243,3 +286,14 @@ if __name__ == '__main__':
     plt.xlabel('Energy in TeV')
     plt.legend()
     plt.show()
+
+    # plt.figure()
+    # e = np.linspace(e_min, e_max, 1000)
+    # plt.plot(e, s.flux(e).to(1/(u.TeV * u.s *u.cm**2)))
+    # plt.title('Crab Spectrum')
+    # plt.yscale('log')
+    # plt.xscale('log')
+    # plt.xlabel('Energy in TeV')
+    # plt.ylabel('$Photons / (TeV s cm^2)$')
+    # plt.legend()
+    # plt.show()
