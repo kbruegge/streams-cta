@@ -26,17 +26,21 @@ def main(
                 predicted_gammas,
                 mc_production_information
             )
+    energies = gammas.energy.values*u.TeV
 
     crab = power_law.CrabSpectrum()
-    energies = gammas.energy.values*u.TeV
+    mc = power_law.MCSpectrum(
+        e_min=e_min,
+        e_max=e_max,
+        total_showers_simulated=N,
+        generation_area=area,
+        generator_solid_angle=6 * u.deg
+    )
 
     gammas['weight'] = crab.weight(
         energies,
-        e_min,
-        e_max,
-        area,
+        mc_spectrum=mc,
         t_assumed_obs=t_obs,
-        simulated_showers=N
     )
 
     selected_gammas = gammas.query('gammaness >= 0.8')

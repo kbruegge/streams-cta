@@ -157,11 +157,11 @@ def create_sensitivity_matrix(
 
     unit = None
 
-    for b in gammas.energy_bin.cat.categories:
+    for b in tqdm(gammas.energy_bin.cat.categories):
         g = gammas[gammas.energy_bin == b]
         p = protons[protons.energy_bin == b]
 
-        print('category: {} len g {} len p {}'.format(b, len(g), len(p)))
+        # print('category: {} len g {} len p {}'.format(b, len(g), len(p)))
 
         def f(x):
             return calculate_sensitivity(g, p, gammaness=x[0], signal_region=x[1]).value
@@ -179,78 +179,7 @@ def create_sensitivity_matrix(
         sensitivity.append(sens.value)
         unit = sens.unit
 
-    # select gamma-like events from both samples and plot the theta histogram
-    # selected_protons = protons.query('gammaness >={}'.format(gammaness)).copy()
-    # selected_gammas = gammas.query('gammaness >={}'.format(gammaness)).copy()
-    #
-    # min_energy = min(selected_gammas.energy.min(),
-    #                  selected_protons.energy.min())
-    # max_energy = max(selected_gammas.energy.max(),
-    #                  selected_protons.energy.max())
-    #
-    # edges = np.logspace(np.log10(min_energy), np.log10(
-    #     max_energy), num=n_bins + 1, base=10.0) * u.TeV
-    # bin_center = 0.5 * (edges[:-1] + edges[1:])
-    #
-    # selected_gammas['energy_bin'] = pd.cut(selected_gammas.energy, edges)
-    # selected_protons['energy_bin'] = pd.cut(selected_protons.energy, edges)
-    #
-    # background_region_radius = signal_region_radius
-    #
-    # sensitivity = []
-
-    # calculate the sensitivity multiple times for different samples.
-    # basically a bootstrapping approach to get an error estimate.
-    # for _ in tqdm(range(iterations)):
-    #
-    #     # estimate n_off by assuming that the background rate is constant within a
-    #     # smallish theta area around 0. take the mean of the thata square histogram
-    #     # to get a more stable estimate for n_off
-    #     n_off = []
-    #     for _, group in selected_protons.groupby('energy_bin'):
-    #         b = np.random.poisson(len(group))
-    #
-    #         if b == 0:
-    #             n_off.append(0)
-    #             continue
-    #
-    #         sample = group.sample(b, replace=True)
-    #
-    #         H, _ = np.histogram(
-    #             sample.theta_deg**2,
-    #             bins=np.arange(0, 0.2, background_region_radius),
-    #             weights=sample.weight
-    #         )
-    #         n_off.append(H.mean())
-    #
-    #     n_off = np.array(n_off)
-    #
-    #     n_on = []
-    #     for _, group in selected_gammas.groupby('energy_bin'):
-    #         b = np.random.poisson(len(group))
-    #         if b == 0:
-    #             n_on.append(0)
-    #             continue
-    #
-    #         on = group.query(
-    #                 'theta_deg_squared < {}'.format(signal_region_radius)
-    #             )\
-    #             .sample(b, replace=True)['weight']\
-    #             .sum()
-    #
-    #         n_on.append(on)
-    #
-    #     n_on = np.array(n_on)
-    # #
-    #     relative_flux = power_law.relative_sensitivity(
-    #         n_on, n_off,
-    #         alpha=signal_region_radius/background_region_radius,
-    #     )
-    #     sens = target_spectrum.flux(bin_center) * relative_flux
-    #     sensitivity.append(sens)
-
     # multiply the whole thing by the proper unit. There must be a nicer way to do this.
-    # from IPython import embed; embed()
     sensitivity = np.array(sensitivity) * unit
     return sensitivity, edges
 
@@ -305,31 +234,8 @@ def main(
         simulated_showers=N
     )
 
-    # def f(x):
-    #     sensitivity, edges = create_sensitivity_matrix(
-    #             protons,
-    #             gammas,
-    #             n_bins,
-    #             iterations=5,
-    #             gammaness=x[0],
-    #             signal_region_radius=x[1]
-    #     )
-    #
-    #     sensitivity = sensitivity.mean(axis=0).to(1 / (u.erg * u.s * u.cm**2)).value
-    #     sensitivity[np.isinf(sensitivity)] = np.nan
-    #     print(x, sensitivity, np.nanmin(sensitivity))
-    #     return np.nanmean(sensitivity)
-    #
-    # ranges = (slice(0.5, 0.9, 0.1), slice(0.005, 0.05, 0.005))
-    # res = optimize.brute(f, ranges, finish=optimize.fmin, full_output=True)
-    # print(res)
-    # from IPython import embed; embed()
-    # print('relative flux {}'.format(relative_flux))
-    # bin_center = 0.5 * (edges[:-1] + edges[1:])
-
     sens, edges = create_sensitivity_matrix(protons, gammas, n_bins, iterations)
     sens = sens.to(1 / (u.erg * u.s * u.cm**2))
-    print('Sens {}'.format(sens.mean(axis=0)))
     ax = plot_sensitivity(edges, sens, t_obs, ax=None)
     plot_spectrum(crab, e_min, e_max, ax=ax, color='gray')
     plt.savefig(outputfile)

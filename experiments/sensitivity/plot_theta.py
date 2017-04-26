@@ -28,35 +28,46 @@ def main(
 
     # read the gammas and weight them accroding to the crab spectrum
     gammas, N, e_min, e_max, area = cta_io.read_events(predicted_gammas, mc_production_information)
+
+    mc_gamma = power_law.MCSpectrum(
+        e_min=e_min,
+        e_max=e_max,
+        total_showers_simulated=N,
+        generation_area=area,
+        generator_solid_angle=6 * u.deg
+    )
+
     crab = power_law.CrabSpectrum()
     energies = gammas.energy.values*u.TeV
 
     gammas['weight'] = crab.weight(
         energies,
-        e_min,
-        e_max,
-        area,
+        mc_spectrum=mc_gamma,
         t_assumed_obs=t_obs,
-        simulated_showers=N
     )
 
     # read the protons and weight them accroding to the cosmic ray spectrum
     protons, N, e_min, e_max, area = cta_io.read_events(predicted_protons, mc_production_information)
     cosmic_spectrum = power_law.CosmicRaySpectrum()
+    mc_proton = power_law.MCSpectrum(
+        e_min=e_min,
+        e_max=e_max,
+        total_showers_simulated=N,
+        generation_area=area,
+        generator_solid_angle=6 * u.deg
+    )
+
     energies = protons.energy.values*u.TeV
 
     protons['weight'] = cosmic_spectrum.weight(
         energies,
-        e_min,
-        e_max,
-        area,
+        mc_spectrum=mc_proton,
         t_assumed_obs=t_obs,
-        simulated_showers=N
     )
 
     # select gamma-like events from both samples and plot the theta histogram
-    selected_protons = protons.query('gammaness >= 0.8')
-    selected_gammas = gammas.query('gammaness >= 0.8')
+    selected_protons = protons.query('gammaness >= 0.7')
+    selected_gammas = gammas.query('gammaness >= 0.7')
 
     _, edges, _ = plt.hist(
                     selected_protons.theta_deg**2,
