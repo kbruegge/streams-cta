@@ -88,7 +88,10 @@ class Spectrum():
 
     @u.quantity_input(e_min=u.TeV, e_max=u.TeV, area=u.m**2, t_obs=u.s)
     def expected_events(self, e_min, e_max, area, t_obs):
-
+        """
+        Get the number of events which are expected to arrive from this spectral source.
+        So its basically the integral of the flux within the given energy bounds.
+        """
         events = self._integral(e_min, e_max) * area * t_obs
 
         if self.generator_solid_angle:
@@ -120,7 +123,8 @@ class Spectrum():
             log=True,
         ):
         """
-
+        Get the number of events which are expected to arrive from this spectral source.
+        For each of the requested bins.
         """
         if log:
             a = e_min.to('TeV').value
@@ -185,6 +189,8 @@ class CrabSpectrum(Spectrum):
     '''
     index = -2.62
     normalization_constant = 2.83e-14 / (u.GeV * u.cm**2 * u.s)
+
+    #TODO move the generator angle somewhere else. maybe to the MC spectrum?
     generator_solid_angle = None
 
 
