@@ -6,6 +6,7 @@ import astropy.units as u
 import power_law
 import cta_io
 import pandas as pd
+from scipy import optimize
 
 
 @u.quantity_input(bin_edges=u.TeV, t_obs=u.h)
@@ -26,13 +27,14 @@ def plot_sensitivity(bin_edges, sensitivity, t_obs, ax=None, scale=True,  **kwar
 
     if scale:
         sensitivity = sensitivity * bin_center.to('erg')**2
-        error = error * bin_center.to('erg')**2
+        if error:
+            error = error * bin_center.to('erg')**2
 
     ax.errorbar(
         bin_center.value,
         sensitivity.value,
         xerr=bin_width.value * 0.5,
-        yerr=error.value,
+        yerr=error.value if error else None,
         marker='.',
         linestyle='',
         capsize=0,
@@ -43,7 +45,7 @@ def plot_sensitivity(bin_edges, sensitivity, t_obs, ax=None, scale=True,  **kwar
     ax.set_xscale('log')
     ax.set_ylabel(r'$ \mathrm{photons} / \mathrm{erg s} \mathrm{cm}^2$ in ' + str(t_obs.to('h')) + ' hours' )
     if scale:
-        ax.set_ylabel(r'$ E^2 \cdot \mathrm{photons} / \mathrm{erg} \quad \mathrm{s} \quad  \mathrm{cm}^2$ in ' + str(t_obs.to('h')) )
+        ax.set_ylabel(r'$ E^2 \cdot \mathrm{photons} /( \mathrm{erg} \quad \mathrm{s} \quad  \mathrm{cm}^2$ )  in ' + str(t_obs.to('h')) )
     ax.set_xlabel(r'$E /  \mathrm{TeV}$')
 
     return ax
@@ -67,13 +69,190 @@ def plot_spectrum(spectrum, e_min, e_max,  ax=None, scale=True, **kwargs):
         linestyle='--',
         **kwargs,
     )
-
-    # ax.set_yscale('log')
-    # ax.set_xscale('log')
-    # ax.set_ylabel(r'$Area / \mathrm{m}^2$')
-    # ax.set_xlabel(r'$\log_{10}(E /  \mathrm{TeV})$')
-
     return ax
+
+
+def calculate_sensitivity(
+            gammas,
+            protons,
+            gammaness=0.5,
+            signal_region=0.01,
+            target_spectrum=power_law.CrabSpectrum()
+        ):
+    selected_gammas = gammas.query('gammaness >={}'.format(gammaness)).copy()
+
+    selected_protons = protons.query('gammaness >={}'.format(gammaness)).copy()
+
+    n_on, n_off = get_on_and_off_counts(
+            selected_protons,
+            selected_gammas,
+            signal_region_radius=signal_region
+        )
+
+    relative_flux = power_law.relative_sensitivity(
+            n_on,
+            n_off,
+            alpha=1,
+        )
+
+    min_energy = min(gammas.energy.min(),
+                     protons.energy.min())
+    max_energy = max(gammas.energy.max(),
+                     protons.energy.max())
+
+    bin_center = np.mean([min_energy, max_energy]) * u.TeV
+
+    sens = target_spectrum.flux(bin_center) * relative_flux
+    return sens
+
+
+def get_on_and_off_counts(selected_protons, selected_gammas, signal_region_radius):
+    """ Get on and off counts from the signal region using a simepl theta**2 cut"""
+
+    # estimate n_off by assuming that the background rate is constant within a
+    # smallish theta area around 0. take the mean of the thata square histogram
+    # to get a more stable estimate for n_off
+    background_region_radius = signal_region_radius
+    # # print(selected_protons.theta_deg.count(), selected_protons.weight.count())
+    # if selected_protons.weight.count() == 30:
+    #     print(selected_protons.weight)
+    #     from IPython import embed; embed()
+    H, _ = np.histogram(
+        selected_protons.theta_deg**2,
+        bins=np.arange(0, 0.2, background_region_radius),
+        weights=selected_protons.weight
+    )
+    n_off = H.mean()
+
+    n_on = selected_gammas.query(
+            'theta_deg_squared < {}'.format(signal_region_radius)
+        )['weight']\
+        .sum()
+
+    return n_on, n_off
+
+
+def create_sensitivity_matrix(
+            protons,
+            gammas,
+            n_bins,
+            iterations,
+            target_spectrum=power_law.CrabSpectrum(),
+        ):
+
+    min_energy = min(gammas.energy.min(),
+                     protons.energy.min())
+    max_energy = max(gammas.energy.max(),
+                     protons.energy.max())
+
+    edges = np.logspace(np.log10(min_energy), np.log10(
+        max_energy), num=n_bins + 1, base=10.0) * u.TeV
+
+    gammas['energy_bin'] = pd.cut(gammas.energy, edges)
+    protons['energy_bin'] = pd.cut(protons.energy, edges)
+
+    gammaness_cuts = []
+    theta_square_cuts = []
+    sensitivity = []
+
+    unit = None
+
+    for b in gammas.energy_bin.cat.categories:
+        g = gammas[gammas.energy_bin == b]
+        p = protons[protons.energy_bin == b]
+
+        print('category: {} len g {} len p {}'.format(b, len(g), len(p)))
+
+        def f(x):
+            return calculate_sensitivity(g, p, gammaness=x[0], signal_region=x[1]).value
+
+        ranges = (slice(0.5, 1, 0.1), slice(0.005, 0.025, 0.005))
+        # note: while it seems obviuous to use finish=optimize.fmin here. apparently it
+        # tests invalid values. and then everything brakes
+        res = optimize.brute(f, ranges, finish=None,  full_output=True)
+
+        cuts = res[0]
+        gammaness_cuts.append(cuts[0])
+        theta_square_cuts.append(cuts[1])
+        sens = calculate_sensitivity(g, p, gammaness=cuts[0], signal_region=cuts[1])
+        # print(cuts, sens)
+        sensitivity.append(sens.value)
+        unit = sens.unit
+
+    # select gamma-like events from both samples and plot the theta histogram
+    # selected_protons = protons.query('gammaness >={}'.format(gammaness)).copy()
+    # selected_gammas = gammas.query('gammaness >={}'.format(gammaness)).copy()
+    #
+    # min_energy = min(selected_gammas.energy.min(),
+    #                  selected_protons.energy.min())
+    # max_energy = max(selected_gammas.energy.max(),
+    #                  selected_protons.energy.max())
+    #
+    # edges = np.logspace(np.log10(min_energy), np.log10(
+    #     max_energy), num=n_bins + 1, base=10.0) * u.TeV
+    # bin_center = 0.5 * (edges[:-1] + edges[1:])
+    #
+    # selected_gammas['energy_bin'] = pd.cut(selected_gammas.energy, edges)
+    # selected_protons['energy_bin'] = pd.cut(selected_protons.energy, edges)
+    #
+    # background_region_radius = signal_region_radius
+    #
+    # sensitivity = []
+
+    # calculate the sensitivity multiple times for different samples.
+    # basically a bootstrapping approach to get an error estimate.
+    # for _ in tqdm(range(iterations)):
+    #
+    #     # estimate n_off by assuming that the background rate is constant within a
+    #     # smallish theta area around 0. take the mean of the thata square histogram
+    #     # to get a more stable estimate for n_off
+    #     n_off = []
+    #     for _, group in selected_protons.groupby('energy_bin'):
+    #         b = np.random.poisson(len(group))
+    #
+    #         if b == 0:
+    #             n_off.append(0)
+    #             continue
+    #
+    #         sample = group.sample(b, replace=True)
+    #
+    #         H, _ = np.histogram(
+    #             sample.theta_deg**2,
+    #             bins=np.arange(0, 0.2, background_region_radius),
+    #             weights=sample.weight
+    #         )
+    #         n_off.append(H.mean())
+    #
+    #     n_off = np.array(n_off)
+    #
+    #     n_on = []
+    #     for _, group in selected_gammas.groupby('energy_bin'):
+    #         b = np.random.poisson(len(group))
+    #         if b == 0:
+    #             n_on.append(0)
+    #             continue
+    #
+    #         on = group.query(
+    #                 'theta_deg_squared < {}'.format(signal_region_radius)
+    #             )\
+    #             .sample(b, replace=True)['weight']\
+    #             .sum()
+    #
+    #         n_on.append(on)
+    #
+    #     n_on = np.array(n_on)
+    # #
+    #     relative_flux = power_law.relative_sensitivity(
+    #         n_on, n_off,
+    #         alpha=signal_region_radius/background_region_radius,
+    #     )
+    #     sens = target_spectrum.flux(bin_center) * relative_flux
+    #     sensitivity.append(sens)
+
+    # multiply the whole thing by the proper unit. There must be a nicer way to do this.
+    # from IPython import embed; embed()
+    sensitivity = np.array(sensitivity) * unit
+    return sensitivity, edges
 
 
 @click.command()
@@ -126,102 +305,33 @@ def main(
         simulated_showers=N
     )
 
-    # select gamma-like events from both samples and plot the theta histogram
-    selected_protons = protons.query('gammaness >= 0.8').copy()
-    selected_gammas = gammas.query('gammaness >= 0.8').copy()
-
-    min_energy = min(selected_gammas.energy.min(),
-                     selected_protons.energy.min())
-    max_energy = max(selected_gammas.energy.max(),
-                     selected_protons.energy.max())
-
-    edges = np.logspace(np.log10(min_energy), np.log10(
-        max_energy), num=n_bins + 1, base=10.0) * u.TeV
-
-    selected_gammas['energy_bin'] = pd.cut(selected_gammas.energy, edges)
-    selected_protons['energy_bin'] = pd.cut(selected_protons.energy, edges)
-
-    background_region_radius = 0.01
-    signal_region_radius = 0.01
-
-    # to estimate the number of off events take the mean over the a larger
-    # theta area.
-
-    sensitivity = []
-    bin_center = 0.5 * (edges[:-1] + edges[1:])
-    for _ in tqdm(range(iterations)):
-        # s = np.random.poisson(n_on_unweighted)
-        # b = np.random.poisson(n_off_unweighted)
-
-        n_off = []
-        for _, group in selected_protons.groupby('energy_bin'):
-            b = np.random.poisson(len(group))
-
-            if b == 0:
-                n_off.append(0)
-                continue
-
-            sample = group.sample(b, replace=True)
-
-            H, _ = np.histogram(
-                sample.theta_deg**2,
-                bins=np.arange(0, 0.2, background_region_radius),
-                weights=sample.weight
-            )
-            n_off.append(H.mean())
-
-        n_off = np.array(n_off)
-
-        n_on = []
-        for _, group in selected_gammas.groupby('energy_bin'):
-            b = np.random.poisson(len(group))
-            if b == 0:
-                n_on.append(0)
-                continue
-
-            on = group.query(
-                    'theta_deg_squared < {}'.format(signal_region_radius)
-                )\
-                .sample(b, replace=True)['weight']\
-                .sum()
-
-            n_on.append(on)
-
-        n_on = np.array(n_on)
+    # def f(x):
+    #     sensitivity, edges = create_sensitivity_matrix(
+    #             protons,
+    #             gammas,
+    #             n_bins,
+    #             iterations=5,
+    #             gammaness=x[0],
+    #             signal_region_radius=x[1]
+    #     )
     #
-        relative_flux = power_law.relative_sensitivity(
-            n_on, n_off,
-            alpha=signal_region_radius/background_region_radius,
-        )
-        sens = crab.flux(bin_center) * relative_flux
-        sensitivity.append(sens)
-
-    sensitivity = np.array(sensitivity) * sensitivity[0][0].unit
-
+    #     sensitivity = sensitivity.mean(axis=0).to(1 / (u.erg * u.s * u.cm**2)).value
+    #     sensitivity[np.isinf(sensitivity)] = np.nan
+    #     print(x, sensitivity, np.nanmin(sensitivity))
+    #     return np.nanmean(sensitivity)
+    #
+    # ranges = (slice(0.5, 0.9, 0.1), slice(0.005, 0.05, 0.005))
+    # res = optimize.brute(f, ranges, finish=optimize.fmin, full_output=True)
+    # print(res)
     # from IPython import embed; embed()
     # print('relative flux {}'.format(relative_flux))
     # bin_center = 0.5 * (edges[:-1] + edges[1:])
-    # sens = crab.flux(bin_center) * relative_flux
-    # sens = sens.to(1 / (u.erg * u.s * u.cm**2))
-    # print('Sens {}'.format(sens))
-    ax = plot_sensitivity(edges, sensitivity, t_obs, ax=None)
+
+    sens, edges = create_sensitivity_matrix(protons, gammas, n_bins, iterations)
+    sens = sens.to(1 / (u.erg * u.s * u.cm**2))
+    print('Sens {}'.format(sens.mean(axis=0)))
+    ax = plot_sensitivity(edges, sens, t_obs, ax=None)
     plot_spectrum(crab, e_min, e_max, ax=ax, color='gray')
     plt.savefig(outputfile)
-    # on_events.energy = np.log10(on_events.energy)
-    # off_events.energy = np.log10(off_events.energy)
-    # print(n_off, n_on)
-
-    # event_energies = np.log10(selected_gammas.energy)
-    # a = e_min.to('TeV').value
-    # b = e_max.to('TeV').value
-    # edges = np.logspace(np.log10(a), np.log10(b), num=bins, base=10.0) * u.TeV
-    # bin_edges = np.linspace(e_min, e_max, num=5)
-    # H, _, _ = plt.hist(event_energies, bins=bin_edges, weights=selected_gammas.weight, label='Triggered Events')
-    # plt.yscale('log')
-    # from IPython import embed; embed()
-
-    # plt.show()
-
-
 if __name__ == '__main__':
     main()
