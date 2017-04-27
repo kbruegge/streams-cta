@@ -301,7 +301,6 @@ if __name__ == '__main__':
         e_max=e_max,
         total_showers_simulated=N,
         generation_area=area,
-        generator_solid_angle=6 * u.deg
     )
 
     random_energies = mc.draw_energy_distribution(
@@ -313,7 +312,7 @@ if __name__ == '__main__':
     # p = efficiency(random_energies)
     #
     # random_energies = np.random.choice(random_energies, size=N/2, replace=False, p=p/p.sum()) * u.TeV
-    
+
     s = CrabSpectrum()
     events, edges = s.expected_events_for_bins(
         e_min=e_min,
