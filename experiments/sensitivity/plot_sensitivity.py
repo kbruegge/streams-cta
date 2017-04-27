@@ -136,7 +136,6 @@ def create_sensitivity_matrix(
             protons,
             gammas,
             n_bins,
-            iterations,
             target_spectrum=power_law.CrabSpectrum(),
         ):
 
@@ -157,25 +156,24 @@ def create_sensitivity_matrix(
 
     unit = None
 
+    # iterate over the enrgy bins
     for b in tqdm(gammas.energy_bin.cat.categories):
         g = gammas[gammas.energy_bin == b]
         p = protons[protons.energy_bin == b]
 
-        # print('category: {} len g {} len p {}'.format(b, len(g), len(p)))
-
         def f(x):
             return calculate_sensitivity(g, p, gammaness=x[0], signal_region=x[1]).value
 
-        ranges = (slice(0.5, 1, 0.1), slice(0.005, 0.025, 0.005))
-        # note: while it seems obviuous to use finish=optimize.fmin here. apparently it
-        # tests invalid values. and then everything brakes
-        res = optimize.brute(f, ranges, finish=None,  full_output=True)
+        ranges = (slice(0.5, 1, 0.05), slice(0.001, 0.04, 0.002))
+        # Note: while it seems obviuous to use finish=optimize.fmin here. apparently it
+        # tests invalid values. and then everything breaks. Negative theta cuts for
+        # example
+        res = optimize.brute(f, ranges, finish=None, full_output=True)
 
         cuts = res[0]
         gammaness_cuts.append(cuts[0])
         theta_square_cuts.append(cuts[1])
         sens = calculate_sensitivity(g, p, gammaness=cuts[0], signal_region=cuts[1])
-        # print(cuts, sens)
         sensitivity.append(sens.value)
         unit = sens.unit
 
@@ -189,52 +187,61 @@ def create_sensitivity_matrix(
 @click.argument('predicted_protons', type=click.Path(exists=True, dir_okay=False,))
 @click.argument('mc_production_information', type=click.Path(exists=True))
 @click.argument('outputfile', type=click.Path(exists=False, dir_okay=False,))
-@click.option('-n', '--n_bins', type=click.INT, default=4, help='theta bin')
-@click.option('-i', '--iterations', type=click.INT, default=100, help='iterations')
+@click.option('-n', '--n_bins', type=click.INT, default=4, help='energy bins to plot')
 def main(
     predicted_gammas,
     predicted_protons,
     mc_production_information,
     outputfile,
     n_bins,
-    iterations,
 ):
     '''
-    Plot the sensitivity curve.
+    Plots a sensitivity curve vs real energy. For each energy bin it performs a gridsearch
+    to find the theta and gammaness cuts that produce the highest sensitivity.
     '''
     t_obs = 50 * u.h
 
     # read the gammas and weight them accroding to the crab spectrum
     gammas, N, e_min, e_max, area = cta_io.read_events(
-        predicted_gammas, mc_production_information)
+        predicted_gammas, mc_production_information
+    )
+    mc_gamma = power_law.MCSpectrum(
+        e_min=e_min,
+        e_max=e_max,
+        total_showers_simulated=N,
+        generation_area=area,
+    )
+
     crab = power_law.CrabSpectrum()
     energies = gammas.energy.values * u.TeV
 
     gammas['weight'] = crab.weight(
         energies,
-        e_min,
-        e_max,
-        area,
+        mc_spectrum=mc_gamma,
         t_assumed_obs=t_obs,
-        simulated_showers=N
     )
 
     # read the protons and weight them accroding to the cosmic ray spectrum
     protons, N, e_min, e_max, area = cta_io.read_events(
         predicted_protons, mc_production_information)
-    cosmic_spectrum = power_law.CosmicRaySpectrum()
     energies = protons.energy.values * u.TeV
+
+    cosmic_spectrum = power_law.CosmicRaySpectrum()
+    mc_proton = power_law.MCSpectrum(
+        e_min=e_min,
+        e_max=e_max,
+        total_showers_simulated=N,
+        generation_area=area,
+        generator_solid_angle=6 * u.deg
+    )
 
     protons['weight'] = cosmic_spectrum.weight(
         energies,
-        e_min,
-        e_max,
-        area,
+        mc_spectrum=mc_proton,
         t_assumed_obs=t_obs,
-        simulated_showers=N
     )
 
-    sens, edges = create_sensitivity_matrix(protons, gammas, n_bins, iterations)
+    sens, edges = create_sensitivity_matrix(protons, gammas, n_bins)
     sens = sens.to(1 / (u.erg * u.s * u.cm**2))
     ax = plot_sensitivity(edges, sens, t_obs, ax=None)
     plot_spectrum(crab, e_min, e_max, ax=ax, color='gray')

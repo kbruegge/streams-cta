@@ -34,7 +34,6 @@ def main(
         e_max=e_max,
         total_showers_simulated=N,
         generation_area=area,
-        generator_solid_angle=6 * u.deg
     )
 
     crab = power_law.CrabSpectrum()

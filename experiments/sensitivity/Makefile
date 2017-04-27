@@ -23,4 +23,4 @@ $(theta):$(gammas_predicted_output) $(protons_predicted_output) $(mc_meta_inform
 	export MATPLOTLIBRC=../; python plot_theta.py $(gammas_predicted_output) $(protons_predicted_output) $(mc_meta_information)  $(theta)
 
 $(sens):$(gammas_predicted_output) $(protons_predicted_output) $(mc_meta_information) plot_sensitivity.py power_law.py cta_io.py
-	export MATPLOTLIBRC=../; python plot_sensitivity.py $(gammas_predicted_output) $(protons_predicted_output) $(mc_meta_information)  $(sens) -n 7 -i 50
+	export MATPLOTLIBRC=../; python plot_sensitivity.py $(gammas_predicted_output) $(protons_predicted_output) $(mc_meta_information)  $(sens) -n 7

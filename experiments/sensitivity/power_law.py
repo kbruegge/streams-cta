@@ -58,9 +58,9 @@ def relative_sensitivity(
 
 
 class Spectrum():
-    """
+    '''
     A class containing usefull methods for working with power law spectra.
-    """
+    '''
 
     extended_source = False
 
@@ -78,9 +78,9 @@ class Spectrum():
 
     @u.quantity_input(energy=u.TeV)
     def flux(self, energy):
-        """
+        '''
         Returns the (differential) flux of the spectrum at the given enrgy.
-        """
+        '''
         energy = energy.to('TeV')
         flux = self.normalization_constant * (energy / u.TeV)**(self.index)
         if self.extended_source:
@@ -90,7 +90,7 @@ class Spectrum():
 
     @u.quantity_input(e_min=u.TeV, e_max=u.TeV, area=u.m**2, t_obs=u.s)
     def expected_events(self, e_min, e_max, area, t_obs, solid_angle=None):
-        """
+        '''
         Get the number of events which are expected to arrive from this spectral source.
         So its basically the integral of the flux within the given energy bounds.
 
@@ -107,7 +107,7 @@ class Spectrum():
         solid_angle: Quantity (optional)
             the solid angle from which events are detected.
             Not needed for non-extended sources.
-        """
+        '''
         events = self._integral(e_min, e_max) * area * t_obs
 
         if self.extended_source:
@@ -146,10 +146,10 @@ class Spectrum():
             bins=10,
             log=True,
         ):
-        """
+        '''
         Get the number of events which are expected to arrive from this spectral source.
         For each of the requested bins.
-        """
+        '''
         if log:
             a = e_min.to('TeV').value
             b = e_max.to('TeV').value
@@ -178,19 +178,20 @@ class Spectrum():
             event_energies,
             mc_spectrum,
             t_assumed_obs,
-        ):
-        """
+            ):
+        '''
         This method returns weights for the given events based on the information
         about the events generator and the index and normalization of the spectrum.
-        """
+        '''
         event_energies = event_energies.to('TeV')
         e_min = mc_spectrum.e_min
         e_max = mc_spectrum.e_max
 
         gamma = -mc_spectrum.index
-        w = event_energies**(gamma) * (e_max**(1 - gamma) -
-                                       e_min**(1 - gamma)) / (1 - gamma)
-        w = w * mc_spectrum.generation_area * t_assumed_obs / mc_spectrum.total_showers_simulated
+        w = event_energies**(gamma) * (e_max**(1 - gamma) - e_min**(1 - gamma)) \
+            / (1 - gamma)
+        w = w * mc_spectrum.generation_area\
+            * t_assumed_obs / mc_spectrum.total_showers_simulated
 
         if self.extended_source:
             angle = mc_spectrum.generator_solid_angle.to('rad').value
@@ -226,20 +227,20 @@ class MCSpectrum(Spectrum):
     '''
     index = -2.0
     generator_solid_angle = None
-    normalization_constant = 1 / (u.TeV * u.m**2 * u.s * u.sr)
-    extended_source = True
+    normalization_constant = 1 / (u.TeV * u.m**2 * u.s)
+    extended_source = False
 
-    @u.quantity_input(e_min=u.TeV, e_max=u.TeV, generation_area=u.m**2, generator_solid_angle=u.deg)
+    @u.quantity_input(e_min=u.TeV, e_max=u.TeV, generation_area=u.m**2)
     def __init__(
-        self,
-        e_min,
-        e_max,
-        total_showers_simulated,
-        generation_area,
-        generator_solid_angle=6 * u.deg,  # default for CTA prod3
-        index=-2.0
-        ):
-        """
+            self,
+            e_min,
+            e_max,
+            total_showers_simulated,
+            generation_area,
+            generator_solid_angle=None,  # default for CTA prod3
+            index=-2.0
+            ):
+        '''
         To calculate the normalization constant of this spectrum some
         information about the event generator has to be specified.
 
@@ -257,21 +258,30 @@ class MCSpectrum(Spectrum):
         generator_solid_angle: Quantity
             The solid angle over which the particles were created.
             This is necessary for extended sources like the cosmic ray spectrum
-        """
+        '''
         self.e_min = e_min
         self.e_max = e_max
         self.total_showers_simulated = total_showers_simulated
         self.index = index
         self.generation_area = generation_area
         self.generator_solid_angle = generator_solid_angle
+        self.normalization_constant = 1 / (u.TeV * u.m**2 * u.s)
+        if generator_solid_angle:
+            self.extended_source = True
+            self.normalization_constant = 1 / (u.TeV * u.m**2 * u.s * u.sr)
+            angle = generator_solid_angle.to('rad').value
+            angle = (1 - np.cos(angle)) * 2 * np.pi * u.sr
 
-        angle = generator_solid_angle.to('rad').value
-        angle = (1 - np.cos(angle)) * 2 * np.pi * u.sr
+            N = self._integral(e_min.to('TeV'), e_max.to('TeV')) * (generation_area.to(u.m**2) * u.s * angle)
+            self.normalization_constant = (
+                    total_showers_simulated / N
+                ) / (u.TeV * u.m**2 * u.s * u.sr)
 
-        N = self._integral(e_min.to('TeV'), e_max.to('TeV')) * (generation_area.to(u.m**2) * u.s * angle)
-        self.normalization_constant = (
-                total_showers_simulated / N
-            ) / (u.TeV * u.m**2 * u.s * u.sr)
+        else:
+            N = self._integral(e_min.to('TeV'), e_max.to('TeV')) * (generation_area.to(u.m**2) * u.s)
+            self.normalization_constant = (
+                    total_showers_simulated / N
+                ) / (u.TeV * u.m**2 * u.s)
 
 
 if __name__ == '__main__':
@@ -303,6 +313,7 @@ if __name__ == '__main__':
     # p = efficiency(random_energies)
     #
     # random_energies = np.random.choice(random_energies, size=N/2, replace=False, p=p/p.sum()) * u.TeV
+    
     s = CrabSpectrum()
     events, edges = s.expected_events_for_bins(
         e_min=e_min,

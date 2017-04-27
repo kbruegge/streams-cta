@@ -82,7 +82,6 @@ def main(
         e_max=e_max,
         total_showers_simulated=n_simulated_showers,
         generation_area=area,
-        generator_solid_angle=6 * u.deg
     )
 
     expected_events, edges = mc.expected_events_for_bins(
@@ -90,7 +89,6 @@ def main(
             e_max=e_max,
             area=area,
             t_obs=1*u.s,
-            solid_angle=6*u.deg,
             bins=30
         )
 
