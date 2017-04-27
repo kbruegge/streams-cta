@@ -60,12 +60,35 @@ def relative_sensitivity(
 class Spectrum():
     '''
     A class containing usefull methods for working with power law spectra.
-    '''
+    This class should be subclassed with real , physical, values for
+    the normalization constants. This class has a constant of 1 /(TeV m^2 h)
+    and and index of -1.0. Not very usefull by itself.
 
+    See the subclasses `~power_law.CosmicRaySpectrum` and `~power_law.CrabSpectrum`
+    for usefull physicall spectra.
+    '''
+    index = -1
+    normalization_constant = 1 / (u.TeV * u.m**2 * u.h)
     extended_source = False
 
     @u.quantity_input(e_min=u.TeV, e_max=u.TeV,)
     def draw_energy_distribution(self, e_min, e_max, shape, index=None):
+        '''
+        Draw random energies from a power_law spectrum.
+        It is different from the scipy powerlaws because it supports negative indeces.
+        Parameters
+        ----------
+        e_min:  Quantity
+            lower energy bound
+        e_max: Quantity
+            upper energy bound
+        size: int
+            number of random values to pick.
+
+        Returns
+        ----------
+        An array of random numbers, with energy units (TeV) attached, of the given size.
+        '''
         if not index:
             index = self.index
 
@@ -149,6 +172,25 @@ class Spectrum():
         '''
         Get the number of events which are expected to arrive from this spectral source.
         For each of the requested bins.
+        Parameters
+        ----------
+        e_min:  Quantity
+            lower energy bound
+        e_max: Quantity
+            upper energy bound
+        area: Quantity
+            area over which particles are counted
+        t_obs: Quantity
+            observation time over which is being integrated
+        solid_angle: Quantity (optional)
+            the solid angle from which events are detected.
+            Not needed for non-extended sources.
+        bins: int
+            The number of bins to create between e_min and e_max.
+        log: boolean
+            Whether to use logarithmically spaced bins or not.
+            So when log == True this will use np.logpsace to create the bins.
+
         '''
         if log:
             a = e_min.to('TeV').value
@@ -214,6 +256,12 @@ class CrabSpectrum(Spectrum):
 
 
 class CosmicRaySpectrum(Spectrum):
+    '''
+    BESS Proton spectrum  ApJ 545, 1135 (2000) [arXiv:astro-ph/0002481],
+    same as used by K. Bernloehr.
+
+    I stole this from the MARS Barcelona code provided by Tarek. H.
+    '''
     index = -2.7
     normalization_constant = 9.6e-9 / (u.GeV * u.cm**2 * u.s * u.sr)
     extended_source = True
