@@ -2,14 +2,14 @@
 
     <property name="num_copies" value="1" />
 
-    <stream id="data-${copy.id}" class="streams.cta.io.LoopStream" copies="${num_copies}" limit="128000">
+    <stream id="data-${copy.id}" class="streams.cta.io.LoopStream" copies="${num_copies}" limit="6400">
 
-        <stream id="cta:data" class="streams.cta.io.ImageStream" url="file:src/main/resources/images.json.gz" />
+        <stream id="cta:data" class="streams.cta.io.ImageStream" url="classpath:/images.json.gz" />
 
     </stream>
 
-    <service id="regressor" class="streams.cta.PredictionService" url="file:src/test/resources/test_regressor.pmml" />
-    <service id="classifier" class="streams.cta.PredictionService" url="file:src/test/resources/test_classifier.pmml" />
+    <service id="regressor" class="streams.cta.PredictionService" url="classpath:/test_regressor.pmml" />
+    <service id="classifier" class="streams.cta.PredictionService" url="classpath:/test_classifier.pmml" />
 
 
     <process input="data-${copy.id}" copies="${num_copies}" >
@@ -32,7 +32,7 @@
     </process>
 
     <process input="perf">
-        <streams.cta.io.CSVWriter url="file:./data/measurements/performance/performance_threads_${num_copies}.csv" keys="@datarate,@stream,@totalmemory,@freememory"/>
+        <streams.cta.io.CSVWriter url="file:./build/csv/performance_threads_${num_copies}.csv" keys="@datarate,@stream,@totalmemory,@freememory"/>
     </process>
 
 </application>
