@@ -2,7 +2,7 @@
 
     <property name="num_copies" value="1" />
 
-    <stream id="data-${copy.id}" class="streams.cta.io.LoopStream" copies="${num_copies}" limit="6400">
+    <stream id="data-${copy.id}" class="streams.cta.io.LoopStream" copies="${num_copies}" limit="30000">
 
         <stream id="cta:data" class="streams.cta.io.ImageStream" url="classpath:/images.json.gz" />
 
