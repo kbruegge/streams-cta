@@ -2,10 +2,19 @@ xml = write_features.xml
 xml_rta = rta.xml
 jar = ../../target/streams-cta-0.0.2-SNAPSHOT-stream-compiled.jar
 
-data_dir = ../../data/ml_performance
 
-proton_output = $(data_dir)/proton_training.csv
-gamma_output = $(data_dir)/gamma_training.csv
+build_dir = ../../build
+data_dir = ../../data/
+raw_data_dir = ../../data/raw
+plot_output_dir = $(build_dir)/ml_performance/
+
+
+proton_training_sample = $(data_dir)/proton_training.csv
+gamma_training_sample = $(data_dir)/gamma_training.csv
+
+
+proton_training_sample = $(data_dir)/proton_test.csv
+gamma_training_sample = $(data_dir)/gamma_test.csv
 
 model_pmml = $(data_dir)/classifier.pmml
 model_pkl = $(data_dir)/classifier.pkl
@@ -16,16 +25,12 @@ rta_predictions_gammas = $(data_dir)/predictions_rta_gammas.csv
 
 build_dir = ../../build
 
-plot_single_telescope = $(build_dir)/ml_performance_single_telescope.pdf
-plot_multi_tel_auc = $(build_dir)/ml_performance_multi_telescope_auc.pdf
-plot_multi_tel_hist = $(build_dir)/ml_performance_multi_telescope_hist.pdf
-plot_multi_tel_auc_vs_energy = $(build_dir)/ml_performance_multi_telescope_auc_vs_energy.pdf
-plot_multi_tel_precission_recall_curve = $(build_dir)/ml_performance_multi_telescope_recall_vs_cuts.pdf
-plot_multi_tel_fpr_tpr = $(build_dir)/ml_performance_multi_telescope_fpr_tpr.pdf
-
-limit = 20000
-
-training_limit = 5000
+plot_single_telescope = $(plot_output_dir)/ml_performance_single_telescope.pdf
+plot_multi_tel_auc = $(plot_output_dir)/ml_performance_multi_telescope_auc.pdf
+plot_multi_tel_hist = $(plot_output_dir)/ml_performance_multi_telescope_hist.pdf
+plot_multi_tel_auc_vs_energy = $(plot_output_dir)/ml_performance_multi_telescope_auc_vs_energy.pdf
+plot_multi_tel_precission_recall_curve = $(plot_output_dir)/ml_performance_multi_telescope_recall_vs_cuts.pdf
+plot_multi_tel_fpr_tpr = $(plot_output_dir)/ml_performance_multi_telescope_fpr_tpr.pdf
 
 all: plots
 
@@ -37,10 +42,7 @@ plots:  $(plot_single_telescope) \
 				$(plot_multi_tel_precission_recall_curve)\
 				$(plot_multi_tel_fpr_tpr)
 clean:
-	rm $(gamma_output) $(proton_output) $(predictions) $(model_pmml) $(model_pkl) $(plot) $(plot_multi_tel_auc_vs_energy) $(plot_multi_tel_precission_recall_curve)
-
-clean_jar:
-	rm $(jar)
+	rm $(gamma_training_sample) $(proton_training_sample) $(predictions) $(model_pmml) $(model_pkl) $(plot) $(plot_multi_tel_auc_vs_energy) $(plot_multi_tel_precission_recall_curve)
 
 
 # plot a bunch of performance values for the classifier
@@ -64,25 +66,26 @@ $(plot_multi_tel_precission_recall_curve): $(rta_predictions_gammas) $(rta_predi
 
 
 
-
-
-$(rta_predictions_protons): $(jar) $(model_pmml)
-	java  -jar $(jar) $(xml_rta) -Dprefix="proton*.json.gz" -Dinfolder=../../data/raw -Doutfile=$(rta_predictions_protons) -Dclassifier=$(model_pmml) -Dlimit=$(limit)
+$(rta_predictions_gammas): $(jar) $(model_pmml)
+	java  -jar $(jar) $(xml_rta) -Dinfile=$(proton_test_sample) -Doutfile=$(rta_predictions_protons) -Dclassifier=$(model_pmml)
 
 $(rta_predictions_gammas): $(jar) $(model_pmml)
-	java  -jar $(jar) $(xml_rta) -Dprefix="gamma*.json.gz" -Dinfolder=../../data/raw -Doutfile=$(rta_predictions_gammas) -Dclassifier=$(model_pmml) -Dlimit=$(limit)
+	java  -jar $(jar) $(xml_rta) -Dinfile=$(gamma_test_sample) -Doutfile=$(rta_predictions_gammas) -Dclassifier=$(model_pmml)
 
-$(model_pmml) $(model_pkl) $(predictions): $(proton_output) $(gamma_output) config_separator.yaml
-	klaas_train_separation_model config_separator.yaml $(gamma_output) $(proton_output) $(predictions) $(model_pmml)
+$(model_pmml) $(model_pkl) $(predictions): $(proton_training_sample) $(gamma_training_sample) config_separator.yaml
+	klaas_train_separation_model config_separator.yaml $(gamma_training_sample) $(proton_training_sample) $(predictions) $(model_pmml)
 
-$(jar): ../../pom.xml
-	echo "building streams package"
-	cd ../../; mvn -P standalone package -DskipTests; cd -
 
-$(proton_output): $(jar) $(xml)
-	mkdir -p $(data_dir)
-	java  -jar $(jar) $(xml) -Dprefix="proton*.json.gz" -Dfolder=../../data/raw -Doutfile=$(proton_output) -Dlimit=$(training_limit)
 
-$(gamma_output): $(jar) $(xml)
-	mkdir -p $(data_dir)
-	java  -jar $(jar) $(xml) -Dprefix="gamma*.json.gz" -Dfolder=../../data/raw -Doutfile=$(gamma_output) -Dlimit=$(training_limit)
+#
+# $(jar): ../../pom.xml
+# 	echo "building streams package"
+# 	cd ../../; mvn -P standalone package -DskipTests; cd -
+
+# $(proton_training_sample): $(jar) $(xml)
+# 	mkdir -p $(data_dir)
+# 	java  -jar $(jar) $(xml) -Dprefix="proton*.json.gz" -Dfolder=$(raw_data_dir) -Doutfile=$(proton_training_sample) -Dlimit=$(training_limit)
+#
+# $(gamma_training_sample): $(jar) $(xml)
+# 	mkdir -p $(data_dir)
+# 	java  -jar $(jar) $(xml) -Dprefix="gamma*.json.gz" -Dfolder=$(raw_data_dir) -Doutfile=$(gamma_training_sample) -Dlimit=$(training_limit)
