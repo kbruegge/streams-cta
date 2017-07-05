@@ -1,17 +1,17 @@
 SHELL=/bin/bash
 
-jar = ../target/streams-cta-0.0.2-SNAPSHOT-stream-compiled.jar
+jar = ../target/streams-cta-0.0.3-SNAPSHOT-stream-compiled.jar
 xml = process_data.xml
-raw_data_folder = /fhgfs/users/kbruegge/cta/
+raw_data_folder = ../../data/raw
 
-gamma_output = ../data/gammas.csv
-proton_output = ../data/protons.csv
+gamma_output = ../data/image_features/gammas.csv
+proton_output = ../data/image_features/protons.csv
 
-proton_test = ../data/protons_test.csv
-gamma_test = ../data/gammas_test.csv
+proton_test = ../data/image_features/protons_test.csv
+gamma_test = ../data/image_features/gammas_test.csv
 
-proton_train = ../data/protons_train.csv
-gamma_train = ../data/gammas_train.csv
+proton_train = ../data/image_features/protons_train.csv
+gamma_train = ../data/image_features/gammas_train.csv
 
 
 all: $(proton_test) $(gamma_test) $(gamma_train) $(proton_train)
@@ -35,4 +35,8 @@ $(gamma_output): $(jar) $(xml)
 
 $(proton_output): $(jar) $(xml)
 	java  -jar $(jar) $(xml) -Dprefix="proton*.json.gz" -Dfolder=$(raw_data_folder) -Doutfile=$(proton_output)
+
+$(jar): ../pom.xml ../src
+	echo "building streams package"
+	cd ../; mvn -P standalone package -DskipTests; cd -
 

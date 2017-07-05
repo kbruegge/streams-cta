@@ -6,19 +6,23 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
+import javafx.scene.Camera;
 import stream.Data;
 import stream.data.DataFactory;
 import stream.io.AbstractStream;
 import stream.io.SourceURL;
+import streams.hexmap.CameraMapping;
 
 import java.io.InputStreamReader;
 import java.util.Map;
 
 /**
- * Read images stored into json format as created by the 'convert_raw_data.py' sceript in this repo.
+ * Read images stored into json format as created by the 'convert_raw_data.py' script in this repo.
  * Created by kbruegge on 2/14/17.
  */
 public class ImageStream extends AbstractStream {
+
+    private CameraMapping mapping;
 
     public ImageStream(SourceURL url) {
         super(url);
@@ -27,12 +31,14 @@ public class ImageStream extends AbstractStream {
     }
 
 
+
+
     /**
      * One CTA event contains MC information, Array information and of course the images
      * for each camera.
      * The classes below mirror the structure of the JSON file which contains the CTA events.
-     * By using this intermediat class structure we can simplify the reading of the json to one
-     * songle line. Because GSON is pretty nice.
+     * By using this intermediate class structure we can simplify the reading of the json to one
+     * single line. Because GSON is pretty nice.
      */
     private class Event{
         Map<Integer, double[]> images;
@@ -66,6 +72,7 @@ public class ImageStream extends AbstractStream {
         InputStreamReader streamReader = new InputStreamReader(url.openStream(), "UTF-8");
         reader = new JsonReader(streamReader);
         reader.beginArray();
+        mapping = CameraMapping.getInstance();
     }
 
 
@@ -82,6 +89,8 @@ public class ImageStream extends AbstractStream {
 
         Data data = DataFactory.create();
         event.images.forEach((telId, image) -> {
+            String telescopeType = mapping.telescopeFromId(telId).telescopeType.toString();
+            data.put(String.format("telescope:%d:type", telId), telescopeType);
             data.put(String.format("telescope:%d:raw:photons", telId), image);
         });
 
