@@ -20,7 +20,7 @@
     <ForEach key="@telescopes">
         <streams.cta.cleaning.TailCut />
         <streams.cta.features.Moments />
-        <streams.cta.io.CSVWriter keys="shower:*,*num_trigge*,mc:energy" url="file:${outfile}"/>
+        <streams.cta.io.CSVWriter keys="telescopeshower:*,*num_trigge*,mc:energy" url="file:${outfile}"/>
     </ForEach>
     <streams.cta.MergeByTelescope key="@telescopes"/>
     <streams.DataRate every="4000"/>
