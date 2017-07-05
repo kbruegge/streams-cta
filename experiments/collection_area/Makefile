@@ -17,7 +17,7 @@ plot_offical_area = ../../build/official_prod3_area.pdf
 mc_meta_information = $(data_dir)/mc_production.csv
 
 
-raw_data_folder = ../../data/raw
+raw_data_folder = /fhgfs/users/kbruegge/cta
 
 all:	$(plot) $(plot_area) $(plot_offical_area)
 
@@ -46,4 +46,4 @@ $(jar): ../../pom.xml
 
 $(gamma_output): $(jar) $(xml)
 	mkdir -p $(data_dir)
-	java  -jar $(jar) $(xml) -Dprefix="gamma*.json.gz" -Dfolder=../../data/raw -Doutfile=$(gamma_output)
+	java  -jar $(jar) $(xml) -Dprefix="gamma*.json.gz" -Dfolder=$(raw_data_folder) -Doutfile=$(gamma_output)
