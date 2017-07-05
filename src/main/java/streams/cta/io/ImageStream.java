@@ -11,6 +11,7 @@ import stream.Data;
 import stream.data.DataFactory;
 import stream.io.AbstractStream;
 import stream.io.SourceURL;
+import streams.hexmap.CameraGeometry;
 import streams.hexmap.CameraMapping;
 
 import java.io.InputStreamReader;
@@ -89,8 +90,9 @@ public class ImageStream extends AbstractStream {
 
         Data data = DataFactory.create();
         event.images.forEach((telId, image) -> {
-            String telescopeType = mapping.telescopeFromId(telId).telescopeType.toString();
-            data.put(String.format("telescope:%d:type", telId), telescopeType);
+            CameraGeometry.TelescopeType type = mapping.telescopeFromId(telId).telescopeType;
+            data.put(String.format("telescope:%d:type:id", telId), type.ordinal());
+            data.put(String.format("telescope:%d:type", telId), type.toString());
             data.put(String.format("telescope:%d:raw:photons", telId), image);
         });
 
