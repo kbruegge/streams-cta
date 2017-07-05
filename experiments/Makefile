@@ -1,6 +1,6 @@
 SHELL=/bin/bash
 
-jar = ../target/streams-cta-0.0.2-SNAPSHOT-stream-compiled.jar
+jar = ../target/streams-cta-0.0.3-SNAPSHOT-stream-compiled.jar
 xml = process_data.xml
 raw_data_folder = ../../data/raw
 
@@ -35,3 +35,8 @@ $(gamma_output): $(jar) $(xml)
 
 $(proton_output): $(jar) $(xml)
 	java  -jar $(jar) $(xml) -Dprefix="proton*.json.gz" -Dfolder=$(raw_data_folder) -Doutfile=$(proton_output)
+
+
+$(jar): ../pom.xml ../src
+	echo "building streams package"
+	cd ../; mvn -P standalone package -DskipTests; cd -
