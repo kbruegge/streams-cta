@@ -1,4 +1,4 @@
-package streams;
+package streams.python;
 
 import stream.Data;
 import stream.ProcessContext;
@@ -14,14 +14,14 @@ import java.util.HashMap;
  *
  * <pre>
  * {@code
- *  <streams.PythonContext url="file:./python/processors/test.py">
+ *  <streams.python.PythonContext url="file:./python/processors/test.py">
  *
- *   <streams.PythonProcessor method="process" />
+ *   <streams.python.PythonProcessor method="process" />
  *
- *  </streams.PythonContext>
+ *  </streams.python.PythonContext>
  * }
  * </pre>
- * @see streams.PythonContext
+ * @see PythonContext
  *
  * Created by kbruegge on 3/16/17.
  */

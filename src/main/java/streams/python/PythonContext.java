@@ -1,4 +1,4 @@
-package streams;
+package streams.python;
 
 import stream.Data;
 import stream.ProcessContext;
@@ -12,15 +12,15 @@ import stream.io.SourceURL;
  * The context gets an url which points to a python file. The PythonProcessor can the call specific methods
  * on that file.
  *
- * @see streams.PythonProcessor
+ * @see PythonProcessor
  *
  * <pre>
  * {@code
- *  <streams.PythonContext url="file:./python/processors/test.py">
+ *  <streams.python.PythonContext url="file:./python/processors/test.py">
  *
- *   <streams.PythonProcessor method="process" />
+ *   <streams.python.PythonProcessor method="process" />
  *
- *  </streams.PythonContext>
+ *  </streams.python.PythonContext>
  * }
  * </pre>
  * 

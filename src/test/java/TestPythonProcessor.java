@@ -4,9 +4,9 @@ import stream.Data;
 import stream.data.DataFactory;
 import stream.io.SourceURL;
 import stream.runtime.ProcessContextImpl;
-import streams.PythonBridge;
-import streams.PythonContext;
-import streams.PythonProcessor;
+import streams.python.PythonBridge;
+import streams.python.PythonContext;
+import streams.python.PythonProcessor;
 
 import java.net.URL;
 

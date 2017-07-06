@@ -1,4 +1,4 @@
-package streams;
+package streams.python;
 
 import net.razorvine.pyro.NameServerProxy;
 import net.razorvine.pyro.PyroProxy;
