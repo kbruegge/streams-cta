@@ -3,8 +3,6 @@
     <property name="prefix" value="gammas*.json.gz" />
     <property name="outfile" value="../../data/processed/gammas_rta.csv" />
     <property name="infolder" value="../../data/raw/" />
-    <property name="classifier" value="../../data/models/classifier.pmml" />
-    <property name="num_copies" value="1" />
 
     <stream id="cta:data"
             class="streams.cta.io.RecursiveDirectoryStream"
@@ -16,7 +14,7 @@
     </stream>
 
     <service id="regressor" class="streams.cta.PredictionService" url="classpath:/test_regressor.pmml" />
-    <service id="classifier" class="streams.cta.PredictionService" url="file:${classifier}" />
+    <service id="classifier" class="streams.cta.PredictionService" url="file:../../data/models/classifier.pmml" />
 
 
     <process input="cta:data" copies="${num_copies}">
@@ -38,7 +36,7 @@
 
     <process input="perf">
         <streams.DataRate every="2000"/>
-        <streams.cta.io.CSVWriter url="file:${outfile}" keys="stereo:estimated_direction:*,
+        <streams.cta.io.CSVWriter url="file:${out_file}" keys="stereo:estimated_direction:*,
                                                                stereo:estimated_impact_position:*,
                                                                prediction:*,
                                                                array:num_*,
