@@ -118,25 +118,26 @@ public class PythonBridge implements AutoCloseable {
 
         Object result = remoteObject.call(name, args);
 
+        logPythonOutput(stdin);
+
+        logPythonOutput(stderr);
+
+        return result;
+    }
+
+    /**
+     * Read the standard input and error from Python and log it.
+     * @param reader buffered reader
+     */
+    private void logPythonOutput(BufferedReader reader) throws IOException {
         StringBuilder sb = new StringBuilder();
-        while (stdin.ready()) {
-            sb.append((char) stdin.read());
+        while (reader.ready()) {
+            sb.append((char) reader.read());
         }
         String output = sb.toString();
         if (!output.isEmpty()) {
             log.info(output);
         }
-
-        sb = new StringBuilder();
-        while (stderr.ready()) {
-            sb.append((char) stdin.read());
-        }
-        output = sb.toString();
-        if (!output.isEmpty()) {
-            log.error(output);
-        }
-
-        return result;
     }
 
     @Override
