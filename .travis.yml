@@ -1,3 +1,14 @@
 language: java
 jdk:
   - oraclejdk8
+
+addons:
+  apt:
+    sources:
+      - deadsnakes # source required so it finds the package definition below
+    packages:
+      - python3.5
+
+
+install:
+  - sudo pip install Pyro4==4.56
