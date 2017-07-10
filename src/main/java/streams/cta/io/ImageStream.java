@@ -92,7 +92,7 @@ public class ImageStream extends AbstractStream {
         event.images.forEach((telId, image) -> {
             CameraGeometry.TelescopeType type = mapping.telescopeFromId(telId).telescopeType;
             data.put(String.format("telescope:%d:type:id", telId), type.ordinal());
-            data.put(String.format("telescope:%d:type", telId), type.toString());
+            data.put(String.format("telescope:%d:type:name", telId), type.toString());
             data.put(String.format("telescope:%d:raw:photons", telId), image);
         });
 
