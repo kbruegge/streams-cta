@@ -2,7 +2,7 @@ SHELL=/bin/bash
 
 jar = ../target/streams-cta-0.0.3-SNAPSHOT-stream-compiled.jar
 xml = process_data.xml
-raw_data_folder = ../../data/raw
+raw_data_folder = /fhgfs/users/kbruegge/cta
 
 gamma_output = ../data/image_features/gammas.csv
 proton_output = ../data/image_features/protons.csv
@@ -24,9 +24,11 @@ all: $(proton_test) $(gamma_test) $(gamma_train) $(proton_train)
 	@echo "Done!"
 
 
-$(proton_test) $(gamma_test) $(gamma_train) $(proton_train): $(proton_output) $(gamma_output)
-	klaas_split_data $(proton_output) background -n test -f 0.6 -n train -f 0.4
-	klaas_split_data $(gamma_output) signal -n test -f 0.6 -n train -f 0.4
+$(proton_test) $(proton_train): $(proton_output)
+	klaas_split_data $(proton_output) protons -n test -f 0.6 -n train -f 0.4 --fmt csv
+	
+$(gamma_test) $(gamma_train): $(gamma_output)
+	klaas_split_data $(gamma_output) signal -n test -f 0.6 -n train -f 0.4 --fmt csv
 
 
 $(gamma_output): $(jar) $(xml)
@@ -36,7 +38,7 @@ $(gamma_output): $(jar) $(xml)
 $(proton_output): $(jar) $(xml)
 	java  -jar $(jar) $(xml) -Dprefix="proton*.json.gz" -Dfolder=$(raw_data_folder) -Doutfile=$(proton_output)
 
-$(jar): ../pom.xml ../src
-	echo "building streams package"
+$(jar): ../pom.xml $(wildcard ../src/**/*.java)
+	echo "building streams package in top level"
 	cd ../; mvn -P standalone package -DskipTests; cd -
 
