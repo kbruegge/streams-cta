@@ -16,20 +16,19 @@ gamma_train = ../data/image_features/gammas_train.csv
 all: $(proton_test) $(proton_train) $(gamma_test) $(gamma_train)
 
 $(proton_test) $(proton_train): $(proton_output)
-	klaas_split_data $(proton_output) protons -n test -f 0.6 -n train -f 0.4
-	
+	klaas_split_data $(proton_output) protons -n test -f 0.6 -n train -f 0.4 --fmt csv
+
 $(gamma_test) $(gamma_train): $(gamma_output)
-	klaas_split_data $(gamma_output) gammas -n test -f 0.6 -n train -f 0.4
+	klaas_split_data $(gamma_output) gammas -n test -f 0.6 -n train -f 0.4 --fmt csv
 
 
 $(gamma_output): $(jar) $(xml)
-	java  -jar $(jar) $(xml) -Dprefix="gamma*.json.gz" -Dfolder=$(raw_data_folder) -Doutfile=$(gamma_output)
+	java  -jar $(jar) $(xml) -Dprefix="gamma*.json.gz" -Dfolder=$(raw_data_folder) -Doutfile=$(gamma_output) -Dlimit=20
 
 
 $(proton_output): $(jar) $(xml)
-	java  -jar $(jar) $(xml) -Dprefix="proton*.json.gz" -Dfolder=$(raw_data_folder) -Doutfile=$(proton_output)
+	java  -jar $(jar) $(xml) -Dprefix="proton*.json.gz" -Dfolder=$(raw_data_folder) -Doutfile=$(proton_output) -Dlimit=20
 
 $(jar): ../pom.xml $(shell find ../src -type f)
 	echo "building streams package in top level"
 	cd ../; mvn -P standalone package -DskipTests; cd -
-

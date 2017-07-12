@@ -16,14 +16,14 @@
 
 
 <process input="cta:data">
+    <streams.DataRate every="160"/>
     <streams.cta.SplitByTelescope key="@telescopes" />
     <ForEach key="@telescopes">
         <streams.cta.cleaning.TailCut />
         <streams.cta.features.Moments />
-        <streams.cta.io.CSVWriter keys="event_id,telescope:*,type:name,type:id,shower:*,*num_trigge*,mc:*" url="file:${outfile}"/>
+        <streams.cta.io.CSVWriter keys="unique_id,event_id,run_id,telescope:*,type:name,type:id,shower:*,*num_trigge*,mc:*" url="file:${outfile}"/>
     </ForEach>
     <streams.cta.MergeByTelescope key="@telescopes"/>
-    <streams.DataRate every="4000"/>
 </process>
 
 </application>

@@ -7,6 +7,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import javafx.scene.Camera;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import stream.Data;
 import stream.data.DataFactory;
 import stream.io.AbstractStream;
@@ -15,15 +17,19 @@ import streams.hexmap.CameraGeometry;
 import streams.hexmap.CameraMapping;
 
 import java.io.InputStreamReader;
+import java.nio.file.Paths;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Read images stored into json format as created by the 'convert_raw_data.py' script in this repo.
  * Created by kbruegge on 2/14/17.
  */
 public class ImageStream extends AbstractStream {
-
+    static Logger log = LoggerFactory.getLogger(ImageStream.class);
     private CameraMapping mapping;
+    private Integer run_id = null;
 
     public ImageStream(SourceURL url) {
         super(url);
@@ -32,7 +38,7 @@ public class ImageStream extends AbstractStream {
     }
 
 
-
+    private static final Pattern RUN_NUMBER= Pattern.compile(".*_run(\\d*)_.*(json).*");
 
     /**
      * One CTA event contains MC information, Array information and of course the images
@@ -55,7 +61,7 @@ public class ImageStream extends AbstractStream {
     }
     /**
      * Information about the event which is not specific to one single camera but to
-     * the whole array at once. At some point this shoudl include a Timestamp I suppose.
+     * the whole array at once. At some point this should include a Timestamp I suppose.
      * The CTA monte-carlo does not have unique ids or timestamps from what I can see.
      */
     private class Array {
@@ -74,6 +80,13 @@ public class ImageStream extends AbstractStream {
         reader = new JsonReader(streamReader);
         reader.beginArray();
         mapping = CameraMapping.getInstance();
+        String filename = Paths.get(url.getPath()).getFileName().toString();
+        Matcher matcher = RUN_NUMBER.matcher(filename);
+        if (matcher.find()){
+            run_id = Integer.parseInt(matcher.group(1));
+        } else {
+            log.warn("Could no extract run_id from filename {}", filename);
+        }
     }
 
 
@@ -106,6 +119,15 @@ public class ImageStream extends AbstractStream {
         data.put("mc:energy", event.mc.energy);
 
         data.put("event_id", event.eventId);
+
+        if (run_id != null){
+            data.put("run_id", run_id);
+            //assuming there are less than a 100 million runs in the montecarlo production, this generates a unique id
+            //for each array-wide event
+            data.put("unique_id", (long) ((run_id) << 8) + event.eventId);
+        }
+
+
 
         //Add the filename of the file we read from. This will be used to map
         //event lists to MC production information.
