@@ -191,9 +191,16 @@ public class PredictionService implements Service {
 
             Object rawValue = data.get(activeField.getName().toString());
 
-            FieldValue activeValue = activeField.prepare(rawValue);
+            try {
+                FieldValue activeValue = activeField.prepare(rawValue);
+                arguments.put(activeField.getName(), activeValue);
+            } catch (InvalidResultException e){
+                log.error("Prediction service got an invalid value. (NaN or Inf). " +
+                        "Remove any missing values before applying the model.");
+                throw e;
+            }
 
-            arguments.put(activeField.getName(), activeValue);
+
         }
 
         return arguments;
