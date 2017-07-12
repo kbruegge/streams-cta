@@ -1,9 +1,6 @@
 <application>
 
-<property name="prefix" value="proton*.json.gz" />
-<property name="folder" value="./data/raw" />
 <property name="limit" value="-1" />
-<property name="outfile" value="./data/processed/protons_training_features.csv" />
 
 <stream id="cta:data"
         class="streams.cta.io.RecursiveDirectoryStream"
@@ -16,7 +13,7 @@
 
 
 <process input="cta:data">
-    <streams.DataRate every="160"/>
+    <streams.DataRate every="100"/>
     <streams.cta.SplitByTelescope key="@telescopes" />
     <ForEach key="@telescopes">
         <streams.cta.cleaning.TailCut />
