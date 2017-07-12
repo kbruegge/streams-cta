@@ -14,21 +14,21 @@ proton_train = ../data/image_features/protons_train.csv
 gamma_train = ../data/image_features/gammas_train.csv
 
 
-all: $(proton_test) $(gamma_test) $(gamma_train) $(proton_train)
-	@for a in $$(ls); do \
-		if [ -d $$a ]; then \
-			echo "processing folder $$a"; \
-			$(MAKE) -C $$a; \
-		fi; \
-	done;
-	@echo "Done!"
+# all: $(proton_test) $(gamma_test) $(gamma_train) $(proton_train)
+# 	@for a in $$(ls); do \
+# 		if [ -d $$a ]; then \
+# 			echo "processing folder $$a"; \
+# 			$(MAKE) -C $$a; \
+# 		fi; \
+# 	done;
+# 	@echo "Done!"
 
 
 $(proton_test) $(proton_train): $(proton_output)
 	klaas_split_data $(proton_output) protons -n test -f 0.6 -n train -f 0.4 --fmt csv
-	
+
 $(gamma_test) $(gamma_train): $(gamma_output)
-	klaas_split_data $(gamma_output) signal -n test -f 0.6 -n train -f 0.4 --fmt csv
+	klaas_split_data $(gamma_output) gammas -n test -f 0.6 -n train -f 0.4 --fmt csv
 
 
 $(gamma_output): $(jar) $(xml)
@@ -41,4 +41,3 @@ $(proton_output): $(jar) $(xml)
 $(jar): ../pom.xml $(wildcard ../src/**/*.java)
 	echo "building streams package in top level"
 	cd ../; mvn -P standalone package -DskipTests; cd -
-
