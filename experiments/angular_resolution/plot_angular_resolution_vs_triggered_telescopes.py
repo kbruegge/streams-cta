@@ -1,12 +1,10 @@
 import click
 import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
 import astropy.units as u
 from astropy.coordinates import cartesian_to_spherical, Angle, SkyCoord, EarthLocation
 from dateutil import parser
 import seaborn as sns
-from os.path import splitext
 
 
 @click.command()
