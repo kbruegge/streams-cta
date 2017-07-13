@@ -18,14 +18,14 @@
 
         <streams.cta.CollectByEvent/>
         <streams.cta.SummarizePredictions />
-        
-        <streams.cta.stereo.Stereo />
 
+        <streams.cta.stereo.Stereo />
         <streams.cta.io.CSVWriter url="file:${outfile}" keys=" event_id,
                                                                telescope:id,
                                                                prediction:*,
                                                                array:num_*,
                                                                mc:*,
+                                                               stereo:*,
                                                                type:name"/>
          <streams.DataRate every="4000"/>
 

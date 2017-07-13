@@ -27,7 +27,7 @@ clean:
 
 
 $(plot_area):$(gammas_predicted_output) $(large_sample_mc_meta_information) plot_effective_area.py power_law.py
-	export MATPLOTLIBRC=../; python plot_effective_area.py $(gammas_predicted_output) $(large_sample_mc_meta_information)  $(plot_area) --sample_fraction=0.6
+	export MATPLOTLIBRC=../; python plot_effective_area.py $(gammas_predicted_output) $(mc_meta_information)  $(plot_area) --sample_fraction=0.6
 
 $(plot_offical_area): plot_official_irf.py
 	export MATPLOTLIBRC=../; python plot_official_irf.py

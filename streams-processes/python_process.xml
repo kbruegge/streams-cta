@@ -6,10 +6,6 @@
         <stream id="cta:data" class="streams.cta.io.ImageStream" url="classpath:/images.json.gz" />
     </stream>
 
-    <!--<stream id="cta:loop" class="streams.cta.io.ParallelLoopStream" copies="8" limit="1000000" >-->
-        <!--<stream id="cta:data" class="streams.cta.io.ImageStream" url="classpath:/images.json.gz" />-->
-    <!--</stream>-->
-
     <service id="regressor" class="streams.cta.PredictionService" url="classpath:/test_regressor.pmml" />
     <service id="classifier" class="streams.cta.PredictionService" url="classpath:/test_classifier.pmml" />
 
@@ -22,6 +18,17 @@
         </ForEach>
         <streams.cta.MergeByTelescope key="@telescopes"/>
         <streams.cta.SummarizePredictions />
-        <streams.DataRate every="40"/>
+        <streams.cta.stereo.Stereo />
+        <RemoveKeys keys="*telescope*,*array*" />
+
+        <streams.PythonContext url="file:./python/processors/test.py">
+
+            <streams.PythonProcessor method="process" />
+
+        </streams.PythonContext>
+
+        <streams.DataRate every="1000"/>
     </process>
+
+
 </application>

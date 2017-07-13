@@ -45,19 +45,26 @@ public class ImageStream extends AbstractStream {
      * for each camera.
      * The classes below mirror the structure of the JSON file which contains the CTA events.
      * By using this intermediate class structure we can simplify the reading of the json to one
+<<<<<<< HEAD
      * single line. Because GSON is pretty nice.
+=======
+     * songle line. Because GSON is pretty nice.
+>>>>>>> origin/master
      */
     private class Event{
         Map<Integer, double[]> images;
         MC mc;
         Array array;
         long eventId;
+        String timestamp;
     }
     /**
-     * Calibrated CTA Events. First up is the Monte-Carlo data.
+     * The Monte-Carlo information in the data contains the true values for direction and energy.
+     * Saving the type of the primary particle might also be useful.
      */
     private class MC {
         double energy, alt, az, coreY, coreX;
+        String type;
     }
     /**
      * Information about the event which is not specific to one single camera but to
@@ -102,12 +109,16 @@ public class ImageStream extends AbstractStream {
         Event event = gson.fromJson(reader, Event.class);
 
         Data data = DataFactory.create();
+<<<<<<< HEAD
         event.images.forEach((telId, image) -> {
             CameraGeometry.TelescopeType type = mapping.telescopeFromId(telId).telescopeType;
             data.put(String.format("telescope:%d:type:id", telId), type.ordinal());
             data.put(String.format("telescope:%d:type:name", telId), type.toString());
             data.put(String.format("telescope:%d:raw:photons", telId), image);
         });
+=======
+        event.images.forEach((telId, image) -> data.put(String.format("telescope:%d:raw:photons", telId), image));
+>>>>>>> origin/master
 
         data.put("array:triggered_telescopes", event.array.triggeredTelescopes);
         data.put("array:num_triggered_telescopes", event.array.numTriggeredTelescopes);
@@ -117,8 +128,10 @@ public class ImageStream extends AbstractStream {
         data.put("mc:core_x", event.mc.coreX);
         data.put("mc:core_y", event.mc.coreY);
         data.put("mc:energy", event.mc.energy);
+        data.put("mc:type", event.mc.type);
 
         data.put("event_id", event.eventId);
+        data.put("timestamp", event.timestamp);
 
         if (run_id != null){
             data.put("run_id", run_id);

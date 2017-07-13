@@ -12,8 +12,8 @@ true_energy: "mc:energy"
 shower_size: "shower:size"
 
 
-n_background: 80000
-n_signal: 80000
+n_background: 1500
+n_signal: 1500
 
 n_cross_validations : 5
 

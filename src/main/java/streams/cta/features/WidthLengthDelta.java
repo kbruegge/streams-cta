@@ -7,7 +7,7 @@ import stream.Data;
 import streams.cta.CTACleanedDataProcessor;
 import streams.hexmap.Shower;
 
-import static streams.hexmap.Shower.*;
+import static streams.hexmap.Shower.SignalPixel;
 
 /**
  * Calculate the Width, Length and Delta from the spacial distribution of shower pixels, by use of

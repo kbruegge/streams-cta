@@ -1,0 +1,31 @@
+<application>
+
+    <stream id="cta:data" class="streams.cta.io.ImageStream" url="classpath:/images.json.gz" />
+
+    <service id="regressor" class="streams.cta.PredictionService" url="classpath:/test_regressor.pmml" />
+    <service id="classifier" class="streams.cta.PredictionService" url="classpath:/test_classifier.pmml" />
+
+    <process input="data" >
+        <streams.cta.SplitByTelescope key="@telescopes" />
+        <ForEach key="@telescopes">
+            <streams.cta.cleaning.TailCut />
+            <streams.cta.features.Moments />
+            <streams.cta.TelescopePredictions regressor="regressor" classifier="classifier" local="true"/>
+        </ForEach>
+        <streams.cta.MergeByTelescope key="@telescopes"/>
+        <streams.cta.SummarizePredictions />
+        <streams.cta.stereo.Stereo/>
+        <RemoveKeys keys="@datarate,@*memory,*telescope*" />
+        <streams.DataRate every="2000" logmemory="true"/>
+
+        <If condition="%{data.@datarate} != null}" >
+            <Enqueue queue="perf"/>
+        </If>
+
+    </process>
+
+    <process input="perf">
+        <streams.cta.io.CSVWriter url="file:./build/csv/performance_threads_${num_copies}.csv" keys="@datarate,@stream,@totalmemory,@freememory"/>
+    </process>
+
+</application>
