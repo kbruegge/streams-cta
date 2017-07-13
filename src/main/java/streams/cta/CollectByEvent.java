@@ -50,7 +50,7 @@ public class CollectByEvent implements Processor {
 
                 //add new data using the prefix telescope:<id>:
                 String prefix = "telescope:" + telescopeId + ":";
-                for (String key : Keys.select(telescopeData, "shower:*,prediction:*")) {
+                for (String key : Keys.select(telescopeData, "shower:*,prediction:*,type:*")) {
                     outputItem.put(prefix + key, telescopeData.get(key));
                 }
             }
@@ -66,6 +66,8 @@ public class CollectByEvent implements Processor {
             items.clear();
             items.add(inputItem);
 
+            //set the new id to compare new items to
+            previousId = id;
             return outputItem;
         }
     }
