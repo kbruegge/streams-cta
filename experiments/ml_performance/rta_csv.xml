@@ -13,7 +13,7 @@
 
     <process input="single_telescope_events" >
 
-        <Skip condition="%{data.shower:number_of_pixel} &lt; 4" />
+        <Skip condition="%{data.shower:number_of_pixel} &lt; 3" />
         <streams.cta.TelescopePredictions regressor="regressor" classifier="classifier"/>
 
         <streams.cta.CollectByEvent/>
@@ -27,7 +27,7 @@
                                                                array:num_*,
                                                                mc:*,
                                                                type:name"/>
-         <streams.DataRate every="100"/>
+         <streams.DataRate every="4000"/>
 
     </process>
 
