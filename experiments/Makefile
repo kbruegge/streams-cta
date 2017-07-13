@@ -23,10 +23,10 @@ $(gamma_test) $(gamma_train): $(gamma_output)
 
 
 $(gamma_output): $(jar) $(xml)
-	java  -jar $(jar) $(xml) -Dprefix="gamma_20deg_0deg_run81*.json.gz" -Dfolder=$(raw_data_folder) -Doutfile=$(gamma_output) -Dlimit=1000
+	java  -jar $(jar) $(xml) -Dprefix="gamma_20deg_0deg_run*.json.gz" -Dfolder=$(raw_data_folder) -Doutfile=$(gamma_output)
 
 $(proton_output): $(jar) $(xml)
-	java  -jar $(jar) $(xml) -Dprefix="proton_20deg_0deg_run36*.json.gz" -Dfolder=$(raw_data_folder) -Doutfile=$(proton_output) -Dlimit=1000
+	java  -jar $(jar) $(xml) -Dprefix="proton_20deg_0deg_run*.json.gz" -Dfolder=$(raw_data_folder) -Doutfile=$(proton_output)
 
 $(jar): ../pom.xml $(shell find ../src -type f)
 	echo "building streams package in top level"
