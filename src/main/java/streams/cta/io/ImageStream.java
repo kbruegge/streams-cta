@@ -45,11 +45,7 @@ public class ImageStream extends AbstractStream {
      * for each camera.
      * The classes below mirror the structure of the JSON file which contains the CTA events.
      * By using this intermediate class structure we can simplify the reading of the json to one
-<<<<<<< HEAD
      * single line. Because GSON is pretty nice.
-=======
-     * songle line. Because GSON is pretty nice.
->>>>>>> origin/master
      */
     private class Event{
         Map<Integer, double[]> images;
@@ -109,16 +105,13 @@ public class ImageStream extends AbstractStream {
         Event event = gson.fromJson(reader, Event.class);
 
         Data data = DataFactory.create();
-<<<<<<< HEAD
         event.images.forEach((telId, image) -> {
             CameraGeometry.TelescopeType type = mapping.telescopeFromId(telId).telescopeType;
             data.put(String.format("telescope:%d:type:id", telId), type.ordinal());
             data.put(String.format("telescope:%d:type:name", telId), type.toString());
             data.put(String.format("telescope:%d:raw:photons", telId), image);
         });
-=======
-        event.images.forEach((telId, image) -> data.put(String.format("telescope:%d:raw:photons", telId), image));
->>>>>>> origin/master
+
 
         data.put("array:triggered_telescopes", event.array.triggeredTelescopes);
         data.put("array:num_triggered_telescopes", event.array.numTriggeredTelescopes);
