@@ -7,13 +7,8 @@ classifier : |
       criterion='entropy',
   )
 
-
-true_energy: "mc:energy"
-shower_size: "shower:size"
-
-
-n_background: 1500
-n_signal: 1500
+n_background: 50000
+n_signal: 50000
 
 n_cross_validations : 5
 
