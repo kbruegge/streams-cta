@@ -8,29 +8,29 @@ def distance_between_estimated_and_mc_direction(x, y, z, mc_alt, mc_az):
 
     r, lat, lon = cartesian_to_spherical(x, y, z)
 
-    alt = Angle(90*u.deg - lat)
+    alt = Angle(90 * u.deg - lat)
     mc_alt = Angle(mc_alt)
 
-    az = Angle(lon).wrap_at(180*u.deg)
-    mc_az = Angle(mc_az).wrap_at(180*u.deg)
+    az = Angle(lon).wrap_at(180 * u.deg)
+    mc_az = Angle(mc_az).wrap_at(180 * u.deg)
 
     paranal = EarthLocation.of_site('paranal')
     dt = parser.parse('2017-09-20 22:15')
 
     c = SkyCoord(
-            alt=alt,
-            az=az,
-            obstime=dt,
-            frame='altaz',
-            location=paranal,
-            )
+        alt=alt,
+        az=az,
+        obstime=dt,
+        frame='altaz',
+        location=paranal,
+    )
 
     c_mc = SkyCoord(
-            alt=mc_alt,
-            az=mc_az,
-            obstime=dt,
-            frame='altaz',
-            location=paranal,
-            )
+        alt=mc_alt,
+        az=mc_az,
+        obstime=dt,
+        frame='altaz',
+        location=paranal,
+    )
 
     return c.separation(c_mc)

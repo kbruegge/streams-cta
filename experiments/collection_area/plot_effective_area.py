@@ -101,7 +101,7 @@ def main(
         .simulated_showers \
         .sum() * sample_fraction
 
-    print('A total of {} showers have been simulated for this sample'.format())
+    print('A total of {} showers have been simulated for this sample'.format(n_simulated_showers))
 
     scatter_radius = mc.query(
         'file_names in @triggered_events.source_file.unique()'

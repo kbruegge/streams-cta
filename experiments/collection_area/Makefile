@@ -3,16 +3,12 @@ xml = rta.xml
 jar = ../../target/streams-cta-0.0.3-SNAPSHOT-stream-compiled.jar
 
 data_dir = ../../data/
-gammas_test = $(data_dir)/image_features/gammas_test.csv
-protons_test = $(data_dir)/image_features/protons_test.csv
-
 gammas_predicted_output=$(data_dir)/predictions_rta_gammas_test_sample.csv
 protons_predicted_output=$(data_dir)/predictions_rta_protons_test_sample.csv
 
 
 output_dir=../../build/area
 plot_area = $(output_dir)/effective_area.pdf
-plot_offical_area = $(output_dir)/official_prod3_area.pdf
 mc_meta_information = $(data_dir)/mc_production_meta.csv
 
 
@@ -26,9 +22,6 @@ clean:
 
 $(plot_area):$(gammas_predicted_output) $(large_sample_mc_meta_information) $(mc_meta_information) plot_effective_area.py power_law.py
 	export MATPLOTLIBRC=../; python plot_effective_area.py $(gammas_predicted_output) $(mc_meta_information)  $(plot_area) --sample_fraction=0.6
-
-$(plot_offical_area): plot_official_irf.py
-	export MATPLOTLIBRC=../; python plot_official_irf.py
 
 $(mc_meta_information): add_hardcoded_mc_info.py
 	python add_hardcoded_mc_info.py $(raw_data_folder) $(mc_meta_information)
