@@ -24,7 +24,7 @@ import java.util.Set;
 public class CollectByEvent implements Processor {
 
     @Parameter(description = "Save collected telescopes under this key.", required = false)
-    String key = "unique_id";
+    String key = "unique_event_id";
 
     private Integer previousId = null;
     private List<Data> items = new ArrayList<>();
@@ -57,7 +57,7 @@ public class CollectByEvent implements Processor {
 
             //add common data stored in one of the old items.
             Data oldItem = items.get(0);
-            for (String key : Keys.select(oldItem, "mc:*,array:*,event_id,run_id,unique_id")) {
+            for (String key : Keys.select(oldItem, "mc:*,array:*,event_id,run_id,unique_event_id")) {
                 outputItem.put(key, oldItem.get(key));
             }
             outputItem.put("array:triggered_telescopes", Ints.toArray(triggeredTelescopes));

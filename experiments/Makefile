@@ -16,10 +16,10 @@ gamma_train = ../data/image_features/gammas_train.csv
 all: $(proton_test) $(proton_train) $(gamma_test) $(gamma_train)
 
 $(proton_test) $(proton_train): $(proton_output)
-	klaas_split_data $(proton_output) ../data/image_features/protons -n test -f 0.6 -n train -f 0.4 --fmt csv -id unique_id
+	klaas_split_data $(proton_output) ../data/image_features/protons -n test -f 0.6 -n train -f 0.4 --fmt csv -id unique_event_id
 
 $(gamma_test) $(gamma_train): $(gamma_output)
-	klaas_split_data $(gamma_output) ../data/image_features/gammas -n test -f 0.6 -n train -f 0.4 --fmt csv -id unique_id
+	klaas_split_data $(gamma_output) ../data/image_features/gammas -n test -f 0.6 -n train -f 0.4 --fmt csv -id unique_event_id
 
 
 $(gamma_output): $(jar) $(xml)

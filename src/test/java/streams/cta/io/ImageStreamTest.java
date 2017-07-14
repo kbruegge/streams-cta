@@ -67,7 +67,7 @@ public class ImageStreamTest {
         Data data = stream.read();
         while (data != null){
             assertThat(data.get("run_id"), is(3619));
-            assertThat(data.get("unique_id"), is(not(nullValue())));
+            assertThat(data.get("unique_event_id"), is(not(nullValue())));
             data = stream.read();
         }
 
