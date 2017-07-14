@@ -128,7 +128,7 @@ public class ImageStream extends AbstractStream {
 
         if (run_id != null){
             data.put("run_id", run_id);
-            //assuming there are less than a 10 million runs in the montecarlo production, this generates a unique id
+            //assuming there are less than maxInt - 128  runs in the montecarlo production, this generates a unique id
             //for each array-wide event
             data.put("unique_event_id", ((run_id) << 7) + event.eventId);
         }
