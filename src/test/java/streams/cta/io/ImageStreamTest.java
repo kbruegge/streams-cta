@@ -33,7 +33,7 @@ public class ImageStreamTest {
         Data data = stream.read();
         while (data != null){
             assertThat(Keys.select(data, "telescope:*").isEmpty(), is(false));
-            assertThat(Keys.select(data, "telescope:*:type").isEmpty(), is(false));
+            assertThat(Keys.select(data, "telescope:*:type:name").isEmpty(), is(false));
             assertThat(Keys.select(data, "telescope:*:type:id").isEmpty(), is(false));
 
             int[] ids = (int[]) data.get("array:triggered_telescopes");

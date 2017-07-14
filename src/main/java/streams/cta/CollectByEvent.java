@@ -19,7 +19,6 @@ import java.util.Set;
  * item into back into the original data item containing the multi telescope events.
  * This is useful when reading in per telescope image feature data from a CSV file or something similar.
  *
- *
  */
 public class CollectByEvent implements Processor {
 
