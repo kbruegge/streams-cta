@@ -1,17 +1,19 @@
-gammas_predicted_output = ../../data/large_sample/gammas.csv
-protons_predicted_output = ../../data/large_sample/protons.csv
+data_dir = ../../data
+gammas_predicted_output=$(data_dir)/predictions_rta_gammas_test_sample.csv
+protons_predicted_output=$(data_dir)/predictions_rta_protons_test_sample.csv
 
-trigger_efficiency = ../../build/trigger_efficiency.pdf
-crab_efficiency = ../../build/crab_efficiency.pdf
-theta = ../../build/theta.pdf
-sens = ../../build/sensitivity.pdf
+build_dir = ../../build/sensitivity
+trigger_efficiency = $(build_dir)/trigger_efficiency.pdf
+crab_efficiency = $(build_dir)/crab_efficiency.pdf
+theta = $(build_dir)/theta.pdf
+sens = $(build_dir)/sensitivity.pdf
 
-mc_meta_information = ../../data/large_sample/mc_production.csv
+mc_meta_information = ../../data/mc_production_meta.csv
 
 all:	$(trigger_efficiency) $(crab_efficiency) $(theta) $(sens)
 
 clean:
-	rm $(trigger_efficiency)
+	rm $(trigger_efficiency) $(crab_efficiency) $(theta) $(sens)
 
 $(trigger_efficiency):$(gammas_predicted_output) $(mc_meta_information) plot_trigger_efficiency.py power_law.py cta_io.py
 	export MATPLOTLIBRC=../; python plot_trigger_efficiency.py $(gammas_predicted_output) $(mc_meta_information)  $(trigger_efficiency)
