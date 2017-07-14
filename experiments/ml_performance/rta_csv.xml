@@ -20,7 +20,8 @@
         <streams.cta.SummarizePredictions />
 
         <streams.cta.stereo.Stereo />
-        <streams.cta.io.CSVWriter url="file:${outfile}" keys="unique_event_id,
+        <streams.cta.io.CSVWriter url="file:${outfile}" keys="source_file,
+                                                              unique_event_id,
                                                               type:id,
                                                               prediction:*,
                                                               array:num_*,
