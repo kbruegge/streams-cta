@@ -48,19 +48,19 @@ $(plot_single_telescope): $(model_pkl) $(predictions) ../matplotlibrc
 	klaas_plot_separator_performance config_separator.yaml $(predictions) $(model_pkl) -o $(plot_single_telescope)
 
 $(plot_multi_tel_auc): $(rta_predictions_gammas) $(rta_predictions_protons) ../matplotlibrc plot_multi_tel_auc.py
-	python plot_multi_tel_auc.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_auc)
+	export MATPLOTLIBRC=../; python plot_multi_tel_auc.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_auc)
 
 $(plot_multi_tel_fpr_tpr): $(rta_predictions_gammas) $(rta_predictions_protons) ../matplotlibrc plot_multi_tel_fpr_tpr.py
-	python plot_multi_tel_fpr_tpr.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_fpr_tpr)
+	export MATPLOTLIBRC=../; python plot_multi_tel_fpr_tpr.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_fpr_tpr)
 
 $(plot_multi_tel_hist): $(rta_predictions_gammas) $(rta_predictions_protons) ../matplotlibrc plot_multi_tel_prediction_hist.py
-	python plot_multi_tel_prediction_hist.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_hist)
+	export MATPLOTLIBRC=../; python plot_multi_tel_prediction_hist.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_hist)
 
 $(plot_multi_tel_auc_vs_energy): $(rta_predictions_gammas) $(rta_predictions_protons) ../matplotlibrc plot_multi_tel_auc_vs_energy.py
-	python plot_multi_tel_auc_vs_energy.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_auc_vs_energy)
+	export MATPLOTLIBRC=../; python plot_multi_tel_auc_vs_energy.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_auc_vs_energy)
 
 $(plot_multi_tel_precission_recall_curve): $(rta_predictions_gammas) $(rta_predictions_protons) ../matplotlibrc plot_multi_tel_precission_recall_curve.py
-	python plot_multi_tel_precission_recall_curve.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_precission_recall_curve)
+	export MATPLOTLIBRC=../; python plot_multi_tel_precission_recall_curve.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_precission_recall_curve)
 
 
 
