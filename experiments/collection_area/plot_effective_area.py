@@ -20,18 +20,18 @@ def plot_area(bin_edges, event_energies, expectation, area, ax=None, **kwargs):
 
     H, edges = np.histogram(event_energies, bins=bin_edges)
 
-    area = H/expectation * area
+    area = H / expectation * area
 
     ax.errorbar(
-                bin_center,
-                area.to('m**2').value,
-                xerr=bin_width * 0.5,
-                marker='.',
-                linestyle='',
-                capsize=0,
-                **kwargs,
-                # color='0.25'
-            )
+        bin_center,
+        area.to('m**2').value,
+        xerr=bin_width * 0.5,
+        marker='.',
+        linestyle='',
+        capsize=0,
+        **kwargs,
+        # color='0.25'
+    )
 
     ax.set_yscale('log')
     ax.set_ylabel(r'$Area / \mathrm{m}^2$')
@@ -44,13 +44,21 @@ def plot_area(bin_edges, event_energies, expectation, area, ax=None, **kwargs):
 @click.argument('triggered_events', type=click.Path(exists=True, dir_okay=False,))
 @click.argument('mc_production_information', type=click.Path(exists=True))
 @click.argument('outputfile', type=click.Path(exists=False, dir_okay=False,))
-@click.option('-n', '--n_energy', type=click.INT, default=11, help='energy bins')
+@click.option('-n', '--n_energy', type=click.INT, default=11, help='number of energy bins')
+@click.option(
+    '-f',
+    '--sample_fraction',
+    type=click.FLOAT,
+    default=1,
+    help='fraction of total monte carlo samples in given file'
+)
 def main(
         triggered_events,
         mc_production_information,
         outputfile,
         n_energy,
-        ):
+        sample_fraction
+):
     '''
     Plot the event distributions from the triggered gammas given in the
     PREDICTED_EVENTS input file.
@@ -89,54 +97,56 @@ def main(
 
     n_simulated_showers = mc.query(
         'file_names in @triggered_events.source_file.unique()'
-        ) \
+    )\
         .simulated_showers \
-        .sum()
+        .sum() * sample_fraction
 
+    print('A total of {} showers have been simulated for this sample'.format())
 
     scatter_radius = mc.query(
         'file_names in @triggered_events.source_file.unique()'
-        ) \
+    )\
         .scatter_radius_meter \
         .mean() * u.m
 
     area = np.pi * scatter_radius**2
     expectation, edges = power_law.expected_events_for_bins(
-                            n_simulated_showers,
-                            triggered_events['energy'].values * u.TeV,
-                            index=-2.0,
-                            e_min=0.003*u.TeV,
-                            e_max=330*u.TeV,
-                            bins=30,
-                        )
+        n_simulated_showers,
+        triggered_events['energy'].values * u.TeV,
+        index=-2.0,
+        e_min=0.003 * u.TeV,
+        e_max=330 * u.TeV,
+        bins=30,
+    )
 
     fig, ax = plt.subplots(1)
     plot_area(
-            edges,
-            triggered_events['energy'].values * u.TeV,
-            expectation,
-            area,
-            ax=ax,
-            label='Cleaned Events'
-        )
+        edges,
+        triggered_events['energy'].values * u.TeV,
+        expectation,
+        area,
+        ax=ax,
+        label='Cleaned Events'
+    )
     plot_area(
-            edges,
-            gamma_like_events['energy'].values * u.TeV,
-            expectation,
-            area,
-            ax=ax,
-            label='Selected "gamma-like" events',
-            )
+        edges,
+        gamma_like_events['energy'].values * u.TeV,
+        expectation,
+        area,
+        ax=ax,
+        label='Selected "gamma-like" events',
+    )
     plot_area(
-            edges,
-            signal_events['energy'].values * u.TeV,
-            expectation,
-            area,
-            ax=ax,
-            label=r'Selected "gamma-like" events with $\Delta \Theta < 0.05$ degrees',
-            )
+        edges,
+        signal_events['energy'].values * u.TeV,
+        expectation,
+        area,
+        ax=ax,
+        label=r'Selected "gamma-like" events with $\Delta \Theta < 0.05$ degrees',
+    )
     ax.legend(fontsize=8)
     fig.savefig(outputfile)
+
 
 if __name__ == '__main__':
     main()
