@@ -10,7 +10,7 @@ from scipy import optimize
 
 
 @u.quantity_input(bin_edges=u.TeV, t_obs=u.h)
-def plot_sensitivity(bin_edges, sensitivity, t_obs, ax=None, scale=True,  **kwargs):
+def plot_sensitivity(bin_edges, sensitivity, t_obs, ax=None, scale=True, **kwargs):
     error = None
 
     if not ax:
@@ -22,7 +22,7 @@ def plot_sensitivity(bin_edges, sensitivity, t_obs, ax=None, scale=True,  **kwar
     sensitivity = sensitivity.to(1 / (u.erg * u.s * u.cm**2))
 
     if sensitivity.ndim == 2:
-        error = sensitivity.std(axis=0)/2
+        error = sensitivity.std(axis=0) / 2
         sensitivity = sensitivity.mean(axis=0)
 
     if scale:
@@ -52,7 +52,7 @@ def plot_sensitivity(bin_edges, sensitivity, t_obs, ax=None, scale=True,  **kwar
 
 
 @u.quantity_input(e_min=u.TeV, e_max=u.TeV)
-def plot_spectrum(spectrum, e_min, e_max,  ax=None, scale=True, **kwargs):
+def plot_spectrum(spectrum, e_min, e_max, ax=None, scale=True, **kwargs):
 
     if not ax:
         _, ax = plt.subplots(1)
@@ -61,7 +61,7 @@ def plot_spectrum(spectrum, e_min, e_max,  ax=None, scale=True, **kwargs):
     flux = spectrum.flux(e).to(1 / (u.erg * u.s * u.cm**2))
 
     if scale:
-        flux = flux*e.to('erg')**2
+        flux = flux * e.to('erg')**2
 
     ax.plot(
         e,
@@ -73,27 +73,27 @@ def plot_spectrum(spectrum, e_min, e_max,  ax=None, scale=True, **kwargs):
 
 
 def calculate_sensitivity(
-            gammas,
-            protons,
-            gammaness=0.5,
-            signal_region=0.01,
-            target_spectrum=power_law.CrabSpectrum()
-        ):
+        gammas,
+        protons,
+        gammaness=0.5,
+        signal_region=0.01,
+        target_spectrum=power_law.CrabSpectrum()
+):
     selected_gammas = gammas.query('gammaness >={}'.format(gammaness)).copy()
 
     selected_protons = protons.query('gammaness >={}'.format(gammaness)).copy()
 
     n_on, n_off = get_on_and_off_counts(
-            selected_protons,
-            selected_gammas,
-            signal_region_radius=signal_region
-        )
+        selected_protons,
+        selected_gammas,
+        signal_region_radius=signal_region
+    )
 
     relative_flux = power_law.relative_sensitivity(
-            n_on,
-            n_off,
-            alpha=1,
-        )
+        n_on,
+        n_off,
+        alpha=1,
+    )
 
     min_energy = min(gammas.energy.min(),
                      protons.energy.min())
@@ -246,5 +246,7 @@ def main(
     ax = plot_sensitivity(edges, sens, t_obs, ax=None)
     plot_spectrum(crab, e_min, e_max, ax=ax, color='gray')
     plt.savefig(outputfile)
+
+
 if __name__ == '__main__':
     main()
