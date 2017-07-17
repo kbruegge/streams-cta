@@ -90,34 +90,36 @@ def main(
     # read montecarlo production meta data
     mc = pd.read_csv(mc_production_information)
 
-    gamma_file_names = mc.file_names[mc.file_names.str.startswith('gamma')]
-    files_missing_information = triggered_events[~triggered_events.source_file.isin(gamma_file_names)].source_file.unique()
+    proton_file_names = mc.file_names[mc.file_names.str.startswith('proton')]
+    files_missing_information = triggered_events[~triggered_events.source_file.isin(proton_file_names)].source_file.unique()
 
     if len(files_missing_information) > 0:
         print('MC meta information does not match data set. Aborting. Files with missing information:')
         print(np.unique(files_missing_information))
 
-    n_simulated_showers = mc.query(
-        'file_names in @triggered_events.source_file.unique()'
-    )\
-        .simulated_showers \
-        .sum() * sample_fraction
 
+    mc = mc.query(
+        'file_names in @triggered_events.source_file.unique()'
+    )
+
+
+    n_simulated_showers = mc.simulated_showers.sum() * sample_fraction
     print('A total of {} showers have been simulated for this sample'.format(n_simulated_showers))
 
-    scatter_radius = mc.query(
-        'file_names in @triggered_events.source_file.unique()'
-    )\
-        .scatter_radius_meter \
-        .mean() * u.m
-
+    e_min = mc.energy_min.min() * u.TeV
+    e_max = mc.energy_max.max() * u.TeV
+    index = mc['index'].mean()
+    solid_angle = mc.solidangle_deg.mean() * u.deg
+    scatter_radius = mc.scatter_radius_meter.mean() * u.m
     area = np.pi * scatter_radius**2
+
     mc_spectrum = power_law.MCSpectrum(
-        e_min=0.003 * u.TeV,
-        e_max=330 * u.TeV,
-        index=-2.0,
+        e_min=e_min,
+        e_max=e_max,
+        index=index,
         total_showers_simulated=n_simulated_showers,
-        generation_area=area
+        generation_area=area,
+        generator_solid_angle=solid_angle,
     )
     expectation, edges = mc_spectrum.simulated_mc_events_per_bin(bins=30, log=True)
 
@@ -146,6 +148,7 @@ def main(
         ax=ax,
         label=r'Selected "gamma-like" events with $\Delta \Theta < 0.05$ degrees',
     )
+
     ax.legend(fontsize=8, framealpha=0.5)
     fig.savefig(outputfile)
 
