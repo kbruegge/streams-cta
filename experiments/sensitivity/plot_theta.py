@@ -14,12 +14,14 @@ import cta_io
 @click.argument('mc_production_information', type=click.Path(exists=True))
 @click.argument('outputfile', type=click.Path(exists=False, dir_okay=False,))
 @click.option('-n', '--n_bins', type=click.INT, default=30, help='theta bin')
+@click.option('-s', '--sample_fraction', type=click.FLOAT, default=0.5, help='MC sample fraction')
 def main(
     predicted_gammas,
     predicted_protons,
     mc_production_information,
     outputfile,
     n_bins,
+    sample_fraction,
 ):
     '''
     Plot the famous theta square curve.
@@ -32,12 +34,12 @@ def main(
     mc_gamma = power_law.MCSpectrum(
         e_min=e_min,
         e_max=e_max,
-        total_showers_simulated=N,
+        total_showers_simulated=N * sample_fraction,
         generation_area=area,
     )
 
     crab = power_law.CrabSpectrum()
-    energies = gammas.energy.values*u.TeV
+    energies = gammas.energy.values * u.TeV
 
     gammas['weight'] = crab.weight(
         energies,

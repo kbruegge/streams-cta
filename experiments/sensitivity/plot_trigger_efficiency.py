@@ -27,7 +27,7 @@ def plot(bin_edges, event_energies, expectation):
                  0.5, marker='.', linestyle='', capsize=0, color='0.25')
 
     ax2.set_ylabel('Efficiency')
-    ax2.set_xlabel(r'$\log_{10}(E /  \mathrm{GeV})$')
+    ax2.set_xlabel(r'E /  \mathrm{TeV}$')
     ax2.set_xscale('log')
 
     return fig, (ax, ax2)
@@ -62,11 +62,13 @@ def get_mc_information(df, df_mc):
 @click.argument('mc_production_information', type=click.Path(exists=True))
 @click.argument('outputfile', type=click.Path(exists=False, dir_okay=False,))
 @click.option('-n', '--n_energy', type=click.INT, default=11, help='energy bins')
+@click.option('-s', '--sample_fraction', type=click.FLOAT, default=0.5, help='MC sample fraction')
 def main(
         gamma_file,
         mc_production_information,
         outputfile,
         n_energy,
+        sample_fraction,
         ):
     '''
     Plot the event distributions from the triggered gammas given in the
@@ -80,22 +82,19 @@ def main(
     mc = power_law.MCSpectrum(
         e_min=e_min,
         e_max=e_max,
-        total_showers_simulated=n_simulated_showers,
+        total_showers_simulated=n_simulated_showers * sample_fraction,
         generation_area=area,
     )
 
     expected_events, edges = mc.expected_events_for_bins(
-            e_min=e_min,
-            e_max=e_max,
-            area=area,
-            t_obs=1*u.s,
-            bins=30
-        )
+        bins=30
+    )
 
     energy = gammas['mc:energy'].values * u.TeV
 
     fig, _ = plot(edges.value, energy, expected_events)
     fig.savefig(outputfile)
+
 
 if __name__ == '__main__':
     main()

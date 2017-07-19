@@ -10,7 +10,7 @@ def relative_sensitivity(
         n_off,
         alpha,
         target_significance=5,
-        ):
+):
     '''
     Calculate the relative sensitivity defined as the flux
     relative to the reference source that is detectable with
@@ -40,7 +40,7 @@ def relative_sensitivity(
 
     scale = []
     for on, off in zip(n_on, n_off):
-        if on < off*alpha or off == 0:
+        if on < off * alpha or off == 0:
             scale.append(np.inf)
             continue
 
@@ -168,7 +168,7 @@ class Spectrum():
             solid_angle=None,
             bins=10,
             log=True,
-        ):
+    ):
         '''
         Get the number of events which are expected to arrive from this spectral source.
         For each of the requested bins.
@@ -220,7 +220,7 @@ class Spectrum():
             event_energies,
             mc_spectrum,
             t_assumed_obs,
-            ):
+    ):
         '''
         This method returns weights for the given events based on the information
         about the events generator and the index and normalization of the spectrum.
@@ -287,7 +287,7 @@ class MCSpectrum(Spectrum):
             generation_area,
             generator_solid_angle=None,  # default for CTA prod3
             index=-2.0
-            ):
+    ):
         '''
         To calculate the normalization constant of this spectrum some
         information about the event generator has to be specified.
@@ -321,15 +321,24 @@ class MCSpectrum(Spectrum):
             angle = (1 - np.cos(angle)) * 2 * np.pi * u.sr
 
             N = self._integral(e_min.to('TeV'), e_max.to('TeV')) * (generation_area.to(u.m**2) * u.s * angle)
-            self.normalization_constant = (
-                    total_showers_simulated / N
-                ) / (u.TeV * u.m**2 * u.s * u.sr)
+            self.normalization_constant = (total_showers_simulated / N) / (u.TeV * u.m**2 * u.s * u.sr)
 
         else:
             N = self._integral(e_min.to('TeV'), e_max.to('TeV')) * (generation_area.to(u.m**2) * u.s)
-            self.normalization_constant = (
-                    total_showers_simulated / N
-                ) / (u.TeV * u.m**2 * u.s)
+            self.normalization_constant = (total_showers_simulated / N) / (u.TeV * u.m**2 * u.s)
+
+
+    def expected_events_for_bins(self, bins=10, log=True,):
+        return super().expected_events_for_bins(
+            e_min=self.e_min,
+            e_max=self.e_max,
+            area=self.generation_area,
+            solid_angle=self.generator_solid_angle,
+            t_obs=1 * u.s,
+            bins=bins,
+            log=log,
+        )
+
 
 
 if __name__ == '__main__':

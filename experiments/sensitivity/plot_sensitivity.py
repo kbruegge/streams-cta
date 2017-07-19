@@ -45,7 +45,7 @@ def plot_sensitivity(bin_edges, sensitivity, t_obs, ax=None, scale=True, **kwarg
     ax.set_xscale('log')
     ax.set_ylabel(r'$ \mathrm{photons} / \mathrm{erg s} \mathrm{cm}^2$ in ' + str(t_obs.to('h')) + ' hours' )
     if scale:
-        ax.set_ylabel(r'$ E^2 \cdot \mathrm{photons} /( \mathrm{erg} \quad \mathrm{s} \quad  \mathrm{cm}^2$ )  in ' + str(t_obs.to('h')) )
+        ax.set_ylabel(r'$ E^2 \cdot \mathrm{photons} \quad \mathrm{erg} /( \mathrm{s} \quad  \mathrm{cm}^2$ )  in ' + str(t_obs.to('h')) )
     ax.set_xlabel(r'$E /  \mathrm{TeV}$')
 
     return ax
@@ -188,12 +188,14 @@ def create_sensitivity_matrix(
 @click.argument('mc_production_information', type=click.Path(exists=True))
 @click.argument('outputfile', type=click.Path(exists=False, dir_okay=False,))
 @click.option('-n', '--n_bins', type=click.INT, default=4, help='energy bins to plot')
+@click.option('-s', '--sample_fraction', type=click.FLOAT, default=0.5, help='MC sample fraction')
 def main(
     predicted_gammas,
     predicted_protons,
     mc_production_information,
     outputfile,
     n_bins,
+    sample_fraction,
 ):
     '''
     Plots a sensitivity curve vs real energy. For each energy bin it performs a gridsearch
@@ -208,7 +210,7 @@ def main(
     mc_gamma = power_law.MCSpectrum(
         e_min=e_min,
         e_max=e_max,
-        total_showers_simulated=N,
+        total_showers_simulated=N * sample_fraction,
         generation_area=area,
     )
 
@@ -230,7 +232,7 @@ def main(
     mc_proton = power_law.MCSpectrum(
         e_min=e_min,
         e_max=e_max,
-        total_showers_simulated=N,
+        total_showers_simulated=N * sample_fraction,
         generation_area=area,
         generator_solid_angle=6 * u.deg
     )
