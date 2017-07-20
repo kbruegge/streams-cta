@@ -24,6 +24,7 @@ rta_predictions_gammas = $(data_dir)/predictions_rta_gammas_test_sample.csv
 
 
 plot_single_telescope = $(plot_output_dir)/ml_performance_single_telescope.pdf
+plot_auc_per_telescope = $(plot_output_dir)/ml_performance_auc_per_telescope.pdf
 plot_multi_tel_auc = $(plot_output_dir)/ml_performance_multi_telescope_auc.pdf
 plot_multi_tel_hist = $(plot_output_dir)/ml_performance_multi_telescope_hist.pdf
 plot_multi_tel_auc_vs_energy = $(plot_output_dir)/ml_performance_multi_telescope_auc_vs_energy.pdf
@@ -38,14 +39,19 @@ plots:  $(plot_single_telescope) \
 	$(plot_multi_tel_hist)\
 	$(plot_multi_tel_auc_vs_energy)\
 	$(plot_multi_tel_precission_recall_curve)\
-	$(plot_multi_tel_fpr_tpr)
+	$(plot_multi_tel_fpr_tpr) \
+	$(plot_auc_per_telescope)
 clean:
 	rm $(gamma_training_sample) $(proton_training_sample) $(predictions) $(model_pmml) $(model_pkl) $(plot) $(plot_multi_tel_auc_vs_energy) $(plot_multi_tel_precission_recall_curve)
 
 
 # plot a bunch of performance values for the classifier
 $(plot_single_telescope): $(model_pkl) $(predictions) ../matplotlibrc
-	klaas_plot_separator_performance config_separator.yaml $(predictions) $(model_pkl) -o $(plot_single_telescope)
+	export MATPLOTLIBRC=../; klaas_plot_separator_performance config_separator.yaml $(predictions) $(model_pkl) -o $(plot_single_telescope)
+
+$(plot_auc_per_telescope): $(predictions) plot_auc_per_telescope.py ../matplotlibrc
+	export MATPLOTLIBRC=../; python plot_auc_per_telescope.py  $(predictions) $(plot_auc_per_telescope)
+
 
 $(plot_multi_tel_auc): $(rta_predictions_gammas) $(rta_predictions_protons) ../matplotlibrc plot_multi_tel_auc.py
 	export MATPLOTLIBRC=../; python plot_multi_tel_auc.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_auc)

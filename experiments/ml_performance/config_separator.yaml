@@ -7,10 +7,12 @@ classifier : |
       criterion='entropy',
   )
 
-n_background: 50000
-n_signal: 50000
+n_background: 4000
+n_signal: 4000
 
 n_cross_validations : 5
+
+telescope_type_key: type:name
 
 training_variables:
   - array:num_triggered_telescopes
