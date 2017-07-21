@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Using the 'key' attribute, this processor collects the single telescope data saved in the data
- * item into back into the original data item containing the multi telescope events.
- * This is useful when reading in per telescope image feature data from a CSV file or something similar.
+ * Using the 'key' attribute, this processor collects many data items containing single telescope data
+ * back into the original data item containing the multi telescope events.
  *
+ * This is useful when reading in per telescope image feature data from a CSV file or something similar.
  */
 public class CollectByEvent implements Processor {
 
