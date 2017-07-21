@@ -125,7 +125,6 @@ public class ImageStream extends AbstractStream {
 
         data.put("event_id", event.eventId);
         data.put("timestamp", event.timestamp);
-
         if (run_id != null){
             data.put("run_id", run_id);
             //assuming there are less than maxInt - 128  runs in the montecarlo production, this generates a unique id
