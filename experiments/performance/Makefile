@@ -9,5 +9,5 @@ $(build_dir)/performance/csv/FINISHED_MEASUREMENT:
     done
 	touch $(build_dir)/csv/FINISHED_MEASUREMENT
 
-$(build_dir)/performance/eventrate.pdf: $(build_dir)/performance/csv/FINISHED_MEASUREMENT
-	python plot_total_eventrate.py $(build_dir)/performance/csv/*.csv $(build_dir)/performance/eventrate.pdf
+$(build_dir)/performance/eventrate.pdf: $(build_dir)/performance/csv/FINISHED_MEASUREMENT ../matplotlibrc
+	export MATPLOTLIBRC=../; python plot_total_eventrate.py $(build_dir)/performance/csv/*.csv $(build_dir)/performance/eventrate.pdf
