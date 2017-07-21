@@ -7,8 +7,8 @@ classifier : |
       criterion='entropy',
   )
 
-n_background: 4000
-n_signal: 4000
+n_background: 20000
+n_signal: 20000
 
 n_cross_validations : 5
 
