@@ -7,6 +7,9 @@ import power_law
 import cta_io
 import pandas as pd
 from scipy import optimize
+from joblib import Parallel, delayed
+import multiprocessing
+
 
 
 @u.quantity_input(bin_edges=u.TeV, t_obs=u.h)
@@ -150,36 +153,35 @@ def create_sensitivity_matrix(
     gammas['energy_bin'] = pd.cut(gammas.energy, edges)
     protons['energy_bin'] = pd.cut(protons.energy, edges)
 
-    gammaness_cuts = []
-    theta_square_cuts = []
-    sensitivity = []
+    num_threads = multiprocessing.cpu_count()
 
-    unit = None
+    d = (
+        delayed(find_best_sensitivity_in_bin)
+        (gammas[gammas.energy_bin == b], protons[protons.energy_bin == b])
+        for b in gammas.energy_bin.cat.categories
+    )
 
-    # iterate over the enrgy bins
-    for b in tqdm(gammas.energy_bin.cat.categories):
-        g = gammas[gammas.energy_bin == b]
-        p = protons[protons.energy_bin == b]
-
-        def f(x):
-            return calculate_sensitivity(g, p, gammaness=x[0], signal_region=x[1]).value
-
-        ranges = (slice(0.5, 1, 0.05), slice(0.001, 0.04, 0.002))
-        # Note: while it seems obviuous to use finish=optimize.fmin here. apparently it
-        # tests invalid values. and then everything breaks. Negative theta cuts for
-        # example
-        res = optimize.brute(f, ranges, finish=None, full_output=True)
-
-        cuts = res[0]
-        gammaness_cuts.append(cuts[0])
-        theta_square_cuts.append(cuts[1])
-        sens = calculate_sensitivity(g, p, gammaness=cuts[0], signal_region=cuts[1])
-        sensitivity.append(sens.value)
-        unit = sens.unit
+    sensitivity = Parallel(n_jobs=num_threads, verbose=10)(d)
 
     # multiply the whole thing by the proper unit. There must be a nicer way to do this.
-    sensitivity = np.array(sensitivity) * unit
+    sensitivity = np.array([s.value for s in sensitivity]) * sensitivity[0].unit
     return sensitivity, edges
+
+
+def find_best_sensitivity_in_bin(g, p):
+
+    def f(x):
+        return calculate_sensitivity(g, p, gammaness=x[0], signal_region=x[1]).value
+
+    ranges = (slice(0.5, 1, 0.05), slice(0.001, 0.04, 0.002))
+    # Note: while it seems obviuous to use finish=optimize.fmin here. apparently it
+    # tests invalid values. and then everything breaks. Negative theta cuts for
+    # example
+    res = optimize.brute(f, ranges, finish=None, full_output=True)
+
+    cuts = res[0]
+    return calculate_sensitivity(g, p, gammaness=cuts[0], signal_region=cuts[1])
+
 
 
 @click.command()
