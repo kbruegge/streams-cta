@@ -24,6 +24,4 @@
         <streams.cta.SummarizePredictions />
         <streams.DataRate every="40"/>
     </process>
-
-
 </application>

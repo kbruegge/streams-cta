@@ -1,0 +1,28 @@
+classifier : |
+  ensemble.RandomForestClassifier(
+      n_estimators=200,
+      max_features='sqrt',
+      n_jobs=-1,
+      max_depth=13,
+      criterion='entropy',
+  )
+
+n_background: 20000
+n_signal: 20000
+
+n_cross_validations : 5
+
+telescope_type_key: type:name
+
+training_variables:
+  - array:num_triggered_telescopes
+  - shower:number_of_pixel
+  - shower:width
+  - shower:length
+  - shower:skewness
+  - shower:kurtosis
+  - shower:phi
+  - shower:miss
+  # - shower:r
+  - shower:size
+  - type:id

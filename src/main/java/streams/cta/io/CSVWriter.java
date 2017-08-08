@@ -51,7 +51,7 @@ public class CSVWriter implements StatefulProcessor {
                 if (file.getParentFile().mkdirs() && file.createNewFile()) {
                     log.info("Created path to " + file.toString());
                 } else {
-                    log.error(file.toString() + " could not have been created.");
+                    log.error(file.toString() + " could not be created.");
                 }
             }
         }

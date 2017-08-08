@@ -1,0 +1,35 @@
+<application>
+
+    <property name="infile" value="../../data/image_features/protons.csv" />
+    <property name="outfile" value="../../data/predictions_rta_protons_test_sample.csv" />
+    <property name="classifier" value="../../data/models/classifier.pmml" />
+
+    <stream id="single_telescope_events" class="stream.io.CsvStream" url="file:${infile}"/>
+
+
+    <service id="regressor" class="streams.cta.PredictionService" url="classpath:/test_regressor.pmml" />
+    <service id="classifier" class="streams.cta.PredictionService" url="file:${classifier}" />
+
+
+    <process input="single_telescope_events" >
+
+        <Skip condition="%{data.shower:number_of_pixel} &lt; 3" />
+        <streams.cta.TelescopePredictions regressor="regressor" classifier="classifier"/>
+
+        <streams.cta.CollectByEvent/>
+        <streams.cta.SummarizePredictions />
+
+        <streams.cta.stereo.Stereo />
+        <streams.cta.io.CSVWriter url="file:${outfile}" keys="source_file,
+                                                              unique_event_id,
+                                                              type:id,
+                                                              prediction:*,
+                                                              array:num_*,
+                                                              mc:*,
+                                                              stereo:*,
+                                                              type:name"/>
+         <streams.DataRate every="4000"/>
+
+    </process>
+
+</application>

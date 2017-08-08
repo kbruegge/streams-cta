@@ -1,36 +1,38 @@
 xml = eventrate.xml
 
-flink_jar = ../../target/streams-cta-0.0.2-SNAPSHOT-flink-compiled.jar
-storm_jar = ../../target/streams-cta-0.0.2-SNAPSHOT-storm-compiled.jar
-jar = ../../target/streams-cta-0.0.2-SNAPSHOT-stream-compiled.jar
-
-csv_dir = ../../data/measurements/performance-compare-frameworks
+flink_jar = ../../target/streams-cta-0.0.3-SNAPSHOT-flink-compiled.jar
+storm_jar = ../../target/streams-cta-0.0.3-SNAPSHOT-storm-compiled.jar
+jar = ../../target/streams-cta-0.0.3-SNAPSHOT-stream-compiled.jar
 
 flink_output = $(csv_dir)/performance_flink.csv
 storm_output = $(csv_dir)/performance_storm.csv
 streams_output = $(csv_dir)/performance_streams-runtime.csv
 
-plot = ../../build/eventrate_vs_runtime.pdf
+build_dir = ../../build/performance
+csv_dir = $(build_dir)/csv/
+
+plot = $(build_dir)/eventrate_vs_runtime.pdf
 
 $(plot): $(flink_output) $(streams_output) $(storm_output) plot_eventrate_by_framework.py
 	python plot_eventrate_by_framework.py $(flink_output) $(streams_output) $(storm_output) $(plot) -l flink-runtime -l streams-runtime -l storm-runtime
 
 all: $(plot)
 
+../../build/performance:
+	mkdir -p ../../build/performance/
 
+$(csv_dir):
+	mkdir -p $(build_dir)/csv/
 
-$(flink_output): $(flink_jar) $(xml)
-	mkdir -p $(csv_dir)
+$(flink_output): $(flink_jar) $(xml) $(csv_dir)
 	java -Xmx6G -jar $(flink_jar) $(xml)
 	mv $(csv_dir)/performance.csv $(flink_output)
 
-$(storm_output): $(storm_jar) $(xml)
-	mkdir -p $(csv_dir)
+$(storm_output): $(storm_jar) $(xml) $(csv_dir)
 	java -Xmx6G -jar $(storm_jar) $(xml)
 	mv $(csv_dir)/performance.csv $(storm_output)
 
-$(streams_output): $(jar) $(xml)
-	mkdir -p $(csv_dir)
+$(streams_output): $(jar) $(xml) $(csv_dir)
 	java -Xmx6G -jar $(jar) $(xml)
 	mv $(csv_dir)/performance.csv $(streams_output)
 

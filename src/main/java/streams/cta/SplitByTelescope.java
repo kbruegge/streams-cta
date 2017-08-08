@@ -65,7 +65,13 @@ public class SplitByTelescope implements Processor {
             for (String key: Keys.select(item, "array:*,mc:*")){
                 data.put(key, item.get(key));
             }
+            data.put("event_id", item.get("event_id"));
+            if (item.get("run_id") != null){
+                data.put("run_id", item.get("run_id"));
+                data.put("unique_event_id", item.get("unique_event_id"));
+            }
             data.put("telescope:id", id);
+            data.put("source_file", item.get("source_file"));
             items[i++] = data;
         }
 
