@@ -6,7 +6,9 @@ import stream.Processor;
 import stream.data.DataFactory;
 import streams.hexmap.Shower;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static streams.cta.io.Names.TRIGGERED_TELESCOPE_IDS;
 
@@ -32,17 +34,6 @@ public class ShowerProcessor {
         }
     }
 
-//    private class ExpectFiveShowersProcessor extends CTACleanedDataProcessor{
-//        int countShowers = 0;
-//
-//        @Override
-//        public Data process(Data input, Shower shower) {
-//            assertFalse(shower == null);
-//            countShowers++;
-//            return input;
-//        }
-//    }
-
     @Test
     public void testEmptyShower() throws Exception {
         Data data = DataFactory.create();
@@ -64,19 +55,4 @@ public class ShowerProcessor {
         Processor processor = new ExpectShowerProcessor();
         processor.process(data);
     }
-
-
-//    @Test
-//    public void testManyShowers() throws Exception {
-//        Data data = DataFactory.create();
-//        data.put(TRIGGERED_TELESCOPE_IDS, new int[]{1,2,3,4,5});
-//        data.put("telescope:1:shower", new Shower(1));
-//        data.put("telescope:2:shower", new Shower(1));
-//        data.put("telescope:3:shower", new Shower(1));
-//        data.put("telescope:4:shower", new Shower(1));
-//        data.put("telescope:5:shower", new Shower(1));
-//
-//        Processor processor = new ExpectFiveShowersProcessor();
-//        processor.process(data);
-//    }
 }

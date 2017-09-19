@@ -18,13 +18,13 @@ def main(input_file, output_file):
     y = df['stereo:estimated_direction:y']
     z = df['stereo:estimated_direction:z']
 
-    r, lat, lon = cartesian_to_spherical(x.values*u.m, y.values*u.m, z.values*u.m)
+    r, lat, lon = cartesian_to_spherical(x.values * u.m, y.values * u.m, z.values * u.m)
 
-    alt = Angle(90*u.deg - lat).degree
-    mc_alt = Angle(df['mc:alt'].values*u.rad).degree
+    alt = Angle(90 * u.deg - lat).degree
+    mc_alt = Angle(df['mc:alt'].values * u.rad).degree
 
-    az = Angle(lon).wrap_at(180*u.deg).degree
-    mc_az = Angle(df['mc:az'].values*u.rad).wrap_at(180*u.deg).degree
+    az = Angle(lon).wrap_at(180 * u.deg).degree
+    mc_az = Angle(df['mc:az'].values * u.rad).wrap_at(180 * u.deg).degree
 
     distance = np.sqrt((alt - mc_alt)**2 + (az - mc_az)**2)
     resolution = np.percentile(distance, 68)
@@ -32,7 +32,7 @@ def main(input_file, output_file):
     fig, (ax1, ax2) = plt.subplots(2, 1)
 
     (_, _, _, im) = ax1.hist2d(
-     alt, az, range=[[69.5, 70.5], [-0.4, 0.4]], bins=200,  cmap='viridis',
+        alt, az, range=[[69.5, 70.5], [-0.4, 0.4]], bins=200, cmap='viridis',
     )
     # ax1.set_xlabel('Altitude')
 
@@ -45,7 +45,7 @@ def main(input_file, output_file):
     fig.colorbar(im, ax=ax1)
 
     (_, _, _, im) = ax2.hist2d(
-     alt, az, range=[[69.5, 70.5], [-0.4, 0.4]], bins=200,  cmap='viridis', norm=LogNorm()
+        alt, az, range=[[69.5, 70.5], [-0.4, 0.4]], bins=200, cmap='viridis', norm=LogNorm()
     )
     ax2.set_xlabel('Altitude')
     ax2.set_ylim([-0.2, 0.2])
@@ -60,8 +60,8 @@ def main(input_file, output_file):
              )
     fig.colorbar(im, ax=ax2)
 
-    # import IPython; IPython.embed()
     plt.savefig(output_file)
+
 
 if __name__ == "__main__":
     main()

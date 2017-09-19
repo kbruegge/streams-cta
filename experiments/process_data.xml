@@ -1,28 +1,26 @@
 <application>
 
-<property name="prefix" value="proton*.json.gz" />
-<property name="folder" value="./data/raw" />
-<property name="outfile" value="./data/processed/protons_training_features.csv" />
+<property name="limit" value="-1" />
 
 <stream id="cta:data"
         class="streams.cta.io.RecursiveDirectoryStream"
         url="file:${folder}"
         pattern="${prefix}" >
 
-    <stream id="images" class="streams.cta.io.ImageStream"/>
+    <stream id="images" class="streams.cta.io.ImageStream" limit="${limit}"/>
 
 </stream>
 
 
 <process input="cta:data">
+    <streams.DataRate every="100"/>
     <streams.cta.SplitByTelescope key="@telescopes" />
     <ForEach key="@telescopes">
         <streams.cta.cleaning.TailCut />
         <streams.cta.features.Moments />
-        <streams.cta.io.CSVWriter keys="shower:*,*num_trigge*,mc:energy" url="file:${outfile}"/>
+        <streams.cta.io.CSVWriter keys="source_file,unique_event_id,event_id,run_id,telescope:*,type:name,type:id,shower:*,*num_trigge*,mc:*" url="file:${outfile}"/>
     </ForEach>
     <streams.cta.MergeByTelescope key="@telescopes"/>
-    <streams.DataRate every="4000"/>
 </process>
 
 </application>
