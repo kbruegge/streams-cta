@@ -2,7 +2,7 @@
 
     <property name="runtime" value="streams-runtime" />
     <!--<property name="outfile" value="../../build/performance/csv/performance.csv" />-->
-    <property name="outfile" value="performance.csv" />
+    <property name="outfile" value="./performance.csv" />
 
     <stream id="data" class="streams.cta.io.ParallelLoopStream" limit="100000" copies="24">
 
