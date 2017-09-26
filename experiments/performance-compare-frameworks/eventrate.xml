@@ -1,9 +1,10 @@
 <application>
 
     <property name="runtime" value="streams-runtime" />
-    <property name="outfile" value="../../build/performance/csv/performance.csv" />
+    <!--<property name="outfile" value="../../build/performance/csv/performance.csv" />-->
+    <property name="outfile" value="performance.csv" />
 
-    <stream id="data" class="streams.cta.io.LoopStream" limit="10000">
+    <stream id="data" class="streams.cta.io.ParallelLoopStream" limit="100000" copies="24">
 
         <stream id="cta:data" class="streams.cta.io.ImageStream" url="classpath:/images.json.gz" />
 
@@ -16,7 +17,7 @@
 
     <queue id="passDataRate"/>
 
-    <process id="processing" input="data">
+    <process id="processing" input="data" copies="24">
         <streams.cta.SplitByTelescope key="@telescopes" />
         <ForEach key="@telescopes">
             <streams.cta.cleaning.TailCut />
@@ -29,17 +30,15 @@
         <streams.cta.SummarizePredictions />
         <streams.cta.stereo.Stereo/>
         <RemoveKeys keys="@datarate,@*memory,*telescope*" />
+        <stream.data.SetValue key="copy_id" value="${copy.id}" />
         <streams.DataRate every="1000" logmemory="true"/>
         <Enqueue condition="%{data.@datarate} != null" queue="passDataRate"/>
     </process>
 
-    <process id="datarate" input="passDataRate">
-
-        <If condition="%{data.@datarate} != null}" >
-            <streams.cta.io.CSVWriter
-                    url="file:${outfile}"
-                    keys="@datarate,@stream,@totalmemory,@freememory"/>
-        </If>
+    <process id="datarate" input="passDataRate" copies="1">
+        <streams.cta.io.CSVWriter
+                url="file:${outfile}"
+                keys="@datarate,@stream,@totalmemory,@freememory,copy_id"/>
     </process>
 
 </application>
