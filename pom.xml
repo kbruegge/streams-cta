@@ -472,6 +472,10 @@
                                             <pattern>org.jpmml.schema</pattern>
                                             <shadedPattern>org.shaded.jpmml.schema</shadedPattern>
                                         </relocation>
+                                        <relocation>
+                                            <pattern>org.apache.commons.math3</pattern>
+                                            <shadedPattern>org.shaded.commons.math3</shadedPattern>
+                                        </relocation>
                                     </relocations>
                                 </configuration>
                             </execution>
