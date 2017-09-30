@@ -77,6 +77,8 @@ $(rta_predictions_gammas): $(jar) $(model_pmml)
 	java  -jar $(jar) $(xml_rta) -Dinfile=$(gamma_test_sample) -Doutfile=$(rta_predictions_gammas) -Dclassifier=$(model_pmml)
 
 $(model_pmml) $(model_pkl) $(predictions): $(proton_training_sample) $(gamma_training_sample) config_separator.yaml
+	mkdir -p $(build_dir)/models
+	mkdir -p $(build_dir)/ml_performance
 	klaas_train_separation_model config_separator.yaml $(gamma_training_sample) $(proton_training_sample) $(predictions) $(model_pmml)
 
 
