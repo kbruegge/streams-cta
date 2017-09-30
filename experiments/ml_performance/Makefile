@@ -33,7 +33,7 @@ plot_multi_tel_fpr_tpr = $(plot_output_dir)/ml_performance_multi_telescope_fpr_t
 
 all: plots
 
-export MATPLOTLIBRC=../;
+
 plots:  $(plot_single_telescope) \
 	$(plot_multi_tel_auc)\
 	$(plot_multi_tel_hist)\
@@ -47,26 +47,26 @@ clean:
 
 # plot a bunch of performance values for the classifier
 $(plot_single_telescope): $(model_pkl) $(predictions) ../matplotlibrc
-	export MATPLOTLIBRC=../; klaas_plot_separator_performance config_separator.yaml $(predictions) $(model_pkl) -o $(plot_single_telescope)
+	 klaas_plot_separator_performance config_separator.yaml $(predictions) $(model_pkl) -o $(plot_single_telescope)
 
 $(plot_auc_per_telescope): $(predictions) plot_auc_per_telescope.py ../matplotlibrc
-	export MATPLOTLIBRC=../; python plot_auc_per_telescope.py  $(predictions) $(plot_auc_per_telescope)
+	 python plot_auc_per_telescope.py  $(predictions) $(plot_auc_per_telescope)
 
 
 $(plot_multi_tel_auc): $(rta_predictions_gammas) $(rta_predictions_protons) ../matplotlibrc plot_multi_tel_auc.py
-	export MATPLOTLIBRC=../; python plot_multi_tel_auc.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_auc)
+	 python plot_multi_tel_auc.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_auc)
 
 $(plot_multi_tel_fpr_tpr): $(rta_predictions_gammas) $(rta_predictions_protons) ../matplotlibrc plot_multi_tel_fpr_tpr.py
-	export MATPLOTLIBRC=../; python plot_multi_tel_fpr_tpr.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_fpr_tpr)
+	 python plot_multi_tel_fpr_tpr.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_fpr_tpr)
 
 $(plot_multi_tel_hist): $(rta_predictions_gammas) $(rta_predictions_protons) ../matplotlibrc plot_multi_tel_prediction_hist.py
-	export MATPLOTLIBRC=../; python plot_multi_tel_prediction_hist.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_hist)
+	 python plot_multi_tel_prediction_hist.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_hist)
 
 $(plot_multi_tel_auc_vs_energy): $(rta_predictions_gammas) $(rta_predictions_protons) ../matplotlibrc plot_multi_tel_auc_vs_energy.py
-	export MATPLOTLIBRC=../; python plot_multi_tel_auc_vs_energy.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_auc_vs_energy)
+	 python plot_multi_tel_auc_vs_energy.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_auc_vs_energy)
 
 $(plot_multi_tel_precission_recall_curve): $(rta_predictions_gammas) $(rta_predictions_protons) ../matplotlibrc plot_multi_tel_precission_recall_curve.py
-	export MATPLOTLIBRC=../; python plot_multi_tel_precission_recall_curve.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_precission_recall_curve)
+	 python plot_multi_tel_precission_recall_curve.py  $(rta_predictions_gammas) $(rta_predictions_protons) $(plot_multi_tel_precission_recall_curve)
 
 
 

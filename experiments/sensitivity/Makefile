@@ -10,22 +10,26 @@ sens = $(build_dir)/sensitivity.pdf
 sens_binned = $(build_dir)/sensitivity_binned.pdf
 mc_meta_information = ../../data/mc_production_meta.csv
 
-all:	$(trigger_efficiency) $(crab_efficiency) $(theta) $(sens)
+all:	$(build_dir) $(trigger_efficiency) $(crab_efficiency) $(theta) $(sens)
 
 clean:
 	rm $(trigger_efficiency) $(crab_efficiency) $(theta) $(sens)
 
+$(build_dir):
+	mkdir -p $(build_dir)
+
+
 $(trigger_efficiency):$(gammas_predicted_output) $(mc_meta_information) plot_trigger_efficiency.py power_law.py cta_io.py
-	export MATPLOTLIBRC=../; python plot_trigger_efficiency.py $(gammas_predicted_output) $(mc_meta_information)  $(trigger_efficiency) -s 0.6
+	 python plot_trigger_efficiency.py $(gammas_predicted_output) $(mc_meta_information)  $(trigger_efficiency) -s 0.6
 
 $(crab_efficiency):$(gammas_predicted_output) $(mc_meta_information) plot_crab_efficiency.py power_law.py cta_io.py
-	export MATPLOTLIBRC=../; python plot_crab_efficiency.py $(gammas_predicted_output) $(mc_meta_information)  $(crab_efficiency)
+	 python plot_crab_efficiency.py $(gammas_predicted_output) $(mc_meta_information)  $(crab_efficiency)
 
 $(theta):$(gammas_predicted_output) $(protons_predicted_output) $(mc_meta_information) plot_theta.py power_law.py cta_io.py
-	export MATPLOTLIBRC=../; python plot_theta.py $(gammas_predicted_output) $(protons_predicted_output) $(mc_meta_information)  $(theta) -s 0.6
+	 python plot_theta.py $(gammas_predicted_output) $(protons_predicted_output) $(mc_meta_information)  $(theta) -s 0.6
 
 $(sens):$(protons_predicted_output) $(gammas_predicted_output) $(mc_meta_information) plot_sensitivity.py power_law.py cta_io.py
-	export MATPLOTLIBRC=../; python plot_sensitivity.py $(gammas_predicted_output) $(protons_predicted_output) $(mc_meta_information)  $(sens) -n 25 -s 0.6
+	 python plot_sensitivity.py $(gammas_predicted_output) $(protons_predicted_output) $(mc_meta_information)  $(sens) -n 25 -s 0.6
 
 $(sens_binned):$(protons_predicted_output) $(gammas_predicted_output) $(mc_meta_information) plot_sensitivity_new.py power_law.py cta_io.py
-	export MATPLOTLIBRC=../; python plot_sensitivity_new.py $(gammas_predicted_output) $(protons_predicted_output) $(mc_meta_information)  $(sens_binned) -n 25 -s 0.6
+	 python plot_sensitivity_new.py $(gammas_predicted_output) $(protons_predicted_output) $(mc_meta_information)  $(sens_binned) -n 25 -s 0.6

@@ -1,0 +1,42 @@
+<application>
+
+<property name="classifier" value="../../data/models/classifier.pmml" />
+<property name="num_copies" value="2" />
+
+<stream id="single_telescope_events" class="stream.io.CsvStream" url="file:${infile}"/>
+
+
+<service id="regressor" class="streams.cta.PredictionService" url="classpath:/test_regressor.pmml" />
+<service id="classifier" class="streams.cta.PredictionService" url="file:${classifier}" />
+
+
+
+<process input="single_telescope_events" >
+  <Enqueue queue="data"/>
+</process>
+
+<process input="data" copies="num_copies" >
+
+    <Skip condition="%{data.shower:number_of_pixel} &lt; 3" />
+    <streams.cta.TelescopePredictions regressor="regressor" classifier="classifier"/>
+
+    <streams.cta.CollectByEvent/>
+    <streams.cta.SummarizePredictions />
+
+    <streams.cta.stereo.Stereo />
+    <Enqueue queue="result"/>
+</process>
+
+<process input="result">
+  <streams.cta.io.CSVWriter url="file:${outfile}" keys="source_file,
+                                                        unique_event_id,
+                                                        type:id,
+                                                        prediction:*,
+                                                        array:num_*,
+                                                        mc:*,
+                                                        stereo:*,
+                                                        type:name"/>
+   <streams.DataRate every="4000"/>
+</process>
+</application>
+
