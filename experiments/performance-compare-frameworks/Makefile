@@ -31,7 +31,7 @@ $(storm_output): $(storm_jar) $(xml) $(csv_dir)
 	java -Xmx6G -jar $(storm_jar) $(xml)  -Doutfile=$(storm_output)
 
 $(streams_output): $(jar) $(xml) $(csv_dir)
-	java -Xmx6G -jar $(jar) eventrate_streams_runtime.xml  -Doutfile=$(streams_output)
+	java -Xmx6G -jar $(jar) $(xml)  -Doutfile=$(streams_output)
 
 $(flink_jar): ../../pom.xml
 	echo "building flink package"
