@@ -3,9 +3,8 @@
     <property name="runtime" value="streams-runtime" />
     <!--<property name="outfile" value="../../build/performance/csv/performance.csv" />-->
     <property name="outfile" value="../../build/performance.csv" />
- 
-    <property name="num_copies" value="1" />
-    <stream id="data" class="streams.cta.io.ParallelLoopStream" limit="100000" copies="${num_copies}">
+
+    <stream id="data" class="streams.cta.io.ParallelLoopStream" limit="25000">
 
         <stream id="bla" class="streams.cta.io.ImageStream" url="classpath:/images.json.gz" />
 
@@ -18,7 +17,7 @@
 
     <queue id="passDataRate"/>
 
-    <process id="processing" input="data" copies="${num_copies}">
+    <process id="processing" input="data" copies="1">
         <streams.cta.SplitByTelescope key="@telescopes" />
         <ForEach key="@telescopes">
             <streams.cta.cleaning.TailCut />
