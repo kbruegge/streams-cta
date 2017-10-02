@@ -2,23 +2,22 @@ package streams.cta;
 
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
-import scala.Int;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import stream.Data;
 import stream.Keys;
 import stream.Processor;
 import stream.annotations.Parameter;
 import stream.data.DataFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
 /**
- * Using the 'key' attribute, this processor collects many data items containing single telescope data
- * back into the original data item containing the multi telescope events.
+ * Using the 'key' attribute, this processor collects many data items containing single telescope
+ * data back into the original data item containing the multi telescope events.
  *
- * This is useful when reading in per telescope image feature data from a CSV file or something similar.
+ * This is useful when reading in per telescope image feature data from a CSV file or something
+ * similar.
  */
 public class CollectByEvent implements Processor {
 
@@ -30,16 +29,14 @@ public class CollectByEvent implements Processor {
 
     @Override
     public Data process(Data inputItem) {
-        if (previousId == null){
+        if (previousId == null) {
             previousId = (Integer) inputItem.get(key);
         }
         int id = (int) inputItem.get(key);
-        if (id == previousId)
-        {
+        if (id == previousId) {
             items.add(inputItem);
             return null;
-        }
-        else {
+        } else {
             Data outputItem = DataFactory.create();
             List<Integer> triggeredTelescopes = Lists.newArrayList();
 
