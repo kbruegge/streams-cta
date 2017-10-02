@@ -4,6 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.sfb876</groupId>
     <artifactId>streams-cta</artifactId>
+
+    <!-- When changing version number, update the github page! -->
     <version>0.0.3-SNAPSHOT</version>
 
     <url>https://sfb876.de/cta/</url>
@@ -235,7 +237,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.1</version>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -330,7 +332,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-shade-plugin</artifactId>
-                        <version>2.4.1</version>
+                        <version>3.1.0</version>
                         <configuration>
                             <filters>
                                 <filter>
@@ -408,7 +410,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-shade-plugin</artifactId>
-                        <version>2.4.1</version>
+                        <version>3.1.0</version>
                         <configuration>
                             <filters>
                                 <filter>
@@ -469,6 +471,10 @@
                                         <relocation>
                                             <pattern>org.jpmml.schema</pattern>
                                             <shadedPattern>org.shaded.jpmml.schema</shadedPattern>
+                                        </relocation>
+                                        <relocation>
+                                            <pattern>org.apache.commons.math3</pattern>
+                                            <shadedPattern>org.shaded.commons.math3</shadedPattern>
                                         </relocation>
                                     </relocations>
                                 </configuration>

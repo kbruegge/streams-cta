@@ -6,21 +6,22 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
-import javafx.scene.Camera;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import stream.Data;
-import stream.data.DataFactory;
-import stream.io.AbstractStream;
-import stream.io.SourceURL;
-import streams.hexmap.CameraGeometry;
-import streams.hexmap.CameraMapping;
 
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import stream.Data;
+import stream.data.DataFactory;
+import stream.io.AbstractStream;
+import stream.io.SourceURL;
+import streams.hexmap.CameraGeometry;
+import streams.hexmap.CameraMapping;
 
 /**
  * Read images stored into json format as created by the 'convert_raw_data.py' script in this repo.
@@ -34,26 +35,27 @@ public class ImageStream extends AbstractStream {
     public ImageStream(SourceURL url) {
         super(url);
     }
+
     public ImageStream() {
     }
 
 
-    private static final Pattern RUN_NUMBER= Pattern.compile(".*_run(\\d*)_.*(json).*");
+    private static final Pattern RUN_NUMBER = Pattern.compile(".*_run(\\d*)_.*(json).*");
 
     /**
-     * One CTA event contains MC information, Array information and of course the images
-     * for each camera.
-     * The classes below mirror the structure of the JSON file which contains the CTA events.
-     * By using this intermediate class structure we can simplify the reading of the json to one
-     * single line. Because GSON is pretty nice.
+     * One CTA event contains MC information, Array information and of course the images for each
+     * camera. The classes below mirror the structure of the JSON file which contains the CTA
+     * events. By using this intermediate class structure we can simplify the reading of the json to
+     * one single line. Because GSON is pretty nice.
      */
-    private class Event{
+    private class Event {
         Map<Integer, double[]> images;
         MC mc;
         Array array;
         long eventId;
         String timestamp;
     }
+
     /**
      * The Monte-Carlo information in the data contains the true values for direction and energy.
      * Saving the type of the primary particle might also be useful.
@@ -62,10 +64,11 @@ public class ImageStream extends AbstractStream {
         double energy, alt, az, coreY, coreX;
         String type;
     }
+
     /**
-     * Information about the event which is not specific to one single camera but to
-     * the whole array at once. At some point this should include a Timestamp I suppose.
-     * The CTA monte-carlo does not have unique ids or timestamps from what I can see.
+     * Information about the event which is not specific to one single camera but to the whole array
+     * at once. At some point this should include a Timestamp I suppose. The CTA monte-carlo does
+     * not have unique ids or timestamps from what I can see.
      */
     private class Array {
         int[] triggeredTelescopes;
@@ -85,7 +88,7 @@ public class ImageStream extends AbstractStream {
         mapping = CameraMapping.getInstance();
         String filename = Paths.get(url.getPath()).getFileName().toString();
         Matcher matcher = RUN_NUMBER.matcher(filename);
-        if (matcher.find()){
+        if (matcher.find()) {
             run_id = Integer.parseInt(matcher.group(1));
         } else {
             log.warn("Could no extract run_id from filename {}", filename);
@@ -125,13 +128,12 @@ public class ImageStream extends AbstractStream {
 
         data.put("event_id", event.eventId);
         data.put("timestamp", event.timestamp);
-        if (run_id != null){
+        if (run_id != null) {
             data.put("run_id", run_id);
             //assuming there are less than maxInt - 128  runs in the montecarlo production, this generates a unique id
             //for each array-wide event
             data.put("unique_event_id", ((run_id) << 7) + event.eventId);
         }
-
 
 
         //Add the filename of the file we read from. This will be used to map

@@ -116,10 +116,10 @@ As a result following ``jar`` files are produced (one for Flink and Spark, two f
 
 ```bash
 # run locally
-streams-cta-0.0.2-SNAPSHOT-{platform}-compiled.jar
+streams-cta-0.0.3-SNAPSHOT-{platform}-compiled.jar
 
 # does not contain storm, will be deployed
-streams-cta-0.0.2-SNAPSHOT-storm-provided.jar
+streams-cta-0.0.3-SNAPSHOT-storm-provided.jar
 ```
 
 ### Run a process locally using Flink
@@ -131,7 +131,7 @@ mvn -P standalone,flink package
 
 Using this jar we are then able to run the example ``speed.xml`` as following:
 ```
-java -jar target/streams-cta-0.0.2-SNAPSHOT-flink-compiled.jar streams-processes/speed.xml
+java -jar target/streams-cta-0.0.3-SNAPSHOT-flink-compiled.jar streams-processes/speed.xml
 ```
 
 More details about starting a standalone Flink cluster or deploying jobs to an existing YARN cluster can be
