@@ -44,3 +44,11 @@ $(storm_jar): ../../pom.xml
 $(jar): ../../pom.xml
 	echo "building streams package"
 	cd ../../; mvn -P standalone package -DskipTests; cd -
+
+clean:
+	rm $(flink_jar)
+	rm $(storm_jar)
+	rm $(jar)
+	rm $(flink_output)
+	rm $(storm_output)
+	rm $(streams_output)
