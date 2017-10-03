@@ -48,9 +48,4 @@ $(jar): ../../pom.xml
 	cd ../../; mvn -P standalone package -DskipTests; cd -
 
 clean:
-	rm $(flink_jar)
-	rm $(storm_jar)
-	rm $(jar)
-	rm $(flink_output)
-	rm $(storm_output)
-	rm $(streams_output)
+	rm $(flink_jar) $(storm_jar) $(jar) $(flink_output) $(storm_output) $(streams_output)
