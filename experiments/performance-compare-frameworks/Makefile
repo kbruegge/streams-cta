@@ -26,9 +26,11 @@ $(csv_dir):
 
 $(flink_output): $(flink_jar) $(xml) $(csv_dir)
 	java -Xmx6G -jar $(flink_jar) $(xml) -Doutfile=$(flink_output)
+	mv ../../build/performance.csv $(csv_dir)/performance_flink.csv
 
 $(storm_output): $(storm_jar) $(xml) $(csv_dir)
 	java -Xmx6G -jar $(storm_jar) $(xml)  -Doutfile=$(storm_output)
+	mv ../../build/performance.csv $(csv_dir)/performance_storm.csv
 
 $(streams_output): $(jar) $(xml) $(csv_dir)
 	java -Xmx6G -jar $(jar) $(xml)  -Doutfile=$(streams_output)
