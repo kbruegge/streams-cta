@@ -16,6 +16,8 @@
         <streams.jar>streams-cta-${project.version}</streams.jar>
         <mainclass>run</mainclass>
         <platform>stream</platform>
+        <storm-local/>
+        <flink-local/>
     </properties>
 
 
@@ -496,6 +498,26 @@
 
         <profile>
             <!--
+            use this profile to use locally installed streams-flink package
+            -->
+            <id>flink-local</id>
+            <properties>
+                <flink-local>-local</flink-local>
+            </properties>
+        </profile>
+
+        <profile>
+            <!--
+            use this profile to use locally installed streams-storm package
+            -->
+            <id>storm-local</id>
+            <properties>
+                <storm-local>-local</storm-local>
+            </properties>
+        </profile>
+
+        <profile>
+            <!--
             use this to package with streams-flink and set the mainclass to flink.deploy_on_flink
             -->
             <id>flink</id>
@@ -503,7 +525,7 @@
             <dependencies>
                 <dependency>
                     <groupId>de.sfb876</groupId>
-                    <artifactId>streams-flink</artifactId>
+                    <artifactId>streams-flink${flink-local}</artifactId>
                     <version>${streams.cta.version}-SNAPSHOT</version>
                     <exclusions>
                         <exclusion>
@@ -561,7 +583,7 @@
             <dependencies>
                 <dependency>
                     <groupId>de.sfb876</groupId>
-                    <artifactId>streams-storm</artifactId>
+                    <artifactId>streams-storm${storm-local}</artifactId>
                     <version>[0.9.20,)</version>
                     <exclusions>
                         <exclusion>
