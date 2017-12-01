@@ -119,7 +119,7 @@ def main(
         total_showers_simulated=n_simulated_showers,
         generation_area=area
     )
-    expectation, edges = mc_spectrum.simulated_mc_events_per_bin(bins=30, log=True)
+    expectation, edges = mc_spectrum.simulated_mc_events_per_bin(bins=n_energy, log=True)
 
     fig, ax = plt.subplots(1)
     plot_area(
